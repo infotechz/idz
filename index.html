@@ -1,0 +1,558 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Informática Básica do Zero</title>
+<meta name="description" content="Curso de Informática Básica do Zero para iniciantes.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-main: #030712;
+  --accent-blue: #0066ff;
+  --accent-cyan: #00f0ff;
+  --accent-purple: #8b5cf6;
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --green: #10b981;
+  --green-glow: rgba(16, 185, 129, 0.35);
+  
+  /* Modern Glassmorphism System */
+  --glass-bg: rgba(255, 255, 255, 0.03);
+  --glass-bg-hover: rgba(255, 255, 255, 0.07);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-border-hover: rgba(0, 240, 255, 0.3);
+  --glass-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Inter', sans-serif;
+  color: var(--text-primary);
+  background-color: var(--bg-main);
+  line-height: 1.6;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Dynamic Ambient Glows */
+body::before, body::after {
+  content: "";
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(140px);
+  pointer-events: none;
+  z-index: -1;
+  opacity: 0.4;
+}
+body::before {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, var(--accent-blue), transparent 70%);
+  top: -100px;
+  left: -100px;
+}
+body::after {
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, var(--accent-purple), transparent 70%);
+  bottom: 10%;
+  right: -150px;
+}
+
+.glow-cyan {
+  position: absolute;
+  width: 450px;
+  height: 450px;
+  background: radial-gradient(circle, var(--accent-cyan), transparent 70%);
+  top: 40%;
+  left: -200px;
+  filter: blur(150px);
+  opacity: 0.25;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.wrap {
+  max-width: 1140px;
+  margin: auto;
+  padding: 0 24px;
+}
+
+/* Typography */
+h1, h2, h3, .tag, .btn, .module b {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+/* Glass Card Base Styles */
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid var(--glass-border);
+  border-radius: 24px;
+  box-shadow: var(--glass-shadow);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-panel::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: #ffffff;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.3px;
+  padding: 18px 32px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 10px 30px var(--green-glow), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  text-transform: uppercase;
+}
+.btn:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 15px 40px rgba(16, 185, 129, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  filter: brightness(1.1);
+}
+
+/* Hero Section */
+.hero {
+  padding: 110px 0 90px;
+  position: relative;
+}
+.gridhero {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 56px;
+  align-items: center;
+}
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px;
+  border-radius: 999px;
+  background: rgba(0, 102, 255, 0.12);
+  border: 1px solid rgba(0, 240, 255, 0.3);
+  color: var(--accent-cyan);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  margin-bottom: 24px;
+}
+.hero h1 {
+  font-size: clamp(42px, 5.5vw, 64px);
+  line-height: 1.08;
+  font-weight: 800;
+  letter-spacing: -1.5px;
+  margin-bottom: 20px;
+}
+.hero h1 span {
+  background: linear-gradient(135deg, #ffffff 30%, var(--accent-cyan) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.hero p {
+  font-size: 18px;
+  color: var(--text-secondary);
+  margin-bottom: 36px;
+  max-width: 620px;
+  font-weight: 400;
+}
+
+/* Offer Card */
+.offer {
+  padding: 38px 32px;
+  text-align: center;
+  background: radial-gradient(circle at top right, rgba(0, 240, 255, 0.08), transparent 60%), rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+.offer .small {
+  color: var(--accent-cyan);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.old {
+  text-decoration: line-through;
+  color: var(--text-muted);
+  font-size: 16px;
+  font-weight: 500;
+}
+.price {
+  font-size: 56px;
+  line-height: 1;
+  font-weight: 800;
+  color: #fff;
+  margin: 10px 0 20px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  letter-spacing: -1px;
+}
+.offer p {
+  color: var(--text-secondary);
+  font-size: 14px;
+  margin-bottom: 26px;
+}
+.offer .btn {
+  width: 100%;
+}
+.tiny {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 14px;
+}
+
+/* General Sections */
+section {
+  padding: 90px 0;
+}
+h2 {
+  text-align: center;
+  font-size: clamp(30px, 4vw, 44px);
+  font-weight: 800;
+  letter-spacing: -1px;
+  color: #ffffff;
+  margin-bottom: 14px;
+}
+.lead {
+  max-width: 680px;
+  margin: 0 auto 52px;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 17px;
+}
+
+/* Cards Grid */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+.card {
+  padding: 32px 28px;
+}
+.card:hover {
+  transform: translateY(-8px);
+  background: var(--glass-bg-hover);
+  border-color: var(--glass-border-hover);
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6), 0 0 30px rgba(0, 240, 255, 0.15);
+}
+.icon {
+  font-size: 36px;
+  margin-bottom: 16px;
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.05);
+  width: 64px;
+  height: 64px;
+  line-height: 64px;
+  text-align: center;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+}
+.card h3 {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: #ffffff;
+}
+.card p {
+  color: var(--text-secondary);
+  font-size: 14.5px;
+  line-height: 1.6;
+}
+
+/* Modules Section */
+.modules {
+  max-width: 900px;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.module {
+  padding: 20px 28px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  border-radius: 16px;
+}
+.module:hover {
+  background: var(--glass-bg-hover);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateX(6px);
+}
+.module b {
+  color: var(--accent-cyan);
+  font-size: 18px;
+  font-weight: 800;
+  min-width: 32px;
+}
+.module-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+}
+.module-desc {
+  color: var(--text-secondary);
+  font-size: 15px;
+  font-weight: 400;
+}
+
+/* CTA / Pricebox Section */
+.dark {
+  background: radial-gradient(circle at center, rgba(0, 102, 255, 0.15), transparent 70%);
+}
+.pricebox {
+  max-width: 640px;
+  margin: 36px auto 0;
+  padding: 48px 40px;
+  text-align: center;
+  background: radial-gradient(circle at top, rgba(0, 240, 255, 0.1), transparent 70%), rgba(10, 16, 30, 0.7);
+  border: 1px solid rgba(0, 240, 255, 0.25);
+}
+.newprice {
+  font-size: 64px;
+  font-weight: 800;
+  color: #fff;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  letter-spacing: -2px;
+  margin: 8px 0 16px;
+}
+.note {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 18px;
+}
+
+/* FAQ Section */
+.faq {
+  max-width: 860px;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.faq details {
+  padding: 20px 26px;
+  border-radius: 16px;
+  cursor: pointer;
+}
+.faq details[open] {
+  background: var(--glass-bg-hover);
+  border-color: rgba(0, 240, 255, 0.2);
+}
+.faq summary {
+  font-weight: 700;
+  font-size: 17px;
+  color: #fff;
+  outline: none;
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.faq summary::-webkit-details-marker {
+  display: none;
+}
+.faq summary::after {
+  content: "+";
+  font-size: 22px;
+  color: var(--accent-cyan);
+  transition: transform 0.3s;
+}
+.faq details[open] summary::after {
+  transform: rotate(45deg);
+}
+.faq p {
+  color: var(--text-secondary);
+  margin-top: 14px;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* Footer */
+footer {
+  background: rgba(3, 7, 18, 0.85);
+  border-top: 1px solid var(--glass-border);
+  color: var(--text-muted);
+  padding: 40px 0;
+  text-align: center;
+  font-size: 14px;
+  backdrop-filter: blur(20px);
+}
+footer strong {
+  color: #fff;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .gridhero { grid-template-columns: 1fr; gap: 40px; }
+  .cards { grid-template-columns: repeat(2, 1fr); }
+  .hero { text-align: center; padding: 70px 0 50px; }
+  .hero p { margin: 0 auto 30px; }
+}
+@media (max-width: 600px) {
+  .cards { grid-template-columns: 1fr; }
+  .module { flex-direction: column; align-items: flex-start; gap: 4px; }
+  .price { font-size: 46px; }
+  .newprice { font-size: 52px; }
+  .pricebox { padding: 32px 20px; }
+}
+</style>
+</head>
+<body>
+
+<div class="glow-cyan"></div>
+
+<header class="hero">
+  <div class="wrap gridhero">
+    <div>
+      <span class="tag">⚡ CURSO ONLINE • PARA INICIANTES</span>
+      <h1>Aprenda <span>Informática do Zero</span> com aulas simples e práticas.</h1>
+      <p>Desenvolva sua confiança para usar computador, internet, documentos, planilhas, apresentações, segurança digital e inteligência artificial.</p>
+      <a class="btn" href="https://pay.kiwify.com.br/SCxLRIp">QUERO COMEÇAR AGORA</a>
+    </div>
+    <div class="glass-panel offer">
+      <div class="small">OFERTA DE LANÇAMENTO</div>
+      <div class="old">De R$ 49,90</div>
+      <div class="price">R$ 29,90</div>
+      <p>Pagamento único. O acesso é liberado conforme a configuração do produto na Kiwify.</p>
+      <a class="btn" href="https://pay.kiwify.com.br/SCxLRIp">QUERO ME INSCREVER</a>
+      <div class="tiny">🔒 Checkout 100% seguro pela Kiwify.</div>
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <h2>O que você vai aprender</h2>
+    <p class="lead">Uma formação introdutória organizada para quem quer dominar os fundamentos digitais do dia a dia.</p>
+    <div class="cards">
+      <div class="glass-panel card"><div class="icon">🖥️</div><h3>Computador</h3><p>Conheça os principais componentes e aprenda os primeiros passos.</p></div>
+      <div class="glass-panel card"><div class="icon">⌨️</div><h3>Teclado e atalhos</h3><p>Aprenda comandos úteis para ganhar agilidade.</p></div>
+      <div class="glass-panel card"><div class="icon">📁</div><h3>Arquivos e pastas</h3><p>Organize documentos, fotos e downloads.</p></div>
+      <div class="glass-panel card"><div class="icon">🌐</div><h3>Internet e e-mail</h3><p>Navegue, pesquise e envie mensagens com mais segurança.</p></div>
+      <div class="glass-panel card"><div class="icon">📝</div><h3>Word</h3><p>Crie documentos e pratique a formatação de textos.</p></div>
+      <div class="glass-panel card"><div class="icon">📊</div><h3>Excel</h3><p>Conheça tabelas e fórmulas básicas.</p></div>
+      <div class="glass-panel card"><div class="icon">📽️</div><h3>PowerPoint</h3><p>Monte apresentações simples e organizadas.</p></div>
+      <div class="glass-panel card"><div class="icon">☁️</div><h3>Google Drive</h3><p>Aprenda a organizar arquivos na nuvem.</p></div>
+      <div class="glass-panel card"><div class="icon">🔐</div><h3>Segurança digital</h3><p>Reconheça sinais comuns de golpes e proteja suas contas.</p></div>
+      <div class="glass-panel card"><div class="icon">🤖</div><h3>Inteligência Artificial</h3><p>Veja formas práticas de usar IA para estudar e trabalhar.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>12 módulos passo a passo</h2>
+    <p class="lead">Conteúdo progressivo, do básico ao projeto final.</p>
+    <div class="modules">
+      <div class="glass-panel module"><b>01</b><span class="module-title">Conhecendo o computador</span><span class="module-desc">• componentes e primeiros passos</span></div>
+      <div class="glass-panel module"><b>02</b><span class="module-title">Teclado, mouse e atalhos</span><span class="module-desc">• comandos essenciais</span></div>
+      <div class="glass-panel module"><b>03</b><span class="module-title">Arquivos e pastas</span><span class="module-desc">• organização e downloads</span></div>
+      <div class="glass-panel module"><b>04</b><span class="module-title">Internet e pesquisa</span><span class="module-desc">• navegação e boas práticas</span></div>
+      <div class="glass-panel module"><b>05</b><span class="module-title">E-mail</span><span class="module-desc">• mensagens e anexos</span></div>
+      <div class="glass-panel module"><b>06</b><span class="module-title">Word</span><span class="module-desc">• documentos e currículo</span></div>
+      <div class="glass-panel module"><b>07</b><span class="module-title">Excel</span><span class="module-desc">• tabelas e fórmulas básicas</span></div>
+      <div class="glass-panel module"><b>08</b><span class="module-title">PowerPoint</span><span class="module-desc">• apresentações</span></div>
+      <div class="glass-panel module"><b>09</b><span class="module-title">Google Drive</span><span class="module-desc">• arquivos online</span></div>
+      <div class="glass-panel module"><b>10</b><span class="module-title">Segurança digital</span><span class="module-desc">• senhas, links e golpes</span></div>
+      <div class="glass-panel module"><b>11</b><span class="module-title">Inteligência Artificial</span><span class="module-desc">• primeiros usos e cuidados</span></div>
+      <div class="glass-panel module"><b>12</b><span class="module-title">Projeto final</span><span class="module-desc">• prática integrada</span></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>🎁 Bônus inclusos</h2>
+    <p class="lead">Materiais para continuar praticando.</p>
+    <div class="cards">
+      <div class="glass-panel card"><div class="icon">⌨️</div><h3>30 atalhos essenciais</h3><p>Lista rápida para consultar durante os exercícios.</p></div>
+      <div class="glass-panel card"><div class="icon">📄</div><h3>Modelo de currículo</h3><p>Material para praticar no editor de textos.</p></div>
+      <div class="glass-panel card"><div class="icon">📊</div><h3>Planilha financeira</h3><p>Modelo simples para praticar organização de gastos.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Para quem é este curso?</h2>
+    <p class="lead">Ideal para quem quer construir uma base sólida de informática.</p>
+    <div class="cards">
+      <div class="glass-panel card"><div class="icon">👤</div><h3>Iniciantes</h3><p>Para quem ainda tem pouca experiência com computador.</p></div>
+      <div class="glass-panel card"><div class="icon">🎓</div><h3>Estudantes</h3><p>Para praticar documentos, pesquisas e apresentações.</p></div>
+      <div class="glass-panel card"><div class="icon">💼</div><h3>Quem quer praticar</h3><p>Para revisar habilidades digitais úteis no cotidiano.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="dark">
+  <div class="wrap">
+    <h2>Comece agora</h2>
+    <p class="lead">Aproveite a oferta de lançamento e comece seu aprendizado.</p>
+    <div class="glass-panel pricebox">
+      <div class="old">De R$ 49,90</div>
+      <div class="newprice">R$ 29,90</div>
+      <p style="color: var(--text-secondary);">Pagamento único e acesso imediato</p>
+      <a class="btn" href="https://pay.kiwify.com.br/SCxLRIp" style="margin-top: 10px;">QUERO ACESSAR O CURSO</a>
+      <div class="note">A compra é processada com segurança pela Kiwify.</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap faq">
+    <h2>Perguntas frequentes</h2>
+    <p class="lead" style="margin-bottom: 30px;">Tire suas dúvidas antes de começar.</p>
+    <details class="glass-panel"><summary>Preciso saber informática para começar?</summary><p>Não. O curso começa pelos fundamentos do zero absoluto.</p></details>
+    <details class="glass-panel"><summary>O curso ensina Word e Excel?</summary><p>Sim, em nível introdutório e prático com exemplos reais.</p></details>
+    <details class="glass-panel"><summary>Como recebo o acesso?</summary><p>Após a confirmação da compra, o acesso imediato segue a configuração enviada por e-mail via Kiwify.</p></details>
+    <details class="glass-panel"><summary>O curso garante emprego?</summary><p>Não. O curso ensina fundamentos essenciais de informática; resultados profissionais dependem do seu empenho e outros fatores.</p></details>
+  </div>
+</section>
+
+<section style="text-align: center;">
+  <div class="wrap">
+    <h2>Seu próximo passo começa aqui.</h2>
+    <p class="lead">Aprenda no seu ritmo e pratique as habilidades essenciais.</p>
+    <a class="btn" href="https://pay.kiwify.com.br/SCxLRIp">QUERO ME INSCREVER POR R$ 29,90</a>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <strong>Informática do Zero</strong><br>
+    Curso educacional para iniciantes.<br><br>
+    Instagram: @wd.cmo • E-mail: olliveirazvz@gmail.com<br><br>
+    © 2026 Informática do Zero. Todos os direitos reservados.
+  </div>
+</footer>
+
+</body>
+</html>
