@@ -15,7 +15,7 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
   import { getFirestore, collection, doc, setDoc, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendPasswordResetEmail, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyBAQ1HRInFDHnOERD3iD9lifBcJAhRWI1c",
@@ -33,7 +33,7 @@
 
   window.db = db;
   window.auth = auth;
-  window.firebaseModules = { collection, doc, setDoc, onSnapshot, deleteDoc, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendPasswordResetEmail };
+  window.firebaseModules = { collection, doc, setDoc, onSnapshot, deleteDoc, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendPasswordResetEmail, onAuthStateChanged };
 </script>
 
 <style>
@@ -520,7 +520,7 @@ footer {
     <h2 style="margin: 0; font-size: 22px;"><i class="fa-solid fa-gear" style="color: var(--text-secondary);"></i> Painel de Administração</h2>
     <div style="display: flex; gap: 10px; flex-wrap: wrap;">
       <button class="btn-outline" onclick="switchAdminTab('dashboard')"><i class="fa-solid fa-chart-pie"></i> Dashboard</button>
-      <button class="btn-outline" onclick="switchAdminTab('modules')"><i class="fa-solid fa-pen-to-square"></i> Editar Conteúdo & Quiz</button>
+      <button class="btn-outline" onclick="switchAdminTab('modules')"><i class="fa-solid fa-pen-to-square"></i> Editar Conteúdo & Exercícios</button>
     </div>
   </div>
   
@@ -559,7 +559,7 @@ footer {
     </div>
 
     <div class="glass-panel admin-card" id="admin-tab-modules" style="display: none;">
-      <h3><i class="fa-solid fa-layer-group"></i> Gerenciador Cloud (Aulas & Exercícios/Quiz)</h3>
+      <h3><i class="fa-solid fa-layer-group"></i> Gerenciador Cloud (Aulas & Exercícios)</h3>
       <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 22px;">Gerencie vídeos, materiais de apoio e preencha detalhadamente os blocos de ensino de cada aula.</p>
       
       <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); padding: 20px; border-radius: 16px; margin-bottom: 22px;">
@@ -579,23 +579,26 @@ footer {
         <div class="input-group"><label>Módulo</label><select id="lesson-mod-select"></select></div>
         <div class="input-group"><label>Título da Aula</label><input type="text" id="lesson-title-input" placeholder="Ex: Aula 1 — Hardware"></div>
         
+        <!-- Bloco 1: Descrição da Aula -->
         <div class="input-group">
           <label><i class="fa-solid fa-align-left" style="color:var(--accent-cyan);"></i> 1. Descrição da Aula</label>
           <textarea id="lesson-desc-input" rows="3" placeholder="Descreva o contexto geral desta aula..."></textarea>
         </div>
 
+        <!-- Bloco 2: O que vai ser aprendido -->
         <div class="input-group">
           <label><i class="fa-solid fa-list-check" style="color:var(--accent-cyan);"></i> 2. O que vai ser aprendido</label>
           <textarea id="lesson-learned-input" rows="3" placeholder="Liste os tópicos principais que serão abordados..."></textarea>
         </div>
 
+        <!-- Bloco 3: Objetivos na Aula -->
         <div class="input-group">
           <label><i class="fa-solid fa-bullseye" style="color:var(--accent-cyan);"></i> 3. Objetivos na Aula</label>
           <textarea id="lesson-obj-input" rows="3" placeholder="Defina o resultado prático esperado após assistir..."></textarea>
         </div>
 
         <div class="input-group">
-          <label><i class="fa-brands fa-youtube" style="color:#ef4444;"></i> Link do YouTube (Vídeo da Aula)</label>
+          <label><i class="fa-brands fa-youtube" style="color:#ef4444;"></i> Link do YouTube (Vídeo da Aula - Opcional)</label>
           <input type="text" id="lesson-video-url" placeholder="https://www.youtube.com/watch?v=..." style="margin-bottom: 8px;">
         </div>
         <div class="input-group"><label><i class="fa-solid fa-image" style="color:var(--accent-blue);"></i> Link da Imagem de Capa (Opcional)</label><input type="text" id="lesson-image-url" placeholder="https://exemplo.com/imagem.jpg"></div>
@@ -606,7 +609,7 @@ footer {
         </div>
 
         <hr style="border: 0; border-top: 1px solid var(--glass-border); margin: 20px 0;">
-        <h4 style="font-size: 14px; color: var(--accent-cyan); margin-bottom: 14px;"><i class="fa-solid fa-brain"></i> Configurar Exercício (Quiz) da Aula</h4>
+        <h4 style="font-size: 14px; color: var(--accent-cyan); margin-bottom: 14px;"><i class="fa-solid fa-brain"></i> Configurar Exercícios da Aula</h4>
         
         <div class="input-group">
           <label>Pergunta do Exercício</label>
@@ -639,7 +642,7 @@ footer {
         </div>
 
         <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px;">
-          <button type="button" class="btn" style="padding: 12px 18px; font-size: 12px;" onclick="saveLessonData()"><i class="fa-solid fa-cloud-arrow-up"></i> Publicar Aula com Quiz</button>
+          <button type="button" class="btn" style="padding: 12px 18px; font-size: 12px;" onclick="saveLessonData()"><i class="fa-solid fa-cloud-arrow-up"></i> Publicar Aula com Exercício</button>
           <button type="button" class="btn-outline" style="display: none;" id="cancel-lesson-edit-btn" onclick="resetLessonForm()">Cancelar</button>
         </div>
       </div>
@@ -789,7 +792,7 @@ const defaultCourseData = [
       { id: 101, title: "Aula 1 — O que é um computador?", description: "Introdução fundamental ao universo dos computadores.", learned: "O que é um computador, suas funções básicas e utilidades.", objectives: "Entender o que é um computador e suas funções.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual é a principal definição funcional de um computador?", options: ["Um aparelho restrito a jogos pesados.", "Uma máquina eletrônica capaz de processar dados e executar instruções.", "Um dispositivo analógico de som.", "Uma ferramenta exclusiva para impressão."], correct: 1 } },
       { id: 102, title: "Aula 2 — Principais partes do computador", description: "Conhecendo a estrutura física externa.", learned: "Monitor, teclado, mouse, gabinete e notebook.", objectives: "Identificar monitor, teclado, mouse, gabinete e notebook.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual componente externo é considerado estritamente de saída de dados?", options: ["Teclado", "Mouse", "Monitor", "Microfone"], correct: 2 } },
       { id: 103, title: "Aula 3 — Hardware e Software", description: "Entendendo a diferença entre a parte física e lógica.", learned: "Conceitos de peças físicas e programas de computador.", objectives: "Diferenciar hardware e software.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O que representa o 'Hardware' em um computador?", options: ["Os programas e sistemas instalados.", "A parte física e palpável (peças e componentes).", "A conexão de internet sem fio.", "Os arquivos salvos na nuvem."], correct: 1 } },
-      { id: 104, title: "Aula 4 — Exercício prático", description: "Fixação dos conceitos iniciais.", learned: "Reconhecimento prático dos componentes.", objectives: "Identificação dos componentes do próprio computador.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual o objetivo principal do exercício prático deste módulo?", options: ["Desmontar a CPU inteira.", "Identificar e reconhecer os componentes físicos do próprio computador.", "Instalar um sistema operacional novo.", "Configurar uma rede Wi-Fi avançada."], correct: 1 } }
+      { id: 104, title: "Aula 4 — Exercício prático", description: "Fixação dos conceitos iniciais.", learned: "Reconhecimento prático dos componentes.", objectives: "Identificación dos componentes do próprio computador.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual o objetivo principal do exercício prático deste módulo?", options: ["Desmontar a CPU inteira.", "Identificar e reconhecer os componentes físicos do próprio computador.", "Instalar um sistema operacional novo.", "Configurar uma rede Wi-Fi avançada."], correct: 1 } }
     ]
   },
   {
@@ -915,8 +918,8 @@ const TARGET_EMAIL = "olliveirazvz@gmail.com";
 let courseData = [];
 let registeredUsers = [];
 let completedLessons = JSON.parse(localStorage.getItem('user_completed_lessons')) || {};
-let currentUser = localStorage.getItem('user_email');
-let isAdmin = localStorage.getItem('is_admin') === 'true';
+let currentUser = null;
+let isAdmin = false;
 let videoWatchedState = {};
 
 window.onload = function() {
@@ -933,7 +936,21 @@ window.onload = function() {
   const checkDbInterval = setInterval(() => {
     if (window.db && window.auth) {
       clearInterval(checkDbInterval);
-      const { collection, onSnapshot, setDoc, doc } = window.firebaseModules;
+      const { collection, onSnapshot, setDoc, doc, onAuthStateChanged } = window.firebaseModules;
+
+      onAuthStateChanged(window.auth, (user) => {
+        if (user) {
+          currentUser = user.email;
+          isAdmin = (currentUser === TARGET_EMAIL || (registeredUsers.find(u => u.email === currentUser)?.role === 'admin'));
+          updateMobileMenuOptions();
+          checkUserAccessOnLoad();
+        } else {
+          currentUser = null;
+          isAdmin = false;
+          updateMobileMenuOptions();
+          showPublicSite();
+        }
+      });
 
       onSnapshot(collection(window.db, "modules"), async (snapshot) => {
         if (snapshot.empty) {
@@ -961,6 +978,8 @@ window.onload = function() {
           registeredUsers.push(docSnap.data());
         });
         if (currentUser) {
+          let uObj = registeredUsers.find(u => u.email === currentUser);
+          isAdmin = (currentUser === TARGET_EMAIL || uObj?.role === 'admin');
           updateMobileMenuOptions();
           checkUserAccessOnLoad();
         }
@@ -1133,8 +1152,6 @@ async function handleRegister(e) {
 }
 
 function setAuthSession(em, adminFlag) {
-  localStorage.setItem('user_email', em); 
-  localStorage.setItem('is_admin', adminFlag.toString());
   currentUser = em; isAdmin = adminFlag; 
   closeModal('modal-auth'); updateMobileMenuOptions();
 }
@@ -1142,7 +1159,7 @@ function setAuthSession(em, adminFlag) {
 async function logout() {
   const { signOut } = window.firebaseModules;
   if(window.auth) await signOut(window.auth);
-  localStorage.removeItem('user_email'); localStorage.removeItem('is_admin'); 
+  currentUser = null; isAdmin = false;
   location.reload(); 
 }
 
@@ -1222,7 +1239,7 @@ function showMemberArea() {
   document.getElementById('member-area').style.display = 'block';
   document.getElementById('nav-guest').style.display = 'none'; 
   document.getElementById('nav-user').style.display = 'flex';
-  document.getElementById('user-display').innerText = currentUser.split('@')[0];
+  document.getElementById('user-display').innerText = currentUser ? currentUser.split('@')[0] : 'Aluno';
   
   let uObj = registeredUsers.find(u => u.email === currentUser);
   const isPaid = isAdmin || uObj?.paid;
@@ -1322,10 +1339,12 @@ function loadLessonContent(modId, lessonId) {
   if(!lesson) return;
   const container = document.getElementById('lms-main-content');
   
-  videoWatchedState[lessonId] = false;
+  const hasVideo = lesson.video && lesson.video.trim() !== '';
+  // Se NÃO tem vídeo, os exercícios ficam liberados de cara. Se tem vídeo, começa bloqueado até assistir.
+  videoWatchedState[lessonId] = !hasVideo;
 
   let mediaHtml = '';
-  if (lesson.video) {
+  if (hasVideo) {
     let videoId = getYouTubeId(lesson.video);
     mediaHtml = `
       <div class="video-frame" id="yt-player-container-${lesson.id}" style="position: relative; background: #000; display: flex; align-items: center; justify-content: center; cursor: pointer;" onclick="activateYouTubePlayer('${lesson.id}', '${videoId}')">
@@ -1335,10 +1354,7 @@ function loadLessonContent(modId, lessonId) {
         </div>
       </div>`;
   } else if (lesson.image) {
-    videoWatchedState[lessonId] = true;
     mediaHtml = `<div class="image-frame"><img src="${lesson.image}" alt="Capa da Aula"></div>`;
-  } else {
-    videoWatchedState[lessonId] = true;
   }
 
   let pdfHtml = lesson.pdf ? `
@@ -1374,12 +1390,21 @@ function loadLessonContent(modId, lessonId) {
       </button>`;
     });
 
+    const isUnlocked = videoWatchedState[lesson.id] || isDone;
+
     quizHtml = `
-      <div class="quiz-container" id="quiz-block-${lesson.id}" style="display: ${isDone || videoWatchedState[lesson.id] ? 'block' : 'none'};">
+      <div class="quiz-container" id="quiz-block-${lesson.id}" style="display: block;">
         <div class="quiz-header-badge"><i class="fa-solid fa-brain"></i> Exercício de Fixação</div>
-        <div class="quiz-question-title">${lesson.quiz.question}</div>
-        <div class="quiz-options-list">${optionsHtml}</div>
-        <div class="quiz-feedback" id="quiz-feedback-${lesson.id}"></div>
+        
+        <div id="quiz-locked-notice-${lesson.id}" style="padding: 14px; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 12px; margin-bottom: 14px; font-size: 13px; color: #f87171; display: ${isUnlocked ? 'none' : 'block'};">
+          <i class="fa-solid fa-lock" style="margin-right: 6px;"></i> Assista ao vídeo da aula até o final para liberar os exercícios.
+        </div>
+
+        <div id="quiz-content-body-${lesson.id}" style="opacity: ${isUnlocked ? '1' : '0.3'}; pointer-events: ${isUnlocked ? 'auto' : 'none'}; transition: 0.3s;">
+          <div class="quiz-question-title">${lesson.quiz.question}</div>
+          <div class="quiz-options-list">${optionsHtml}</div>
+          <div class="quiz-feedback" id="quiz-feedback-${lesson.id}"></div>
+        </div>
       </div>
     `;
   }
@@ -1419,16 +1444,19 @@ function loadLessonContent(modId, lessonId) {
     <h2 style="margin-bottom: 18px; font-size: 22px; color: #fff;">${lesson.title}</h2>
     ${mediaHtml}
     
+    <!-- 1. Descrição da Aula -->
     <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); padding: 20px; border-radius: 16px; margin-top: 20px;">
       <h4 style="color: var(--accent-cyan); margin-bottom: 8px; font-size: 14.5px;"><i class="fa-solid fa-align-left"></i> Descrição da Aula</h4>
       <p style="color: var(--text-secondary); font-size: 13.5px; white-space: pre-line;">${lesson.description || 'Sem descrição cadastrada.'}</p>
     </div>
 
+    <!-- 2. O que vai ser aprendido -->
     <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); padding: 20px; border-radius: 16px; margin-top: 14px;">
       <h4 style="color: var(--accent-cyan); margin-bottom: 8px; font-size: 14.5px;"><i class="fa-solid fa-list-check"></i> O que vai ser aprendido</h4>
       <p style="color: var(--text-secondary); font-size: 13.5px; white-space: pre-line;">${lesson.learned || 'Nenhum tópico informado.'}</p>
     </div>
 
+    <!-- 3. Objetivos na Aula -->
     <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); padding: 20px; border-radius: 16px; margin-top: 14px;">
       <h4 style="color: var(--accent-cyan); margin-bottom: 8px; font-size: 14.5px;"><i class="fa-solid fa-bullseye"></i> Objetivos na Aula</h4>
       <p style="color: var(--text-secondary); font-size: 13.5px; white-space: pre-line;">${lesson.objectives || 'Nenhum objetivo informado.'}</p>
@@ -1443,14 +1471,7 @@ function loadLessonContent(modId, lessonId) {
           <h3 style="color: var(--green); margin-bottom: 8px; font-size: 16px;"><i class="fa-solid fa-medal"></i> Aula Concluída!</h3>
           ${next ? `<button class="btn" onclick="loadLessonContent(${next.m}, ${next.l})">Próxima Aula <i class="fa-solid fa-arrow-right"></i></button>` : `<span style="color:var(--accent-cyan); font-weight:bold;">Você concluiu todas as aulas!</span>`}
         </div>
-      ` : `
-        <div id="locked-notice" style="padding: 14px; background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); border-radius: 12px; margin-bottom: 14px; font-size: 13px; color: var(--text-secondary); display: ${videoWatchedState[lesson.id] ? 'none' : 'block'};">
-          <i class="fa-solid fa-lock" style="color: var(--accent-cyan); margin-right: 6px;"></i> Assista ao vídeo da aula para liberar os exercícios e concluir o conteúdo.
-        </div>
-        <button class="btn" id="mark-done-btn" style="width:100%; max-width:280px; display: ${isDone || videoWatchedState[lesson.id] ? 'inline-flex' : 'none'};" onclick="markDone(${mod.id}, ${lesson.id}, ${next?next.m:null}, ${next?next.l:null})">
-          <i class="fa-solid fa-check-double"></i> Marcar como Concluída
-        </button>
-      `}
+      ` : ''}
     </div>
     ${certificateSectionHtml}
   `;
@@ -1465,14 +1486,14 @@ function activateYouTubePlayer(lessonId, videoId) {
   
   videoWatchedState[lessonId] = true;
 
-  const quizBlock = document.getElementById(`quiz-block-${lessonId}`);
-  if(quizBlock) quizBlock.style.display = 'block';
-
-  const markBtn = document.getElementById('mark-done-btn');
-  if(markBtn) markBtn.style.display = 'inline-flex';
-
-  const notice = document.getElementById('locked-notice');
+  const notice = document.getElementById(`quiz-locked-notice-${lessonId}`);
   if(notice) notice.style.display = 'none';
+
+  const body = document.getElementById(`quiz-content-body-${lessonId}`);
+  if(body) {
+    body.style.opacity = '1';
+    body.style.pointerEvents = 'auto';
+  }
 }
 
 function checkQuizAnswer(buttonElem, selectedIdx, correctIdx, modId, lessonId, nextMod, nextLesson) {
@@ -1508,13 +1529,6 @@ function checkQuizAnswer(buttonElem, selectedIdx, correctIdx, modId, lessonId, n
     feedbackDiv.innerHTML = `<i class="fa-solid fa-circle-xmark" style="font-size: 16px;"></i> Resposta incorreta. A alternativa correta foi destacada em verde.`;
     feedbackDiv.className = 'quiz-feedback error';
   }
-}
-
-function markDone(modId, lessonId, nextMod, nextLesson) {
-  if(!completedLessons[currentUser]) completedLessons[currentUser] = {};
-  completedLessons[currentUser][lessonId] = true;
-  localStorage.setItem('user_completed_lessons', JSON.stringify(completedLessons));
-  renderMemberSidebar(); loadLessonContent(modId, lessonId);
 }
 
 function generateOfficialCertificatePDF(studentName, studentCpf) {
@@ -1806,7 +1820,7 @@ function saveLessonData() {
     quiz: quizObj
   });
   
-  saveCourseToCloud("Aula e Exercício publicados na nuvem com sucesso!"); 
+  saveCourseToCloud("Aula e Exercícios publicados na nuvem com sucesso!"); 
   resetLessonForm(); 
   renderAdminModules();
 }
@@ -1856,7 +1870,7 @@ function renderAdminModules() {
   courseData.forEach((m, modIdx) => {
     let lh = '';
     m.lessons?.forEach((l, lIdx) => {
-      let hasQuizBadge = l.quiz && l.quiz.question ? '<span style="font-size:10px; background:rgba(0,240,255,0.15); color:var(--accent-cyan); padding:2px 6px; border-radius:4px; margin-left:6px;">Com Quiz</span>' : '';
+      let hasQuizBadge = l.quiz && l.quiz.question ? '<span style="font-size:10px; background:rgba(0,240,255,0.15); color:var(--accent-cyan); padding:2px 6px; border-radius:4px; margin-left:6px;">Com Exercícios</span>' : '';
       lh += `<div class="admin-lesson-drag-item">
         <div style="overflow: hidden; text-overflow: ellipsis; font-size: 13px;"><i class="fa-regular fa-circle-play" style="color:var(--text-secondary); margin-right:6px;"></i> ${l.title} ${hasQuizBadge}</div>
         <div style="display: flex; gap: 6px; align-items: center;">
