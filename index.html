@@ -333,9 +333,6 @@ section { padding: 70px 0; }
 .admin-mod-header { padding: 14px 16px; font-size: 13px; font-weight: 700; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
 .admin-mod-body { padding: 16px; display: none; border-top: 1px solid var(--glass-border); background: rgba(255,255,255,0.015); }
 .admin-mod-body.expanded { display: block; }
-.admin-lesson-drag-item {
-  display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.3); padding: 10px 14px; border-radius: 10px; margin-top: 8px; border: 1px solid var(--glass-border); gap: 10px; flex-wrap: wrap;
-}
 
 footer {
   background: rgba(3, 7, 18, 0.9); border-top: 1px solid var(--glass-border);
@@ -424,7 +421,7 @@ footer {
 
       <!-- Informação do Mercado Pago -->
       <div id="mercadopago-info-box" style="margin-top: 10px; font-size: 12px; color: var(--text-secondary); background: rgba(0,240,255,0.03); padding: 10px; border-radius: 10px; border: 1px solid rgba(0,240,255,0.15);">
-        <i class="fa-solid fa-bolt" style="color: var(--accent-cyan); margin-right: 4px;"></i> O servidor na Railway processará sua transação de forma segura via Mercado Pago.
+        <i class="fa-solid fa-bolt" style="color: var(--accent-cyan); margin-right: 4px;"></i> Processado de forma segura via Mercado Pago (Chave API configurada).
       </div>
 
       <div style="display: flex; justify-content: space-between; align-items: center; font-size: 14px; background: rgba(255,255,255,0.02); padding: 10px 12px; border-radius: 10px; margin-top: 12px;">
@@ -829,6 +826,9 @@ footer {
 </footer>
 
 <script>
+const MERCADO_PAGO_API_KEY = "de8ec376e1abaf49b242c02d1edc9c9341568b6e77588c5566d8275acf0f7522";
+const RAILWAY_BACKEND_URL = "https://backend-informatica-do-zero-production.up.railway.app/criar-pagamento";
+
 const canvas = document.getElementById('particles-canvas');
 const ctx = canvas.getContext('2d');
 let particlesArray = [];
@@ -985,14 +985,6 @@ async function saveUserToCloud(userObj) {
   } catch (err) {
     console.error("Erro ao salvar usuário:", err);
   }
-}
-
-async function deleteModuleFromCloud(modId) {
-  if (!window.db) return;
-  const { doc, deleteDoc } = window.firebaseModules;
-  try {
-    await deleteDoc(doc(window.db, "modules", modId.toString()));
-  } catch (err) { console.error(err); }
 }
 
 function showSuccessModal(msg) {
@@ -1205,7 +1197,7 @@ function openCheckoutModal() {
   openModal('modal-custom-checkout');
 }
 
-// INTEGRAÇÃO COM O BACK-END NA RAILWAY E MERCADO PAGO
+// INTEGRAÇÃO COM O BACK-END NA RAILWAY E MERCADO PAGO USANDO A API KEY
 async function proceedToPaymentGateway() {
   const nameVal = document.getElementById('checkout-name-input').value.trim();
   const emailVal = document.getElementById('checkout-email-input').value.trim();
@@ -1229,34 +1221,33 @@ async function proceedToPaymentGateway() {
     return;
   }
 
-  // URL do seu back-end hospedado na Railway
-  const railwayBackendUrl = "https://backend-informatica-do-zero-production.up.railway.app/criar-pagamento";
-
   try {
-    // Comunicação com o back-end para gerar a preferência ou link do Mercado Pago
-    const response = await fetch(railwayBackendUrl, {
+    const response = await fetch(RAILWAY_BACKEND_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${MERCADO_PAGO_API_KEY}`
+      },
       body: JSON.stringify({
         name: nameVal,
         email: emailVal,
         cpf: cpfVal,
-        payment_method: selectedPaymentType
+        payment_method: selectedPaymentType,
+        access_token: MERCADO_PAGO_API_KEY
       })
     });
 
     const data = await response.json();
 
     if (data && (data.init_point || data.checkout_url || data.url)) {
-      // Redireciona para o link oficial de checkout do Mercado Pago retornado pelo back-end
       window.location.href = data.init_point || data.checkout_url || data.url;
       return;
     } else {
-      alert("O back-end respondeu, mas não retornou o link de pagamento. Verifique os logs da Railway.");
+      alert("O back-end respondeu, mas não retornou o link de pagamento. Verifique os logs na Railway.");
     }
   } catch (error) {
     console.error("Erro ao conectar com o back-end da Railway:", error);
-    alert("Não foi possível conectar ao servidor de pagamento na Railway. Verifique se a aplicação está online.");
+    alert("Não foi possível conectar ao servidor na Railway. Verifique se a aplicação está online.");
   }
 }
 
