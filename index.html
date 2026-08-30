@@ -369,7 +369,7 @@ footer {
   </div>
 </div>
 
-<!-- Checkout Bricks Interativo Seguro -->
+<!-- Checkout Bricks Interativo Seguro (Pix e Cartão) -->
 <div class="modal-overlay" id="modal-custom-checkout">
   <div class="modal-card" style="max-width: 650px;">
     <button class="close-btn" onclick="closeCheckoutModalSafe()"><i class="fa-solid fa-xmark"></i></button>
@@ -1837,7 +1837,7 @@ function moveLesson(modIndex, lessonIndex, direction) {
   renderAdminModules();
 }
 
-// Inicialização Rigorosa do Checkout Bricks com Suporte Completo ao Pix (QR Code)
+// Inicialização Rigorosa do Checkout Bricks com suporte completo a Pix e Cartão
 async function openCheckoutModal() {
   if (!currentUser) {
     alert("Você precisa estar logado para realizar a compra do curso!");
@@ -1847,7 +1847,7 @@ async function openCheckoutModal() {
 
   let uObj = registeredUsers.find(u => u.email === currentUser);
   
-  // TRAVA DE SEGURANÇA RIGOROSA: Se NÃO for admin E o aluno NÃO tiver pago, abre o modal do Mercado Pago
+  // TRAVA DE SEGURANÇA: Se NÃO for admin E o aluno NÃO tiver pago, abre o modal de pagamento do Mercado Pago
   if (!isAdmin && (!uObj || !uObj.paid)) {
     openModal('modal-custom-checkout');
 
@@ -1907,7 +1907,7 @@ async function openCheckoutModal() {
                     }
                     showMemberArea();
                   } else {
-                    alert("Aguardando confirmação do pagamento ou transação pendente. Escaneie o QR Code do Pix para concluir.");
+                    alert("Aguardando confirmação do pagamento ou transação pendente. Escaneie o QR Code do Pix ou preencha os dados do cartão para concluir.");
                   }
                   resolve();
                 })
