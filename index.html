@@ -15,7 +15,7 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
   import { getFirestore, collection, doc, setDoc, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendPasswordResetEmail, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendPasswordResetEmail, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyBAQ1HRInFDHnOERD3iD9lifBcJAhRWI1c",
@@ -30,6 +30,11 @@
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
   const auth = getAuth(app);
+
+  // Força a sessão a ficar salva permanentemente no navegador para não deslogar no F5
+  setPersistence(auth, browserLocalPersistence).catch((error) => {
+    console.error("Erro na persistência da sessão:", error);
+  });
 
   window.db = db;
   window.auth = auth;
@@ -792,7 +797,7 @@ const defaultCourseData = [
       { id: 101, title: "Aula 1 — O que é um computador?", description: "Introdução fundamental ao universo dos computadores.", learned: "O que é um computador, suas funções básicas e utilidades.", objectives: "Entender o que é um computador e suas funções.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual é a principal definição funcional de um computador?", options: ["Um aparelho restrito a jogos pesados.", "Uma máquina eletrônica capaz de processar dados e executar instruções.", "Um dispositivo analógico de som.", "Uma ferramenta exclusiva para impressão."], correct: 1 } },
       { id: 102, title: "Aula 2 — Principais partes do computador", description: "Conhecendo a estrutura física externa.", learned: "Monitor, teclado, mouse, gabinete e notebook.", objectives: "Identificar monitor, teclado, mouse, gabinete e notebook.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual componente externo é considerado estritamente de saída de dados?", options: ["Teclado", "Mouse", "Monitor", "Microfone"], correct: 2 } },
       { id: 103, title: "Aula 3 — Hardware e Software", description: "Entendendo a diferença entre a parte física e lógica.", learned: "Conceitos de peças físicas e programas de computador.", objectives: "Diferenciar hardware e software.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O que representa o 'Hardware' em um computador?", options: ["Os programas e sistemas instalados.", "A parte física e palpável (peças e componentes).", "A conexão de internet sem fio.", "Os arquivos salvos na nuvem."], correct: 1 } },
-      { id: 104, title: "Aula 4 — Exercício prático", description: "Fixação dos conceitos iniciais.", learned: "Reconhecimento prático dos componentes.", objectives: "Identificación dos componentes do próprio computador.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual o objetivo principal do exercício prático deste módulo?", options: ["Desmontar a CPU inteira.", "Identificar e reconhecer os componentes físicos do próprio computador.", "Instalar um sistema operacional novo.", "Configurar uma rede Wi-Fi avançada."], correct: 1 } }
+      { id: 104, title: "Aula 4 — Exercício prático", description: "Fixação dos conceitos iniciais.", learned: "Reconhecimento prático dos componentes.", objectives: "Identificação dos componentes do próprio computador.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual o objetivo principal do exercício prático deste módulo?", options: ["Desmontar a CPU inteira.", "Identificar e reconhecer os componentes físicos do próprio computador.", "Instalar um sistema operacional novo.", "Configurar uma rede Wi-Fi avançada."], correct: 1 } }
     ]
   },
   {
@@ -1340,7 +1345,6 @@ function loadLessonContent(modId, lessonId) {
   const container = document.getElementById('lms-main-content');
   
   const hasVideo = lesson.video && lesson.video.trim() !== '';
-  // Se NÃO tem vídeo, os exercícios ficam liberados de cara. Se tem vídeo, começa bloqueado até assistir.
   videoWatchedState[lessonId] = !hasVideo;
 
   let mediaHtml = '';
