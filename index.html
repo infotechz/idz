@@ -940,21 +940,17 @@ window.onload = function() {
       clearInterval(checkDbInterval);
       const { collection, onSnapshot, setDoc, doc, onAuthStateChanged } = window.firebaseModules;
 
-      // Ouvinte do Firebase que restabelece a sessão instantaneamente no F5
       onAuthStateChanged(window.auth, (user) => {
         if (user) {
           currentUser = user.email;
           isAdmin = (currentUser === TARGET_EMAIL || (registeredUsers.find(u => u.email === currentUser)?.role === 'admin'));
           updateMobileMenuOptions();
           
-          // Se já carregou os utilizadores, direciona para a área certa
           let uObj = registeredUsers.find(u => u.email === currentUser);
           if (isAdmin || currentUser === TARGET_EMAIL) {
             showAdminArea();
-          } else if (uObj && uObj.paid) {
-            showMemberArea();
           } else {
-            showMemberArea(); // Mostra a área de membros (que exibirá aviso de pagamento pendente se necessário)
+            showMemberArea();
           }
         } else {
           currentUser = null;
@@ -1247,7 +1243,12 @@ function showMemberArea() {
   let uObj = registeredUsers.find(u => u.email === currentUser);
   const isPaid = isAdmin || uObj?.paid;
   
+  const sidebarContainer = document.querySelector('.lms-sidebar');
+
   if (!isPaid) {
+    // Oculta completamente a barra lateral para quem não pagou
+    if (sidebarContainer) sidebarContainer.style.display = 'none';
+
     document.getElementById('lms-main-content').innerHTML = `
       <div style="text-align:center; padding: 25px 10px;">
         <div style="display:inline-flex; width:64px; height:64px; border-radius:50%; background:rgba(0,240,255,0.1); border:1px solid rgba(0,240,255,0.3); align-items:center; justify-content:center; margin-bottom:16px;">
@@ -1261,6 +1262,9 @@ function showMemberArea() {
       </div>`;
     document.getElementById('module-list').innerHTML = '';
   } else {
+    // Restaura a barra lateral caso o usuário tenha pago
+    if (sidebarContainer) sidebarContainer.style.display = 'block';
+
     renderMemberSidebar();
     if(courseData.length > 0 && courseData[0].lessons?.length > 0) loadLessonContent(courseData[0].id, courseData[0].lessons[0].id);
   }
