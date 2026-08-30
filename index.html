@@ -336,6 +336,8 @@ section { padding: 70px 0; }
 .admin-mod-box:active { cursor: grabbing; }
 .admin-mod-header { padding: 14px 16px; font-size: 13px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
 .admin-mod-body { padding: 16px; border-top: 1px solid var(--glass-border); background: rgba(255,255,255,0.015); }
+.admin-lesson-item-box { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: rgba(0,0,0,0.2); border-radius: 8px; margin-bottom: 6px; font-size: 12.5px; cursor: grab; }
+.admin-lesson-item-box:active { cursor: grabbing; }
 
 footer {
   background: rgba(3, 7, 18, 0.9); border-top: 1px solid var(--glass-border);
@@ -378,7 +380,7 @@ footer {
 <!-- Checkout Bricks Interativo (Cartão até 5x e Pix gerado no site) -->
 <div class="modal-overlay" id="modal-custom-checkout">
   <div class="modal-card" style="max-width: 650px;">
-    <button class="close-btn" onclick="closeModal('modal-custom-checkout')"><i class="fa-solid fa-xmark"></i></button>
+    <button class="close-btn" onclick="closeCheckoutModalSafe()"><i class="fa-solid fa-xmark"></i></button>
     
     <div style="text-align: center; margin-bottom: 16px; border-bottom: 1px solid var(--glass-border); padding-bottom: 12px;">
       <span style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; display: block;">Ambiente Seguro de Pagamento</span>
@@ -591,8 +593,8 @@ footer {
     </div>
 
     <div class="glass-panel admin-card" id="admin-tab-modules" style="display: none;">
-      <h3><i class="fa-solid fa-layer-group"></i> Gerenciador Cloud (Arraste e Clique)</h3>
-      <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 22px;">Gerencie módulos, aulas e reorganize a ordem clicando e arrastando os blocos.</p>
+      <h3><i class="fa-solid fa-layer-group"></i> Gerenciador Cloud (Arraste e Solte Módulos e Aulas)</h3>
+      <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 22px;">Arraste os módulos ou as aulas individualmente para reposicionar na ordem desejada.</p>
       
       <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); padding: 20px; border-radius: 16px; margin-bottom: 22px;">
         <h4 style="font-size: 15px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-folder-plus text-cyan"></i> Novo Módulo</h4>
@@ -641,7 +643,7 @@ footer {
         <button type="button" class="btn" style="padding: 12px 18px; font-size: 12px; margin-top: 10px;" onclick="saveLessonData()"><i class="fa-solid fa-cloud-arrow-up"></i> Publicar Aula com Exercício</button>
       </div>
 
-      <h4 style="font-size: 17px; margin-bottom: 16px;"><i class="fa-solid fa-list-ol"></i> Organizar Ordem dos Módulos (Arraste ou Clique)</h4>
+      <h4 style="font-size: 17px; margin-bottom: 16px;"><i class="fa-solid fa-list-ol"></i> Organizar Ordem dos Módulos e Aulas (Arraste livremente)</h4>
       <div id="admin-modules-list-container"></div>
     </div>
   </div>
@@ -834,7 +836,12 @@ window.onload = function() {
           if (isAdmin || currentUser === TARGET_EMAIL) {
             showAdminArea();
           } else {
-            showMemberArea();
+            if (uObj && uObj.paid) {
+              showMemberArea();
+            } else {
+              showPublicSite();
+              openCheckoutModal();
+            }
           }
         } else {
           currentUser = null;
@@ -920,6 +927,17 @@ function toggleMobileMenu() {
 }
 function openModal(id) { document.getElementById(id).classList.add('active'); }
 function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+function closeCheckoutModalSafe() {
+  closeModal('modal-custom-checkout');
+  if (currentUser) {
+    let uObj = registeredUsers.find(u => u.email === currentUser);
+    if (!isAdmin && (!uObj || !uObj.paid)) {
+      showPublicSite();
+    }
+  }
+}
+
 function openAuthModal(tab) { switchAuthTab(tab); openModal('modal-auth'); }
 
 function switchAuthTab(tab) {
@@ -993,7 +1011,11 @@ async function handleLogin(e) {
     let uObj = registeredUsers.find(u => u.email === em);
     let adminFlag = (uObj?.role === 'admin' || em === TARGET_EMAIL);
     setAuthSession(em, adminFlag);
-    if(adminFlag) showAdminArea(); else showMemberArea();
+    if(adminFlag) showAdminArea(); 
+    else {
+      if(uObj && uObj.paid) showMemberArea();
+      else { showPublicSite(); openCheckoutModal(); }
+    }
   } catch (err) {
     alert("Erro ao entrar: E-mail ou senha incorretos.");
   }
@@ -1046,7 +1068,8 @@ async function handleRegister(e) {
     let newUser = { email: em, paid: false, role: 'student', fullname: fullname, cpf: '', certReleased: false };
     await saveUserToCloud(newUser);
     setAuthSession(em, false);
-    showMemberArea();
+    showPublicSite();
+    openCheckoutModal();
   } catch (err) {
     alert("Erro ao cadastrar: " + err.message);
   }
@@ -1160,6 +1183,7 @@ function showMemberArea() {
   const isPaid = isAdmin || uObj?.paid;
 
   if (!isPaid) {
+    showPublicSite();
     openCheckoutModal();
     return;
   }
@@ -1192,7 +1216,7 @@ function showAdminArea() {
 
 function renderMemberSidebar() {
   let uObj = registeredUsers.find(u => u.email === currentUser);
-  if (!isAdmin && !uObj?.paid) return;
+  if (!isAdmin && (!uObj || !uObj.paid)) return;
 
   const container = document.getElementById('module-list'); container.innerHTML = '';
   courseData.forEach((mod, index) => {
@@ -1534,8 +1558,8 @@ function renderAdminModules() {
     let lessonsHtml = '';
     if (m.lessons) {
       m.lessons.forEach((l, lIndex) => {
-        lessonsHtml += `<div style="display:flex; justify-content:space-between; align-items:center; padding:8px 12px; background:rgba(0,0,0,0.2); border-radius:8px; margin-bottom:6px; font-size:12.5px;">
-          <span><i class="fa-solid fa-video" style="color:var(--accent-cyan); margin-right:6px;"></i> ${l.title}</span>
+        lessonsHtml += `<div class="admin-lesson-item-box" draggable="true" ondragstart="dragLessonStart(event, ${index}, ${lIndex})" ondragover="allowDrop(event)" ondrop="dropLesson(event, ${index}, ${lIndex})">
+          <span><i class="fa-solid fa-grip-vertical" style="color:var(--text-muted); margin-right:6px;"></i> ${l.title}</span>
           <div>
             <button class="btn-outline" style="padding:2px 6px; font-size:11px;" onclick="moveLesson(${index}, ${lIndex}, -1)"><i class="fa-solid fa-arrow-up"></i></button>
             <button class="btn-outline" style="padding:2px 6px; font-size:11px;" onclick="moveLesson(${index}, ${lIndex}, 1)"><i class="fa-solid fa-arrow-down"></i></button>
@@ -1555,7 +1579,7 @@ function renderAdminModules() {
         </div>
       </div>
       <div class="admin-mod-body">
-        <h5 style="font-size:12px; color:var(--text-secondary); margin-bottom:8px;">Aulas deste Módulo:</h5>
+        <h5 style="font-size:12px; color:var(--text-secondary); margin-bottom:8px;">Aulas deste Módulo (Arraste livremente):</h5>
         ${lessonsHtml || '<p style="font-size:12px; color:var(--text-muted);">Nenhuma aula cadastrada.</p>'}
       </div>
     </div>`;
@@ -1563,10 +1587,10 @@ function renderAdminModules() {
 }
 
 let draggedModIndex = null;
-function dragModuleStart(e, index) { draggedModIndex = index; }
+function dragModuleStart(e, index) { draggedModIndex = index; e.stopPropagation(); }
 function allowDrop(e) { e.preventDefault(); }
 function dropModule(e, targetIndex) {
-  e.preventDefault();
+  e.preventDefault(); e.stopPropagation();
   if (draggedModIndex === null || draggedModIndex === targetIndex) return;
   const movedMod = courseData.splice(draggedModIndex, 1)[0];
   courseData.splice(targetIndex, 0, movedMod);
@@ -1574,6 +1598,26 @@ function dropModule(e, targetIndex) {
   saveCourseToCloud("Ordem de módulos atualizada!");
   renderAdminModules();
   populateLessonModuleSelect();
+}
+
+let draggedLessonInfo = null;
+function dragLessonStart(e, modIndex, lessonIndex) {
+  draggedLessonInfo = { modIndex, lessonIndex };
+  e.stopPropagation();
+}
+function dropLesson(e, targetModIndex, targetLessonIndex) {
+  e.preventDefault(); e.stopPropagation();
+  if (!draggedLessonInfo) return;
+  const { modIndex: srcModIdx, lessonIndex: srcLessonIdx } = draggedLessonInfo;
+  
+  if (srcModIdx === targetModIndex && srcLessonIdx === targetLessonIndex) return;
+
+  const movedLesson = courseData[srcModIdx].lessons.splice(srcLessonIdx, 1)[0];
+  courseData[targetModIndex].lessons.splice(targetLessonIndex, 0, movedLesson);
+  
+  draggedLessonInfo = null;
+  saveCourseToCloud("Ordem de aulas atualizada!");
+  renderAdminModules();
 }
 
 function moveModule(index, direction) {
