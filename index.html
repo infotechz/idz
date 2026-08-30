@@ -12,9 +12,12 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
+<!-- SDK Oficial do Mercado Pago para Checkout Bricks -->
+<script src="https://sdk.mercadopago.com/js/v2"></script>
+
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getFirestore, collection, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+  import { getFirestore, collection, doc, setDoc, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
   import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendPasswordResetEmail, updateEmail, updatePassword, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
   const firebaseConfig = {
@@ -37,7 +40,7 @@
 
   window.db = db;
   window.auth = auth;
-  window.firebaseModules = { collection, doc, setDoc, onSnapshot, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendPasswordResetEmail, updateEmail, updatePassword, onAuthStateChanged };
+  window.firebaseModules = { collection, doc, setDoc, onSnapshot, deleteDoc, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendPasswordResetEmail, updateEmail, updatePassword, onAuthStateChanged };
 </script>
 
 <style>
@@ -224,9 +227,9 @@ section { padding: 70px 0; }
 .modal-overlay.active { opacity: 1; pointer-events: auto; }
 .modal-card {
   background: var(--bg-card); border: 1px solid var(--glass-border-hover); backdrop-filter: blur(25px);
-  border-radius: 22px; padding: 30px 22px; max-width: 450px; width: 100%; position: relative;
+  border-radius: 22px; padding: 30px 22px; max-width: 650px; width: 100%; position: relative;
   box-shadow: 0 30px 60px rgba(0,0,0,0.8), 0 0 40px rgba(0,240,255,0.1); transform: scale(0.95); transition: 0.3s;
-  max-height: 90vh; overflow-y: auto; margin: auto; text-align: center;
+  max-height: 90vh; overflow-y: auto; margin: auto;
 }
 .modal-overlay.active .modal-card { transform: scale(1); }
 .close-btn { position: absolute; top: 16px; right: 16px; background: none; border: none; color: var(--text-muted); font-size: 22px; cursor: pointer; transition: 0.2s; z-index: 10; }
@@ -358,7 +361,7 @@ footer {
 </div>
 
 <div class="modal-overlay" id="success-modal">
-  <div class="modal-card" style="border-color: var(--green);">
+  <div class="modal-card" style="text-align: center; border-color: var(--green);">
     <i class="fa-solid fa-circle-check" style="font-size: 52px; color: var(--green); margin-bottom: 16px; filter: drop-shadow(0 0 10px rgba(16,185,129,0.5));"></i>
     <h3 style="font-size: 21px; margin-bottom: 8px;">Sucesso na Nuvem!</h3>
     <p id="success-modal-text" style="color: var(--text-secondary); font-size: 13.5px; margin-bottom: 22px;">Sincronizado via Firebase para todos.</p>
@@ -366,34 +369,18 @@ footer {
   </div>
 </div>
 
-<!-- Modal de Checkout Direto via Preferência (Mercado Pago) -->
+<!-- Modal com Checkout Bricks Interativo Seguro (Pix e Cartão) -->
 <div class="modal-overlay" id="modal-custom-checkout">
-  <div class="modal-card">
+  <div class="modal-card" style="max-width: 650px;">
     <button class="close-btn" onclick="closeCheckoutModalSafe()"><i class="fa-solid fa-xmark"></i></button>
     
-    <div style="margin-bottom: 20px; border-bottom: 1px solid var(--glass-border); padding-bottom: 12px;">
-      <span style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; display: block; font-weight: 700;">Finalizar Inscrição</span>
+    <div style="text-align: center; margin-bottom: 16px; border-bottom: 1px solid var(--glass-border); padding-bottom: 12px;">
+      <span style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; display: block; font-weight: 700;">Ambiente Seguro de Pagamento</span>
       <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 18px; color: #fff;">Informática do Zero — R$ 29,90</span>
     </div>
 
-    <form onsubmit="proceedToCheckoutPreference(event)">
-      <div class="input-group">
-        <label>Nome Completo</label>
-        <input type="text" id="pay-name" placeholder="Seu nome" required>
-      </div>
-      <div class="input-group">
-        <label>E-mail</label>
-        <input type="email" id="pay-email" placeholder="seu@email.com" required>
-      </div>
-      <div class="input-group">
-        <label>CPF</label>
-        <input type="text" id="pay-cpf" placeholder="000.000.000-00" required>
-      </div>
-
-      <button type="submit" class="btn" style="width: 100%; margin-top: 10px;">
-        IR PARA PAGAMENTO SEGURO <i class="fa-solid fa-arrow-right"></i>
-      </button>
-    </form>
+    <!-- Onde o Checkout Bricks do Mercado Pago é renderizado -->
+    <div id="paymentBrick_container"></div>
   </div>
 </div>
 
@@ -488,7 +475,7 @@ footer {
           <span class="old-price">R$ 59,90</span>
           <span class="new-price">R$ 29,90</span>
         </div>
-        <p style="color: var(--text-secondary); margin-bottom: 26px; font-size: 13.5px;"><i class="fa-solid fa-lock"></i> Pagamento 100% seguro via Mercado Pago</p>
+        <p style="color: var(--text-secondary); margin-bottom: 26px; font-size: 13.5px;"><i class="fa-solid fa-lock"></i> Pagamento 100% seguro via Checkout Transparente</p>
         <button class="btn" style="width: 100%; max-width: 380px; font-size: 14.5px; padding: 16px;" onclick="openCheckoutModal()">
           COMPRAR AGORA E COMEÇAR <i class="fa-solid fa-arrow-right"></i>
         </button>
@@ -696,7 +683,7 @@ footer {
       <button type="submit" class="btn" style="width: 100%; margin-top: 4px;">Acessar Plataforma</button>
     </form>
 
-    <!-- Formulário de Cadastro com tratamento para e-mail existente -->
+    <!-- Formulário de Cadastro -->
     <form id="form-register" style="display: none;" onsubmit="handleRegister(event)">
       <div class="input-group">
         <label>Nome Completo (Validação Real)</label>
@@ -738,6 +725,7 @@ footer {
 </footer>
 
 <script>
+const PUBLIC_KEY_MP = "APP_USR-0af39126-fabc-4dd9-bbe2-90bbf9fe1521";
 const RAILWAY_BACKEND_URL = "https://backend-informatica-do-zero-production.up.railway.app/criar-pagamento";
 
 const canvas = document.getElementById('particles-canvas');
@@ -795,6 +783,7 @@ let quizStatsStorage = JSON.parse(localStorage.getItem('user_quiz_stats')) || {}
 let currentUser = null;
 let isAdmin = false;
 let videoWatchedState = {};
+let paymentBrickController = null;
 
 function autoCompleteEmail(inputId) {
   const input = document.getElementById(inputId);
@@ -924,6 +913,12 @@ function closeModal(id) { document.getElementById(id).classList.remove('active')
 
 function closeCheckoutModalSafe() {
   closeModal('modal-custom-checkout');
+  if (currentUser) {
+    let uObj = registeredUsers.find(u => u.email === currentUser);
+    if (!isAdmin && (!uObj || !uObj.paid)) {
+      showPublicSite();
+    }
+  }
 }
 
 function openAuthModal(tab) { switchAuthTab(tab); openModal('modal-auth'); }
@@ -1834,46 +1829,83 @@ function moveLesson(modIndex, lessonIndex, direction) {
   renderAdminModules();
 }
 
-function openCheckoutModal() {
+// Inicialização Rigorosa do Checkout Bricks integrando Pix e Cartão na mesma página
+async function openCheckoutModal() {
   if (!currentUser) {
-    alert("Você precisa estar logado para realizar a compra do curso!");
+    alert("Você precisa estar logado para realizar a compra!");
     openAuthModal('login');
     return;
   }
+
   let uObj = registeredUsers.find(u => u.email === currentUser);
+  
   if (!isAdmin && (!uObj || !uObj.paid)) {
-    document.getElementById('pay-email').value = currentUser;
-    if(uObj && uObj.fullname) document.getElementById('pay-name').value = uObj.fullname;
     openModal('modal-custom-checkout');
+
+    setTimeout(async () => {
+      try {
+        const mp = new MercadoPago(PUBLIC_KEY_MP, { locale: 'pt-BR' });
+        const bricksBuilder = mp.bricks();
+
+        if (paymentBrickController) {
+          paymentBrickController.unmount();
+        }
+
+        const settings = {
+          initialization: {
+            amount: 29.90,
+            payer: { email: currentUser }
+          },
+          customization: {
+            paymentMethods: {
+              creditCard: 'all',
+              bankTransfer: ['pix'],
+              maxInstallments: 5
+            },
+            visual: {
+              style: { theme: 'dark' }
+            }
+          },
+          callbacks: {
+            onReady: () => {},
+            onSubmit: ({ selectedPaymentMethod, formData }) => {
+              return new Promise((resolve, reject) => {
+                fetch(RAILWAY_BACKEND_URL, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(formData)
+                })
+                .then(res => res.json())
+                .then(response => {
+                  if (response.success || response.status === 'approved') {
+                    showSuccessModal("Pagamento aprovado! Acesso liberado.");
+                    closeModal('modal-custom-checkout');
+                    let userObj = registeredUsers.find(u => u.email === currentUser);
+                    if(userObj) { userObj.paid = true; saveUserToCloud(userObj); }
+                    showMemberArea();
+                  } else {
+                    alert("Transação gerada ou pendente. Escaneie o QR Code do Pix ou preencha os dados do cartão para concluir.");
+                  }
+                  resolve();
+                })
+                .catch(err => {
+                  console.error("Erro:", err);
+                  alert("Erro ao conectar com o servidor de pagamento.");
+                  reject();
+                });
+              });
+            },
+            onError: (error) => { console.error('Erro no Brick:', error); }
+          }
+        };
+
+        paymentBrickController = await bricksBuilder.create('payment', 'paymentBrick_container', settings);
+      } catch (e) {
+        console.error("Erro ao iniciar Checkout Bricks:", e);
+      }
+    }, 200);
   } else {
     showMemberArea();
-  }
-}
-
-// Comunicação direta com a sua rota /criar-pagamento do back-end baseado em Preferência
-async function proceedToCheckoutPreference(e) {
-  e.preventDefault();
-  const name = document.getElementById('pay-name').value.trim();
-  const email = document.getElementById('pay-email').value.trim();
-  const cpf = document.getElementById('pay-cpf').value.trim();
-
-  try {
-    const response = await fetch(RAILWAY_BACKEND_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, cpf })
-    });
-
-    const data = await response.json();
-    if (data.success && data.init_point) {
-      // Redireciona o usuário para a página de pagamento oficial do Mercado Pago (com Pix e Cartão)
-      window.location.href = data.init_point;
-    } else {
-      alert("Erro ao criar preferência de pagamento: " + (data.error || "Tente novamente."));
-    }
-  } catch (err) {
-    console.error("Erro na requisição:", err);
-    alert("Erro de conexão com o servidor de pagamento.");
   }
 }
 </script>
