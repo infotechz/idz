@@ -31,9 +31,8 @@
   const db = getFirestore(app);
   const auth = getAuth(app);
 
-  // Força a sessão a ficar salva permanentemente no navegador para não deslogar no F5
   setPersistence(auth, browserLocalPersistence).catch((error) => {
-    console.error("Erro na persistência da sessão:", error);
+    console.error("Erro na persistência:", error);
   });
 
   window.db = db;
@@ -376,7 +375,7 @@ footer {
 
 <nav>
   <div class="wrap nav-wrap">
-    <a href="#" class="logo-text-only" onclick="showPublicSite()">
+    <a href="#" class="logo-text-only" onclick="handleLogoClick()">
       <span class="title-top">Informática</span>
       <span class="title-bot">do Zero</span>
     </a>
@@ -418,7 +417,7 @@ footer {
         <span class="tag"><i class="fa-solid fa-bolt"></i> FORMAÇÃO COMPLETA • DO ZERO AO AVANÇADO</span>
         <h1>Aprenda <span>Informática Definitiva</span> e conquiste sua autonomia digital.</h1>
         <p>Domine o computador, crie planilhas, documentos profissionais, navegue com total segurança e use a Inteligência Artificial a seu favor.</p>
-        <button class="btn" onclick="openAuthModal('login')"><i class="fa-solid fa-unlock-keyhole"></i> ACESSAR MINHA CONTA</button>
+        <button class="btn" onclick="handleAccountAction()"><i class="fa-solid fa-unlock-keyhole"></i> <span id="hero-btn-text">ACESSAR MINHA CONTA</span></button>
       </div>
       <div class="glass-panel hero-card">
         <span class="badge-discount"><i class="fa-solid fa-fire"></i> ACESSO IMEDIATO</span>
@@ -499,12 +498,33 @@ footer {
   </div>
 </div>
 
+<div id="settings-area" class="wrap" style="display: none; padding-top: 36px; max-width: 600px;">
+  <div class="glass-panel animate-fade-up" style="padding: 30px;">
+    <h2 style="font-size: 20px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;"><i class="fa-solid fa-gear" style="color: var(--accent-cyan);"></i> Configurações da Conta</h2>
+    
+    <div class="input-group">
+      <label>E-mail Atual</label>
+      <input type="email" id="settings-email" disabled style="opacity: 0.7;">
+    </div>
+    
+    <div style="margin-top: 25px; padding-top: 20px; border-top: 1px solid var(--glass-border);">
+      <h3 style="font-size: 15px; margin-bottom: 12px; color: #fff;">Redefinição de Senha</h3>
+      <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">Clique abaixo para receber um e-mail de redefinição de senha com segurança.</p>
+      <button class="btn-outline" onclick="triggerPasswordReset()"><i class="fa-solid fa-key"></i> Enviar E-mail de Redefinição de Senha</button>
+    </div>
+
+    <div style="margin-top: 25px; text-align: right;">
+      <button class="btn" onclick="showMemberArea()">Voltar às Aulas</button>
+    </div>
+  </div>
+</div>
+
 <div id="admin-area" class="wrap" style="display: none; padding-top: 36px;">
   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 26px; flex-wrap: wrap; gap: 14px;">
     <h2 style="margin: 0; font-size: 22px;"><i class="fa-solid fa-gear" style="color: var(--text-secondary);"></i> Painel de Administração</h2>
     <div style="display: flex; gap: 10px; flex-wrap: wrap;">
       <button class="btn-outline" onclick="switchAdminTab('dashboard')"><i class="fa-solid fa-chart-pie"></i> Dashboard</button>
-      <button class="btn-outline" onclick="switchAdminTab('modules')"><i class="fa-solid fa-pen-to-square"></i> Editar Conteúdo</button>
+      <button class="btn-outline" onclick="switchAdminTab('modules')"><i class="fa-solid fa-pen-to-square"></i> Editar Conteúdo & Exercícios</button>
     </div>
   </div>
   
@@ -543,8 +563,8 @@ footer {
     </div>
 
     <div class="glass-panel admin-card" id="admin-tab-modules" style="display: none;">
-      <h3><i class="fa-solid fa-layer-group"></i> Gerenciador Cloud (Vídeos, Imagens e PDFs)</h3>
-      <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 22px;">Organize a ordem dos módulos e aulas usando os botões de subir e descer.</p>
+      <h3><i class="fa-solid fa-layer-group"></i> Gerenciador Cloud (Aulas & Exercícios)</h3>
+      <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 22px;">Gerencie vídeos, materiais de apoio e preencha detalhadamente os blocos de ensino de cada aula.</p>
       
       <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); padding: 20px; border-radius: 16px; margin-bottom: 22px;">
         <h4 style="font-size: 15px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-folder-plus text-cyan"></i> Novo Módulo</h4>
@@ -558,13 +578,28 @@ footer {
       </div>
 
       <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); padding: 20px; border-radius: 16px; margin-bottom: 26px;">
-        <h4 style="font-size: 15px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-video text-purple"></i> Nova Aula</h4>
+        <h4 style="font-size: 15px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-video text-purple"></i> Nova Aula & Informações Pedagógicas</h4>
         <input type="hidden" id="edit-lesson-id" value="">
         <div class="input-group"><label>Módulo</label><select id="lesson-mod-select"></select></div>
         <div class="input-group"><label>Título da Aula</label><input type="text" id="lesson-title-input" placeholder="Ex: Aula 1 — Hardware"></div>
-        <div class="input-group"><label>Conteúdo / Objetivos</label><textarea id="lesson-obj-input" rows="3"></textarea></div>
+        
         <div class="input-group">
-          <label><i class="fa-brands fa-youtube" style="color:#ef4444;"></i> Link do YouTube (Vídeo da Aula)</label>
+          <label><i class="fa-solid fa-align-left" style="color:var(--accent-cyan);"></i> 1. Descrição da Aula</label>
+          <textarea id="lesson-desc-input" rows="3" placeholder="Descreva o contexto geral desta aula..."></textarea>
+        </div>
+
+        <div class="input-group">
+          <label><i class="fa-solid fa-list-check" style="color:var(--accent-cyan);"></i> 2. O que vai ser aprendido</label>
+          <textarea id="lesson-learned-input" rows="3" placeholder="Liste os tópicos principais que serão abordados..."></textarea>
+        </div>
+
+        <div class="input-group">
+          <label><i class="fa-solid fa-bullseye" style="color:var(--accent-cyan);"></i> 3. Objetivos na Aula</label>
+          <textarea id="lesson-obj-input" rows="3" placeholder="Defina o resultado prático esperado após assistir..."></textarea>
+        </div>
+
+        <div class="input-group">
+          <label><i class="fa-brands fa-youtube" style="color:#ef4444;"></i> Link do YouTube (Vídeo da Aula - Opcional)</label>
           <input type="text" id="lesson-video-url" placeholder="https://www.youtube.com/watch?v=..." style="margin-bottom: 8px;">
         </div>
         <div class="input-group"><label><i class="fa-solid fa-image" style="color:var(--accent-blue);"></i> Link da Imagem de Capa (Opcional)</label><input type="text" id="lesson-image-url" placeholder="https://exemplo.com/imagem.jpg"></div>
@@ -573,8 +608,42 @@ footer {
           <input type="text" id="lesson-pdf-url" placeholder="https://exemplo.com/material.pdf" style="margin-bottom: 8px;">
           <input type="text" id="lesson-pdf-name" placeholder="Nome do arquivo para exibição">
         </div>
-        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-          <button type="button" class="btn" style="padding: 12px 18px; font-size: 12px;" onclick="saveLessonData()"><i class="fa-solid fa-cloud-arrow-up"></i> Publicar na Nuvem</button>
+
+        <hr style="border: 0; border-top: 1px solid var(--glass-border); margin: 20px 0;">
+        <h4 style="font-size: 14px; color: var(--accent-cyan); margin-bottom: 14px;"><i class="fa-solid fa-brain"></i> Configurar Exercícios da Aula</h4>
+        
+        <div class="input-group">
+          <label>Pergunta do Exercício</label>
+          <input type="text" id="quiz-question-input" placeholder="Ex: O que é um computador?">
+        </div>
+        <div class="input-group">
+          <label>Alternativa A</label>
+          <input type="text" id="quiz-opt0-input" placeholder="Opção incorreta ou correta">
+        </div>
+        <div class="input-group">
+          <label>Alternativa B</label>
+          <input type="text" id="quiz-opt1-input" placeholder="Opção incorreta ou correta">
+        </div>
+        <div class="input-group">
+          <label>Alternativa C</label>
+          <input type="text" id="quiz-opt2-input" placeholder="Opção incorreta ou correta">
+        </div>
+        <div class="input-group">
+          <label>Alternativa D</label>
+          <input type="text" id="quiz-opt3-input" placeholder="Opção incorreta ou correta">
+        </div>
+        <div class="input-group">
+          <label>Qual é a alternativa correta?</label>
+          <select id="quiz-correct-select">
+            <option value="0">Alternativa A</option>
+            <option value="1">Alternativa B</option>
+            <option value="2">Alternativa C</option>
+            <option value="3">Alternativa D</option>
+          </select>
+        </div>
+
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px;">
+          <button type="button" class="btn" style="padding: 12px 18px; font-size: 12px;" onclick="saveLessonData()"><i class="fa-solid fa-cloud-arrow-up"></i> Publicar Aula com Exercício</button>
           <button type="button" class="btn-outline" style="display: none;" id="cancel-lesson-edit-btn" onclick="resetLessonForm()">Cancelar</button>
         </div>
       </div>
@@ -614,7 +683,15 @@ footer {
           <button type="button" class="toggle-password" onclick="togglePasswordVisibility('login-pass', this)"><i class="fa-regular fa-eye"></i></button>
         </div>
       </div>
-      <button type="submit" class="btn" style="width: 100%; margin-top: 8px;">Acessar Plataforma</button>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; font-size: 12px;">
+        <label style="display: flex; align-items: center; gap: 6px; color: var(--text-secondary); cursor: pointer; text-transform: none;">
+          <input type="checkbox" id="remember-me" style="width: auto;"> Lembrar minha conta
+        </label>
+        <a href="#" onclick="handleForgotPassword(event)" style="color: var(--accent-cyan); font-weight: 600; font-size: 11px;">Esqueci minha senha</a>
+      </div>
+
+      <button type="submit" class="btn" style="width: 100%; margin-top: 4px;">Acessar Plataforma</button>
     </form>
 
     <form id="form-register" style="display: none;" onsubmit="handleRegister(event)">
@@ -663,7 +740,7 @@ footer {
 <footer>
   <div class="wrap">
     <div class="footer-social">
-      <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+      <a href="https://instagram.com/wd.cmo" target="_blank" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
       <a href="mailto:olliveirazvz@gmail.com" aria-label="Email"><i class="fa-regular fa-envelope"></i></a>
     </div>
     <div style="font-size: 13.5px; font-weight: 700; color: #fff; margin-bottom: 6px;">Informática do Zero — Plataforma Educacional</div>
@@ -713,127 +790,127 @@ const defaultCourseData = [
   {
     id: 1, title: "MÓDULO 1 — CONHECENDO O COMPUTADOR", intro: "Neste módulo, você dará os primeiros passos no mundo da informática.",
     lessons: [
-      { id: 101, title: "Aula 1 — O que é um computador?", objectives: "Entender o que é um computador e suas funções.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual é a principal definição funcional de um computador?", options: ["Um aparelho restrito a jogos pesados.", "Uma máquina eletrônica capaz de processar dados e executar instruções.", "Um dispositivo analógico de som.", "Uma ferramenta exclusiva para impressão."], correct: 1 } },
-      { id: 102, title: "Aula 2 — Principais partes do computador", objectives: "Identificar monitor, teclado, mouse, gabinete e notebook.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual componente externo é considerado estritamente de saída de dados?", options: ["Teclado", "Mouse", "Monitor", "Microfone"], correct: 2 } },
-      { id: 103, title: "Aula 3 — Hardware e Software", objectives: "Diferenciar hardware e software.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O que representa o 'Hardware' em um computador?", options: ["Os programas e sistemas instalados.", "A parte física e palpável (peças e componentes).", "A conexão de internet sem fio.", "Os arquivos salvos na nuvem."], correct: 1 } },
-      { id: 104, title: "Aula 4 — Exercício prático", objectives: "Identificação dos componentes do próprio computador.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual o objetivo principal do exercício prático deste módulo?", options: ["Desmontar a CPU inteira.", "Identificar e reconhecer os componentes físicos do próprio computador.", "Instalar um sistema operacional novo.", "Configurar uma rede Wi-Fi avançada."], correct: 1 } }
+      { id: 101, title: "Aula 1 — O que é um computador?", description: "Introdução fundamental ao universo dos computadores.", learned: "O que é um computador, suas funções básicas e utilidades.", objectives: "Entender o que é um computador e suas funções.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual é a principal definição funcional de um computador?", options: ["Um aparelho restrito a jogos pesados.", "Uma máquina eletrônica capaz de processar dados e executar instruções.", "Um dispositivo analógico de som.", "Uma ferramenta exclusiva para impressão."], correct: 1 } },
+      { id: 102, title: "Aula 2 — Principais partes do computador", description: "Conhecendo a estrutura física externa.", learned: "Monitor, teclado, mouse, gabinete e notebook.", objectives: "Identificar monitor, teclado, mouse, gabinete e notebook.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual componente externo é considerado estritamente de saída de dados?", options: ["Teclado", "Mouse", "Monitor", "Microfone"], correct: 2 } },
+      { id: 103, title: "Aula 3 — Hardware e Software", description: "Entendendo a diferença entre a parte física e lógica.", learned: "Conceitos de peças físicas e programas de computador.", objectives: "Diferenciar hardware e software.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O que representa o 'Hardware' em um computador?", options: ["Os programas e sistemas instalados.", "A parte física e palpável (peças e componentes).", "A conexão de internet sem fio.", "Os arquivos salvos na nuvem."], correct: 1 } },
+      { id: 104, title: "Aula 4 — Exercício prático", description: "Fixação dos conceitos iniciais.", learned: "Reconhecimento prático dos componentes.", objectives: "Identificação dos componentes do próprio computador.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual o objetivo principal do exercício prático deste módulo?", options: ["Desmontar a CPU inteira.", "Identificar e reconhecer os componentes físicos do próprio computador.", "Instalar um sistema operacional novo.", "Configurar uma rede Wi-Fi avançada."], correct: 1 } }
     ]
   },
   {
     id: 2, title: "MÓDULO 2 — TECLADO, MOUSE E ATALHOS", intro: "Aprenda a controlar o computador com eficiência.",
     lessons: [
-      { id: 201, title: "Aula 1 — Conhecendo o teclado", objectives: "Conhecer Enter, Espaço, Backspace, Shift, Caps Lock, Ctrl, Alt.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual tecla é usada para apagar caracteres à esquerda do cursor?", options: ["Enter", "Backspace", "Shift", "Espaço"], correct: 1 } },
-      { id: 202, title: "Aula 2 — Aprendendo a usar o mouse", objectives: "Utilizar clique, duplo clique, botão direito, rolagem e arrastar.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual botão do mouse é normalmente usado para abrir menus de contexto rápidos?", options: ["Botão esquerdo", "Botão direito", "Scroll central", "Nenhum dos botões"], correct: 1 } },
-      { id: 203, title: "Aula 3 — Atalhos essenciais", objectives: "Conhecer atalhos como Ctrl+C, Ctrl+V, Ctrl+X, Ctrl+Z.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual atalho de teclado é utilizado para colar um item previamente copiado?", options: ["Ctrl + C", "Ctrl + V", "Ctrl + X", "Ctrl + Z"], correct: 1 } },
-      { id: 204, title: "Aula 4 — Exercício de teclado e mouse", objectives: "Colocar em prática os conhecimentos.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O que se busca desenvolver com o exercício prático de teclado e mouse?", options: ["Digitação cega profissional", "Familiaridade e confiança no manuseio dos periféricos", "Programação avançada", "Manutenção de hardware"], correct: 1 } }
+      { id: 201, title: "Aula 1 — Conhecendo o teclado", description: "Estudo das teclas principais.", learned: "Enter, Espaço, Backspace, Shift, Caps Lock, Ctrl, Alt.", objectives: "Conhecer Enter, Espaço, Backspace, Shift, Caps Lock, Ctrl, Alt.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual tecla é usada para apagar caracteres à esquerda do cursor?", options: ["Enter", "Backspace", "Shift", "Espaço"], correct: 1 } },
+      { id: 202, title: "Aula 2 — Aprendendo a usar o mouse", description: "Domínio dos cliques e navegação.", learned: "Clique, duplo clique, botão direito, rolagem e arrastar.", objectives: "Utilizar clique, duplo clique, botão direito, rolagem e arrastar.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual botão do mouse é normalmente usado para abrir menus de contexto rápidos?", options: ["Botão esquerdo", "Botão direito", "Scroll central", "Nenhum dos botões"], correct: 1 } },
+      { id: 203, title: "Aula 3 — Atalhos essenciais", description: "Agilidade no dia a dia com comandos rápidos.", learned: "Atalhos como Ctrl+C, Ctrl+V, Ctrl+X, Ctrl+Z.", objectives: "Conhecer atalhos como Ctrl+C, Ctrl+V, Ctrl+X, Ctrl+Z.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual atalho de teclado é utilizado para colar um item previamente copiado?", options: ["Ctrl + C", "Ctrl + V", "Ctrl + X", "Ctrl + Z"], correct: 1 } },
+      { id: 204, title: "Aula 4 — Exercício de teclado e mouse", description: "Prática com os periféricos.", learned: "Exercícios práticos de fixação.", objectives: "Colocar em prática os conhecimentos.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O que se busca desenvolver com o exercício prático de teclado e mouse?", options: ["Digitação cega profissional", "Familiaridade e confiança no manuseio dos periféricos", "Programação avançada", "Manutenção de hardware"], correct: 1 } }
     ]
   },
   {
     id: 3, title: "MÓDULO 3 — ARQUIVOS E PASTAS", intro: "Organize seus documentos com facilidade.",
     lessons: [
-      { id: 301, title: "Aula 1 — O que são arquivos e pastas?", objectives: "Diferenciar arquivos e pastas.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual é a função básica de uma pasta no sistema operacional?", options: ["Armazenar e organizar arquivos agrupando-os", "Aumentar a velocidade do processador", "Substituir o uso de antivírus", "Transmitir dados via Bluetooth"], correct: 0 } },
-      { id: 302, title: "Aula 2 — Criando e renomeando pastas", objectives: "Criar pastas e escolher nomes organizados.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Por que é importante escolher nomes claros ao criar pastas?", options: ["Para ocupar menos espaço em disco", "Para facilitar a localização futura dos documentos", "Para impedir a exclusão acidental", "Para acelerar a internet"], correct: 1 } },
-      { id: 303, title: "Aula 3 — Copiar, mover e excluir", objectives: "Manipular arquivos com segurança.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual ação transfere um arquivo de um local para outro, apagando-o do local original?", options: ["Copiar", "Mover", "Baixar", "Compactar"], correct: 1 } },
-      { id: 304, title: "Aula 4 — Exercício de organização", objectives: "Criar sua própria estrutura de pastas.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O exercício de organização de pastas visa principalmente:", options: ["Praticar a criação de diretórios e arranjo lógico de arquivos", "Apagar arquivos inúteis do sistema", "Criar códigos de programação", "Formatar o disco rígido"], correct: 0 } }
+      { id: 301, title: "Aula 1 — O que são arquivos e pastas?", description: "Conceito de armazenamento local.", learned: "Diferenciar arquivos e pastas.", objectives: "Diferenciar arquivos e pastas.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual é a função básica de uma pasta no sistema operacional?", options: ["Armazenar e organizar arquivos agrupando-os", "Aumentar a velocidade do processador", "Substituir o uso de antivírus", "Transmitir dados via Bluetooth"], correct: 0 } },
+      { id: 302, title: "Aula 2 — Criando e renomeando pastas", description: "Boas práticas de organização.", learned: "Criar pastas e escolher nomes organizados.", objectives: "Criar pastas e escolher nomes organizados.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Por que é importante escolher nomes claros ao criar pastas?", options: ["Para ocupar menos espaço em disco", "Para facilitar a localização futura dos documentos", "Para impedir a exclusão acidental", "Para acelerar a internet"], correct: 1 } },
+      { id: 303, title: "Aula 3 — Copiar, mover e excluir", description: "Gerenciamento seguro de dados.", learned: "Manipular arquivos com segurança.", objectives: "Manipular arquivos com segurança.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual ação transfere um arquivo de um local para outro, apagando-o do local original?", options: ["Copiar", "Mover", "Baixar", "Compactar"], correct: 1 } },
+      { id: 304, title: "Aula 4 — Exercício de organização", description: "Prática de estruturação.", learned: "Criação de árvore de diretórios.", objectives: "Criar sua própria estrutura de pastas.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O exercício de organização de pastas visa principalmente:", options: ["Praticar a criação de diretórios e arranjo lógico de arquivos", "Apagar arquivos inúteis do sistema", "Criar códigos de programação", "Formatar o disco rígido"], correct: 0 } }
     ]
   },
   {
     id: 4, title: "MÓDULO 4 — INTERNET E PESQUISAS", intro: "Navegue e encontre informações com eficiência.",
     lessons: [
-      { id: 401, title: "Aula 1 — O que é a internet?", objectives: "Entender internet, navegador, site e página.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O que é um navegador (browser) de internet?", options: ["Um antivírus", "Um software para acessar e visualizar páginas da web", "Um cabo de rede", "Uma planilha eletrônica"], correct: 1 } },
-      { id: 402, title: "Aula 2 — Como fazer pesquisas melhores", objectives: "Utilizar palavras-chave para pesquisas.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O uso de palavras-chave específicas em buscadores serve para:", options: ["Encontrar resultados mais precisos e relevantes", "Travar o navegador", "Exibir propagandas pagas", "Apagar o histórico de navegação"], correct: 0 } },
-      { id: 403, title: "Aula 3 — Downloads e uploads", objectives: "Diferenciar baixar e enviar arquivos.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O que significa realizar um 'Download' na internet?", options: ["Enviar um arquivo do seu PC para a nuvem", "Baixar/transferir um arquivo da internet para o seu computador", "Imprimir um documento", "Excluir um arquivo da rede"], correct: 1 } },
-      { id: 404, title: "Aula 4 — Exercício de pesquisa", objectives: "Realizar pesquisa simples e comparar resultados.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual a finalidade de praticar pesquisas no exercício do módulo?", options: ["Aperfeiçoar a capacidade de buscar e filtrar informações na web", "Criar vírus de computador", "Enviar e-mails em massa", "Configurar roteadores"], correct: 0 } }
+      { id: 401, title: "Aula 1 — O que é a internet?", description: "Redes e navegadores.", learned: "Internet, navegador, site e página.", objectives: "Entender internet, navegador, site e página.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O que é um navegador (browser) de internet?", options: ["Um antivírus", "Um software para acessar e visualizar páginas da web", "Um cabo de rede", "Uma planilha eletrônica"], correct: 1 } },
+      { id: 402, title: "Aula 2 — Como fazer pesquisas melhores", description: "Técnicas de busca no Google.", learned: "Utilizar palavras-chave para pesquisas.", objectives: "Utilizar palavras-chave para pesquisas.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O uso de palavras-chave específicas em buscadores serve para:", options: ["Encontrar resultados mais precisos e relevantes", "Travar o navegador", "Exibir propagandas pagas", "Apagar o histórico de navegação"], correct: 0 } },
+      { id: 403, title: "Aula 3 — Downloads e uploads", description: "Transferência de arquivos.", learned: "Diferenciar baixar e enviar arquivos.", objectives: "Diferenciar baixar e enviar arquivos.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O que significa realizar um 'Download' na internet?", options: ["Enviar um arquivo do seu PC para a nuvem", "Baixar/transferir um arquivo da internet para o seu computador", "Imprimir um documento", "Excluir um arquivo da rede"], correct: 1 } },
+      { id: 404, title: "Aula 4 — Exercício de pesquisa", description: "Prática de buscas web.", learned: "Simulação de pesquisas úteis.", objectives: "Realizar pesquisa simples e comparar resultados.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual a finalidade de praticar pesquisas no exercício do módulo?", options: ["Aperfeiçoar a capacidade de buscar e filtrar informações na web", "Criar vírus de computador", "Enviar e-mails em massa", "Configurar roteadores"], correct: 0 } }
     ]
   },
   {
     id: 5, title: "MÓDULO 5 — E-MAIL", intro: "Domine o envio e organização de mensagens.",
     lessons: [
-      { id: 501, title: "Aula 1 — Conhecendo o e-mail", objectives: "Conhecer caixa de entrada, destinatário e assunto.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual caractere é obrigatório em qualquer endereço de e-mail?", options: ["#", "@", "$", "%"], correct: 1 } },
-      { id: 502, title: "Aula 2 — Enviando mensagens e anexos", objectives: "Enviar mensagens e anexar documentos.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Para que serve a opção de 'Anexar' em um e-mail?", options: ["Para enviar arquivos junto com a mensagem (como fotos e documentos)", "Para excluir o e-mail automaticamente", "Para bloquear o destinatário", "Para alterar a senha da conta"], correct: 0 } },
-      { id: 503, title: "Aula 3 — Organização da caixa de entrada", objectives: "Manter e-mails organizados.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Onde costumam ficar mensagens automáticas suspeitas ou propagandas não solicitadas?", options: ["Na Caixa de Entrada principal", "Na pasta de Spam / Lixo Eletrônico", "Na lixeira definitiva", "Nos contatos salvos"], correct: 1 } },
-      { id: 504, title: "Aula 4 — Exercício de e-mail", objectives: "Praticar envio com arquivo anexado.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O exercício prático de e-mail simula qual situação cotidiana?", options: ["O envio correto de uma mensagem com documento anexado", "A formatação de planilhas complexas", "A criação de apresentações em slides", "A formatação do Windows"], correct: 0 } }
+      { id: 501, title: "Aula 1 — Conhecendo o e-mail", description: "Estrutura de correio eletrônico.", learned: "Caixa de entrada, destinatário e assunto.", objectives: "Conhecer caixa de entrada, destinatário e assunto.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual caractere é obrigatório em qualquer endereço de e-mail?", options: ["#", "@", "$", "%"], correct: 1 } },
+      { id: 502, title: "Aula 2 — Enviando mensagens e anexos", description: "Anexando arquivos com segurança.", learned: "Enviar mensagens e anexar documentos.", objectives: "Enviar mensagens e anexar documentos.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Para que serve a opção de 'Anexar' em um e-mail?", options: ["Para enviar arquivos junto com a mensagem (como fotos e documentos)", "Para excluir o e-mail automaticamente", "Para bloquear o destinatário", "Para alterar a senha da conta"], correct: 0 } },
+      { id: 503, title: "Aula 3 — Organização da caixa de entrada", description: "Filtros e spam.", learned: "Manter e-mails organizados.", objectives: "Manter e-mails organizados.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Onde costumam ficar mensagens automáticas suspeitas ou propagandas não solicitadas?", options: ["Na Caixa de Entrada principal", "Na pasta de Spam / Lixo Eletrônico", "Na lixeira definitiva", "Nos contatos salvos"], correct: 1 } },
+      { id: 504, title: "Aula 4 — Exercício de e-mail", description: "Prática de envio.", learned: "Envio simulado com anexo.", objectives: "Praticar envio com arquivo anexado.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O exercício prático de e-mail simula qual situação cotidiana?", options: ["O envio correto de uma mensagem com documento anexado", "A formatação de planilhas complexas", "A criação de apresentações em slides", "A formatação do Windows"], correct: 0 } }
     ]
   },
   {
     id: 6, title: "MÓDULO 6 — WORD E DOCUMENTOS", intro: "Crie documentos profissionais e organizados.",
     lessons: [
-      { id: 601, title: "Aula 1 — Conhecendo o editor de textos", objectives: "Criar documentos e digitar textos.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual é a principal utilidade do Microsoft Word?", options: ["Criar planilhas financeiras", "Criar, editar e formatar documentos de texto", "Navegar na internet", "Editar vídeos institucionais"], correct: 1 } },
-      { id: 602, title: "Aula 2 — Formatação de texto", objectives: "Aplicar fonte, negrito e alinhamento.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual atalho aplica o formato de Negrito no texto selecionado?", options: ["Ctrl + C", "Ctrl + N", "Ctrl + V", "Ctrl + P"], correct: 1 } },
-      { id: 603, title: "Aula 3 — Imagens e tabelas", objectives: "Inserir imagens e tabelas.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Para que serve inserir tabelas em um documento de texto?", options: ["Para organizar dados estruturados em linhas e colunas", "Para aumentar o zoom da tela", "Para enviar o arquivo por fax", "Para colorir o fundo do monitor"], correct: 0 } },
-      { id: 604, title: "Aula 4 — Exercício de documento", objectives: "Criar documento completo aplicado.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O exercício final deste módulo consiste em:", options: ["Criar e formatar um pequeno documento completo", "Desenvolver um software antivírus", "Montar uma rede de computadores", "Criar gráficos estatísticos avançados"], correct: 0 } }
+      { id: 601, title: "Aula 1 — Conhecendo o editor de textos", description: "Primeiros passos no editor.", learned: "Criar documentos e digitar textos.", objectives: "Criar documentos e digitar textos.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual é a principal utilidade do Microsoft Word?", options: ["Criar planilhas financeiras", "Criar, editar e formatar documentos de texto", "Navegar na internet", "Editar vídeos institucionais"], correct: 1 } },
+      { id: 602, title: "Aula 2 — Formatação de texto", description: "Estilos e fontes.", learned: "Aplicar fonte, negrito e alinhamento.", objectives: "Aplicar fonte, negrito e alinhamento.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual atalho aplica o formato de Negrito no texto selecionado?", options: ["Ctrl + C", "Ctrl + N", "Ctrl + V", "Ctrl + P"], correct: 1 } },
+      { id: 603, title: "Aula 3 — Imagens e tabelas", description: "Elementos visuais em documentos.", learned: "Inserir imagens e tabelas.", objectives: "Inserir imagens e tabelas.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Para que serve inserir tabelas em um documento de texto?", options: ["Para organizar dados estruturados em linhas e colunas", "Para aumentar o zoom da tela", "Para enviar o arquivo por fax", "Para colorir o fundo do monitor"], correct: 0 } },
+      { id: 604, title: "Aula 4 — Exercício de documento", description: "Projeto de texto aplicado.", learned: "Criação de documento completo.", objectives: "Criar documento completo aplicado.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O exercício final deste módulo consiste em:", options: ["Criar e formatar um pequeno documento completo", "Desenvolver um software antivírus", "Montar uma rede de computadores", "Criar gráficos estatísticos avançados"], correct: 0 } }
     ]
   },
   {
     id: 7, title: "MÓDULO 7 — EXCEL E PLANILHAS", intro: "Domine planilhas, dados e cálculos básicos.",
     lessons: [
-      { id: 701, title: "Aula 1 — Conhecendo as planilhas", objectives: "Conhecer células, linhas, colunas e abas.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Como é chamada a interseção entre uma coluna e uma linha no Excel?", options: ["Slide", "Célula", "Pasta", "Parágrafo"], correct: 1 } },
-      { id: 702, title: "Aula 2 — Digitando e formatando dados", objectives: "Inserir informações e organizar tabelas.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Toda fórmula ou operação matemática no Excel inicia obrigatoriamente com:", options: ["O ponto final (.)", "O sinal de igual (=)", "O ponto e vírgula (;)", "A barra inclinada (/)"], correct: 1 } },
-      { id: 703, title: "Aula 3 — Fórmulas básicas", objectives: "Utilizar operações simples de cálculo.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual símbolo representa a multiplicação nas fórmulas do Excel?", options: ["+", "-", "*", "/"], correct: 2 } },
-      { id: 704, title: "Aula 4 — Exercício: planilha financeira", objectives: "Montar planilha de entradas e despesas.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O exercício prático deste módulo propõe a criação de:", options: ["Uma planilha simples de controle de entradas e despesas", "Uma carta de apresentação profissional", "Uma apresentação de slides", "Um banco de dados de clientes"], correct: 0 } }
+      { id: 701, title: "Aula 1 — Conhecendo as planilhas", description: "Estrutura de células e colunas.", learned: "Conhecer células, linhas, colunas e abas.", objectives: "Conhecer células, linhas, colunas e abas.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Como é chamada a interseção entre uma coluna e uma linha no Excel?", options: ["Slide", "Célula", "Pasta", "Parágrafo"], correct: 1 } },
+      { id: 702, title: "Aula 2 — Digitando e formatando dados", description: "Inserção correta de dados.", learned: "Inserir informações e organizar tabelas.", objectives: "Inserir informações e organizar tabelas.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Toda fórmula ou operação matemática no Excel inicia obrigatoriamente com:", options: ["O ponto final (.)", "O sinal de igual (=)", "O ponto e vírgula (;)", "A barra inclinada (/)"], correct: 1 } },
+      { id: 703, title: "Aula 3 — Fórmulas básicas", description: "Operações matemáticas simples.", learned: "Utilizar operações simples de cálculo.", objectives: "Utilizar operações simples de cálculo.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual símbolo representa a multiplicação nas fórmulas do Excel?", options: ["+", "-", "*", "/"], correct: 2 } },
+      { id: 704, title: "Aula 4 — Exercício: planilha financeira", description: "Controle de caixa básico.", learned: "Montagem de planilha de receitas e despesas.", objectives: "Montar planilha de entradas e despesas.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O exercício prático deste módulo propõe a criação de:", options: ["Uma planilha simples de controle de entradas e despesas", "Uma carta de apresentação profissional", "Uma apresentação de slides", "Um banco de dados de clientes"], correct: 0 } }
     ]
   },
   {
     id: 8, title: "MÓDULO 8 — POWERPOINT", intro: "Crie apresentações visuais e impactantes.",
     lessons: [
-      { id: 801, title: "Aula 1 — Conhecendo apresentações", objectives: "Entender o conceito de slides e estrutura.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual a principal finalidade do Microsoft PowerPoint?", options: ["Criar apresentações visuais em slides", "Gerenciar contas bancárias", "Navegar na web com segurança", "Escrever códigos de sistema"], correct: 0 } },
-      { id: 802, title: "Aula 2 — Criando slides", objectives: "Criar slides, inserir textos e imagens.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Ao criar slides, o que é recomendado para garantir boa leitura?", options: ["Usar letras minúsculas e cores idênticas ao fundo", "Manter bom contraste entre o texto e o fundo", "Colocar textos extensos sem espaçamento", "Omitir títulos"], correct: 1 } },
-      { id: 803, title: "Aula 3 — Apresentação e transições", objectives: "Executar apresentação com transições moderadas.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual o cuidado recomendado ao aplicar transições e efeitos nos slides?", options: ["Usar com moderação para não distrair o público", "Aplicar efeitos barulhentos em todos os objetos", "Evitar qualquer tipo de animação", "Usar apenas transições lentas de 10 segundos"], correct: 0 } },
-      { id: 804, title: "Aula 4 — Exercício de apresentação", objectives: "Criar apresentação simples de três slides.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O exercício de apresentação consiste em criar:", options: ["Uma apresentação simples estruturada em três slides", "Uma planilha contábil completa", "Um documento de texto jurídico", "Uma pasta compactada"], correct: 0 } }
+      { id: 801, title: "Aula 1 — Conhecendo apresentações", description: "Conceito de slides.", learned: "Entender o conceito de slides e estrutura.", objectives: "Entender o conceito de slides e estrutura.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual a principal finalidade do Microsoft PowerPoint?", options: ["Criar apresentações visuais em slides", "Gerenciar contas bancárias", "Navegar na web com segurança", "Escrever códigos de sistema"], correct: 0 } },
+      { id: 802, title: "Aula 2 — Criando slides", description: "Adicionando conteúdo visual.", learned: "Criar slides, inserir textos e imagens.", objectives: "Criar slides, inserir textos e imagens.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Ao criar slides, o que é recomendado para garantir boa leitura?", options: ["Usar letras minúsculas e cores idênticas ao fundo", "Manter bom contraste entre o texto e o fundo", "Colocar textos extensos sem espaçamento", "Omitir títulos"], correct: 1 } },
+      { id: 803, title: "Aula 3 — Apresentação e transições", description: "Efeitos visuais moderados.", learned: "Executar apresentação com transições moderadas.", objectives: "Executar apresentação com transições moderadas.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual o cuidado recomendado ao aplicar transições e efeitos nos slides?", options: ["Usar com moderação para não distrair o público", "Aplicar efeitos barulhentos em todos os objetos", "Evitar qualquer tipo de animação", "Usar apenas transições lentas de 10 segundos"], correct: 0 } },
+      { id: 804, title: "Aula 4 — Exercício de apresentação", description: "Projeto de slides.", learned: "Criação de apresentação completa.", objectives: "Criar apresentação simples de três slides.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O exercício de apresentação consiste em criar:", options: ["Uma apresentação simples estruturada em três slides", "Uma planilha contábil completa", "Um documento de texto jurídico", "Uma pasta compactada"], correct: 0 } }
     ]
   },
   {
     id: 9, title: "MÓDULO 9 — ARMAZENAMENTO EM NUVEM", intro: "Acesse arquivos de qualquer lugar com segurança.",
     lessons: [
-      { id: 901, title: "Aula 1 — O que é armazenamento em nuvem?", objectives: "Entender nuvem e armazenamento online.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual a principal vantagem do armazenamento em nuvem?", options: ["Acessar arquivos de diferentes dispositivos conectados à internet", "Aumentar a memória RAM física do PC", "Funcionar sem necessidade de eletricidade", "Eliminar a necessidade de senhas"], correct: 0 } },
-      { id: 902, title: "Aula 2 — Organizando arquivos online", objectives: "Criar pastas e organizar documentos.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "A organização de pastas na nuvem funciona de forma:", options: ["Igual ou muito semelhante à organização no computador local", "Exclusiva para arquivos de música", "Incompatível com documentos do Word", "Automática sem intervenção do usuário"], correct: 0 } },
-      { id: 903, title: "Aula 3 — Compartilhamento", objectives: "Entender links e permissões de acesso.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O que se deve verificar ao gerar um link de compartilhamento na nuvem?", options: ["As permissões de acesso concedidas (leitura ou edição)", "A voltagem da tomada do roteador", "A resolução da tela de quem vai receber", "O peso em gramas do arquivo"], correct: 0 } },
-      { id: 904, title: "Aula 4 — Exercício na nuvem", objectives: "Criar pasta, adicionar arquivo e compartilhar.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O exercício prático de nuvem envolve:", options: ["Criar uma pasta online, enviar um arquivo e praticar o compartilhamento", "Desinstalar o navegador", "Formatar o HD externo", "Imprimir um documento físico"], correct: 0 } }
+      { id: 901, title: "Aula 1 — O que é armazenamento em nuvem?", description: "Conceito de nuvem.", learned: "Entender nuvem e armazenamento online.", objectives: "Entender nuvem e armazenamento online.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual a principal vantagem do armazenamento em nuvem?", options: ["Acessar arquivos de diferentes dispositivos conectados à internet", "Aumentar a memória RAM física do PC", "Funcionar sem necessidade de eletricidade", "Eliminar a necessidade de senhas"], correct: 0 } },
+      { id: 902, title: "Aula 2 — Organizando arquivos online", description: "Estruturas virtuais.", learned: "Criar pastas e organizar documentos.", objectives: "Criar pastas e organizar documentos.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "A organização de pastas na nuvem funciona de forma:", options: ["Igual ou muito semelhante à organização no computador local", "Exclusiva para arquivos de música", "Incompatível com documentos do Word", "Automática sem intervenção do usuário"], correct: 0 } },
+      { id: 903, title: "Aula 3 — Compartilhamento", description: "Links e permissões.", learned: "Entender links e permissões de acesso.", objectives: "Entender links e permissões de acesso.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O que se deve verificar ao gerar um link de compartilhamento na nuvem?", options: ["As permissões de acesso concedidas (leitura ou edição)", "A voltagem da tomada do roteador", "A resolução da tela de quem vai receber", "O peso em gramas do arquivo"], correct: 0 } },
+      { id: 904, title: "Aula 4 — Exercício na nuvem", description: "Prática online.", learned: "Uso prático de pastas na nuvem.", objectives: "Criar pasta, adicionar arquivo e compartilhar.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O exercício prático de nuvem envolve:", options: ["Criar uma pasta online, enviar um arquivo e praticar o compartilhamento", "Desinstalar o navegador", "Formatar o HD externo", "Imprimir um documento físico"], correct: 0 } }
     ]
   },
   {
     id: 10, title: "MÓDULO 10 — SEGURANÇA DIGITAL", intro: "Proteja suas contas e informações na internet.",
     lessons: [
-      { id: 1001, title: "Aula 1 — Senhas e autenticação", objectives: "Criar senhas seguras e autenticação adicional.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O que caracteriza uma senha forte?", options: ["Uso de dados óbvios como data de nascimento", "Combinação de letras maiúsculas/minúsculas, números e símbolos", "Uma sequência numérica simples como 123456", "O primeiro nome do usuário"], correct: 1 } },
-      { id: 1002, title: "Aula 2 — Golpes e phishing", objectives: "Reconhecer mensagens suspeitas e phishing.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O que é o golpe de Phishing?", options: ["Uma atualização de segurança legítima", "Mensagens falsas fingindo ser instituições confiáveis para roubar dados", "Um erro de conexão de rede", "Um programa de compactação de arquivos"], correct: 1 } },
-      { id: 1003, title: "Aula 3 — Privacidade", objectives: "Proteger informações pessoais e revisar permissões.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual é uma boa prática relacionada à privacidade digital?", options: ["Publicar o endereço residencial e documentos em redes públicas", "Evitar expor dados pessoais sensíveis desnecessariamente", "Compartilhar senhas com desconhecidos na web", "Desativar todas as travas do navegador"], correct: 1 } },
-      { id: 1004, title: "Aula 4 — Exercício de segurança", objectives: "Analisar exemplos práticos e tomar decisões seguras.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O exercício de segurança digital propõe:", options: ["Analisar casos práticos para identificar armadilhas e tomar decisões seguras", "Invadir redes de computadores", "Testar a velocidade da banda larga", "Criar vírus educacionais"], correct: 0 } }
+      { id: 1001, title: "Aula 1 — Senhas e autenticação", description: "Boas práticas de segurança.", learned: "Criar senhas seguras e autenticação adicional.", objectives: "Criar senhas seguras e autenticação adicional.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O que caracteriza uma senha forte?", options: ["Uso de dados óbvios como data de nascimento", "Combinação de letras maiúsculas/minúsculas, números e símbolos", "Uma sequência numérica simples como 123456", "O primeiro nome do usuário"], correct: 1 } },
+      { id: 1002, title: "Aula 2 — Golpes e phishing", description: "Identificando fraudes digitais.", learned: "Reconhecer mensagens suspeitas e phishing.", objectives: "Reconhecer mensagens suspeitas e phishing.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O que é o golpe de Phishing?", options: ["Uma atualização de segurança legítima", "Mensagens falsas fingindo ser instituições confiáveis para roubar dados", "Um erro de conexão de rede", "Um programa de compactação de arquivos"], correct: 1 } },
+      { id: 1003, title: "Aula 3 — Privacidade", description: "Proteção de dados pessoais.", learned: "Proteger informações pessoais e revisar permissões.", objectives: "Proteger informações pessoais e revisar permissões.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual é uma boa prática relacionada à privacidade digital?", options: ["Publicar o endereço residencial e documentos em redes públicas", "Evitar expor dados pessoais sensíveis desnecessariamente", "Compartilhar senhas com desconhecidos na web", "Desativar todas as travas do navegador"], correct: 1 } },
+      { id: 1004, title: "Aula 4 — Exercício de segurança", description: "Simulação de segurança.", learned: "Análise de cenários seguros.", objectives: "Analisar exemplos práticos e tomar decisões seguras.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O exercício de segurança digital propõe:", options: ["Analisar casos práticos para identificar armadilhas e tomar decisões seguras", "Invadir redes de computadores", "Testar a velocidade da banda larga", "Criar vírus educacionais"], correct: 0 } }
     ]
   },
   {
     id: 11, title: "MÓDULO 11 — INTELIGÊNCIA ARTIFICIAL", intro: "Conheça conceitos básicos de IA e aprenda a criar prompts.",
     lessons: [
-      { id: 1101, title: "Aula 1 — O que é Inteligência Artificial?", objectives: "Entender IA e suas aplicações.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O que define uma Inteligência Artificial generativa de texto?", options: ["Um robô físico de limpeza", "Sistemas treinados para processar linguagem natural e gerar conteúdos", "Um antivírus avançado", "Um cabo de fibra óptica"], correct: 1 } },
-      { id: 1102, title: "Aula 2 — Como escrever bons prompts", objectives: "Criar instruções claras com objetivo e contexto.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O que é um 'prompt' no uso de ferramentas de IA?", options: ["A instrução ou comando digitado pelo usuário", "O erro de conexão", "A taxa de assinatura da ferramenta", "O arquivo gerado em PDF"], correct: 0 } },
-      { id: 1103, title: "Aula 3 — IA para estudo e produtividade", objectives: "Utilizar IA para organizar ideias e auxiliar estudos.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Como a IA pode auxiliar na produtividade diária?", options: ["Substituindo o uso de computadores", "Auxiliando na criação de resumos, rascunhos e organização de ideias", "Consertando peças físicas queimadas", "Imprimindo documentos sem papel"], correct: 1 } },
-      { id: 1104, title: "Aula 4 — Exercício de prompt", objectives: "Criar prompt estruturado e avaliar resultado.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O exercício de prompt consiste em:", options: ["Praticar a criação de comandos claros e estruturados para obter bons resultados da IA", "Desligar o sistema de inteligência", "Formatar o computador", "Criar planilhas financeiras manuais"], correct: 0 } }
+      { id: 1101, title: "Aula 1 — O que é Inteligência Artificial?", description: "Introdução à tecnologia de IA.", learned: "Entender IA e suas aplicações.", objectives: "Entender IA e suas aplicações.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O que define uma Inteligência Artificial generativa de texto?", options: ["Um robô físico de limpeza", "Sistemas treinados para processar linguagem natural e gerar conteúdos", "Um antivírus avançado", "Um cabo de fibra óptica"], correct: 1 } },
+      { id: 1102, title: "Aula 2 — Como escrever bons prompts", description: "Comandos eficientes para IA.", learned: "Criar instruções claras com objetivo e contexto.", objectives: "Criar instruções claras com objetivo e contexto.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O que é um 'prompt' no uso de ferramentas de IA?", options: ["A instrução ou comando digitado pelo usuário", "O erro de conexão", "A taxa de assinatura da ferramenta", "O arquivo gerado em PDF"], correct: 0 } },
+      { id: 1103, title: "Aula 3 — IA para estudo e produtividade", description: "Uso prático no dia a dia.", learned: "Utilizar IA para organizar ideias e auxiliar estudos.", objectives: "Utilizar IA para organizar ideias e auxiliar estudos.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Como a IA pode auxiliar na produtividade diária?", options: ["Substituindo o uso de computadores", "Auxiliando na criação de resumos, rascunhos e organização de ideias", "Consertando peças físicas queimadas", "Imprimindo documentos sem papel"], correct: 1 } },
+      { id: 1104, title: "Aula 4 — Exercício de prompt", description: "Prática com inteligência artificial.", learned: "Elaboração de comandos práticos.", objectives: "Criar prompt estruturado e avaliar resultado.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O exercício de prompt consiste em:", options: ["Praticar a criação de comandos claros e estruturados para obter bons resultados da IA", "Desligar o sistema de inteligência", "Formatar o computador", "Criar planilhas financeiras manuais"], correct: 0 } }
     ]
   },
   {
     id: 12, title: "MÓDULO 12 — PROJETO FINAL", intro: "Aplique tudo o que aprendeu em um projeto prático.",
     lessons: [
-      { id: 1201, title: "Aula 1 — Planejando o projeto", objectives: "Definir ideia e planejar etapas.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual é o primeiro passo recomendado para iniciar o projeto final?", options: ["Planejar as etapas e definir a ideia a ser desenvolvida", "Imprimir o certificado antes de começar", "Excluir os módulos anteriores", "Desinstalar os editores de texto"], correct: 0 } },
-      { id: 1202, title: "Aula 2 — Criando o projeto", objectives: "Colocar planejamento em prática e organizar arquivos.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O que se faz durante a etapa de criação do projeto?", options: ["Colocar o planejamento em prática criando e organizando os arquivos digitais", "Apenas assistir a vídeos sem praticar", "Aguardar o suporte técnico", "Desligar o computador"], correct: 0 } },
-      { id: 1203, title: "Aula 3 — Revisão e organização", objectives: "Conferir informações e corrigir erros.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual a importância da revisão antes de finalizar o projeto?", options: ["Garantir que não há erros e que o trabalho está bem organizado", "Aumentar o tamanho do arquivo", "Mudar o idioma do computador", "Apagar o conteúdo produzido"], correct: 0 } },
-      { id: 1204, title: "Aula 4 — Conclusão", objectives: "Finalizar projeto e revisar evolução.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O que representa a conclusão do projeto final?", options: ["O encerramento prático do curso com consolidação das habilidades adquiridas", "O fim definitivo do uso de computadores", "Uma falha no sistema operacional", "A necessidade de reiniciar o curso do zero"], correct: 0 } }
+      { id: 1201, title: "Aula 1 — Planejando o projeto", description: "Etapas iniciais do projeto.", learned: "Definir ideia e planejar etapas.", objectives: "Definir ideia e planejar etapas.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual é o primeiro passo recomendado para iniciar o projeto final?", options: ["Planejar as etapas e definir a ideia a ser desenvolvida", "Imprimir o certificado antes de começar", "Excluir os módulos anteriores", "Desinstalar os editores de texto"], correct: 0 } },
+      { id: 1202, title: "Aula 2 — Criando o projeto", description: "Execução prática.", learned: "Colocar planejamento em prática e organizar arquivos.", objectives: "Colocar planejamento em prática e organizar arquivos.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O que se faz durante a etapa de criação do projeto?", options: ["Colocar o planejamento em prática criando e organizando os arquivos digitais", "Apenas assistir a vídeos sem praticar", "Aguardar o suporte técnico", "Desligar o computador"], correct: 0 } },
+      { id: 1203, title: "Aula 3 — Revisão e organização", description: "Conferência final.", learned: "Conferir informações e corrigir erros.", objectives: "Conferir informações e corrigir erros.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual a importância da revisão antes de finalizar o projeto?", options: ["Garantir que não há erros e que o trabalho está bem organizado", "Aumentar o tamanho do arquivo", "Mudar o idioma do computador", "Apagar o conteúdo produzido"], correct: 0 } },
+      { id: 1204, title: "Aula 4 — Conclusão", description: "Encerramento do curso.", learned: "Finalizar projeto e revisar evolução.", objectives: "Finalizar projeto e revisar evolução.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O que representa a conclusão do projeto final?", options: ["O encerramento prático do curso com consolidação das habilidades adquiridas", "O fim definitivo do uso de computadores", "Uma falha no sistema operacional", "A necessidade de reiniciar o curso do zero"], correct: 0 } }
     ]
   },
   {
     id: 13, title: "🎁 BÔNUS 1 — 30 ATALHOS DE TECLADO", intro: "Coleção de atalhos úteis para maior agilidade.",
     lessons: [
-      { id: 1301, title: "Aula — Atalhos essenciais", objectives: "Memorizar atalhos importantes e aumentar produtividade.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual é o principal benefício de dominar atalhos de teclado?", options: ["Ganhar agilidade e eficiência nas tarefas cotidianas", "Fazer o computador rodar jogos mais pesados", "Evitar o uso do monitor", "Imprimir mais rápido"], correct: 0 } }
+      { id: 1301, title: "Aula — Atalhos essenciais", description: "Lista de comandos rápidos.", learned: "Memorizar atalhos importantes e aumentar produtividade.", objectives: "Memorizar atalhos importantes e aumentar produtividade.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual é o principal benefício de dominar atalhos de teclado?", options: ["Ganhar agilidade e eficiência nas tarefas cotidianas", "Fazer o computador rodar jogos mais pesados", "Evitar o uso do monitor", "Imprimir mais rápido"], correct: 0 } }
     ]
   },
   {
     id: 14, title: "🎁 BÔNUS 2 — MODELO DE CURRÍCULO", intro: "Aprenda a utilizar modelo simples de currículo.",
     lessons: [
-      { id: 1401, title: "Aula — Como usar o modelo", objectives: "Organizar informações profissionais e preencher currículo.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O que é fundamental ao preencher o modelo de currículo?", options: ["Manter a clareza, objetividade e veracidade das informações profissionais", "Escrever textos longos sem parágrafos", "Omitir dados de contato", "Usar fontes ilegíveis"], correct: 0 } }
+      { id: 1401, title: "Aula — Como usar o modelo", description: "Estruturação profissional.", learned: "Organizar informações profissionais e preencher currículo.", objectives: "Organizar informações profissionais e preencher currículo.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O que é fundamental ao preencher o modelo de currículo?", options: ["Manter a clareza, objetividade e veracidade das informações profissionais", "Escrever textos longos sem parágrafos", "Omitir dados de contato", "Usar fontes ilegíveis"], correct: 0 } }
     ]
   },
   {
     id: 15, title: "🎁 BÔNUS 3 — PLANILHA FINANCEIRA", intro: "Organização das informações financeiras do dia a dia.",
     lessons: [
-      { id: 1501, title: "Aula — Como usar a planilha", objectives: "Registrar entradas e despesas com cálculos simples.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual a utilidade principal da planilha financeira bônus?", options: ["Ajudar no registro organizado de entradas, despesas e controle diário", "Criar apresentações de slides", "Navegar em sites de compras", "Desenvolver programas de computador"], correct: 0 } }
+      { id: 1501, title: "Aula — Como usar a planilha", description: "Controle financeiro pessoal.", learned: "Registrar entradas e despesas com cálculos simples.", objectives: "Registrar entradas e despesas com cálculos simples.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual a utilidade principal da planilha financeira bônus?", options: ["Ajudar no registro organizado de entradas, despesas e controle diário", "Criar apresentações de slides", "Navegar em sites de compras", "Desenvolver programas de computador"], correct: 0 } }
     ]
   }
 ];
@@ -847,19 +924,27 @@ let isAdmin = false;
 let videoWatchedState = {};
 
 window.onload = function() {
+  const rememberedEmail = localStorage.getItem('remembered_email');
+  const rememberedPass = localStorage.getItem('remembered_pass');
+  if (rememberedEmail) {
+    document.getElementById('login-email').value = rememberedEmail;
+    document.getElementById('remember-me').checked = true;
+  }
+  if (rememberedPass) {
+    document.getElementById('login-pass').value = rememberedPass;
+  }
+
   const checkDbInterval = setInterval(() => {
     if (window.db && window.auth) {
       clearInterval(checkDbInterval);
       const { collection, onSnapshot, setDoc, doc, onAuthStateChanged } = window.firebaseModules;
 
-      // Monitor de sessão persistente nativo do Firebase (Resolve o problema do F5)
       onAuthStateChanged(window.auth, (user) => {
         if (user) {
           currentUser = user.email;
-          let uObj = registeredUsers.find(u => u.email === currentUser);
-          isAdmin = (currentUser === TARGET_EMAIL || uObj?.role === 'admin');
+          isAdmin = (currentUser === TARGET_EMAIL || (registeredUsers.find(u => u.email === currentUser)?.role === 'admin'));
           updateMobileMenuOptions();
-          checkUserAccess();
+          checkUserAccessOnLoad();
         } else {
           currentUser = null;
           isAdmin = false;
@@ -897,6 +982,7 @@ window.onload = function() {
           let uObj = registeredUsers.find(u => u.email === currentUser);
           isAdmin = (currentUser === TARGET_EMAIL || uObj?.role === 'admin');
           updateMobileMenuOptions();
+          checkUserAccessOnLoad();
         }
         if (isAdmin && document.getElementById('admin-area').style.display === 'block') {
           renderDashboard();
@@ -982,12 +1068,15 @@ function updateMobileMenuOptions() {
       <button onclick="toggleMobileMenu(); openAuthModal('login')"><i class="fa-regular fa-user"></i> Login</button>
       <button onclick="toggleMobileMenu(); showPublicSite();"><i class="fa-solid fa-house"></i> Início</button>
     `;
+    document.getElementById('hero-btn-text').innerText = "ACESSAR MINHA CONTA";
   } else {
     let html = '';
     if(isAdmin) html += `<button onclick="toggleMobileMenu(); showAdminArea();"><i class="fa-solid fa-gear"></i> Painel Admin</button>`;
     html += `<button onclick="toggleMobileMenu(); showMemberArea();"><i class="fa-solid fa-graduation-cap"></i> Acessar Aulas</button>`;
+    html += `<button onclick="toggleMobileMenu(); showSettingsArea();"><i class="fa-solid fa-sliders"></i> Configurações</button>`;
     html += `<button style="color:var(--red);" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> Sair</button>`;
     container.innerHTML = html;
+    document.getElementById('hero-btn-text').innerText = "IR PARA AS AULAS";
   }
 }
 
@@ -995,7 +1084,16 @@ async function handleLogin(e) {
   e.preventDefault();
   const em = document.getElementById('login-email').value.trim(); 
   const pw = document.getElementById('login-pass').value.trim();
+  const rememberMe = document.getElementById('remember-me').checked;
   const { signInWithEmailAndPassword } = window.firebaseModules;
+
+  if (rememberMe) {
+    localStorage.setItem('remembered_email', em);
+    localStorage.setItem('remembered_pass', pw);
+  } else {
+    localStorage.removeItem('remembered_email');
+    localStorage.removeItem('remembered_pass');
+  }
 
   if (em === TARGET_EMAIL && pw === "478") {
     let adminObj = registeredUsers.find(u => u.email === TARGET_EMAIL);
@@ -1003,14 +1101,35 @@ async function handleLogin(e) {
       adminObj = { email: TARGET_EMAIL, paid: true, role: "admin", fullname: "Administrador Geral", cpf: "000.000.000-00", certReleased: true };
       await saveUserToCloud(adminObj);
     }
-    currentUser = em; isAdmin = true;
-    closeModal('modal-auth'); updateMobileMenuOptions(); showAdminArea(); return;
+    setAuthSession(em, true); showAdminArea(); return;
   }
 
   try {
     await signInWithEmailAndPassword(window.auth, em, pw);
+    let uObj = registeredUsers.find(u => u.email === em);
+    let adminFlag = (uObj?.role === 'admin' || em === TARGET_EMAIL);
+    setAuthSession(em, adminFlag);
+    if(adminFlag) showAdminArea(); else showMemberArea();
   } catch (err) {
     alert("Erro ao entrar: E-mail ou senha incorretos.");
+  }
+}
+
+async function handleForgotPassword(e) {
+  e.preventDefault();
+  const em = document.getElementById('login-email').value.trim();
+  if(!em) {
+    alert("Digite seu e-mail no campo de e-mail acima para receber a recuperação de senha.");
+    document.getElementById('login-email').focus();
+    return;
+  }
+  const { sendPasswordResetEmail } = window.firebaseModules;
+  try {
+    await sendPasswordResetEmail(window.auth, em);
+    showSuccessModal("E-mail de redefinição de senha enviado com sucesso! Verifique sua caixa de entrada.");
+    closeModal('modal-auth');
+  } catch (err) {
+    alert("Erro ao enviar e-mail de recuperação: " + err.message);
   }
 }
 
@@ -1026,9 +1145,16 @@ async function handleRegister(e) {
     await createUserWithEmailAndPassword(window.auth, em, pw);
     let newUser = { email: em, paid: false, role: 'student', fullname: '', cpf: '', certReleased: false };
     await saveUserToCloud(newUser);
+    setAuthSession(em, false);
+    showMemberArea();
   } catch (err) {
     alert("Erro ao cadastrar: " + err.message);
   }
+}
+
+function setAuthSession(em, adminFlag) {
+  currentUser = em; isAdmin = adminFlag; 
+  closeModal('modal-auth'); updateMobileMenuOptions();
 }
 
 async function logout() {
@@ -1038,9 +1164,38 @@ async function logout() {
   location.reload(); 
 }
 
-function checkUserAccess() {
-  if (isAdmin || currentUser === TARGET_EMAIL) showAdminArea();
-  else showMemberArea();
+function checkUserAccessOnLoad() {
+  let uObj = registeredUsers.find(u => u.email === currentUser);
+  const isPaid = isAdmin || uObj?.paid;
+  if (isPaid && currentUser !== TARGET_EMAIL && document.getElementById('member-area').style.display === 'block') {
+    renderMemberSidebar();
+  }
+}
+
+function handleAccountAction() {
+  if (!currentUser) {
+    openAuthModal('login');
+  } else {
+    let uObj = registeredUsers.find(u => u.email === currentUser);
+    if (isAdmin || uObj?.paid) {
+      showMemberArea();
+    } else {
+      redirectToPerfectPay();
+    }
+  }
+}
+
+function handleLogoClick() {
+  if (currentUser) {
+    let uObj = registeredUsers.find(u => u.email === currentUser);
+    if (isAdmin || uObj?.paid) {
+      showMemberArea();
+    } else {
+      showPublicSite();
+    }
+  } else {
+    showPublicSite();
+  }
 }
 
 function redirectToPerfectPay() {
@@ -1051,14 +1206,40 @@ function redirectToPerfectPay() {
 }
 
 function showPublicSite() {
-  document.getElementById('public-site').style.display = 'block'; document.getElementById('member-area').style.display = 'none'; document.getElementById('admin-area').style.display = 'none';
+  document.getElementById('public-site').style.display = 'block'; 
+  document.getElementById('member-area').style.display = 'none'; 
+  document.getElementById('admin-area').style.display = 'none';
+  document.getElementById('settings-area').style.display = 'none';
   document.getElementById('nav-guest').style.display = currentUser ? 'none' : 'block';
   document.getElementById('nav-user').style.display = currentUser ? 'flex' : 'none';
 }
 
+function showSettingsArea() {
+  document.getElementById('public-site').style.display = 'none'; 
+  document.getElementById('member-area').style.display = 'none'; 
+  document.getElementById('admin-area').style.display = 'none';
+  document.getElementById('settings-area').style.display = 'block';
+  document.getElementById('settings-email').value = currentUser || '';
+}
+
+async function triggerPasswordReset() {
+  if (!currentUser) return;
+  const { sendPasswordResetEmail } = window.firebaseModules;
+  try {
+    await sendPasswordResetEmail(window.auth, currentUser);
+    showSuccessModal("E-mail de redefinição de senha enviado para " + currentUser);
+  } catch (err) {
+    alert("Erro: " + err.message);
+  }
+}
+
 function showMemberArea() {
-  document.getElementById('public-site').style.display = 'none'; document.getElementById('admin-area').style.display = 'none'; document.getElementById('member-area').style.display = 'block';
-  document.getElementById('nav-guest').style.display = 'none'; document.getElementById('nav-user').style.display = 'flex';
+  document.getElementById('public-site').style.display = 'none'; 
+  document.getElementById('admin-area').style.display = 'none'; 
+  document.getElementById('settings-area').style.display = 'none';
+  document.getElementById('member-area').style.display = 'block';
+  document.getElementById('nav-guest').style.display = 'none'; 
+  document.getElementById('nav-user').style.display = 'flex';
   document.getElementById('user-display').innerText = currentUser ? currentUser.split('@')[0] : 'Aluno';
   
   let uObj = registeredUsers.find(u => u.email === currentUser);
@@ -1085,8 +1266,12 @@ function showMemberArea() {
 
 function showAdminArea() {
   if(!isAdmin && currentUser !== TARGET_EMAIL){ alert("Acesso Restrito!"); showMemberArea(); return; }
-  document.getElementById('public-site').style.display = 'none'; document.getElementById('member-area').style.display = 'none'; document.getElementById('admin-area').style.display = 'block';
-  document.getElementById('nav-guest').style.display = 'none'; document.getElementById('nav-user').style.display = 'flex';
+  document.getElementById('public-site').style.display = 'none'; 
+  document.getElementById('member-area').style.display = 'none'; 
+  document.getElementById('settings-area').style.display = 'none';
+  document.getElementById('admin-area').style.display = 'block';
+  document.getElementById('nav-guest').style.display = 'none'; 
+  document.getElementById('nav-user').style.display = 'flex';
   document.getElementById('user-display').innerText = "Admin";
   switchAdminTab('dashboard'); populateLessonModuleSelect();
 }
@@ -1155,10 +1340,11 @@ function loadLessonContent(modId, lessonId) {
   if(!lesson) return;
   const container = document.getElementById('lms-main-content');
   
-  videoWatchedState[lessonId] = false;
+  const hasVideo = lesson.video && lesson.video.trim() !== '';
+  videoWatchedState[lessonId] = !hasVideo;
 
   let mediaHtml = '';
-  if (lesson.video) {
+  if (hasVideo) {
     let videoId = getYouTubeId(lesson.video);
     mediaHtml = `
       <div class="video-frame" id="yt-player-container-${lesson.id}" style="position: relative; background: #000; display: flex; align-items: center; justify-content: center; cursor: pointer;" onclick="activateYouTubePlayer('${lesson.id}', '${videoId}')">
@@ -1168,10 +1354,7 @@ function loadLessonContent(modId, lessonId) {
         </div>
       </div>`;
   } else if (lesson.image) {
-    videoWatchedState[lessonId] = true;
     mediaHtml = `<div class="image-frame"><img src="${lesson.image}" alt="Capa da Aula"></div>`;
-  } else {
-    videoWatchedState[lessonId] = true;
   }
 
   let pdfHtml = lesson.pdf ? `
@@ -1199,7 +1382,7 @@ function loadLessonContent(modId, lessonId) {
   let hasNameCpf = uObj?.fullname && uObj?.cpf;
 
   let quizHtml = '';
-  if (lesson.quiz) {
+  if (lesson.quiz && lesson.quiz.question) {
     let optionsHtml = '';
     lesson.quiz.options.forEach((opt, idx) => {
       optionsHtml += `<button class="quiz-option-btn" onclick="checkQuizAnswer(this, ${idx}, ${lesson.quiz.correct}, ${mod.id}, ${lesson.id}, ${next ? next.m : 'null'}, ${next ? next.l : 'null'})">
@@ -1207,12 +1390,21 @@ function loadLessonContent(modId, lessonId) {
       </button>`;
     });
 
+    const isUnlocked = videoWatchedState[lesson.id] || isDone;
+
     quizHtml = `
-      <div class="quiz-container" id="quiz-block-${lesson.id}" style="display: ${isDone || videoWatchedState[lesson.id] ? 'block' : 'none'};">
+      <div class="quiz-container" id="quiz-block-${lesson.id}" style="display: block;">
         <div class="quiz-header-badge"><i class="fa-solid fa-brain"></i> Exercício de Fixação</div>
-        <div class="quiz-question-title">${lesson.quiz.question}</div>
-        <div class="quiz-options-list">${optionsHtml}</div>
-        <div class="quiz-feedback" id="quiz-feedback-${lesson.id}"></div>
+        
+        <div id="quiz-locked-notice-${lesson.id}" style="padding: 14px; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 12px; margin-bottom: 14px; font-size: 13px; color: #f87171; display: ${isUnlocked ? 'none' : 'block'};">
+          <i class="fa-solid fa-lock" style="margin-right: 6px;"></i> Assista ao vídeo da aula até o final para liberar os exercícios.
+        </div>
+
+        <div id="quiz-content-body-${lesson.id}" style="opacity: ${isUnlocked ? '1' : '0.3'}; pointer-events: ${isUnlocked ? 'auto' : 'none'}; transition: 0.3s;">
+          <div class="quiz-question-title">${lesson.quiz.question}</div>
+          <div class="quiz-options-list">${optionsHtml}</div>
+          <div class="quiz-feedback" id="quiz-feedback-${lesson.id}"></div>
+        </div>
       </div>
     `;
   }
@@ -1252,9 +1444,19 @@ function loadLessonContent(modId, lessonId) {
     <h2 style="margin-bottom: 18px; font-size: 22px; color: #fff;">${lesson.title}</h2>
     ${mediaHtml}
     
-    <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); padding: 22px; border-radius: 16px; margin-top: 20px;">
-      <h4 style="color: var(--accent-cyan); margin-bottom: 8px; font-size: 15px;"><i class="fa-solid fa-bullseye"></i> Objetivos da Aula</h4>
-      <p style="color: var(--text-secondary); font-size: 13.5px; white-space: pre-line;">${lesson.objectives || 'Sem descrição.'}</p>
+    <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); padding: 20px; border-radius: 16px; margin-top: 20px;">
+      <h4 style="color: var(--accent-cyan); margin-bottom: 8px; font-size: 14.5px;"><i class="fa-solid fa-align-left"></i> Descrição da Aula</h4>
+      <p style="color: var(--text-secondary); font-size: 13.5px; white-space: pre-line;">${lesson.description || 'Sem descrição cadastrada.'}</p>
+    </div>
+
+    <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); padding: 20px; border-radius: 16px; margin-top: 14px;">
+      <h4 style="color: var(--accent-cyan); margin-bottom: 8px; font-size: 14.5px;"><i class="fa-solid fa-list-check"></i> O que vai ser aprendido</h4>
+      <p style="color: var(--text-secondary); font-size: 13.5px; white-space: pre-line;">${lesson.learned || 'Nenhum tópico informado.'}</p>
+    </div>
+
+    <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); padding: 20px; border-radius: 16px; margin-top: 14px;">
+      <h4 style="color: var(--accent-cyan); margin-bottom: 8px; font-size: 14.5px;"><i class="fa-solid fa-bullseye"></i> Objetivos na Aula</h4>
+      <p style="color: var(--text-secondary); font-size: 13.5px; white-space: pre-line;">${lesson.objectives || 'Nenhum objetivo informado.'}</p>
     </div>
     
     ${pdfHtml}
@@ -1266,14 +1468,7 @@ function loadLessonContent(modId, lessonId) {
           <h3 style="color: var(--green); margin-bottom: 8px; font-size: 16px;"><i class="fa-solid fa-medal"></i> Aula Concluída!</h3>
           ${next ? `<button class="btn" onclick="loadLessonContent(${next.m}, ${next.l})">Próxima Aula <i class="fa-solid fa-arrow-right"></i></button>` : `<span style="color:var(--accent-cyan); font-weight:bold;">Você concluiu todas as aulas!</span>`}
         </div>
-      ` : `
-        <div id="locked-notice" style="padding: 14px; background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); border-radius: 12px; margin-bottom: 14px; font-size: 13px; color: var(--text-secondary); display: ${videoWatchedState[lesson.id] ? 'none' : 'block'};">
-          <i class="fa-solid fa-lock" style="color: var(--accent-cyan); margin-right: 6px;"></i> Assista ao vídeo da aula até o final para liberar os exercícios e concluir o conteúdo.
-        </div>
-        <button class="btn" id="mark-done-btn" style="width:100%; max-width:280px; display: ${isDone || videoWatchedState[lesson.id] ? 'inline-flex' : 'none'};" onclick="markDone(${mod.id}, ${lesson.id}, ${next?next.m:null}, ${next?next.l:null})">
-          <i class="fa-solid fa-check-double"></i> Marcar como Concluída
-        </button>
-      `}
+      ` : ''}
     </div>
     ${certificateSectionHtml}
   `;
@@ -1288,14 +1483,14 @@ function activateYouTubePlayer(lessonId, videoId) {
   
   videoWatchedState[lessonId] = true;
 
-  const quizBlock = document.getElementById(`quiz-block-${lessonId}`);
-  if(quizBlock) quizBlock.style.display = 'block';
-
-  const markBtn = document.getElementById('mark-done-btn');
-  if(markBtn) markBtn.style.display = 'inline-flex';
-
-  const notice = document.getElementById('locked-notice');
+  const notice = document.getElementById(`quiz-locked-notice-${lessonId}`);
   if(notice) notice.style.display = 'none';
+
+  const body = document.getElementById(`quiz-content-body-${lessonId}`);
+  if(body) {
+    body.style.opacity = '1';
+    body.style.pointerEvents = 'auto';
+  }
 }
 
 function checkQuizAnswer(buttonElem, selectedIdx, correctIdx, modId, lessonId, nextMod, nextLesson) {
@@ -1331,13 +1526,6 @@ function checkQuizAnswer(buttonElem, selectedIdx, correctIdx, modId, lessonId, n
     feedbackDiv.innerHTML = `<i class="fa-solid fa-circle-xmark" style="font-size: 16px;"></i> Resposta incorreta. A alternativa correta foi destacada em verde.`;
     feedbackDiv.className = 'quiz-feedback error';
   }
-}
-
-function markDone(modId, lessonId, nextMod, nextLesson) {
-  if(!completedLessons[currentUser]) completedLessons[currentUser] = {};
-  completedLessons[currentUser][lessonId] = true;
-  localStorage.setItem('user_completed_lessons', JSON.stringify(completedLessons));
-  renderMemberSidebar(); loadLessonContent(modId, lessonId);
 }
 
 function generateOfficialCertificatePDF(studentName, studentCpf) {
@@ -1511,6 +1699,9 @@ async function approveUser(email) {
     await saveUserToCloud(u);
     showSuccessModal("Pagamento do aluno aprovado na nuvem!"); 
     renderDashboard(); 
+    if (currentUser === email) {
+      showMemberArea();
+    }
   }
 }
 
@@ -1581,13 +1772,33 @@ async function moveLesson(modId, lessonIndex, direction) {
 
 function saveLessonData() {
   const eId = document.getElementById('edit-lesson-id').value; const mId = document.getElementById('lesson-mod-select').value;
-  const t = document.getElementById('lesson-title-input').value.trim(); const o = document.getElementById('lesson-obj-input').value.trim(); 
+  const t = document.getElementById('lesson-title-input').value.trim(); 
+  const desc = document.getElementById('lesson-desc-input').value.trim();
+  const learned = document.getElementById('lesson-learned-input').value.trim();
+  const obj = document.getElementById('lesson-obj-input').value.trim(); 
+  
   const v = document.getElementById('lesson-video-url').value.trim();
   const img = document.getElementById('lesson-image-url').value.trim();
   const pdf = document.getElementById('lesson-pdf-url').value.trim();
   const pdfName = document.getElementById('lesson-pdf-name').value.trim();
 
-  if(!t||!mId) return alert("Preencha os campos obrigatórios.");
+  const qText = document.getElementById('quiz-question-input').value.trim();
+  const opt0 = document.getElementById('quiz-opt0-input').value.trim();
+  const opt1 = document.getElementById('quiz-opt1-input').value.trim();
+  const opt2 = document.getElementById('quiz-opt2-input').value.trim();
+  const opt3 = document.getElementById('quiz-opt3-input').value.trim();
+  const correctIdx = parseInt(document.getElementById('quiz-correct-select').value);
+
+  if(!t||!mId) return alert("Preencha o título da aula e selecione o módulo.");
+  
+  let quizObj = null;
+  if (qText && opt0 && opt1) {
+    quizObj = {
+      question: qText,
+      options: [opt0, opt1, opt2 || "N/A", opt3 || "N/A"],
+      correct: correctIdx
+    };
+  }
   
   const m = courseData.find(x=>x.id==mId);
   if(eId) courseData.forEach(mod => { const found = mod.lessons?.find(l=>l.id==eId); if(found) { mod.lessons = mod.lessons.filter(l=>l.id!=eId); } });
@@ -1596,20 +1807,23 @@ function saveLessonData() {
   m.lessons.push({ 
     id: eId ? parseInt(eId) : Date.now(), 
     title: t, 
-    objectives: o, 
+    description: desc,
+    learned: learned,
+    objectives: obj, 
     video: v, 
     image: img, 
     pdf: pdf, 
-    pdfName: pdfName || (pdf ? 'Material de Apoio.pdf' : '') 
+    pdfName: pdfName || (pdf ? 'Material de Apoio.pdf' : ''),
+    quiz: quizObj
   });
   
-  saveCourseToCloud("Aula publicada na nuvem com sucesso!"); 
+  saveCourseToCloud("Aula e Exercícios publicados na nuvem com sucesso!"); 
   resetLessonForm(); 
   renderAdminModules();
 }
 
 function resetLessonForm() { 
-  document.querySelectorAll('#admin-tab-modules input, #admin-tab-modules textarea').forEach(el=> {if(el.type!=='hidden' && el.id.includes('lesson')) el.value='';}); 
+  document.querySelectorAll('#admin-tab-modules input, #admin-tab-modules textarea').forEach(el=> {if(el.type!=='hidden' && (el.id.includes('lesson') || el.id.includes('quiz'))) el.value='';}); 
   document.getElementById('cancel-lesson-edit-btn').style.display='none'; 
   document.getElementById('edit-lesson-id').value='';
 }
@@ -1619,11 +1833,23 @@ function editLesson(mId, lId) {
   document.getElementById('edit-lesson-id').value=l.id; 
   document.getElementById('lesson-mod-select').value=m.id; 
   document.getElementById('lesson-title-input').value=l.title; 
+  document.getElementById('lesson-desc-input').value=l.description||''; 
+  document.getElementById('lesson-learned-input').value=l.learned||''; 
   document.getElementById('lesson-obj-input').value=l.objectives||''; 
   document.getElementById('lesson-video-url').value=l.video||''; 
   document.getElementById('lesson-image-url').value=l.image||''; 
   document.getElementById('lesson-pdf-url').value=l.pdf||''; 
   document.getElementById('lesson-pdf-name').value=l.pdfName||''; 
+  
+  if (l.quiz) {
+    document.getElementById('quiz-question-input').value = l.quiz.question || '';
+    document.getElementById('quiz-opt0-input').value = l.quiz.options[0] || '';
+    document.getElementById('quiz-opt1-input').value = l.quiz.options[1] || '';
+    document.getElementById('quiz-opt2-input').value = l.quiz.options[2] || '';
+    document.getElementById('quiz-opt3-input').value = l.quiz.options[3] || '';
+    document.getElementById('quiz-correct-select').value = l.quiz.correct || 0;
+  }
+
   document.getElementById('cancel-lesson-edit-btn').style.display='inline-flex';
 }
 
@@ -1641,8 +1867,9 @@ function renderAdminModules() {
   courseData.forEach((m, modIdx) => {
     let lh = '';
     m.lessons?.forEach((l, lIdx) => {
+      let hasQuizBadge = l.quiz && l.quiz.question ? '<span style="font-size:10px; background:rgba(0,240,255,0.15); color:var(--accent-cyan); padding:2px 6px; border-radius:4px; margin-left:6px;">Com Exercícios</span>' : '';
       lh += `<div class="admin-lesson-drag-item">
-        <div style="overflow: hidden; text-overflow: ellipsis; font-size: 13px;"><i class="fa-regular fa-circle-play" style="color:var(--text-secondary); margin-right:6px;"></i> ${l.title}</div>
+        <div style="overflow: hidden; text-overflow: ellipsis; font-size: 13px;"><i class="fa-regular fa-circle-play" style="color:var(--text-secondary); margin-right:6px;"></i> ${l.title} ${hasQuizBadge}</div>
         <div style="display: flex; gap: 6px; align-items: center;">
           <button class="btn-outline" style="padding:4px 8px;" onclick="moveLesson(${m.id}, ${lIdx}, -1)" title="Subir Aula"><i class="fa-solid fa-arrow-up"></i></button>
           <button class="btn-outline" style="padding:4px 8px;" onclick="moveLesson(${m.id}, ${lIdx}, 1)" title="Descer Aula"><i class="fa-solid fa-arrow-down"></i></button>
