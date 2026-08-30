@@ -31,6 +31,7 @@
   const db = getFirestore(app);
   const auth = getAuth(app);
 
+  // Garante persistência local permanente para o F5 não deslogar
   setPersistence(auth, browserLocalPersistence).catch((error) => {
     console.error("Erro na persistência:", error);
   });
@@ -410,7 +411,7 @@ footer {
   <div id="mobile-menu-options" style="display: flex; flex-direction: column; gap: 10px;"></div>
 </div>
 
-<div id="public-site" class="animate-fade-up">
+<div id="public-site" class="animate-fade-up" style="display: none;">
   <header class="hero">
     <div class="wrap gridhero">
       <div>
@@ -939,12 +940,22 @@ window.onload = function() {
       clearInterval(checkDbInterval);
       const { collection, onSnapshot, setDoc, doc, onAuthStateChanged } = window.firebaseModules;
 
+      // Ouvinte do Firebase que restabelece a sessão instantaneamente no F5
       onAuthStateChanged(window.auth, (user) => {
         if (user) {
           currentUser = user.email;
           isAdmin = (currentUser === TARGET_EMAIL || (registeredUsers.find(u => u.email === currentUser)?.role === 'admin'));
           updateMobileMenuOptions();
-          checkUserAccessOnLoad();
+          
+          // Se já carregou os utilizadores, direciona para a área certa
+          let uObj = registeredUsers.find(u => u.email === currentUser);
+          if (isAdmin || currentUser === TARGET_EMAIL) {
+            showAdminArea();
+          } else if (uObj && uObj.paid) {
+            showMemberArea();
+          } else {
+            showMemberArea(); // Mostra a área de membros (que exibirá aviso de pagamento pendente se necessário)
+          }
         } else {
           currentUser = null;
           isAdmin = false;
@@ -982,7 +993,6 @@ window.onload = function() {
           let uObj = registeredUsers.find(u => u.email === currentUser);
           isAdmin = (currentUser === TARGET_EMAIL || uObj?.role === 'admin');
           updateMobileMenuOptions();
-          checkUserAccessOnLoad();
         }
         if (isAdmin && document.getElementById('admin-area').style.display === 'block') {
           renderDashboard();
@@ -1162,14 +1172,6 @@ async function logout() {
   if(window.auth) await signOut(window.auth);
   currentUser = null; isAdmin = false;
   location.reload(); 
-}
-
-function checkUserAccessOnLoad() {
-  let uObj = registeredUsers.find(u => u.email === currentUser);
-  const isPaid = isAdmin || uObj?.paid;
-  if (isPaid && currentUser !== TARGET_EMAIL && document.getElementById('member-area').style.display === 'block') {
-    renderMemberSidebar();
-  }
 }
 
 function handleAccountAction() {
