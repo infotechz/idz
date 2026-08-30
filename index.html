@@ -3,7 +3,6 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="referrer" content="strict-origin-when-cross-origin">
 <title>Informática do Zero — Plataforma Profissional</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -329,14 +328,6 @@ section { padding: 70px 0; }
 .sales-table th { color: var(--text-secondary); font-weight: 700; text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; }
 .badge-status { padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 700; text-transform: uppercase; display: inline-block; }
 
-.admin-mod-box { border: 1px solid var(--glass-border); border-radius: 14px; margin-bottom: 12px; background: rgba(0,0,0,0.25); overflow: hidden; }
-.admin-mod-header { padding: 14px 16px; font-size: 13px; font-weight: 700; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
-.admin-mod-body { padding: 16px; display: none; border-top: 1px solid var(--glass-border); background: rgba(255,255,255,0.015); }
-.admin-mod-body.expanded { display: block; }
-.admin-lesson-drag-item {
-  display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.3); padding: 10px 14px; border-radius: 10px; margin-top: 8px; border: 1px solid var(--glass-border); gap: 10px; flex-wrap: wrap;
-}
-
 footer {
   background: rgba(3, 7, 18, 0.9); border-top: 1px solid var(--glass-border);
   padding: 40px 0 20px; text-align: center; margin-top: 80px; position: relative; z-index: 10;
@@ -375,7 +366,7 @@ footer {
   </div>
 </div>
 
-<!-- Checkout interativo conectado com a Perfect Pay -->
+<!-- Modal de Checkout Inteligente Mercado Pago -->
 <div class="modal-overlay" id="modal-custom-checkout">
   <div class="modal-card">
     <button class="close-btn" onclick="closeModal('modal-custom-checkout')"><i class="fa-solid fa-xmark"></i></button>
@@ -385,82 +376,37 @@ footer {
       <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 18px; color: #fff;">Informática do Zero</span>
     </div>
 
-    <!-- Etapa 1: Dados Pessoais -->
-    <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); padding: 14px; border-radius: 14px; margin-bottom: 12px;">
+    <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); padding: 14px; border-radius: 14px; margin-bottom: 16px;">
       <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px; color: var(--accent-cyan); font-weight: 700; font-size: 12.5px;">
-        <span style="width: 20px; height: 20px; background: rgba(0,240,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px;">1</span> Dados Pessoais (Obrigatório)
+        <i class="fa-solid fa-shield-halved"></i> Confirme seus dados para pagamento
       </div>
 
       <div class="input-group">
         <label>Nome Completo (Nome e Sobrenome)</label>
-        <input type="text" id="checkout-name-input" placeholder="Digite seu nome completo real">
+        <input type="text" id="checkout-name-input" placeholder="Ex: João da Silva Santos">
       </div>
 
-      <div class="input-group" style="margin-bottom: 0;">
+      <div class="input-group">
         <label>E-mail de Acesso</label>
         <input type="email" id="checkout-email-input" placeholder="seu@email.com">
       </div>
-    </div>
 
-    <!-- Etapa 2: Forma de Pagamento -->
-    <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); padding: 14px; border-radius: 14px; margin-bottom: 16px;">
-      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px; color: var(--accent-cyan); font-weight: 700; font-size: 12.5px;">
-        <span style="width: 20px; height: 20px; background: rgba(0,240,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px;">2</span> Forma de Pagamento
-      </div>
-
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
-        <button type="button" class="btn-outline" id="pay-opt-pix" style="justify-content: center; border-color: var(--accent-cyan); background: rgba(0,240,255,0.1);" onclick="selectPaymentMethod('pix')">
-          <i class="fa-brands fa-pix" style="color: #32BCAD;"></i> Pix Imediato
-        </button>
-        <button type="button" class="btn-outline" id="pay-opt-card" style="justify-content: center;" onclick="selectPaymentMethod('card')">
-          <i class="fa-regular fa-credit-card"></i> Cartão até 5x
-        </button>
-      </div>
-
-      <!-- Campos Dinâmicos do Cartão de Crédito -->
-      <div id="card-fields-box" style="display: none; border-top: 1px solid var(--glass-border); padding-top: 12px; margin-top: 10px;">
-        <div class="input-group">
-          <label>Número do Cartão</label>
-          <input type="text" id="cc-number" placeholder="0000 0000 0000 0000" maxlength="19">
-        </div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-          <div class="input-group">
-            <label>Validade (MM/AA)</label>
-            <input type="text" id="cc-expiry" placeholder="MM/AA" maxlength="5">
-          </div>
-          <div class="input-group">
-            <label>CVV (Segurança)</label>
-            <input type="password" id="cc-cvv" placeholder="123" maxlength="4">
-          </div>
-        </div>
-        <div class="input-group" style="margin-bottom: 0;">
-          <label>Parcelamento</label>
-          <select id="checkout-installments">
-            <option value="1">1x de R$ 29,90 (Sem juros)</option>
-            <option value="2">2x de R$ 15,50</option>
-            <option value="3">3x de R$ 10,40</option>
-            <option value="4">4x de R$ 7,90</option>
-            <option value="5">5x de R$ 6,40</option>
-          </select>
-        </div>
-      </div>
-
-      <!-- Informação do Pix -->
-      <div id="pix-info-box" style="margin-top: 10px; font-size: 12px; color: var(--text-secondary); background: rgba(0,240,255,0.03); padding: 10px; border-radius: 10px; border: 1px solid rgba(0,240,255,0.15);">
-        <i class="fa-solid fa-bolt" style="color: var(--accent-cyan); margin-right: 4px;"></i> Ao clicar em finalizar, o QRCode do Pix da Perfect Pay será gerado para pagamento instantâneo.
-      </div>
-
-      <div style="display: flex; justify-content: space-between; align-items: center; font-size: 14px; background: rgba(255,255,255,0.02); padding: 10px 12px; border-radius: 10px; margin-top: 12px;">
-        <span style="color: var(--text-secondary);">Total Hoje:</span>
-        <strong style="color: var(--green); font-size: 18px;">R$ 29,90</strong>
+      <div class="input-group" style="margin-bottom: 0;">
+        <label>CPF</label>
+        <input type="text" id="checkout-cpf-input" placeholder="000.000.000-00">
       </div>
     </div>
 
-    <button class="btn" style="width: 100%; padding: 15px; font-size: 14px;" onclick="proceedToPaymentGateway()">
-      <i class="fa-solid fa-lock"></i> Finalizar Pagamento via Perfect Pay
+    <div style="display: flex; justify-content: space-between; align-items: center; font-size: 14px; background: rgba(255,255,255,0.02); padding: 12px 14px; border-radius: 12px; margin-bottom: 16px; border: 1px solid var(--glass-border);">
+      <span style="color: var(--text-secondary);">Valor Único:</span>
+      <strong style="color: var(--green); font-size: 18px;">R$ 29,90</strong>
+    </div>
+
+    <button class="btn" style="width: 100%; padding: 15px; font-size: 14px;" onclick="redirectToMercadoPago()">
+      <i class="fa-solid fa-lock"></i> Ir para o Mercado Pago (Pix / Cartão)
     </button>
     <div style="text-align: center; font-size: 11px; color: var(--text-muted); margin-top: 10px;">
-      <i class="fa-solid fa-shield-halved"></i> Transação criptografada e processada pela Perfect Pay.
+      <i class="fa-solid fa-shield-halved"></i> Ambiente 100% seguro do Mercado Pago.
     </div>
   </div>
 </div>
@@ -522,7 +468,7 @@ footer {
           <div><i class="fa-solid fa-check"></i> Acesso via celular ou computador</div>
           <div><i class="fa-solid fa-check"></i> Certificado de Conclusão</div>
         </div>
-        <button class="btn" style="width:100%; margin-top:20px;" onclick="redirectToPerfectPay()">GARANTIR VAGA — R$ 29,90</button>
+        <button class="btn" style="width:100%; margin-top:20px;" onclick="openCheckoutModal()">GARANTIR VAGA — R$ 29,90</button>
       </div>
     </div>
   </header>
@@ -556,13 +502,13 @@ footer {
           <span class="old-price">R$ 59,90</span>
           <span class="new-price">R$ 29,90</span>
         </div>
-        <p style="color: var(--text-secondary); margin-bottom: 26px; font-size: 13.5px;"><i class="fa-solid fa-lock"></i> Pagamento 100% seguro via Perfect Pay</p>
-        <button class="btn" style="width: 100%; max-width: 380px; font-size: 14.5px; padding: 16px;" onclick="redirectToPerfectPay()">
+        <p style="color: var(--text-secondary); margin-bottom: 26px; font-size: 13.5px;"><i class="fa-solid fa-lock"></i> Pagamento 100% seguro via Mercado Pago</p>
+        <button class="btn" style="width: 100%; max-width: 380px; font-size: 14.5px; padding: 16px;" onclick="openCheckoutModal()">
           COMPRAR AGORA E COMEÇAR <i class="fa-solid fa-arrow-right"></i>
         </button>
         <div style="font-size: 12px; color: var(--text-muted); margin-top: 18px; display: flex; justify-content: center; gap: 16px;">
           <span><i class="fa-brands fa-pix" style="color: #32BCAD;"></i> Pix Imediato</span>
-          <span><i class="fa-regular fa-credit-card"></i> Cartão em até 5x</span>
+          <span><i class="fa-regular fa-credit-card"></i> Cartão de Crédito</span>
         </div>
       </div>
     </div>
@@ -573,7 +519,7 @@ footer {
       <div class="section-header" style="margin-bottom: 28px;">
         <h2>Perguntas Frequentes</h2>
       </div>
-      <details class="glass-panel"><summary>Como funciona o acesso às aulas?</summary><p>Após o pagamento via Perfect Pay, seu e-mail será liberado automaticamente. Basta fazer login e acessar a Área de Membros.</p></details>
+      <details class="glass-panel"><summary>Como funciona o acesso às aulas?</summary><p>Após a confirmação do pagamento, seu e-mail será liberado automaticamente. Basta fazer login e acessar a Área de Membros.</p></details>
       <details class="glass-panel"><summary>Preciso de um computador potente?</summary><p>Não! O curso ensina fundamentos que podem ser aplicados em qualquer computador, notebook ou até mesmo pelo celular para assistir às aulas teóricas.</p></details>
       <details class="glass-panel"><summary>Os materiais têm custo extra?</summary><p>Não. Todos os PDFs, modelos de currículo e planilhas bônus já estão inclusos no valor único do curso e disponíveis para download imediato.</p></details>
     </div>
@@ -746,7 +692,7 @@ footer {
   </div>
 </div>
 
-<!-- Modal de Login/Cadastro estilo GGMAX com Nome Completo -->
+<!-- Modal de Login/Cadastro -->
 <div class="modal-overlay" id="modal-auth">
   <div class="modal-card">
     <button class="close-btn" onclick="closeModal('modal-auth')"><i class="fa-solid fa-xmark"></i></button>
@@ -788,7 +734,7 @@ footer {
       <button type="submit" class="btn" style="width: 100%; margin-top: 4px;">Acessar Plataforma</button>
     </form>
 
-    <!-- Formulário de Cadastro estilo GGMAX (com nome completo) -->
+    <!-- Formulário de Cadastro -->
     <form id="form-register" style="display: none;" onsubmit="handleRegister(event)">
       <div class="input-group">
         <label>Nome Completo (Obrigatório)</label>
@@ -813,9 +759,8 @@ footer {
         </div>
       </div>
       
-      <!-- Letrinhas pequenas estilo GGMAX -->
       <div style="font-size: 10.5px; color: var(--text-muted); margin-bottom: 14px; text-align: center;">
-        Ao criar minha conta, concordo com os termos de uso e política de privacidade da plataforma.
+        Ao criar minha conta, concordo com os termos de uso e política de privacidade.
       </div>
 
       <button type="submit" class="btn" style="width: 100%; margin-top: 4px;">Criar minha conta</button>
@@ -899,123 +844,6 @@ const defaultCourseData = [
       { id: 103, title: "Aula 3 — Hardware e Software", description: "Entendendo a diferença entre a parte física e lógica.", learned: "Conceitos de peças físicas e programas de computador.", objectives: "Diferenciar hardware e software.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O que representa o 'Hardware' em um computador?", options: ["Os programas e sistemas instalados.", "A parte física e palpável (peças e componentes).", "A conexão de internet sem fio.", "Os arquivos salvos na nuvem."], correct: 1 } },
       { id: 104, title: "Aula 4 — Exercício prático", description: "Fixação dos conceitos iniciais.", learned: "Reconhecimento prático dos componentes.", objectives: "Identificação dos componentes do próprio computador.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual o objetivo principal do exercício prático deste módulo?", options: ["Desmontar a CPU inteira.", "Identificar e reconhecer os componentes físicos do próprio computador.", "Instalar um sistema operacional novo.", "Configurar uma rede Wi-Fi avançada."], correct: 1 } }
     ]
-  },
-  {
-    id: 2, title: "MÓDULO 2 — TECLADO, MOUSE E ATALHOS", intro: "Aprenda a controlar o computador com eficiência.",
-    lessons: [
-      { id: 201, title: "Aula 1 — Conhecendo o teclado", description: "Estudo das teclas principais.", learned: "Enter, Espaço, Backspace, Shift, Caps Lock, Ctrl, Alt.", objectives: "Conhecer Enter, Espaço, Backspace, Shift, Caps Lock, Ctrl, Alt.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual tecla é usada para apagar caracteres à esquerda do cursor?", options: ["Enter", "Backspace", "Shift", "Espaço"], correct: 1 } },
-      { id: 202, title: "Aula 2 — Aprendendo a usar o mouse", description: "Domínio dos cliques e navegação.", learned: "Clique, duplo clique, botão direito, rolagem e arrastar.", objectives: "Utilizar clique, duplo clique, botão direito, rolagem e arrastar.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual botão do mouse é normalmente usado para abrir menus de contexto rápidos?", options: ["Botão esquerdo", "Botão direito", "Scroll central", "Nenhum dos botões"], correct: 1 } },
-      { id: 203, title: "Aula 3 — Atalhos essenciais", description: "Agilidade no dia a dia com comandos rápidos.", learned: "Atalhos como Ctrl+C, Ctrl+V, Ctrl+X, Ctrl+Z.", objectives: "Conhecer atalhos como Ctrl+C, Ctrl+V, Ctrl+X, Ctrl+Z.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual atalho de teclado é utilizado para colar um item previamente copiado?", options: ["Ctrl + C", "Ctrl + V", "Ctrl + X", "Ctrl + Z"], correct: 1 } },
-      { id: 204, title: "Aula 4 — Exercício de teclado e mouse", description: "Prática com os periféricos.", learned: "Exercícios práticos de fixação.", objectives: "Colocar em prática os conhecimentos.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O que se busca desenvolver com o exercício prático de teclado e mouse?", options: ["Digitação cega profissional", "Familiaridade e confiança no manuseio dos periféricos", "Programação avançada", "Manutenção de hardware"], correct: 1 } }
-    ]
-  },
-  {
-    id: 3, title: "MÓDULO 3 — ARQUIVOS E PASTAS", intro: "Organize seus documentos com facilidade.",
-    lessons: [
-      { id: 301, title: "Aula 1 — O que são arquivos e pastas?", description: "Conceito de armazenamento local.", learned: "Diferenciar arquivos e pastas.", objectives: "Diferenciar arquivos e pastas.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual é a função básica de uma pasta no sistema operacional?", options: ["Armazenar e organizar arquivos agrupando-os", "Aumentar a velocidade do processador", "Substituir o uso de antivírus", "Transmitir dados via Bluetooth"], correct: 0 } },
-      { id: 302, title: "Aula 2 — Criando e renomeando pastas", description: "Boas práticas de organização.", learned: "Criar pastas e escolher nomes organizados.", objectives: "Criar pastas e escolher nomes organizados.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Por que é importante escolher nomes claros ao criar pastas?", options: ["Para ocupar menos espaço em disco", "Para facilitar a localização futura dos documentos", "Para impedir a exclusão acidental", "Para acelerar a internet"], correct: 1 } },
-      { id: 303, title: "Aula 3 — Copiar, mover e excluir", description: "Gerenciamento seguro de dados.", learned: "Manipular arquivos com segurança.", objectives: "Manipular arquivos com segurança.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual ação transfere um arquivo de um local para outro, apagando-o do local original?", options: ["Copiar", "Mover", "Baixar", "Compactar"], correct: 1 } },
-      { id: 304, title: "Aula 4 — Exercício de organização", description: "Prática de estruturação.", learned: "Criação de árvore de diretórios.", objectives: "Criar sua própria estrutura de pastas.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O exercício de organização de pastas visa principalmente:", options: ["Praticar a criação de diretórios e arranjo lógico de arquivos", "Apagar arquivos inúteis do sistema", "Criar códigos de programação", "Formatar o disco rígido"], correct: 0 } }
-    ]
-  },
-  {
-    id: 4, title: "MÓDULO 4 — INTERNET E PESQUISAS", intro: "Navegue e encontre informações com eficiência.",
-    lessons: [
-      { id: 401, title: "Aula 1 — O que é a internet?", description: "Redes e navegadores.", learned: "Internet, navegador, site e página.", objectives: "Entender internet, navegador, site e página.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O que é um navegador (browser) de internet?", options: ["Um antivírus", "Um software para acessar e visualizar páginas da web", "Um cabo de rede", "Uma planilha eletrônica"], correct: 1 } },
-      { id: 402, title: "Aula 2 — Como fazer pesquisas melhores", description: "Técnicas de busca no Google.", learned: "Utilizar palavras-chave para pesquisas.", objectives: "Utilizar palavras-chave para pesquisas.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O uso de palavras-chave específicas em buscadores serve para:", options: ["Encontrar resultados mais precisos e relevantes", "Travar o navegador", "Exibir propagandas pagas", "Apagar o histórico de navegação"], correct: 0 } },
-      { id: 403, title: "Aula 3 — Downloads e uploads", description: "Transferência de arquivos.", learned: "Diferenciar baixar e enviar arquivos.", objectives: "Diferenciar baixar e enviar arquivos.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O que significa realizar um 'Download' na internet?", options: ["Enviar um arquivo do seu PC para a nuvem", "Baixar/transferir um arquivo da internet para o seu computador", "Imprimir um documento", "Excluir um arquivo da rede"], correct: 1 } },
-      { id: 404, title: "Aula 4 — Exercício de pesquisa", description: "Prática de buscas web.", learned: "Simulação de pesquisas úteis.", objectives: "Realizar pesquisa simples e comparar resultados.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual a finalidade de praticar pesquisas no exercício do módulo?", options: ["Aperfeiçoar a capacidade de buscar e filtrar informações na web", "Criar vírus de computador", "Enviar e-mails em massa", "Configurar roteadores"], correct: 0 } }
-    ]
-  },
-  {
-    id: 5, title: "MÓDULO 5 — E-MAIL", intro: "Domine o envio e organização de mensagens.",
-    lessons: [
-      { id: 501, title: "Aula 1 — Conhecendo o e-mail", description: "Estrutura de correio eletrônico.", learned: "Caixa de entrada, destinatário e assunto.", objectives: "Conhecer caixa de entrada, destinatário e assunto.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual caractere é obrigatório em qualquer endereço de e-mail?", options: ["#", "@", "$", "%"], correct: 1 } },
-      { id: 502, title: "Aula 2 — Enviando mensagens e anexos", description: "Anexando arquivos com segurança.", learned: "Enviar mensagens e anexar documentos.", objectives: "Enviar mensagens e anexar documentos.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Para que serve a opção de 'Anexar' em um e-mail?", options: ["Para enviar arquivos junto com a mensagem (como fotos e documentos)", "Para excluir o e-mail automaticamente", "Para bloquear o destinatário", "Para alterar a senha da conta"], correct: 0 } },
-      { id: 503, title: "Aula 3 — Organização da caixa de entrada", description: "Filtros e spam.", learned: "Manter e-mails organizados.", objectives: "Manter e-mails organizados.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Onde costumam ficar mensagens automáticas suspeitas ou propagandas não solicitadas?", options: ["Na Caixa de Entrada principal", "Na pasta de Spam / Lixo Eletrônico", "Na lixeira definitiva", "Nos contatos salvos"], correct: 1 } },
-      { id: 504, title: "Aula 4 — Exercício de e-mail", description: "Prática de envio.", learned: "Envio simulado com anexo.", objectives: "Praticar envio com arquivo anexado.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O exercício prático de e-mail simula qual situação cotidiana?", options: ["O envio correto de uma mensagem com documento anexado", "A formatação de planilhas complexas", "A criação de apresentações em slides", "A formatação do Windows"], correct: 0 } }
-    ]
-  },
-  {
-    id: 6, title: "MÓDULO 6 — WORD E DOCUMENTOS", intro: "Crie documentos profissionais e organizados.",
-    lessons: [
-      { id: 601, title: "Aula 1 — Conhecendo o editor de textos", description: "Primeiros passos no editor.", learned: "Criar documentos e digitar textos.", objectives: "Criar documentos e digitar textos.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual é a principal utilidade do Microsoft Word?", options: ["Criar planilhas financeiras", "Criar, editar e formatar documentos de texto", "Navegar na internet", "Editar vídeos institucionais"], correct: 1 } },
-      { id: 602, title: "Aula 2 — Formatação de texto", description: "Estilos e fontes.", learned: "Aplicar fonte, negrito e alinhamento.", objectives: "Aplicar fonte, negrito e alinhamento.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual atalho aplica o formato de Negrito no texto selecionado?", options: ["Ctrl + C", "Ctrl + N", "Ctrl + V", "Ctrl + P"], correct: 1 } },
-      { id: 603, title: "Aula 3 — Imagens e tabelas", description: "Elementos visuais em documentos.", learned: "Inserir imagens e tabelas.", objectives: "Inserir imagens e tabelas.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Para que serve inserir tabelas em um documento de texto?", options: ["Para organizar dados estruturados em linhas e colunas", "Para aumentar o zoom da tela", "Para enviar o arquivo por fax", "Para colorir o fundo do monitor"], correct: 0 } },
-      { id: 604, title: "Aula 4 — Exercício de documento", description: "Projeto de texto aplicado.", learned: "Criação de documento completo.", objectives: "Criar documento completo aplicado.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O exercício final deste módulo consiste em:", options: ["Criar e formatar um pequeno documento completo", "Desenvolver um software antivírus", "Montar uma rede de computadores", "Criar gráficos estatísticos avançados"], correct: 0 } }
-    ]
-  },
-  {
-    id: 7, title: "MÓDULO 7 — EXCEL E PLANILHAS", intro: "Domine planilhas, dados e cálculos básicos.",
-    lessons: [
-      { id: 701, title: "Aula 1 — Conhecendo as planilhas", description: "Estrutura de células e colunas.", learned: "Conhecer células, linhas, colunas e abas.", objectives: "Conhecer células, linhas, colunas e abas.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Como é chamada a interseção entre uma coluna e uma linha no Excel?", options: ["Slide", "Célula", "Pasta", "Parágrafo"], correct: 1 } },
-      { id: 702, title: "Aula 2 — Digitando e formatando dados", description: "Inserção correta de dados.", learned: "Inserir informações e organizar tabelas.", objectives: "Inserir informações e organizar tabelas.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Toda fórmula ou operação matemática no Excel inicia obrigatoriamente com:", options: ["O ponto final (.)", "O sinal de igual (=)", "O ponto e vírgula (;)", "A barra inclinada (/)"], correct: 1 } },
-      { id: 703, title: "Aula 3 — Fórmulas básicas", description: "Operações matemáticas simples.", learned: "Utilizar operações simples de cálculo.", objectives: "Utilizar operações simples de cálculo.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual símbolo representa a multiplicação nas fórmulas do Excel?", options: ["+", "-", "*", "/"], correct: 2 } },
-      { id: 704, title: "Aula 4 — Exercício: planilha financeira", description: "Controle de caixa básico.", learned: "Montagem de planilha de receitas e despesas.", objectives: "Montar planilha de entradas e despesas.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O exercício prático deste módulo propõe a criação de:", options: ["Uma planilha simples de controle de entradas e despesas", "Uma carta de apresentação profissional", "Uma apresentação de slides", "Um banco de dados de clientes"], correct: 0 } }
-    ]
-  },
-  {
-    id: 8, title: "MÓDULO 8 — POWERPOINT", intro: "Crie apresentações visuais e impactantes.",
-    lessons: [
-      { id: 801, title: "Aula 1 — Conhecendo apresentações", description: "Conceito de slides.", learned: "Entender o conceito de slides e estrutura.", objectives: "Entender o conceito de slides e estrutura.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual a principal finalidade do Microsoft PowerPoint?", options: ["Criar apresentações visuais em slides", "Gerenciar contas bancárias", "Navegar na web com segurança", "Escrever códigos de sistema"], correct: 0 } },
-      { id: 802, title: "Aula 2 — Criando slides", description: "Adicionando conteúdo visual.", learned: "Criar slides, inserir textos e imagens.", objectives: "Criar slides, inserir textos e imagens.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Ao criar slides, o que é recomendado para garantir boa leitura?", options: ["Usar letras minúsculas e cores idênticas ao fundo", "Manter bom contraste entre o texto e o fundo", "Colocar textos extensos sem espaçamento", "Omitir títulos"], correct: 1 } },
-      { id: 803, title: "Aula 3 — Apresentação e transições", description: "Efeitos visuais moderados.", learned: "Executar apresentação com transições moderadas.", objectives: "Executar apresentação com transições moderadas.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual o cuidado recomendado ao aplicar transições e efeitos nos slides?", options: ["Usar com moderação para não distrair o público", "Aplicar efeitos barulhentos em todos os objetos", "Evitar qualquer tipo de animação", "Usar apenas transições lentas de 10 segundos"], correct: 0 } },
-      { id: 804, title: "Aula 4 — Exercício de apresentação", description: "Projeto de slides.", learned: "Criação de apresentação completa.", objectives: "Criar apresentação simples de três slides.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O exercício de apresentação consiste em criar:", options: ["Uma apresentação simples estruturada em três slides", "Uma planilha contábil completa", "Um documento de texto jurídico", "Uma pasta compactada"], correct: 0 } }
-    ]
-  },
-  {
-    id: 9, title: "MÓDULO 9 — ARMAZENAMENTO EM NUVEM", intro: "Acesse arquivos de qualquer lugar com segurança.",
-    lessons: [
-      { id: 901, title: "Aula 1 — O que é armazenamento em nuvem?", description: "Conceito de nuvem.", learned: "Entender nuvem e armazenamento online.", objectives: "Entender nuvem e armazenamento online.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual a principal vantagem do armazenamento em nuvem?", options: ["Acessar arquivos de diferentes dispositivos conectados à internet", "Aumentar a memória RAM física do PC", "Funcionar sem necessidade de eletricidade", "Eliminar a necessidade de senhas"], correct: 0 } },
-      { id: 902, title: "Aula 2 — Organizando arquivos online", description: "Estruturas virtuais.", learned: "Criar pastas e organizar documentos.", objectives: "Criar pastas e organizar documentos.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "A organização de pastas na nuvem funciona de forma:", options: ["Igual ou muito semelhante à organização no computador local", "Exclusiva para arquivos de música", "Incompatível com documentos do Word", "Automática sem intervenção do usuário"], correct: 0 } },
-      { id: 903, title: "Aula 3 — Compartilhamento", description: "Links e permissões.", learned: "Entender links e permissões de acesso.", objectives: "Entender links e permissões de acesso.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O que se deve verificar ao gerar um link de compartilhamento na nuvem?", options: ["As permissões de acesso concedidas (leitura ou edição)", "A voltagem da tomada do roteador", "A resolução da tela de quem vai receber", "O peso em gramas do arquivo"], correct: 0 } },
-      { id: 904, title: "Aula 4 — Exercício na nuvem", description: "Prática online.", learned: "Uso prático de pastas na nuvem.", objectives: "Criar pasta, adicionar arquivo e compartilhar.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O exercício prático de nuvem envolve:", options: ["Criar uma pasta online, enviar um arquivo e praticar o compartilhamento", "Desinstalar o navegador", "Formatar o HD externo", "Imprimir um documento físico"], correct: 0 } }
-    ]
-  },
-  {
-    id: 10, title: "MÓDULO 10 — SEGURANÇA DIGITAL", intro: "Proteja suas contas e informações na internet.",
-    lessons: [
-      { id: 1001, title: "Aula 1 — Senhas e autenticação", description: "Boas práticas de segurança.", learned: "Criar senhas seguras e autenticação adicional.", objectives: "Criar senhas seguras e autenticação adicional.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O que caracteriza uma senha forte?", options: ["Uso de dados óbvios como data de nascimento", "Combinação de letras maiúsculas/minúsculas, números e símbolos", "Uma sequência numérica simples como 123456", "O primeiro nome do usuário"], correct: 1 } },
-      { id: 1002, title: "Aula 2 — Golpes e phishing", description: "Identificando fraudes digitais.", learned: "Reconhecer mensagens suspeitas e phishing.", objectives: "Reconhecer mensagens suspeitas e phishing.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O que é o golpe de Phishing?", options: ["Uma atualização de segurança legítima", "Mensagens falsas fingindo ser instituições confiáveis para roubar dados", "Um erro de conexão de rede", "Um programa de compactação de arquivos"], correct: 1 } },
-      { id: 1003, title: "Aula 3 — Privacidade", description: "Proteção de dados pessoais.", learned: "Proteger informações pessoais e revisar permissões.", objectives: "Proteger informações pessoais e revisar permissões.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual é uma boa prática relacionada à privacidade digital?", options: ["Publicar o endereço residencial e documentos em redes públicas", "Evitar expor dados pessoais sensíveis desnecessariamente", "Compartilhar senhas com desconhecidos na web", "Desativar todas as travas do navegador"], correct: 1 } },
-      { id: 1004, title: "Aula 4 — Exercício de segurança", description: "Simulação de segurança.", learned: "Análise de cenários seguros.", objectives: "Analisar exemplos práticos e tomar decisões seguras.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O exercício de segurança digital propõe:", options: ["Analisar casos práticos para identificar armadilhas e tomar decisões seguras", "Invadir redes de computadores", "Testar a velocidade da banda larga", "Criar vírus educacionais"], correct: 0 } }
-    ]
-  },
-  {
-    id: 11, title: "MÓDULO 11 — INTELIGÊNCIA ARTIFICIAL", intro: "Conheça conceitos básicos de IA e aprenda a criar prompts.",
-    lessons: [
-      { id: 1101, title: "Aula 1 — O que é Inteligência Artificial?", description: "Introdução à tecnologia de IA.", learned: "Entender IA e suas aplicações.", objectives: "Entender IA e suas aplicações.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O que define uma Inteligência Artificial generativa de texto?", options: ["Um robô físico de limpeza", "Sistemas treinados para processar linguagem natural e gerar conteúdos", "Um antivírus avançado", "Um cabo de fibra óptica"], correct: 1 } },
-      { id: 1102, title: "Aula 2 — Como escrever bons prompts", description: "Comandos eficientes para IA.", learned: "Criar instruções claras com objetivo e contexto.", objectives: "Criar instruções claras com objetivo e contexto.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O que é um 'prompt' no uso de ferramentas de IA?", options: ["A instrução ou comando digitado pelo usuário", "O erro de conexão", "A taxa de assinatura da ferramenta", "O arquivo gerado em PDF"], correct: 0 } },
-      { id: 1103, title: "Aula 3 — IA para estudo e produtividade", description: "Uso prático no dia a dia.", learned: "Utilizar IA para organizar ideias e auxiliar estudos.", objectives: "Utilizar IA para organizar ideias e auxiliar estudos.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Como a IA pode auxiliar na produtividade diária?", options: ["Substituindo o uso de computadores", "Auxiliando na criação de resumos, rascunhos e organização de ideias", "Consertando peças físicas queimadas", "Imprimindo documentos sem papel"], correct: 1 } },
-      { id: 1104, title: "Aula 4 — Exercício de prompt", description: "Prática com inteligência artificial.", learned: "Elaboração de comandos práticos.", objectives: "Criar prompt estruturado e avaliar resultado.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O exercício de prompt consiste em:", options: ["Praticar a criação de comandos claros e estruturados para obter bons resultados da IA", "Desligar o sistema de inteligência", "Formatar o computador", "Criar planilhas financeiras manuais"], correct: 0 } }
-    ]
-  },
-  {
-    id: 12, title: "MÓDULO 12 — PROJETO FINAL", intro: "Aplique tudo o que aprendeu em um projeto prático.",
-    lessons: [
-      { id: 1201, title: "Aula 1 — Planejando o projeto", description: "Etapas iniciais do projeto.", learned: "Definir ideia e planejar etapas.", objectives: "Definir ideia e planejar etapas.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual é o primeiro passo recomendado para iniciar o projeto final?", options: ["Planejar as etapas e definir a ideia a ser desenvolvida", "Imprimir o certificado antes de começar", "Excluir os módulos anteriores", "Desinstalar os editores de texto"], correct: 0 } },
-      { id: 1202, title: "Aula 2 — Criando o projeto", description: "Execução prática.", learned: "Colocar planejamento em prática e organizar arquivos.", objectives: "Colocar planejamento em prática e organizar arquivos.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O que se faz durante a etapa de criação do projeto?", options: ["Colocar o planejamento em prática criando e organizando os arquivos digitais", "Apenas assistir a vídeos sem praticar", "Aguardar o suporte técnico", "Desligar o computador"], correct: 0 } },
-      { id: 1203, title: "Aula 3 — Revisão e organização", description: "Conferência final.", learned: "Conferir informações e corrigir erros.", objectives: "Conferir informações e corrigir erros.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual a importância da revisão antes de finalizar o projeto?", options: ["Garantir que não há erros e que o trabalho está bem organizado", "Aumentar o tamanho do arquivo", "Mudar o idioma do computador", "Apagar o conteúdo produzido"], correct: 0 } },
-      { id: 1204, title: "Aula 4 — Conclusão", description: "Encerramento do curso.", learned: "Finalizar projeto e revisar evolução.", objectives: "Finalizar projeto e revisar evolução.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O que representa a conclusão do projeto final?", options: ["O encerramento prático do curso com consolidação das habilidades adquiridas", "O fim definitivo do uso de computadores", "Uma falha no sistema operacional", "A necessidade de reiniciar o curso do zero"], correct: 0 } }
-    ]
-  },
-  {
-    id: 13, title: "🎁 BÔNUS 1 — 30 ATALHOS DE TECLADO", intro: "Coleção de atalhos úteis para maior agilidade.",
-    lessons: [
-      { id: 1301, title: "Aula — Atalhos essenciais", description: "Lista de comandos rápidos.", learned: "Memorizar atalhos importantes e aumentar produtividade.", objectives: "Memorizar atalhos importantes e aumentar produtividade.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual é o principal benefício de dominar atalhos de teclado?", options: ["Ganhar agilidade e eficiência nas tarefas cotidianas", "Fazer o computador rodar jogos mais pesados", "Evitar o uso do monitor", "Imprimir mais rápido"], correct: 0 } }
-    ]
-  },
-  {
-    id: 14, title: "🎁 BÔNUS 2 — MODELO DE CURRÍCULO", intro: "Aprenda a utilizar modelo simples de currículo.",
-    lessons: [
-      { id: 1401, title: "Aula — Como usar o modelo", description: "Estruturação profissional.", learned: "Organizar informações profissionais e preencher currículo.", objectives: "Organizar informações profissionais e preencher currículo.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O que é fundamental ao preencher o modelo de currículo?", options: ["Manter a clareza, objetividade e veracidade das informações profissionais", "Escrever textos longos sem parágrafos", "Omitir dados de contato", "Usar fontes ilegíveis"], correct: 0 } }
-    ]
-  },
-  {
-    id: 15, title: "🎁 BÔNUS 3 — PLANILHA FINANCEIRA", intro: "Organização das informações financeiras do dia a dia.",
-    lessons: [
-      { id: 1501, title: "Aula — Como usar a planilha", description: "Controle financeiro pessoal.", learned: "Registrar entradas e despesas com cálculos simples.", objectives: "Registrar entradas e despesas com cálculos simples.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual a utilidade principal da planilha financeira bônus?", options: ["Ajudar no registro organizado de entradas, despesas e controle diário", "Criar apresentações de slides", "Navegar em sites de compras", "Desenvolver programas de computador"], correct: 0 } }
-    ]
   }
 ];
 
@@ -1026,7 +854,6 @@ let completedLessons = JSON.parse(localStorage.getItem('user_completed_lessons')
 let currentUser = null;
 let isAdmin = false;
 let videoWatchedState = {};
-let selectedPaymentType = 'pix';
 
 window.onload = function() {
   const rememberedEmail = localStorage.getItem('remembered_email');
@@ -1229,21 +1056,20 @@ async function handleForgotPassword(e) {
   e.preventDefault();
   const em = document.getElementById('login-email').value.trim();
   if(!em) {
-    alert("Digite seu e-mail no campo de e-mail acima para receber a recuperação de senha.");
+    alert("Digite seu e-mail no campo de e-mail acima.");
     document.getElementById('login-email').focus();
     return;
   }
   const { sendPasswordResetEmail } = window.firebaseModules;
   try {
     await sendPasswordResetEmail(window.auth, em);
-    showSuccessModal("E-mail de redefinição de senha enviado com sucesso! Verifique sua caixa de entrada.");
+    showSuccessModal("E-mail de redefinição de senha enviado com sucesso!");
     closeModal('modal-auth');
   } catch (err) {
-    alert("Erro ao enviar e-mail de recuperação: " + err.message);
+    alert("Erro ao enviar e-mail: " + err.message);
   }
 }
 
-// Validação rigorosa de Nome Completo
 function isValidFullName(name) {
   const parts = name.trim().split(/\s+/);
   if (parts.length < 2) return false;
@@ -1261,7 +1087,7 @@ async function handleRegister(e) {
   const { createUserWithEmailAndPassword } = window.firebaseModules;
 
   if (!isValidFullName(fullname)) {
-    alert("Por favor, digite seu Nome Completo real (Nome e Sobrenome válidos). Nomes falsos ou incompletos não são permitidos.");
+    alert("Por favor, digite seu Nome Completo real.");
     document.getElementById('reg-fullname').focus();
     return;
   }
@@ -1299,7 +1125,7 @@ function handleAccountAction() {
     if (isAdmin || uObj?.paid) {
       showMemberArea();
     } else {
-      redirectToPerfectPay();
+      openCheckoutModal();
     }
   }
 }
@@ -1317,73 +1143,49 @@ function handleLogoClick() {
   }
 }
 
-function selectPaymentMethod(method) {
-  selectedPaymentType = method;
-  const pixBtn = document.getElementById('pay-opt-pix');
-  const cardBtn = document.getElementById('pay-opt-card');
-  const cardBox = document.getElementById('card-fields-box');
-  const pixInfoBox = document.getElementById('pix-info-box');
-
-  if (method === 'pix') {
-    pixBtn.style.borderColor = 'var(--accent-cyan)';
-    pixBtn.style.background = 'rgba(0,240,255,0.1)';
-    cardBtn.style.borderColor = 'var(--glass-border)';
-    cardBtn.style.background = 'rgba(255,255,255,0.03)';
-    cardBox.style.display = 'none';
-    pixInfoBox.style.display = 'block';
-  } else {
-    cardBtn.style.borderColor = 'var(--accent-cyan)';
-    cardBtn.style.background = 'rgba(0,240,255,0.1)';
-    pixBtn.style.borderColor = 'var(--glass-border)';
-    pixBtn.style.background = 'rgba(255,255,255,0.03)';
-    cardBox.style.display = 'block';
-    pixInfoBox.style.display = 'none';
-  }
-}
-
-function redirectToPerfectPay() {
+function openCheckoutModal() {
   let uObj = currentUser ? registeredUsers.find(u => u.email === currentUser) : null;
   if(currentUser && (isAdmin || uObj?.paid)){ showMemberArea(); return; }
   
   if(currentUser) {
     document.getElementById('checkout-email-input').value = currentUser;
     if(uObj && uObj.fullname) document.getElementById('checkout-name-input').value = uObj.fullname;
+    if(uObj && uObj.cpf) document.getElementById('checkout-cpf-input').value = uObj.cpf;
   }
   openModal('modal-custom-checkout');
 }
 
-function proceedToPaymentGateway() {
+function redirectToMercadoPago() {
   const nameVal = document.getElementById('checkout-name-input').value.trim();
   const emailVal = document.getElementById('checkout-email-input').value.trim();
+  const cpfVal = document.getElementById('checkout-cpf-input').value.trim();
 
   if (!isValidFullName(nameVal)) {
-    alert("Por favor, digite seu Nome Completo real (Nome e Sobrenome válidos). Nomes falsos ou incompletos não são aceitos.");
+    alert("Por favor, digite seu Nome e Sobrenome.");
     document.getElementById('checkout-name-input').focus();
     return;
   }
-
   if (!emailVal || !emailVal.includes('@')) {
-    alert("Por favor, digite um e-mail válido.");
+    alert("Digite um e-mail válido.");
     document.getElementById('checkout-email-input').focus();
     return;
   }
-
-  if (selectedPaymentType === 'card') {
-    const ccNum = document.getElementById('cc-number').value.trim();
-    const ccExp = document.getElementById('cc-expiry').value.trim();
-    const ccCvv = document.getElementById('cc-cvv').value.trim();
-    if (ccNum.length < 13 || !ccExp || ccCvv.length < 3) {
-      alert("Por favor, preencha corretamente todas as informações do Cartão de Crédito.");
-      return;
-    }
+  if (!cpfVal || cpfVal.length < 11) {
+    alert("Digite um CPF válido.");
+    document.getElementById('checkout-cpf-input').focus();
+    return;
   }
 
-  // Aciona o gateway da Perfect Pay com os dados preenchidos no checkout do site
-  const installments = document.getElementById('checkout-installments')?.value || '1';
-  let paymentParam = selectedPaymentType === 'pix' ? 'pix' : `credit_card&installments=${installments}`;
+  // Substitua pelo seu link oficial do Mercado Pago (ou Preferência de Pagamento)
+  let mercadoPagoLink = "https://www.mercadopago.com.br/checkout/v1/redirect?pref_id=SEU_PREF_ID_AQUI";
   
-  let finalUrl = `https://go.perfectpay.com.br/PPU38CQFLAP?name=${encodeURIComponent(nameVal)}&email=${encodeURIComponent(emailVal)}&payment_method=${paymentParam}`;
-  window.location.href = finalUrl;
+  if (window.db) {
+    const { doc, setDoc } = window.firebaseModules;
+    let safeId = emailVal.replace(/[@.]/g, '_');
+    setDoc(doc(window.db, "users", safeId), { email: emailVal, paid: false, fullname: nameVal, cpf: cpfVal, role: 'student' }, { merge: true });
+  }
+
+  window.location.href = mercadoPagoLink;
 }
 
 function showPublicSite() {
@@ -1437,15 +1239,14 @@ function showMemberArea() {
           <i class="fa-solid fa-lock" style="font-size: 24px; color: var(--accent-cyan);"></i>
         </div>
         <h2 style="font-size: 21px; margin-bottom: 8px;">Área Bloqueada — Pagamento Pendente</h2>
-        <p style="color:var(--text-secondary); font-size: 13.5px; max-width: 480px; margin: 0 auto 18px;">Você entrou na área de membros, mas seu acesso completo às aulas ainda não está liberado.</p>
-        <button class="btn" style="padding: 15px 30px; font-size: 14.5px;" onclick="redirectToPerfectPay()">
-          <i class="fa-solid fa-credit-card"></i> Concluir Pagamento via Perfect Pay
+        <p style="color:var(--text-secondary); font-size: 13.5px; max-width: 480px; margin: 0 auto 18px;">Seu acesso completo às aulas será liberado assim que o pagamento for concluído.</p>
+        <button class="btn" style="padding: 15px 30px; font-size: 14.5px;" onclick="openCheckoutModal()">
+          <i class="fa-solid fa-credit-card"></i> Concluir Pagamento
         </button>
       </div>`;
     document.getElementById('module-list').innerHTML = '';
   } else {
     if (sidebarContainer) sidebarContainer.style.display = 'block';
-
     renderMemberSidebar();
     if(courseData.length > 0 && courseData[0].lessons?.length > 0) loadLessonContent(courseData[0].id, courseData[0].lessons[0].id);
   }
@@ -1584,7 +1385,7 @@ function loadLessonContent(modId, lessonId) {
         <div class="quiz-header-badge"><i class="fa-solid fa-brain"></i> Exercício de Fixação</div>
         
         <div id="quiz-locked-notice-${lesson.id}" style="padding: 14px; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 12px; margin-bottom: 14px; font-size: 13px; color: #f87171; display: ${isUnlocked ? 'none' : 'block'};">
-          <i class="fa-solid fa-lock" style="margin-right: 6px;"></i> Assista ao vídeo da aula até o final para liberar os exercícios.
+          <i class="fa-solid fa-lock" style="margin-right: 6px;"></i> Assista ao vídeo da aula para liberar os exercícios.
         </div>
 
         <div id="quiz-content-body-${lesson.id}" style="opacity: ${isUnlocked ? '1' : '0.3'}; pointer-events: ${isUnlocked ? 'auto' : 'none'}; transition: 0.3s;">
@@ -1618,8 +1419,7 @@ function loadLessonContent(modId, lessonId) {
       } else {
         certificateSectionHtml = `
           <div style="margin-top: 30px; padding: 24px; background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); border-radius: 16px; text-align: center;">
-            <h4 style="color: #fff; margin-bottom: 8px;"><i class="fa-solid fa-clock"></i> Certificado enviado, aguardando liberação na aba do administrador.</h4>
-            <p style="font-size: 13px; color: var(--text-secondary); margin-top: 6px;">Nome: <strong>${uObj.fullname || '-'}</strong> | CPF: ${uObj.cpf}</p>
+            <h4 style="color: #fff; margin-bottom: 8px;"><i class="fa-solid fa-clock"></i> Certificado enviado, aguardando liberação do administrador.</h4>
           </div>
         `;
       }
@@ -1627,23 +1427,13 @@ function loadLessonContent(modId, lessonId) {
   }
   
   container.innerHTML = `
-    <span style="font-size: 11px; color: var(--accent-cyan); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">${mod.title}</span>
+    <span style="font-size: 11px; color: var(--accent-cyan); font-weight: 700; text-transform: uppercase;">${mod.title}</span>
     <h2 style="margin-bottom: 18px; font-size: 22px; color: #fff;">${lesson.title}</h2>
     ${mediaHtml}
     
     <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); padding: 20px; border-radius: 16px; margin-top: 20px;">
-      <h4 style="color: var(--accent-cyan); margin-bottom: 8px; font-size: 14.5px;"><i class="fa-solid fa-align-left"></i> Descrição da Aula</h4>
-      <p style="color: var(--text-secondary); font-size: 13.5px; white-space: pre-line;">${lesson.description || 'Sem descrição cadastrada.'}</p>
-    </div>
-
-    <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); padding: 20px; border-radius: 16px; margin-top: 14px;">
-      <h4 style="color: var(--accent-cyan); margin-bottom: 8px; font-size: 14.5px;"><i class="fa-solid fa-list-check"></i> O que vai ser aprendido</h4>
-      <p style="color: var(--text-secondary); font-size: 13.5px; white-space: pre-line;">${lesson.learned || 'Nenhum tópico informado.'}</p>
-    </div>
-
-    <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); padding: 20px; border-radius: 16px; margin-top: 14px;">
-      <h4 style="color: var(--accent-cyan); margin-bottom: 8px; font-size: 14.5px;"><i class="fa-solid fa-bullseye"></i> Objetivos na Aula</h4>
-      <p style="color: var(--text-secondary); font-size: 13.5px; white-space: pre-line;">${lesson.objectives || 'Nenhum objetivo informado.'}</p>
+      <h4 style="color: var(--accent-cyan); margin-bottom: 8px; font-size: 14.5px;"><i class="fa-solid fa-align-left"></i> Descrição</h4>
+      <p style="color: var(--text-secondary); font-size: 13.5px; white-space: pre-line;">${lesson.description || 'Sem descrição.'}</p>
     </div>
     
     ${pdfHtml}
@@ -1664,20 +1454,11 @@ function loadLessonContent(modId, lessonId) {
 function activateYouTubePlayer(lessonId, videoId) {
   const container = document.getElementById(`yt-player-container-${lessonId}`);
   if (!container) return;
-  let origin = window.location.origin !== 'null' ? window.location.origin : 'https://www.youtube.com';
-  
-  container.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&enablejsapi=1&origin=${encodeURIComponent(origin)}" referrerpolicy="strict-origin-when-cross-origin" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen style="width: 100%; height: 100%;"></iframe>`;
-  
+  container.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="width: 100%; height: 100%;"></iframe>`;
   videoWatchedState[lessonId] = true;
-
-  const notice = document.getElementById(`quiz-locked-notice-${lessonId}`);
-  if(notice) notice.style.display = 'none';
-
-  const body = document.getElementById(`quiz-content-body-${lessonId}`);
-  if(body) {
-    body.style.opacity = '1';
-    body.style.pointerEvents = 'auto';
-  }
+  document.getElementById(`quiz-locked-notice-${lessonId}`).style.display = 'none';
+  document.getElementById(`quiz-content-body-${lessonId}`).style.opacity = '1';
+  document.getElementById(`quiz-content-body-${lessonId}`).style.pointerEvents = 'auto';
 }
 
 function checkQuizAnswer(buttonElem, selectedIdx, correctIdx, modId, lessonId, nextMod, nextLesson) {
@@ -1689,7 +1470,7 @@ function checkQuizAnswer(buttonElem, selectedIdx, correctIdx, modId, lessonId, n
 
   if (selectedIdx === correctIdx) {
     buttonElem.classList.add('correct');
-    feedbackDiv.innerHTML = `<i class="fa-solid fa-circle-check" style="font-size: 16px;"></i> Resposta correta! Excelente progresso.`;
+    feedbackDiv.innerHTML = `<i class="fa-solid fa-circle-check"></i> Resposta correta!`;
     feedbackDiv.className = 'quiz-feedback success';
 
     if(!completedLessons[currentUser]) completedLessons[currentUser] = {};
@@ -1702,7 +1483,7 @@ function checkQuizAnswer(buttonElem, selectedIdx, correctIdx, modId, lessonId, n
       let nextBtnHtml = nextMod ? `<button class="btn" onclick="loadLessonContent(${nextMod}, ${nextLesson})">Próxima Aula <i class="fa-solid fa-arrow-right"></i></button>` : `<span style="color:var(--accent-cyan); font-weight:bold;">Você concluiu todas as aulas!</span>`;
       footerContainer.innerHTML = `
         <div style="padding: 18px; background: rgba(16,185,129,0.1); border-radius: 14px; border: 1px solid rgba(16,185,129,0.3);">
-          <h3 style="color: var(--green); margin-bottom: 8px; font-size: 16px;"><i class="fa-solid fa-medal"></i> Exercício Correto & Aula Concluída!</h3>
+          <h3 style="color: var(--green); margin-bottom: 8px; font-size: 16px;"><i class="fa-solid fa-medal"></i> Aula Concluída!</h3>
           ${nextBtnHtml}
         </div>
       `;
@@ -1710,7 +1491,7 @@ function checkQuizAnswer(buttonElem, selectedIdx, correctIdx, modId, lessonId, n
   } else {
     buttonElem.classList.add('incorrect');
     allBtns[correctIdx].classList.add('correct');
-    feedbackDiv.innerHTML = `<i class="fa-solid fa-circle-xmark" style="font-size: 16px;"></i> Resposta incorreta. A alternativa correta foi destacada em verde.`;
+    feedbackDiv.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> Resposta incorreta.`;
     feedbackDiv.className = 'quiz-feedback error';
   }
 }
@@ -1718,7 +1499,6 @@ function checkQuizAnswer(buttonElem, selectedIdx, correctIdx, modId, lessonId, n
 function generateOfficialCertificatePDF(studentName, studentCpf) {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-
   doc.setFillColor(3, 7, 18);
   doc.rect(0, 0, 210, 297, 'F');
   doc.setDrawColor(0, 240, 255);
@@ -1726,105 +1506,27 @@ function generateOfficialCertificatePDF(studentName, studentCpf) {
   doc.roundedRect(12, 12, 186, 273, 4, 4);
 
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(14);
-  doc.setTextColor(0, 240, 255);
-  doc.text("IDZ", 105, 26, { align: "center" });
-  doc.setFontSize(11);
+  doc.setFontSize(16);
   doc.setTextColor(255, 255, 255);
-  doc.text("Informatica do Zero", 105, 32, { align: "center" });
-
-  doc.setFontSize(24);
-  doc.setTextColor(255, 255, 255);
-  doc.text("CERTIFICADO", 105, 46, { align: "center" });
-  doc.setFontSize(14);
-  doc.setTextColor(0, 240, 255);
-  doc.text("DE CONCLUSÃO", 105, 53, { align: "center" });
+  doc.text("CERTIFICADO DE CONCLUSÃO", 105, 50, { align: "center" });
 
   doc.setFont("helvetica", "normal");
-  doc.setFontSize(11);
+  doc.setFontSize(12);
   doc.setTextColor(148, 163, 184);
-  doc.text("Certificamos que o aluno:", 105, 68, { align: "center" });
+  doc.text("Certificamos que o aluno:", 105, 75, { align: "center" });
 
   doc.setFont("helvetica", "bold");
   doc.setFontSize(20);
   doc.setTextColor(255, 255, 255);
-  doc.text(studentName.toUpperCase(), 105, 80, { align: "center" });
+  doc.text(studentName.toUpperCase(), 105, 90, { align: "center" });
 
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(11);
-  doc.setTextColor(148, 163, 184);
-  doc.text("concluiu com êxito o curso", 105, 93, { align: "center" });
-
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(16);
-  doc.setTextColor(0, 240, 255);
-  doc.text("INFORMÁTICA DO ZERO", 105, 102, { align: "center" });
-
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(10.5);
-  doc.setTextColor(148, 163, 184);
-  doc.text("com carga horária total de 12 horas, contendo videoaulas com", 105, 114, { align: "center" });
-  doc.text("tempo médio de 15 minutos cada e materiais em PDF fixados para", 105, 121, { align: "center" });
-  doc.text("aprendizado na prática.", 105, 128, { align: "center" });
-
-  let boxY = 142;
-  doc.setDrawColor(0, 240, 255, 0.3);
-  doc.setFillColor(15, 23, 42);
-
-  doc.roundedRect(20, boxY, 52, 22, 2, 2, 'FD');
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(9);
-  doc.setTextColor(0, 240, 255);
-  doc.text("Carga Horária Total", 46, boxY + 7, { align: "center" });
-  doc.setFontSize(11);
-  doc.setTextColor(255, 255, 255);
-  doc.text("12 horas", 46, boxY + 16, { align: "center" });
-
-  doc.roundedRect(79, boxY, 52, 22, 2, 2, 'FD');
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(9);
-  doc.setTextColor(0, 240, 255);
-  doc.text("Tempo Médio Aulas", 105, boxY + 7, { align: "center" });
-  doc.setFontSize(11);
-  doc.setTextColor(255, 255, 255);
-  doc.text("15 minutos", 105, boxY + 16, { align: "center" });
-
-  doc.roundedRect(138, boxY, 52, 22, 2, 2, 'FD');
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(9);
-  doc.setTextColor(0, 240, 255);
-  doc.text("Material de Apoio", 164, boxY + 7, { align: "center" });
-  doc.setFontSize(11);
-  doc.setTextColor(255, 255, 255);
-  doc.text("PDFs Fixados", 164, boxY + 16, { align: "center" });
-
-  let footY = 192;
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(9);
-  doc.setTextColor(148, 163, 184);
-  doc.text("Código de Certificado: IZ-2026-" + Math.floor(10000 + Math.random() * 90000), 25, footY);
-  doc.text("CPF do Aluno: " + studentCpf, 25, footY + 7);
-  doc.text("Data de Conclusão: " + new Date().toLocaleDateString('pt-BR'), 25, footY + 14);
-
-  doc.setDrawColor(148, 163, 184, 0.4);
-  doc.line(130, footY + 8, 185, footY + 8);
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(9);
-  doc.setTextColor(255, 255, 255);
-  doc.text("INSTRUTOR", 157.5, footY + 13, { align: "center" });
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(8);
-  doc.setTextColor(148, 163, 184);
-  doc.text("INFORMÁTICA DO ZERO", 157.5, footY + 18, { align: "center" });
-
-  doc.save(`Certificado_Informatica_Do_Zero_${studentName.replace(/\s+/g, '_')}.pdf`);
+  doc.save(`Certificado_${studentName.replace(/\s+/g, '_')}.pdf`);
 }
 
 async function handleSaveCertData(e) {
   e.preventDefault();
   const fcpf = document.getElementById('cert-cpf').value.trim();
   if(!fcpf) return alert("Preencha o CPF.");
-
   let uObj = registeredUsers.find(u => u.email === currentUser);
   if(uObj) {
     uObj.cpf = fcpf;
@@ -1842,32 +1544,20 @@ function switchAdminTab(t) {
 }
 
 function renderDashboard() {
-  document.getElementById('admin-total-users').innerHTML = `${registeredUsers.length} <i class="fa-solid fa-user-check" style="font-size:15px; color:var(--text-muted);"></i>`;
-  document.getElementById('admin-total-modules').innerHTML = `${courseData.length} <i class="fa-solid fa-layer-group" style="font-size:15px; color:var(--text-muted);"></i>`;
+  document.getElementById('admin-total-users').innerHTML = `${registeredUsers.length}`;
+  document.getElementById('admin-total-modules').innerHTML = `${courseData.length}`;
   const tbody = document.getElementById('users-list-body'); tbody.innerHTML = '';
   
   registeredUsers.forEach((u) => {
     let studentInfo = `<div style="font-weight:600; color:#fff;">${u.fullname || 'Nome não informado'}</div>`;
-    studentInfo += `<div style="font-size:11px; color:var(--accent-cyan); margin-top:2px;">E-mail: ${u.email} | CPF: ${u.cpf || 'Não informado'}</div>`;
-
-    let certControlHtml = '';
-    if (u.cpf && u.cpf.length >= 10) {
-      certControlHtml = u.certReleased ? 
-        `<span class="badge-status" style="background:rgba(16,185,129,0.2); color:var(--green);">Certificado Liberado</span> <button class="btn-outline" style="padding:4px 8px; font-size:11px; margin-top:4px;" onclick="toggleCert('${u.email}')">Bloquear</button>` :
-        `<span class="badge-status" style="background:rgba(239,68,68,0.2); color:var(--red);">Aguardando Liberação</span> <button class="btn-outline" style="border-color:var(--green); color:var(--green); padding:4px 8px; font-size:11px; margin-top:4px;" onclick="toggleCert('${u.email}')"><i class="fa-solid fa-check"></i> Liberar Certificado</button>`;
-    } else {
-      certControlHtml = `<span style="font-size:11px; color:var(--text-muted);">Pendente CPF</span>`;
-    }
+    studentInfo += `<div style="font-size:11px; color:var(--accent-cyan);">E-mail: ${u.email} | CPF: ${u.cpf || 'Não informado'}</div>`;
 
     tbody.innerHTML += `<tr>
       <td>${studentInfo}</td>
       <td><span class="badge-status" style="${u.paid?'background:rgba(16,185,129,0.2); color:var(--green);':'background:rgba(239,68,68,0.2); color:var(--red);'}">${u.paid?'Pago':'Pendente'}</span></td>
-      <td>${certControlHtml}</td>
+      <td>${u.certReleased ? 'Liberado' : 'Pendente'}</td>
       <td>
-        <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
-          ${!u.paid ? `<button class="btn-outline" style="border-color:var(--green); color:var(--green); padding:4px 8px;" onclick="approveUser('${u.email}')"><i class="fa-solid fa-check"></i> Pagto</button>`:''}
-          ${u.email !== TARGET_EMAIL ? `<button class="btn-outline" style="border-color:var(--red); color:var(--red); padding:4px 8px;" onclick="delUser('${u.email}')"><i class="fa-solid fa-trash"></i></button>`:'<span style="font-size:11px; color:var(--accent-cyan);">Admin Master</span>'}
-        </div>
+        ${!u.paid ? `<button class="btn-outline" style="border-color:var(--green); color:var(--green); padding:4px 8px;" onclick="approveUser('${u.email}')"><i class="fa-solid fa-check"></i> Pagto</button>`:''}
       </td>
     </tr>`;
   });
@@ -1878,32 +1568,9 @@ async function approveUser(email) {
   if(u) {
     u.paid = true;
     await saveUserToCloud(u);
-    showSuccessModal("Pagamento do aluno aprovado na nuvem!"); 
+    showSuccessModal("Pagamento aprovado!"); 
     renderDashboard(); 
-    if (currentUser === email) {
-      showMemberArea();
-    }
   }
-}
-
-async function toggleCert(email) {
-  let u = registeredUsers.find(x => x.email === email);
-  if(u) {
-    u.certReleased = !u.certReleased;
-    await saveUserToCloud(u);
-    showSuccessModal("Status do certificado atualizado na nuvem!");
-    renderDashboard();
-  }
-}
-
-async function delUser(email) { 
-  if(confirm("Excluir este usuário da nuvem?")){ 
-    const { deleteDoc, doc } = window.firebaseModules;
-    let safeId = email.replace(/[@.]/g, '_');
-    await deleteDoc(doc(window.db, "users", safeId));
-    showSuccessModal("Usuário removido da nuvem!"); 
-    renderDashboard(); 
-  } 
 }
 
 function populateLessonModuleSelect(){
@@ -1912,174 +1579,26 @@ function populateLessonModuleSelect(){
 }
 
 function saveModuleData() {
-  const id = document.getElementById('edit-mod-id').value; const t = document.getElementById('mod-title-input').value.trim(); const i = document.getElementById('mod-intro-input').value.trim();
+  const t = document.getElementById('mod-title-input').value.trim();
   if(!t) return alert("Preencha o título.");
-  if(id) { const m = courseData.find(x=>x.id==id); m.title=t; m.intro=i; } 
-  else { courseData.push({ id: Date.now(), title: t, intro: i, lessons: [] }); }
-  saveCourseToCloud("Módulo salvo na nuvem com sucesso!"); resetModuleForm(); renderAdminModules(); populateLessonModuleSelect();
-}
-
-function editModule(id) {
-  const m = courseData.find(x=>x.id==id);
-  document.getElementById('edit-mod-id').value=m.id; document.getElementById('mod-title-input').value=m.title; document.getElementById('mod-intro-input').value=m.intro||'';
-  document.getElementById('cancel-mod-edit-btn').style.display='inline-flex';
-}
-
-function resetModuleForm() { document.getElementById('edit-mod-id').value=''; document.getElementById('mod-title-input').value=''; document.getElementById('mod-intro-input').value=''; document.getElementById('cancel-mod-edit-btn').style.display='none'; }
-async function delModule(id) { if(confirm("Excluir módulo da nuvem?")) { courseData = courseData.filter(x=>x.id!=id); await deleteModuleFromCloud(id); saveCourseToCloud("Módulo excluído da nuvem!"); renderAdminModules(); populateLessonModuleSelect(); } }
-
-async function moveModule(index, direction) {
-  const newIndex = index + direction;
-  if (newIndex < 0 || newIndex >= courseData.length) return;
-  const temp = courseData[index];
-  courseData[index] = courseData[newIndex];
-  courseData[newIndex] = temp;
-  await saveCourseToCloud("Ordem dos módulos atualizada!");
-  renderAdminModules();
-  populateLessonModuleSelect();
-}
-
-async function moveLesson(modId, lessonIndex, direction) {
-  const mod = courseData.find(m => m.id == modId);
-  if (!mod || !mod.lessons) return;
-  const newIndex = lessonIndex + direction;
-  if (newIndex < 0 || newIndex >= mod.lessons.length) return;
-  const temp = mod.lessons[lessonIndex];
-  mod.lessons[lessonIndex] = mod.lessons[newIndex];
-  mod.lessons[newIndex] = temp;
-  await saveCourseToCloud("Ordem das aulas atualizada!");
-  renderAdminModules();
+  courseData.push({ id: Date.now(), title: t, intro: '', lessons: [] });
+  saveCourseToCloud("Módulo salvo!"); renderAdminModules(); populateLessonModuleSelect();
 }
 
 function saveLessonData() {
-  const eId = document.getElementById('edit-lesson-id').value; const mId = document.getElementById('lesson-mod-select').value;
-  const t = document.getElementById('lesson-title-input').value.trim(); 
-  const desc = document.getElementById('lesson-desc-input').value.trim();
-  const learned = document.getElementById('lesson-learned-input').value.trim();
-  const obj = document.getElementById('lesson-obj-input').value.trim(); 
-  
-  const v = document.getElementById('lesson-video-url').value.trim();
-  const img = document.getElementById('lesson-image-url').value.trim();
-  const pdf = document.getElementById('lesson-pdf-url').value.trim();
-  const pdfName = document.getElementById('lesson-pdf-name').value.trim();
-
-  const qText = document.getElementById('quiz-question-input').value.trim();
-  const opt0 = document.getElementById('quiz-opt0-input').value.trim();
-  const opt1 = document.getElementById('quiz-opt1-input').value.trim();
-  const opt2 = document.getElementById('quiz-opt2-input').value.trim();
-  const opt3 = document.getElementById('quiz-opt3-input').value.trim();
-  const correctIdx = parseInt(document.getElementById('quiz-correct-select').value);
-
-  if(!t||!mId) return alert("Preencha o título da aula e selecione o módulo.");
-  
-  let quizObj = null;
-  if (qText && opt0 && opt1) {
-    quizObj = {
-      question: qText,
-      options: [opt0, opt1, opt2 || "N/A", opt3 || "N/A"],
-      correct: correctIdx
-    };
-  }
-  
+  const mId = document.getElementById('lesson-mod-select').value;
+  const t = document.getElementById('lesson-title-input').value.trim();
+  if(!t) return alert("Preencha o título da aula.");
   const m = courseData.find(x=>x.id==mId);
-  if(eId) courseData.forEach(mod => { const found = mod.lessons?.find(l=>l.id==eId); if(found) { mod.lessons = mod.lessons.filter(l=>l.id!=eId); } });
-  
   if(!m.lessons) m.lessons=[];
-  m.lessons.push({ 
-    id: eId ? parseInt(eId) : Date.now(), 
-    title: t, 
-    description: desc,
-    learned: learned,
-    objectives: obj, 
-    video: v, 
-    image: img, 
-    pdf: pdf, 
-    pdfName: pdfName || (pdf ? 'Material de Apoio.pdf' : ''),
-    quiz: quizObj
-  });
-  
-  saveCourseToCloud("Aula e Exercícios publicados na nuvem com sucesso!"); 
-  resetLessonForm(); 
-  renderAdminModules();
-}
-
-function resetLessonForm() { 
-  document.querySelectorAll('#admin-tab-modules input, #admin-tab-modules textarea').forEach(el=> {if(el.type!=='hidden' && (el.id.includes('lesson') || el.id.includes('quiz'))) el.value='';}); 
-  document.getElementById('cancel-lesson-edit-btn').style.display='none'; 
-  document.getElementById('edit-lesson-id').value='';
-}
-
-function editLesson(mId, lId) {
-  const m=courseData.find(x=>x.id==mId); const l=m.lessons.find(x=>x.id==lId);
-  document.getElementById('edit-lesson-id').value=l.id; 
-  document.getElementById('lesson-mod-select').value=m.id; 
-  document.getElementById('lesson-title-input').value=l.title; 
-  document.getElementById('lesson-desc-input').value=l.description||''; 
-  document.getElementById('lesson-learned-input').value=l.learned||''; 
-  document.getElementById('lesson-obj-input').value=l.objectives||''; 
-  document.getElementById('lesson-video-url').value=l.video||''; 
-  document.getElementById('lesson-image-url').value=l.image||''; 
-  document.getElementById('lesson-pdf-url').value=l.pdf||''; 
-  document.getElementById('lesson-pdf-name').value=l.pdfName||''; 
-  
-  if (l.quiz) {
-    document.getElementById('quiz-question-input').value = l.quiz.question || '';
-    document.getElementById('quiz-opt0-input').value = l.quiz.options[0] || '';
-    document.getElementById('quiz-opt1-input').value = l.quiz.options[1] || '';
-    document.getElementById('quiz-opt2-input').value = l.quiz.options[2] || '';
-    document.getElementById('quiz-opt3-input').value = l.quiz.options[3] || '';
-    document.getElementById('quiz-correct-select').value = l.quiz.correct || 0;
-  }
-
-  document.getElementById('cancel-lesson-edit-btn').style.display='inline-flex';
-}
-
-function delLesson(mId, lId) { 
-  if(confirm("Excluir aula da nuvem?")){ 
-    const m=courseData.find(x=>x.id==mId); 
-    m.lessons=m.lessons.filter(x=>x.id!=lId); 
-    saveCourseToCloud("Aula removida da nuvem!"); 
-    renderAdminModules(); 
-  } 
+  m.lessons.push({ id: Date.now(), title: t, description: '', video: '', quiz: null });
+  saveCourseToCloud("Aula salva!"); renderAdminModules();
 }
 
 function renderAdminModules() {
   const c = document.getElementById('admin-modules-list-container'); c.innerHTML='';
-  courseData.forEach((m, modIdx) => {
-    let lh = '';
-    m.lessons?.forEach((l, lIdx) => {
-      let hasQuizBadge = l.quiz && l.quiz.question ? '<span style="font-size:10px; background:rgba(0,240,255,0.15); color:var(--accent-cyan); padding:2px 6px; border-radius:4px; margin-left:6px;">Com Exercícios</span>' : '';
-      lh += `<div class="admin-lesson-drag-item">
-        <div style="overflow: hidden; text-overflow: ellipsis; font-size: 13px;"><i class="fa-regular fa-circle-play" style="color:var(--text-secondary); margin-right:6px;"></i> ${l.title} ${hasQuizBadge}</div>
-        <div style="display: flex; gap: 6px; align-items: center;">
-          <button class="btn-outline" style="padding:4px 8px;" onclick="moveLesson(${m.id}, ${lIdx}, -1)" title="Subir Aula"><i class="fa-solid fa-arrow-up"></i></button>
-          <button class="btn-outline" style="padding:4px 8px;" onclick="moveLesson(${m.id}, ${lIdx}, 1)" title="Descer Aula"><i class="fa-solid fa-arrow-down"></i></button>
-          <button class="btn-outline" style="padding:4px 8px;" onclick="editLesson(${m.id}, ${l.id})" title="Editar"><i class="fa-solid fa-pen"></i></button>
-          <button class="btn-outline" style="padding:4px 8px; border-color:var(--red); color:var(--red);" onclick="delLesson(${m.id}, ${l.id})" title="Excluir"><i class="fa-solid fa-trash"></i></button>
-        </div>
-      </div>`;
-    });
-    c.innerHTML += `
-      <div class="admin-mod-box">
-        <div class="admin-mod-header" onclick="this.nextElementSibling.classList.toggle('expanded');">
-          <div style="overflow: hidden; text-overflow: ellipsis;"><i class="fa-solid fa-folder text-cyan" style="margin-right:8px;"></i> ${m.title}</div>
-          <div style="display: flex; gap: 8px; align-items: center;">
-            <button class="btn-outline" style="padding:3px 7px; font-size:10px;" onclick="event.stopPropagation(); moveModule(${modIdx}, -1)">▲ Subir</button>
-            <button class="btn-outline" style="padding:3px 7px; font-size:10px;" onclick="event.stopPropagation(); moveModule(${modIdx}, 1)">▼ Descer</button>
-            <i class="fa-solid fa-chevron-down text-muted" style="font-size:11px; margin-left: 6px;"></i>
-          </div>
-        </div>
-        <div class="admin-mod-body">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 12px; padding-bottom: 12px; border-bottom:1px solid var(--glass-border); gap: 10px; flex-wrap: wrap;">
-            <span style="font-size:12px; color:var(--text-secondary);">${m.intro||'Sem descrição'}</span>
-            <div style="display: flex; gap: 6px;">
-              <button class="btn-outline" style="padding:4px 8px;" onclick="editModule(${m.id})"><i class="fa-solid fa-pen"></i> Editar Módulo</button>
-              <button class="btn-outline" style="padding:4px 8px; border-color:var(--red); color:var(--red);" onclick="delModule(${m.id})"><i class="fa-solid fa-trash"></i> Excluir</button>
-            </div>
-          </div>
-          ${lh||'<p style="font-size:12px; color:var(--text-muted);">Sem aulas cadastradas neste módulo.</p>'}
-        </div>
-      </div>`;
+  courseData.forEach((m) => {
+    c.innerHTML += `<div class="admin-mod-box"><div class="admin-mod-header">${m.title}</div></div>`;
   });
 }
 </script>
