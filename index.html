@@ -76,22 +76,37 @@ body {
   line-height: 1.6;
 }
 
-#particles-canvas {
-  position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: -1; opacity: 0.4;
+/* Fundo Modern Liquid UI Trend Aurora Gradient Motion */
+#aurora-bg {
+  position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: -3;
+  background: linear-gradient(125deg, #030712 0%, #081126 40%, #0d0922 70%, #030712 100%);
+  background-size: 400% 400%;
+  animation: auroraMotion 18s ease infinite;
 }
+
+@keyframes auroraMotion {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+#particles-canvas {
+  position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: -1; opacity: 0.65;
+}
+
 .bg-orbs {
   position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: -2; overflow: hidden;
 }
 .orb {
-  position: absolute; border-radius: 50%; filter: blur(140px); opacity: 0.25;
-  animation: float 25s infinite ease-in-out alternate;
+  position: absolute; border-radius: 50%; filter: blur(140px); opacity: 0.35;
+  animation: float 20s infinite ease-in-out alternate;
 }
-.orb-1 { width: 450px; height: 450px; background: var(--accent-blue); top: -10%; left: -10%; }
-.orb-2 { width: 550px; height: 550px; background: var(--accent-purple); bottom: -20%; right: -10%; animation-delay: -6s; }
+.orb-1 { width: 500px; height: 500px; background: rgba(0, 240, 255, 0.25); top: -10%; left: -10%; }
+.orb-2 { width: 600px; height: 600px; background: rgba(124, 58, 237, 0.25); bottom: -20%; right: -10%; animation-delay: -5s; }
 
 @keyframes float {
   0% { transform: translate(0, 0) scale(1); }
-  100% { transform: translate(40px, 60px) scale(1.1); }
+  100% { transform: translate(50px, 70px) scale(1.15); }
 }
 
 .animate-fade-up { animation: fadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; transform: translateY(20px); }
@@ -301,10 +316,6 @@ section { padding: 70px 0; }
   color: var(--text-secondary); border-radius: 12px; font-size: 13.5px; font-weight: 600;
   cursor: pointer; transition: 0.25s ease; display: flex; align-items: center; justify-content: space-between;
 }
-.quiz-option-btn:hover:not(:disabled) {
-  background: rgba(0, 240, 255, 0.08); border-color: var(--accent-cyan); color: #fff;
-  transform: translateX(4px);
-}
 .quiz-option-btn.correct {
   background: rgba(16, 185, 129, 0.2) !important; border-color: var(--green) !important; color: #34d399 !important;
 }
@@ -362,6 +373,7 @@ footer {
 </head>
 <body>
 
+<div id="aurora-bg"></div>
 <canvas id="particles-canvas"></canvas>
 <div class="bg-orbs">
   <div class="orb orb-1"></div>
@@ -430,7 +442,7 @@ footer {
   <div id="mobile-menu-options" style="display: flex; flex-direction: column; gap: 10px;"></div>
 </div>
 
-<div id="public-site" class="animate-fade-up" style="display: none;">
+<div id="public-site" class="animate-fade-up" style="display: block;">
   <header class="hero">
     <div class="wrap gridhero">
       <div>
@@ -764,10 +776,10 @@ class Particle {
   constructor() {
     this.x = Math.random() * canvas.width;
     this.y = Math.random() * canvas.height;
-    this.size = Math.random() * 2 + 0.5;
-    this.speedX = (Math.random() - 0.5) * 0.3;
-    this.speedY = (Math.random() - 0.5) * 0.3;
-    this.opacity = Math.random() * 0.4 + 0.1;
+    this.size = Math.random() * 2.5 + 0.8;
+    this.speedX = (Math.random() - 0.5) * 0.4;
+    this.speedY = (Math.random() - 0.5) * 0.4;
+    this.opacity = Math.random() * 0.6 + 0.2;
   }
   update() {
     this.x += this.speedX; this.y += this.speedY;
@@ -781,7 +793,7 @@ class Particle {
 }
 function initParticles() {
   particlesArray = [];
-  let numberOfParticles = Math.floor((canvas.width * canvas.height) / 12000);
+  let numberOfParticles = Math.floor((canvas.width * canvas.height) / 9000);
   for (let i = 0; i < numberOfParticles; i++) particlesArray.push(new Particle());
 }
 function animateParticles() {
@@ -840,7 +852,6 @@ window.onload = function() {
               showMemberArea();
             } else {
               showPublicSite();
-              openCheckoutModal();
             }
           }
         } else {
@@ -963,6 +974,12 @@ function togglePasswordVisibility(id, btn) {
 function updateMobileMenuOptions() {
   const container = document.getElementById('mobile-menu-options');
   if(!container) return;
+  
+  const userDisplayElem = document.getElementById('user-display');
+  if (currentUser) {
+    userDisplayElem.innerText = currentUser;
+  }
+
   if(!currentUser){
     container.innerHTML = `
       <button onclick="toggleMobileMenu(); openAuthModal('login')"><i class="fa-regular fa-user"></i> Login</button>
@@ -1014,7 +1031,7 @@ async function handleLogin(e) {
     if(adminFlag) showAdminArea(); 
     else {
       if(uObj && uObj.paid) showMemberArea();
-      else { showPublicSite(); openCheckoutModal(); }
+      else { showPublicSite(); }
     }
   } catch (err) {
     alert("Erro ao entrar: E-mail ou senha incorretos.");
@@ -1069,7 +1086,6 @@ async function handleRegister(e) {
     await saveUserToCloud(newUser);
     setAuthSession(em, false);
     showPublicSite();
-    openCheckoutModal();
   } catch (err) {
     alert("Erro ao cadastrar: " + err.message);
   }
@@ -1120,6 +1136,9 @@ function showPublicSite() {
   document.getElementById('settings-area').style.display = 'none';
   document.getElementById('nav-guest').style.display = currentUser ? 'none' : 'block';
   document.getElementById('nav-user').style.display = currentUser ? 'flex' : 'none';
+  if (currentUser) {
+    document.getElementById('user-display').innerText = currentUser;
+  }
 }
 
 function showSettingsArea() {
@@ -1194,7 +1213,7 @@ function showMemberArea() {
   document.getElementById('member-area').style.display = 'block';
   document.getElementById('nav-guest').style.display = 'none'; 
   document.getElementById('nav-user').style.display = 'flex';
-  document.getElementById('user-display').innerText = currentUser.split('@')[0];
+  document.getElementById('user-display').innerText = currentUser;
   
   renderMemberSidebar();
   if(courseData.length > 0 && courseData[0].lessons?.length > 0) {
@@ -1210,7 +1229,7 @@ function showAdminArea() {
   document.getElementById('admin-area').style.display = 'block';
   document.getElementById('nav-guest').style.display = 'none'; 
   document.getElementById('nav-user').style.display = 'flex';
-  document.getElementById('user-display').innerText = "Admin";
+  document.getElementById('user-display').innerText = currentUser;
   switchAdminTab('dashboard'); populateLessonModuleSelect();
 }
 
@@ -1660,102 +1679,92 @@ function moveLesson(modIndex, lessonIndex, direction) {
   renderAdminModules();
 }
 
-// Inicialização do Checkout Bricks (Cartão até 5x e Pix direto no site com bloqueio para deslogados)
+// Inicialização do Checkout Bricks (Cartão até 5x e Pix direto no site)
 async function openCheckoutModal() {
-  if (!currentUser) {
-    alert("Você precisa estar logado para realizar a compra do curso!");
-    openAuthModal('login');
-    return;
-  }
-
-  let uObj = registeredUsers.find(u => u.email === currentUser);
-  if(isAdmin || uObj?.paid){ 
-    showMemberArea(); 
-    return; 
-  }
-
   openModal('modal-custom-checkout');
 
-  try {
-    const mp = new MercadoPago(PUBLIC_KEY_MP, {
-      locale: 'pt-BR'
-    });
+  setTimeout(async () => {
+    try {
+      const mp = new MercadoPago(PUBLIC_KEY_MP, {
+        locale: 'pt-BR'
+      });
 
-    const bricksBuilder = mp.bricks();
+      const bricksBuilder = mp.bricks();
 
-    if (paymentBrickController) {
-      paymentBrickController.unmount();
-    }
+      if (paymentBrickController) {
+        paymentBrickController.unmount();
+      }
 
-    const settings = {
-      initialization: {
-        amount: 29.90,
-        preferenceId: null,
-      },
-      customization: {
-        paymentMethods: {
-          creditCard: 'all',
-          bankTransfer: 'all',
-          maxInstallments: 5
+      const settings = {
+        initialization: {
+          amount: 29.90,
+          preferenceId: null,
         },
-        visual: {
-          style: {
-            theme: 'dark'
+        customization: {
+          paymentMethods: {
+            creditCard: 'all',
+            bankTransfer: 'all',
+            maxInstallments: 5
+          },
+          visual: {
+            style: {
+              theme: 'dark'
+            }
           }
-        }
-      },
-      callbacks: {
-        onReady: () => {
-          console.log('Payment Brick renderizado com sucesso');
         },
-        onSubmit: ({ selectedPaymentMethod, formData }) => {
-          return new Promise((resolve, reject) => {
-            fetch(RAILWAY_BACKEND_URL, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify(formData)
-            })
-            .then((response) => response.json())
-            .then((response) => {
-              if (response.success || response.init_point) {
-                showSuccessModal("Pagamento processado com sucesso!");
-                closeModal('modal-custom-checkout');
-                if (currentUser) {
-                  let userObj = registeredUsers.find(u => u.email === currentUser);
-                  if(userObj) { userObj.paid = true; saveUserToCloud(userObj); }
+        callbacks: {
+          onReady: () => {
+            console.log('Payment Brick renderizado com sucesso');
+          },
+          onSubmit: ({ selectedPaymentMethod, formData }) => {
+            return new Promise((resolve, reject) => {
+              fetch(RAILWAY_BACKEND_URL, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+              })
+              .then((response) => response.json())
+              .then((response) => {
+                if (response.success || response.init_point) {
+                  showSuccessModal("Pagamento processado com sucesso!");
+                  closeModal('modal-custom-checkout');
+                  if (currentUser) {
+                    let userObj = registeredUsers.find(u => u.email === currentUser);
+                    if(userObj) { userObj.paid = true; saveUserToCloud(userObj); }
+                  }
+                  showMemberArea();
+                } else {
+                  showSuccessModal("Pedido enviado! Acompanhe a liberação.");
+                  closeModal('modal-custom-checkout');
                 }
-                showMemberArea();
-              } else {
-                showSuccessModal("Pedido enviado! Acompanhe a liberação.");
+                resolve();
+              })
+              .catch((error) => {
+                console.error("Erro no checkout:", error);
+                showSuccessModal("Dados enviados com sucesso para o processamento!");
                 closeModal('modal-custom-checkout');
-              }
-              resolve();
-            })
-            .catch((error) => {
-              console.error("Erro no checkout:", error);
-              showSuccessModal("Dados enviados com sucesso para o processamento!");
-              closeModal('modal-custom-checkout');
-              reject();
+                reject();
+              });
             });
-          });
+          },
+          onError: (error) => {
+            console.error('Erro no Brick:', error);
+          },
         },
-        onError: (error) => {
-          console.error('Erro no Brick:', error);
-        },
-      },
-    };
+      };
 
-    paymentBrickController = await bricksBuilder.create(
-      'payment',
-      'paymentBrick_container',
-      settings
-    );
+      paymentBrickController = await bricksBuilder.create(
+        'payment',
+        'paymentBrick_container',
+        settings
+      );
 
-  } catch (e) {
-    console.error("Erro ao carregar Checkout Bricks:", e);
-  }
+    } catch (e) {
+      console.error("Erro ao carregar Checkout Bricks:", e);
+    }
+  }, 250);
 }
 </script>
 </body>
