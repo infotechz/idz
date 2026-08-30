@@ -376,7 +376,7 @@ footer {
     
     <div style="text-align: center; margin-bottom: 16px; border-bottom: 1px solid var(--glass-border); padding-bottom: 12px;">
       <span style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; display: block; font-weight: 700;">Ambiente Seguro de Pagamento</span>
-      <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 18px; color: #fff;">Informática do Zero — R$ 29,90</span>
+      <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 18px; color: #fff;" id="checkout-modal-title">Informática do Zero — R$ 29,90</span>
     </div>
 
     <div id="paymentBrick_container"></div>
@@ -587,7 +587,7 @@ footer {
     <!-- ABA CHECKOUT DE TESTE 1 CENTAVO -->
     <div class="glass-panel admin-card" id="admin-tab-testcheckout" style="display: none;">
       <h3><i class="fa-solid fa-cash-register"></i> Checkout de Teste Real (R$ 0,01) para Aluno Selecionado</h3>
-      <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 22px;">Selecione um aluno abaixo para abrir o Checkout Bricks (Pix ou Cartão) cobrando apenas R$ 0,01 e aprovar o acesso para ele.</p>
+      <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 22px;">Selecione um aluno abaixo para abrir o Checkout Bricks cobrando R$ 0,01. O sistema aprovará o Pix ou Cartão automaticamente assim que pago.</p>
       
       <div class="input-group" style="max-width: 450px;">
         <label>Escolher Aluno para o Teste</label>
@@ -596,10 +596,10 @@ footer {
       <button class="btn" style="margin-top: 10px;" onclick="openTestCheckoutForSelectedStudent()"><i class="fa-solid fa-play"></i> Iniciar Checkout de R$ 0,01 para o Aluno</button>
     </div>
 
-    <!-- ABA EDITOR DE MÓDULOS E AULAS (COM RECOLHER/EXPANDIR) -->
+    <!-- ABA EDITOR DE MÓDULOS E AULAS (COM 3 BLOCOS, ORDENAÇÃO E ANEXOS) -->
     <div class="glass-panel admin-card" id="admin-tab-modules" style="display: none;">
-      <h3><i class="fa-solid fa-layer-group"></i> Editor de Módulos e Aulas (Clique para Expandir)</h3>
-      <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 22px;">Clique no cabeçalho de cada módulo para recolher ou expandir e editar seu conteúdo.</p>
+      <h3><i class="fa-solid fa-layer-group"></i> Editor de Módulos, Blocos e Aulas</h3>
+      <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 22px;">Organize a ordem dos módulos/aulas e utilize os 3 blocos pedagógicos para detalhar o conteúdo e anexar links.</p>
       
       <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); padding: 20px; border-radius: 16px; margin-bottom: 22px;">
         <h4 style="font-size: 15px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-folder-plus text-cyan"></i> Novo Módulo</h4>
@@ -608,24 +608,67 @@ footer {
       </div>
 
       <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); padding: 20px; border-radius: 16px; margin-bottom: 26px;">
-        <h4 style="font-size: 15px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-video text-purple"></i> Adicionar Aula, Descrição e Objetivos</h4>
+        <h4 style="font-size: 15px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-video text-purple"></i> Adicionar Aula com os 3 Blocos & Mídia</h4>
+        
         <div class="input-group"><label>Selecionar Módulo</label><select id="lesson-mod-select"></select></div>
         <div class="input-group"><label>Título da Aula</label><input type="text" id="lesson-title-input" placeholder="Ex: Aula 1 — O que é um computador?"></div>
         
+        <!-- Bloco 1: O que vai ser aprendido -->
         <div class="input-group">
-          <label>O que será aprendido (Descrição & Objetivos)</label>
-          <textarea id="lesson-desc-input" rows="3" placeholder="Descreva os objetivos detalhados e o que será aprendido nesta aula..."></textarea>
+          <label><i class="fa-solid fa-list-check" style="color:var(--accent-cyan);"></i> Bloco 1: O que vai ser aprendido</label>
+          <textarea id="lesson-bloco1-input" rows="2" placeholder="Descreva os tópicos centrais que serão aprendidos..."></textarea>
+        </div>
+
+        <!-- Bloco 2: Descrição Detalhada -->
+        <div class="input-group">
+          <label><i class="fa-solid fa-align-left" style="color:var(--accent-cyan);"></i> Bloco 2: Descrição da Aula</label>
+          <textarea id="lesson-bloco2-input" rows="3" placeholder="Contextualização geral da aula..."></textarea>
+        </div>
+
+        <!-- Bloco 3: Objetivos Pedagógicos -->
+        <div class="input-group">
+          <label><i class="fa-solid fa-bullseye" style="color:var(--accent-cyan);"></i> Bloco 3: Objetivos Pedagógicos</label>
+          <textarea id="lesson-bloco3-input" rows="2" placeholder="Quais os objetivos práticos o aluno deve atingir..."></textarea>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="input-group">
+            <label><i class="fa-brands fa-youtube" style="color:#ef4444;"></i> Link do YouTube</label>
+            <input type="text" id="lesson-video-url" placeholder="https://www.youtube.com/watch?v=...">
+          </div>
+          <div class="input-group">
+            <label><i class="fa-solid fa-file-pdf" style="color:#f59e0b;"></i> Link de Anexo (PDF / Material)</label>
+            <input type="text" id="lesson-pdf-url" placeholder="https://exemplo.com/material.pdf">
+          </div>
         </div>
 
         <div class="input-group">
-          <label><i class="fa-brands fa-youtube" style="color:#ef4444;"></i> Link do YouTube (Opcional)</label>
-          <input type="text" id="lesson-video-url" placeholder="https://www.youtube.com/watch?v=...">
+          <label><i class="fa-regular fa-image" style="color:#10b981;"></i> Link de Foto / Imagem Ilustrativa</label>
+          <input type="text" id="lesson-img-url" placeholder="https://exemplo.com/imagem.png">
         </div>
 
-        <button type="button" class="btn" style="padding: 12px 18px; font-size: 12px; margin-top: 10px;" onclick="saveLessonData()"><i class="fa-solid fa-cloud-arrow-up"></i> Publicar Aula</button>
+        <hr style="border: 0; border-top: 1px solid var(--glass-border); margin: 20px 0;">
+        <h4 style="font-size: 14px; color: var(--accent-cyan); margin-bottom: 14px;"><i class="fa-solid fa-brain"></i> Configurar Exercício (Quiz) da Aula</h4>
+        
+        <div class="input-group"><label>Pergunta do Exercício</label><input type="text" id="quiz-question-input" placeholder="Ex: O que é um computador?"></div>
+        <div class="input-group"><label>Alternativa A</label><input type="text" id="quiz-opt0-input"></div>
+        <div class="input-group"><label>Alternativa B</label><input type="text" id="quiz-opt1-input"></div>
+        <div class="input-group"><label>Alternativa C</label><input type="text" id="quiz-opt2-input"></div>
+        <div class="input-group"><label>Alternativa D</label><input type="text" id="quiz-opt3-input"></div>
+        <div class="input-group">
+          <label>Alternativa Correta</label>
+          <select id="quiz-correct-select">
+            <option value="0">Alternativa A</option>
+            <option value="1">Alternativa B</option>
+            <option value="2">Alternativa C</option>
+            <option value="3">Alternativa D</option>
+          </select>
+        </div>
+
+        <button type="button" class="btn" style="padding: 12px 18px; font-size: 12px; margin-top: 10px;" onclick="saveLessonData()"><i class="fa-solid fa-cloud-arrow-up"></i> Publicar Aula com Exercício</button>
       </div>
 
-      <h4 style="font-size: 17px; margin-bottom: 16px;"><i class="fa-solid fa-list-ol"></i> Módulos Cadastrados (Clique para Expandir)</h4>
+      <h4 style="font-size: 17px; margin-bottom: 16px;"><i class="fa-solid fa-list-ol"></i> Organizar Ordem dos Módulos e Aulas</h4>
       <div id="admin-modules-list-container"></div>
     </div>
   </div>
@@ -753,7 +796,6 @@ function animateParticles() {
 }
 initParticles(); animateParticles();
 
-// Módulo 1 restaurado com suas 2 aulas originais, descrições e objetivos detalhados
 const defaultCourseData = [
   {
     id: 1, title: "MÓDULO 1 — CONHECENDO O COMPUTADOR", intro: "Neste módulo, você dará os primeiros passos no mundo da informática com total segurança.",
@@ -761,15 +803,19 @@ const defaultCourseData = [
       { 
         id: 101, 
         title: "Aula 1 — O que é um computador?", 
-        description: "O que será aprendido:\n- Compreensão completa do conceito de hardware e software.\n- Como o computador processa dados e executa instruções.\n\nObjetivos da Aula:\n- Desmistificar o uso do computador para iniciantes.\n- Identificar a utilidade prática de cada componente básico no cotidiano.", 
-        video: "", 
+        bloco1: "Compreensão completa do conceito de hardware e software e como o computador processa dados.",
+        bloco2: "Introdução fundamental ao universo dos computadores e suas aplicações diárias.",
+        bloco3: "Desmistificar o uso do computador para iniciantes e identificar a utilidade prática de cada componente.",
+        video: "", pdfUrl: "", imgUrl: "",
         quiz: { question: "Qual é a principal definição funcional de um computador?", options: ["Um aparelho restrito a jogos pesados.", "Uma máquina eletrônica capaz de processar dados e executar instruções.", "Um dispositivo analógico de som.", "Uma ferramenta exclusiva para impressão."], correct: 1 } 
       },
       { 
         id: 102, 
         title: "Aula 2 — Principais partes do computador", 
-        description: "O que será aprendido:\n- Diferenciação entre dispositivos de entrada (teclado, mouse) e saída (monitor, impressora).\n- Funções essenciais da CPU e memória RAM.\n\nObjetivos da Aula:\n- Conhecer a estrutura física externa e interna sem complicação técnica.", 
-        video: "", 
+        bloco1: "Diferenciação entre dispositivos de entrada (teclado, mouse) e saída (monitor, impressora).",
+        bloco2: "Conhecendo a estrutura física externa e interna sem complicação técnica.",
+        bloco3: "Saber identificar cada periférico e sua devida utilidade no setup diário.",
+        video: "", pdfUrl: "", imgUrl: "",
         quiz: { question: "Qual componente externo é considerado estritamente de saída de dados?", options: ["Teclado", "Mouse", "Monitor", "Microfone"], correct: 2 } 
       }
     ]
@@ -787,6 +833,7 @@ let videoWatchedState = {};
 let paymentBrickController = null;
 let currentCheckoutAmount = 29.90;
 let checkoutTargetUser = null;
+let activePaymentInterval = null;
 
 function autoCompleteEmail(inputId) {
   const input = document.getElementById(inputId);
@@ -913,7 +960,10 @@ function toggleMobileMenu() {
   document.getElementById('mobile-overlay').classList.toggle('active');
 }
 function openModal(id) { document.getElementById(id).classList.add('active'); }
-function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+function closeModal(id) { 
+  document.getElementById(id).classList.remove('active'); 
+  if(activePaymentInterval) { clearInterval(activePaymentInterval); activePaymentInterval = null; }
+}
 
 function closeCheckoutModalSafe() {
   closeModal('modal-custom-checkout');
@@ -1278,7 +1328,6 @@ function toggleAccordion(headerElem) {
   }
 }
 
-// Acordeão exclusivo para a aba Admin (recolher e expandir módulos ao clicar)
 function toggleAdminAccordion(headerElem) {
   const bodyElem = headerElem.nextElementSibling;
   bodyElem.classList.toggle('expanded');
@@ -1317,6 +1366,26 @@ function loadLessonContent(modId, lessonId) {
         <div style="position: absolute; width: 75px; height: 52px; background: rgba(0, 240, 255, 0.9); border-radius: 14px; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); transition: 0.3s;">
           <i class="fa-solid fa-play" style="color: #030712; font-size: 20px; margin-left: 2px;"></i>
         </div>
+      </div>`;
+  }
+
+  let imgHtml = '';
+  if (lesson.imgUrl && lesson.imgUrl.trim() !== '') {
+    imgHtml = `
+      <div class="image-frame" style="margin-top: 15px;">
+        <img src="${lesson.imgUrl}" alt="Ilustração da Aula" style="width: 100%; height: 100%; object-fit: cover;">
+      </div>`;
+  }
+
+  let pdfHtml = '';
+  if (lesson.pdfUrl && lesson.pdfUrl.trim() !== '') {
+    pdfHtml = `
+      <div style="margin-top: 15px; padding: 14px; background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 12px; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <h4 style="color: #f59e0b; font-size: 14px; margin-bottom: 4px;"><i class="fa-solid fa-file-pdf"></i> Material Complementar</h4>
+          <p style="font-size: 12px; color: var(--text-secondary);">Baixe o arquivo PDF desta aula para acompanhar.</p>
+        </div>
+        <a href="${lesson.pdfUrl}" target="_blank" class="btn-outline" style="border-color: #f59e0b; color: #f59e0b;"><i class="fa-solid fa-download"></i> Baixar PDF</a>
       </div>`;
   }
 
@@ -1400,10 +1469,25 @@ function loadLessonContent(modId, lessonId) {
     <span style="font-size: 11px; color: var(--accent-cyan); font-weight: 700; text-transform: uppercase;">${mod.title}</span>
     <h2 style="margin-bottom: 18px; font-size: 22px; color: #fff;">${lesson.title}</h2>
     ${mediaHtml}
+    ${imgHtml}
+    ${pdfHtml}
     
+    <!-- Bloco 1: O que vai ser aprendido -->
     <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); padding: 20px; border-radius: 16px; margin-top: 20px;">
-      <h4 style="color: var(--accent-cyan); margin-bottom: 8px; font-size: 14.5px;"><i class="fa-solid fa-align-left"></i> O que será aprendido e Objetivos</h4>
-      <p style="color: var(--text-secondary); font-size: 13.5px; white-space: pre-line;">${lesson.description || 'Sem descrição.'}</p>
+      <h4 style="color: var(--accent-cyan); margin-bottom: 8px; font-size: 14.5px;"><i class="fa-solid fa-list-check"></i> O que vai ser aprendido</h4>
+      <p style="color: var(--text-secondary); font-size: 13.5px; white-space: pre-line;">${lesson.bloco1 || 'Não especificado.'}</p>
+    </div>
+
+    <!-- Bloco 2: Descrição Detalhada -->
+    <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); padding: 20px; border-radius: 16px; margin-top: 14px;">
+      <h4 style="color: var(--accent-cyan); margin-bottom: 8px; font-size: 14.5px;"><i class="fa-solid fa-align-left"></i> Descrição da Aula</h4>
+      <p style="color: var(--text-secondary); font-size: 13.5px; white-space: pre-line;">${lesson.bloco2 || lesson.description || 'Sem descrição.'}</p>
+    </div>
+
+    <!-- Bloco 3: Objetivos Pedagógicos -->
+    <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); padding: 20px; border-radius: 16px; margin-top: 14px;">
+      <h4 style="color: var(--accent-cyan); margin-bottom: 8px; font-size: 14.5px;"><i class="fa-solid fa-bullseye"></i> Objetivos Pedagógicos</h4>
+      <p style="color: var(--text-secondary); font-size: 13.5px; white-space: pre-line;">${lesson.bloco3 || 'Não especificado.'}</p>
     </div>
     
     ${quizHtml}
@@ -1550,7 +1634,6 @@ function renderDashboard() {
 
     let progressHtml = `<div style="font-size:12px; color:#fff; font-weight:600;">${lessonsDoneCount} / ${totalLessonsInCourse} aulas (${lessonProgressPercent}%)</div>`;
 
-    // Botão de check (✓) para aprovar e botão de X para remover pagamento
     let actionButtons = `
       <button class="btn-outline" style="border-color:var(--green); color:var(--green); padding:6px 10px;" title="Aprovar Pagamento" onclick="setStudentPaymentStatus('${studentEmail}', true)"><i class="fa-solid fa-check"></i></button>
       <button class="btn-outline" style="border-color:var(--red); color:var(--red); padding:6px 10px;" title="Remover Pagamento" onclick="setStudentPaymentStatus('${studentEmail}', false)"><i class="fa-solid fa-xmark"></i></button>
@@ -1588,7 +1671,8 @@ function openTestCheckoutForSelectedStudent() {
   const sel = document.getElementById('test-student-select');
   if(!sel || !sel.value) return alert("Selecione um aluno para o teste.");
   checkoutTargetUser = sel.value;
-  currentCheckoutAmount = 0.01; // Valor de 1 centavo
+  currentCheckoutAmount = 0.01;
+  document.getElementById('checkout-modal-title').innerText = `Checkout Teste Aluno — R$ 0,01`;
   openCheckoutModal();
 }
 
@@ -1607,14 +1691,44 @@ function saveModuleData() {
 function saveLessonData() {
   const mId = document.getElementById('lesson-mod-select').value;
   const t = document.getElementById('lesson-title-input').value.trim();
-  const desc = document.getElementById('lesson-desc-input').value.trim();
+  const bloco1 = document.getElementById('lesson-bloco1-input').value.trim();
+  const bloco2 = document.getElementById('lesson-bloco2-input').value.trim();
+  const bloco3 = document.getElementById('lesson-bloco3-input').value.trim();
   const video = document.getElementById('lesson-video-url').value.trim();
+  const pdfUrl = document.getElementById('lesson-pdf-url').value.trim();
+  const imgUrl = document.getElementById('lesson-img-url').value.trim();
+  const qText = document.getElementById('quiz-question-input').value.trim();
   
   if(!t) return alert("Preencha o título da aula.");
   const m = courseData.find(x=>x.id==mId);
   if(!m.lessons) m.lessons=[];
 
-  m.lessons.push({ id: Date.now(), title: t, description: desc, video: video });
+  let quiz = null;
+  if (qText) {
+    quiz = {
+      question: qText,
+      options: [
+        document.getElementById('quiz-opt0-input').value,
+        document.getElementById('quiz-opt1-input').value,
+        document.getElementById('quiz-opt2-input').value,
+        document.getElementById('quiz-opt3-input').value
+      ],
+      correct: parseInt(document.getElementById('quiz-correct-select').value)
+    };
+  }
+
+  m.lessons.push({ 
+    id: Date.now(), 
+    title: t, 
+    bloco1: bloco1, 
+    bloco2: bloco2, 
+    bloco3: bloco3, 
+    video: video, 
+    pdfUrl: pdfUrl, 
+    imgUrl: imgUrl, 
+    quiz: quiz 
+  });
+
   saveCourseToCloud("Aula salva com sucesso!"); renderAdminModules();
 }
 
@@ -1627,6 +1741,8 @@ function renderAdminModules() {
         lessonsHtml += `<div class="admin-lesson-item-box">
           <span><i class="fa-solid fa-file-video" style="color:var(--accent-cyan); margin-right:6px;"></i> ${l.title}</span>
           <div>
+            <button class="btn-outline" style="padding:2px 6px; font-size:11px;" onclick="moveLesson(${index}, ${lIndex}, -1)"><i class="fa-solid fa-arrow-up"></i></button>
+            <button class="btn-outline" style="padding:2px 6px; font-size:11px;" onclick="moveLesson(${index}, ${lIndex}, 1)"><i class="fa-solid fa-arrow-down"></i></button>
             <button class="btn-outline" style="padding:2px 6px; font-size:11px; border-color:var(--red); color:var(--red);" onclick="deleteLesson(${m.id}, ${l.id})"><i class="fa-solid fa-trash"></i></button>
           </div>
         </div>`;
@@ -1634,19 +1750,42 @@ function renderAdminModules() {
     }
 
     c.innerHTML += `<div class="admin-mod-box">
-      <div class="admin-mod-header" onclick="toggleAdminAccordion(this)">
-        <span><i class="fa-solid fa-folder" style="color:var(--accent-cyan); margin-right:8px;"></i> ${m.title}</span>
+      <div class="admin-mod-header">
+        <span onclick="toggleAdminAccordion(this)" style="flex:1;"><i class="fa-solid fa-folder" style="color:var(--accent-cyan); margin-right:8px;"></i> ${m.title}</span>
         <div>
-          <button class="btn-outline" style="padding:4px 8px; border-color:var(--red); color:var(--red);" onclick="deleteModule(${m.id})"><i class="fa-solid fa-trash"></i> Excluir Módulo</button>
-          <i class="fa-solid fa-chevron-down" style="font-size: 11px; margin-left: 8px;"></i>
+          <button class="btn-outline" style="padding:4px 8px;" onclick="moveModule(${index}, -1)"><i class="fa-solid fa-arrow-up"></i></button>
+          <button class="btn-outline" style="padding:4px 8px;" onclick="moveModule(${index}, 1)"><i class="fa-solid fa-arrow-down"></i></button>
+          <button class="btn-outline" style="padding:4px 8px; border-color:var(--red); color:var(--red);" onclick="deleteModule(${m.id})"><i class="fa-solid fa-trash"></i></button>
         </div>
       </div>
       <div class="admin-mod-body">
-        <h5 style="font-size:12px; color:var(--text-secondary); margin-bottom:8px;">Aulas cadastradas neste Módulo:</h5>
+        <h5 style="font-size:12px; color:var(--text-secondary); margin-bottom:8px;">Aulas deste Módulo:</h5>
         ${lessonsHtml || '<p style="font-size:12px; color:var(--text-muted);">Nenhuma aula cadastrada.</p>'}
       </div>
     </div>`;
   });
+}
+
+function moveModule(index, direction) {
+  const newIndex = index + direction;
+  if (newIndex < 0 || newIndex >= courseData.length) return;
+  const temp = courseData[index];
+  courseData[index] = courseData[newIndex];
+  courseData[newIndex] = temp;
+  saveCourseToCloud("Ordem de módulos alterada!");
+  renderAdminModules();
+  populateLessonModuleSelect();
+}
+
+function moveLesson(modIndex, lessonIndex, direction) {
+  const lessons = courseData[modIndex].lessons;
+  const newIndex = lessonIndex + direction;
+  if (newIndex < 0 || newIndex >= lessons.length) return;
+  const temp = lessons[lessonIndex];
+  lessons[lessonIndex] = lessons[newIndex];
+  lessons[newIndex] = temp;
+  saveCourseToCloud("Ordem de aulas alterada!");
+  renderAdminModules();
 }
 
 function deleteModule(modId) {
@@ -1667,7 +1806,7 @@ function deleteLesson(modId, lessonId) {
   }
 }
 
-// Checkout Bricks real integrado para testes e produção
+// Checkout com verificação automática de aprovação (Pix e Cartão)
 async function openCheckoutModal() {
   let targetEmail = checkoutTargetUser || currentUser;
   if (!targetEmail) {
@@ -1719,6 +1858,7 @@ async function openCheckoutModal() {
                     const pixData = response.point_of_interaction.transaction_data;
                     const qrCodeBase64 = pixData.qr_code_base64;
                     const qrCodeCopyPaste = pixData.qr_code;
+                    const paymentId = response.id;
 
                     const containerModal = document.getElementById('paymentBrick_container');
                     containerModal.innerHTML = `
@@ -1735,9 +1875,28 @@ async function openCheckoutModal() {
                             <i class="fa-regular fa-copy"></i> Copiar Código Pix
                           </button>
                         </div>
-                        <button class="btn" style="width: 100%; margin-top: 10px;" onclick="simulateApprovalForTarget('${targetEmail}')">Simular Pagamento Aprovado</button>
+                        <p style="font-size: 11.5px; color: var(--green); margin-bottom: 12px;"><i class="fa-solid fa-spinner fa-spin"></i> Aguardando confirmação automática do pagamento...</p>
+                        <button class="btn" style="width: 100%; font-size: 11px; padding: 10px;" onclick="simulateApprovalForTarget('${targetEmail}')">Simular Aprovação Imediata</button>
                       </div>
                     `;
+
+                    // Polling automático para checar status do pagamento Pix
+                    if(paymentId) {
+                      activePaymentInterval = setInterval(async () => {
+                        try {
+                          let checkRes = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
+                            headers: { 'Authorization': `Bearer ${PUBLIC_KEY_MP}` }
+                          });
+                          let checkData = await checkRes.json();
+                          if(checkData.status === 'approved') {
+                            clearInterval(activePaymentInterval);
+                            activePaymentInterval = null;
+                            simulateApprovalForTarget(targetEmail);
+                          }
+                        } catch(e) { console.error("Erro ao checar status:", e); }
+                      }, 4000);
+                    }
+
                   } else {
                     simulateApprovalForTarget(targetEmail);
                   }
@@ -1765,6 +1924,7 @@ async function openCheckoutModal() {
 }
 
 async function simulateApprovalForTarget(email) {
+  if(activePaymentInterval) { clearInterval(activePaymentInterval); activePaymentInterval = null; }
   let uObj = registeredUsers.find(u => u.email === email);
   if(uObj) {
     uObj.paid = true;
@@ -1774,6 +1934,7 @@ async function simulateApprovalForTarget(email) {
   closeModal('modal-custom-checkout');
   currentCheckoutAmount = 29.90;
   checkoutTargetUser = null;
+  document.getElementById('checkout-modal-title').innerText = `Informática do Zero — R$ 29,90`;
   if(currentUser === email) showMemberArea();
   else if(isAdmin) renderDashboard();
 }
