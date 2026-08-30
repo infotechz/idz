@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <title>Informática do Zero — Plataforma Profissional</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -328,6 +329,14 @@ section { padding: 70px 0; }
 .sales-table th { color: var(--text-secondary); font-weight: 700; text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; }
 .badge-status { padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 700; text-transform: uppercase; display: inline-block; }
 
+.admin-mod-box { border: 1px solid var(--glass-border); border-radius: 14px; margin-bottom: 12px; background: rgba(0,0,0,0.25); overflow: hidden; }
+.admin-mod-header { padding: 14px 16px; font-size: 13px; font-weight: 700; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.admin-mod-body { padding: 16px; display: none; border-top: 1px solid var(--glass-border); background: rgba(255,255,255,0.015); }
+.admin-mod-body.expanded { display: block; }
+.admin-lesson-drag-item {
+  display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.3); padding: 10px 14px; border-radius: 10px; margin-top: 8px; border: 1px solid var(--glass-border); gap: 10px; flex-wrap: wrap;
+}
+
 footer {
   background: rgba(3, 7, 18, 0.9); border-top: 1px solid var(--glass-border);
   padding: 40px 0 20px; text-align: center; margin-top: 80px; position: relative; z-index: 10;
@@ -366,7 +375,7 @@ footer {
   </div>
 </div>
 
-<!-- Modal de Checkout Inteligente Mercado Pago -->
+<!-- Checkout interativo conectado ao Back-end da Railway e Mercado Pago -->
 <div class="modal-overlay" id="modal-custom-checkout">
   <div class="modal-card">
     <button class="close-btn" onclick="closeModal('modal-custom-checkout')"><i class="fa-solid fa-xmark"></i></button>
@@ -376,14 +385,15 @@ footer {
       <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 18px; color: #fff;">Informática do Zero</span>
     </div>
 
-    <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); padding: 14px; border-radius: 14px; margin-bottom: 16px;">
+    <!-- Etapa 1: Dados Pessoais -->
+    <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); padding: 14px; border-radius: 14px; margin-bottom: 12px;">
       <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px; color: var(--accent-cyan); font-weight: 700; font-size: 12.5px;">
-        <i class="fa-solid fa-shield-halved"></i> Confirme seus dados para pagamento
+        <span style="width: 20px; height: 20px; background: rgba(0,240,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px;">1</span> Dados Pessoais (Obrigatório)
       </div>
 
       <div class="input-group">
         <label>Nome Completo (Nome e Sobrenome)</label>
-        <input type="text" id="checkout-name-input" placeholder="Ex: João da Silva Santos">
+        <input type="text" id="checkout-name-input" placeholder="Digite seu nome completo real">
       </div>
 
       <div class="input-group">
@@ -393,20 +403,41 @@ footer {
 
       <div class="input-group" style="margin-bottom: 0;">
         <label>CPF</label>
-        <input type="text" id="checkout-cpf-input" placeholder="000.000.000-00">
+        <input type="text" id="checkout-cpf-input" placeholder="000.000.000-00" maxlength="14">
       </div>
     </div>
 
-    <div style="display: flex; justify-content: space-between; align-items: center; font-size: 14px; background: rgba(255,255,255,0.02); padding: 12px 14px; border-radius: 12px; margin-bottom: 16px; border: 1px solid var(--glass-border);">
-      <span style="color: var(--text-secondary);">Valor Único:</span>
-      <strong style="color: var(--green); font-size: 18px;">R$ 29,90</strong>
+    <!-- Etapa 2: Forma de Pagamento -->
+    <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); padding: 14px; border-radius: 14px; margin-bottom: 16px;">
+      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px; color: var(--accent-cyan); font-weight: 700; font-size: 12.5px;">
+        <span style="width: 20px; height: 20px; background: rgba(0,240,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px;">2</span> Forma de Pagamento
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+        <button type="button" class="btn-outline" id="pay-opt-pix" style="justify-content: center; border-color: var(--accent-cyan); background: rgba(0,240,255,0.1);" onclick="selectPaymentMethod('pix')">
+          <i class="fa-brands fa-pix" style="color: #32BCAD;"></i> Pix Imediato
+        </button>
+        <button type="button" class="btn-outline" id="pay-opt-card" style="justify-content: center;" onclick="selectPaymentMethod('card')">
+          <i class="fa-regular fa-credit-card"></i> Cartão de Crédito
+        </button>
+      </div>
+
+      <!-- Informação do Mercado Pago -->
+      <div id="mercadopago-info-box" style="margin-top: 10px; font-size: 12px; color: var(--text-secondary); background: rgba(0,240,255,0.03); padding: 10px; border-radius: 10px; border: 1px solid rgba(0,240,255,0.15);">
+        <i class="fa-solid fa-bolt" style="color: var(--accent-cyan); margin-right: 4px;"></i> O servidor na Railway processará sua transação de forma segura via Mercado Pago.
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; font-size: 14px; background: rgba(255,255,255,0.02); padding: 10px 12px; border-radius: 10px; margin-top: 12px;">
+        <span style="color: var(--text-secondary);">Total Hoje:</span>
+        <strong style="color: var(--green); font-size: 18px;">R$ 29,90</strong>
+      </div>
     </div>
 
-    <button class="btn" style="width: 100%; padding: 15px; font-size: 14px;" onclick="redirectToMercadoPago()">
-      <i class="fa-solid fa-lock"></i> Ir para o Mercado Pago (Pix / Cartão)
+    <button class="btn" style="width: 100%; padding: 15px; font-size: 14px;" onclick="proceedToPaymentGateway()">
+      <i class="fa-solid fa-lock"></i> Finalizar Pagamento com Segurança
     </button>
     <div style="text-align: center; font-size: 11px; color: var(--text-muted); margin-top: 10px;">
-      <i class="fa-solid fa-shield-halved"></i> Ambiente 100% seguro do Mercado Pago.
+      <i class="fa-solid fa-shield-halved"></i> Integração segura via API Railway & Mercado Pago.
     </div>
   </div>
 </div>
@@ -519,7 +550,7 @@ footer {
       <div class="section-header" style="margin-bottom: 28px;">
         <h2>Perguntas Frequentes</h2>
       </div>
-      <details class="glass-panel"><summary>Como funciona o acesso às aulas?</summary><p>Após a confirmação do pagamento, seu e-mail será liberado automaticamente. Basta fazer login e acessar a Área de Membros.</p></details>
+      <details class="glass-panel"><summary>Como funciona o acesso às aulas?</summary><p>Após o pagamento via Mercado Pago, seu e-mail será liberado automaticamente. Basta fazer login e acessar a Área de Membros.</p></details>
       <details class="glass-panel"><summary>Preciso de um computador potente?</summary><p>Não! O curso ensina fundamentos que podem ser aplicados em qualquer computador, notebook ou até mesmo pelo celular para assistir às aulas teóricas.</p></details>
       <details class="glass-panel"><summary>Os materiais têm custo extra?</summary><p>Não. Todos os PDFs, modelos de currículo e planilhas bônus já estão inclusos no valor único do curso e disponíveis para download imediato.</p></details>
     </div>
@@ -760,7 +791,7 @@ footer {
       </div>
       
       <div style="font-size: 10.5px; color: var(--text-muted); margin-bottom: 14px; text-align: center;">
-        Ao criar minha conta, concordo com os termos de uso e política de privacidade.
+        Ao criar minha conta, concordo com os termos de uso e política de privacidade da plataforma.
       </div>
 
       <button type="submit" class="btn" style="width: 100%; margin-top: 4px;">Criar minha conta</button>
@@ -854,6 +885,7 @@ let completedLessons = JSON.parse(localStorage.getItem('user_completed_lessons')
 let currentUser = null;
 let isAdmin = false;
 let videoWatchedState = {};
+let selectedPaymentType = 'pix';
 
 window.onload = function() {
   const rememberedEmail = localStorage.getItem('remembered_email');
@@ -1056,7 +1088,7 @@ async function handleForgotPassword(e) {
   e.preventDefault();
   const em = document.getElementById('login-email').value.trim();
   if(!em) {
-    alert("Digite seu e-mail no campo de e-mail acima.");
+    alert("Digite seu e-mail no campo de e-mail acima para receber a recuperação de senha.");
     document.getElementById('login-email').focus();
     return;
   }
@@ -1066,7 +1098,7 @@ async function handleForgotPassword(e) {
     showSuccessModal("E-mail de redefinição de senha enviado com sucesso!");
     closeModal('modal-auth');
   } catch (err) {
-    alert("Erro ao enviar e-mail: " + err.message);
+    alert("Erro ao enviar e-mail de recuperação: " + err.message);
   }
 }
 
@@ -1143,6 +1175,24 @@ function handleLogoClick() {
   }
 }
 
+function selectPaymentMethod(method) {
+  selectedPaymentType = method;
+  const pixBtn = document.getElementById('pay-opt-pix');
+  const cardBtn = document.getElementById('pay-opt-card');
+
+  if (method === 'pix') {
+    pixBtn.style.borderColor = 'var(--accent-cyan)';
+    pixBtn.style.background = 'rgba(0,240,255,0.1)';
+    cardBtn.style.borderColor = 'var(--glass-border)';
+    cardBtn.style.background = 'rgba(255,255,255,0.03)';
+  } else {
+    cardBtn.style.borderColor = 'var(--accent-cyan)';
+    cardBtn.style.background = 'rgba(0,240,255,0.1)';
+    pixBtn.style.borderColor = 'var(--glass-border)';
+    pixBtn.style.background = 'rgba(255,255,255,0.03)';
+  }
+}
+
 function openCheckoutModal() {
   let uObj = currentUser ? registeredUsers.find(u => u.email === currentUser) : null;
   if(currentUser && (isAdmin || uObj?.paid)){ showMemberArea(); return; }
@@ -1155,37 +1205,59 @@ function openCheckoutModal() {
   openModal('modal-custom-checkout');
 }
 
-function redirectToMercadoPago() {
+// INTEGRAÇÃO COM O BACK-END NA RAILWAY E MERCADO PAGO
+async function proceedToPaymentGateway() {
   const nameVal = document.getElementById('checkout-name-input').value.trim();
   const emailVal = document.getElementById('checkout-email-input').value.trim();
   const cpfVal = document.getElementById('checkout-cpf-input').value.trim();
 
   if (!isValidFullName(nameVal)) {
-    alert("Por favor, digite seu Nome e Sobrenome.");
+    alert("Por favor, digite seu Nome Completo real (Nome e Sobrenome válidos).");
     document.getElementById('checkout-name-input').focus();
     return;
   }
+
   if (!emailVal || !emailVal.includes('@')) {
-    alert("Digite um e-mail válido.");
+    alert("Por favor, digite um e-mail válido.");
     document.getElementById('checkout-email-input').focus();
     return;
   }
+
   if (!cpfVal || cpfVal.length < 11) {
-    alert("Digite um CPF válido.");
+    alert("Por favor, digite um CPF válido.");
     document.getElementById('checkout-cpf-input').focus();
     return;
   }
 
-  // Substitua pelo seu link oficial do Mercado Pago (ou Preferência de Pagamento)
-  let mercadoPagoLink = "https://www.mercadopago.com.br/checkout/v1/redirect?pref_id=SEU_PREF_ID_AQUI";
-  
-  if (window.db) {
-    const { doc, setDoc } = window.firebaseModules;
-    let safeId = emailVal.replace(/[@.]/g, '_');
-    setDoc(doc(window.db, "users", safeId), { email: emailVal, paid: false, fullname: nameVal, cpf: cpfVal, role: 'student' }, { merge: true });
-  }
+  // URL do seu back-end hospedado na Railway
+  const railwayBackendUrl = "https://backend-informatica-do-zero-production.up.railway.app/criar-pagamento";
 
-  window.location.href = mercadoPagoLink;
+  try {
+    // Comunicação com o back-end para gerar a preferência ou link do Mercado Pago
+    const response = await fetch(railwayBackendUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: nameVal,
+        email: emailVal,
+        cpf: cpfVal,
+        payment_method: selectedPaymentType
+      })
+    });
+
+    const data = await response.json();
+
+    if (data && (data.init_point || data.checkout_url || data.url)) {
+      // Redireciona para o link oficial de checkout do Mercado Pago retornado pelo back-end
+      window.location.href = data.init_point || data.checkout_url || data.url;
+      return;
+    } else {
+      alert("O back-end respondeu, mas não retornou o link de pagamento. Verifique os logs da Railway.");
+    }
+  } catch (error) {
+    console.error("Erro ao conectar com o back-end da Railway:", error);
+    alert("Não foi possível conectar ao servidor de pagamento na Railway. Verifique se a aplicação está online.");
+  }
 }
 
 function showPublicSite() {
@@ -1239,7 +1311,7 @@ function showMemberArea() {
           <i class="fa-solid fa-lock" style="font-size: 24px; color: var(--accent-cyan);"></i>
         </div>
         <h2 style="font-size: 21px; margin-bottom: 8px;">Área Bloqueada — Pagamento Pendente</h2>
-        <p style="color:var(--text-secondary); font-size: 13.5px; max-width: 480px; margin: 0 auto 18px;">Seu acesso completo às aulas será liberado assim que o pagamento for concluído.</p>
+        <p style="color:var(--text-secondary); font-size: 13.5px; max-width: 480px; margin: 0 auto 18px;">Seu acesso completo às aulas será liberado assim que o pagamento via Mercado Pago for concluído.</p>
         <button class="btn" style="padding: 15px 30px; font-size: 14.5px;" onclick="openCheckoutModal()">
           <i class="fa-solid fa-credit-card"></i> Concluir Pagamento
         </button>
