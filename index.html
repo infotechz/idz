@@ -31,7 +31,6 @@
   const db = getFirestore(app);
   const auth = getAuth(app);
 
-  // Garante persistência local permanente para o F5 não deslogar
   setPersistence(auth, browserLocalPersistence).catch((error) => {
     console.error("Erro na persistência:", error);
   });
@@ -371,6 +370,30 @@ footer {
     <h3 style="font-size: 21px; margin-bottom: 8px;">Sucesso na Nuvem!</h3>
     <p id="success-modal-text" style="color: var(--text-secondary); font-size: 13.5px; margin-bottom: 22px;">Sincronizado via Firebase para todos.</p>
     <button class="btn" style="width: 100%;" onclick="closeSuccessModal()">Continuar <i class="fa-solid fa-arrow-right"></i></button>
+  </div>
+</div>
+
+<!-- Modal de Checkout Personalizado (Com a identidade visual do site) -->
+<div class="modal-overlay" id="modal-custom-checkout">
+  <div class="modal-card" style="max-width: 440px;">
+    <button class="close-btn" onclick="closeModal('modal-custom-checkout')"><i class="fa-solid fa-xmark"></i></button>
+    <div style="text-align: center; margin-bottom: 18px;">
+      <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 19px; color: #fff; display: block;">Finalizar Inscrição</span>
+      <span style="font-size: 13px; color: var(--accent-cyan);">Informática do Zero — R$ 29,90</span>
+    </div>
+    
+    <div style="background: rgba(0,240,255,0.05); border: 1px solid rgba(0,240,255,0.2); padding: 14px; border-radius: 12px; margin-bottom: 18px; font-size: 12.5px; color: var(--text-secondary);">
+      <i class="fa-solid fa-shield-halved" style="color: var(--accent-cyan); margin-right: 6px;"></i> Ambiente seguro. Digite seu e-mail para continuar o pagamento.
+    </div>
+
+    <div class="input-group">
+      <label>Seu E-mail de Acesso</label>
+      <input type="email" id="checkout-email-input" placeholder="seu@email.com">
+    </div>
+
+    <button class="btn" style="width: 100%; margin-top: 6px;" onclick="proceedToPaymentGateway()">
+      <i class="fa-solid fa-lock"></i> Ir para Pagamento Seguro
+    </button>
   </div>
 </div>
 
@@ -791,7 +814,7 @@ const defaultCourseData = [
   {
     id: 1, title: "MÓDULO 1 — CONHECENDO O COMPUTADOR", intro: "Neste módulo, você dará os primeiros passos no mundo da informática.",
     lessons: [
-      { id: 101, title: "Aula 1 — O que é um computador?", description: "Introdução fundamental ao universo dos computadores.", learned: "O que é um computador, suas funções básicas e utilidades.", objectives: "Entender o que é um computador e suas funções.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual é a principal definição funcional de um computador?", options: ["Um aparelho restrito a jogos pesados.", "Uma máquina eletrônica capaz de processar dados e executar instruções.", "Um dispositivo analógico de som.", "Uma ferramenta exclusiva para impressão."], correct: 1 } },
+      { id: 101, title: "Aula 1 — O que é um computador?", description: "Introdução fundamental ao universo dos computadores.", learned: "O que é um computador, suas funções básicas e utilidades.", objectives: "Entender o what é um computador e suas funções.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual é a principal definição funcional de um computador?", options: ["Um aparelho restrito a jogos pesados.", "Uma máquina eletrônica capaz de processar dados e executar instruções.", "Um dispositivo analógico de som.", "Uma ferramenta exclusiva para impressão."], correct: 1 } },
       { id: 102, title: "Aula 2 — Principais partes do computador", description: "Conhecendo a estrutura física externa.", learned: "Monitor, teclado, mouse, gabinete e notebook.", objectives: "Identificar monitor, teclado, mouse, gabinete e notebook.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual componente externo é considerado estritamente de saída de dados?", options: ["Teclado", "Mouse", "Monitor", "Microfone"], correct: 2 } },
       { id: 103, title: "Aula 3 — Hardware e Software", description: "Entendendo a diferença entre a parte física e lógica.", learned: "Conceitos de peças físicas e programas de computador.", objectives: "Diferenciar hardware e software.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O que representa o 'Hardware' em um computador?", options: ["Os programas e sistemas instalados.", "A parte física e palpável (peças e componentes).", "A conexão de internet sem fio.", "Os arquivos salvos na nuvem."], correct: 1 } },
       { id: 104, title: "Aula 4 — Exercício prático", description: "Fixação dos conceitos iniciais.", learned: "Reconhecimento prático dos componentes.", objectives: "Identificação dos componentes do próprio computador.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual o objetivo principal do exercício prático deste módulo?", options: ["Desmontar a CPU inteira.", "Identificar e reconhecer os componentes físicos do próprio computador.", "Instalar um sistema operacional novo.", "Configurar uma rede Wi-Fi avançada."], correct: 1 } }
@@ -1197,10 +1220,22 @@ function handleLogoClick() {
 }
 
 function redirectToPerfectPay() {
-  if(!currentUser) return openAuthModal('login');
-  let uObj = registeredUsers.find(u => u.email === currentUser);
-  if(isAdmin || uObj?.paid){ showMemberArea(); return; }
-  window.location.href = "https://go.perfectpay.com.br/PPU38CQFLAP?email=" + encodeURIComponent(currentUser);
+  let uObj = currentUser ? registeredUsers.find(u => u.email === currentUser) : null;
+  if(currentUser && (isAdmin || uObj?.paid)){ showMemberArea(); return; }
+  
+  if(currentUser) {
+    document.getElementById('checkout-email-input').value = currentUser;
+  }
+  openModal('modal-custom-checkout');
+}
+
+function proceedToPaymentGateway() {
+  const emailVal = document.getElementById('checkout-email-input').value.trim();
+  if(!emailVal) {
+    alert("Por favor, digite seu e-mail.");
+    return;
+  }
+  window.location.href = "https://go.perfectpay.com.br/PPU38CQFLAP?email=" + encodeURIComponent(emailVal);
 }
 
 function showPublicSite() {
@@ -1246,7 +1281,6 @@ function showMemberArea() {
   const sidebarContainer = document.querySelector('.lms-sidebar');
 
   if (!isPaid) {
-    // Oculta completamente a barra lateral para quem não pagou
     if (sidebarContainer) sidebarContainer.style.display = 'none';
 
     document.getElementById('lms-main-content').innerHTML = `
@@ -1262,7 +1296,6 @@ function showMemberArea() {
       </div>`;
     document.getElementById('module-list').innerHTML = '';
   } else {
-    // Restaura a barra lateral caso o usuário tenha pago
     if (sidebarContainer) sidebarContainer.style.display = 'block';
 
     renderMemberSidebar();
