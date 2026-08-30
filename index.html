@@ -12,6 +12,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
+<!-- SDK Oficial do Mercado Pago para Checkout Bricks -->
 <script src="https://sdk.mercadopago.com/js/v2"></script>
 
 <script type="module">
@@ -368,6 +369,7 @@ footer {
   </div>
 </div>
 
+<!-- Modal com Checkout Bricks Interativo Seguro (Pix e Cartão) -->
 <div class="modal-overlay" id="modal-custom-checkout">
   <div class="modal-card" style="max-width: 650px;">
     <button class="close-btn" onclick="closeCheckoutModalSafe()"><i class="fa-solid fa-xmark"></i></button>
@@ -377,6 +379,7 @@ footer {
       <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 18px; color: #fff;">Informática do Zero — R$ 29,90</span>
     </div>
 
+    <!-- Onde o Checkout Bricks do Mercado Pago é renderizado -->
     <div id="paymentBrick_container"></div>
   </div>
 </div>
@@ -638,6 +641,7 @@ footer {
   </div>
 </div>
 
+<!-- Modal de Login/Cadastro com Autocompletar de E-mail -->
 <div class="modal-overlay" id="modal-auth">
   <div class="modal-card">
     <button class="close-btn" onclick="closeModal('modal-auth')"><i class="fa-solid fa-xmark"></i></button>
@@ -651,6 +655,7 @@ footer {
       <button class="btn-outline" id="tab-btn-register" style="flex: 1; justify-content: center; border: none; background: transparent; color: var(--text-secondary);" onclick="switchAuthTab('register')">Criar Conta</button>
     </div>
 
+    <!-- Formulário de Login -->
     <form id="form-login" onsubmit="handleLogin(event)">
       <div class="input-group">
         <label>E-mail</label>
@@ -678,6 +683,7 @@ footer {
       <button type="submit" class="btn" style="width: 100%; margin-top: 4px;">Acessar Plataforma</button>
     </form>
 
+    <!-- Formulário de Cadastro -->
     <form id="form-register" style="display: none;" onsubmit="handleRegister(event)">
       <div class="input-group">
         <label>Nome Completo (Validação Real)</label>
@@ -1823,7 +1829,7 @@ function moveLesson(modIndex, lessonIndex, direction) {
   renderAdminModules();
 }
 
-// Inicialização Limpa e Funcional do Checkout Bricks integrando Pix e Cartão
+// Inicialização com suporte a renderização do QR Code do Pix direto na tela
 async function openCheckoutModal() {
   if (!currentUser) {
     alert("Você precisa estar logado para realizar a compra!");
@@ -1871,19 +1877,50 @@ async function openCheckoutModal() {
                 })
                 .then(res => res.json())
                 .then(response => {
-                  if (response.success || response.status === 'approved') {
-                    showSuccessModal("Pagamento aprovado! Acesso liberado.");
-                    closeModal('modal-custom-checkout');
-                    let userObj = registeredUsers.find(u => u.email === currentUser);
-                    if(userObj) { userObj.paid = true; saveUserToCloud(userObj); }
-                    showMemberArea();
+                  if (response.success || response.status === 'approved' || response.status === 'pending') {
+                    
+                    // Se o usuário pagou via Pix e o back-end retornou os dados visuais
+                    if (selectedPaymentMethod === 'bank_transfer' && response.point_of_interaction) {
+                      const pixData = response.point_of_interaction.transaction_data;
+                      const qrCodeBase64 = pixData.qr_code_base64;
+                      const qrCodeCopyPaste = pixData.qr_code;
+
+                      const containerModal = document.getElementById('paymentBrick_container');
+                      containerModal.innerHTML = `
+                        <div style="text-align: center; padding: 20px; color: #fff;">
+                          <h3 style="color: var(--accent-cyan); margin-bottom: 12px; font-size: 18px;"><i class="fa-solid fa-qrcode"></i> Escaneie o QR Code Pix</h3>
+                          <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">Abra o aplicativo do seu banco, escolha Pagar com Pix e aponte a câmera:</p>
+                          <div style="background: #fff; padding: 12px; display: inline-block; border-radius: 12px; margin-bottom: 16px;">
+                            <img src="data:image/png;base64,${qrCodeBase64}" alt="QR Code Pix" style="width: 200px; height: 200px; display: block;">
+                          </div>
+                          <div style="margin-bottom: 16px;">
+                            <label style="font-size: 11px; color: var(--text-secondary); display: block; margin-bottom: 6px; text-transform: uppercase;">Ou copie o código Pix Copia e Cola:</label>
+                            <textarea readonly style="width: 100%; height: 70px; background: rgba(0,0,0,0.5); border: 1px solid var(--glass-border); color: #fff; padding: 8px; border-radius: 8px; font-size: 11px; resize: none;" id="pix-copy-text">${qrCodeCopyPaste}</textarea>
+                            <button class="btn-outline" style="margin-top: 8px; width: 100%; justify-content: center;" onclick="navigator.clipboard.writeText(document.getElementById('pix-copy-text').value); alert('Código Pix copiado com sucesso!');">
+                              <i class="fa-regular fa-copy"></i> Copiar Código Pix
+                            </button>
+                          </div>
+                          <p style="font-size: 11.5px; color: var(--green);"><i class="fa-solid fa-spinner fa-spin"></i> Aguardando a aprovação automática do pagamento...</p>
+                        </div>
+                      `;
+                    } else if (response.status === 'approved') {
+                      showSuccessModal("Pagamento aprovado! Acesso liberado.");
+                      closeModal('modal-custom-checkout');
+                      let userObj = registeredUsers.find(u => u.email === currentUser);
+                      if(userObj) { userObj.paid = true; saveUserToCloud(userObj); }
+                      showMemberArea();
+                    } else {
+                      showSuccessModal("Pagamento processado com sucesso!");
+                      closeModal('modal-custom-checkout');
+                    }
                   } else {
-                    console.log("Transação processada com sucesso pelo Mercado Pago.");
+                    alert("Erro ao gerar pagamento: " + (response.error || "Tente novamente."));
                   }
                   resolve();
                 })
                 .catch(err => {
                   console.error("Erro:", err);
+                  alert("Erro de conexão com o servidor de pagamento.");
                   reject();
                 });
               });
