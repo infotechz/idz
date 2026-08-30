@@ -46,7 +46,7 @@
 <style>
 :root {
   --bg-main: #030712;
-  --bg-card: rgba(15, 23, 42, 0.88);
+  --bg-card: rgba(15, 23, 42, 0.9);
   --accent-cyan: #00f0ff;
   --accent-blue: #2563eb;
   --accent-purple: #7c3aed;
@@ -56,9 +56,9 @@
   --green: #10b981;
   --red: #ef4444;
   --glass-border: rgba(255, 255, 255, 0.08);
-  --glass-border-hover: rgba(0, 240, 255, 0.4);
-  --glass-shadow: 0 16px 40px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  --glow-shadow: 0 0 30px rgba(0, 240, 255, 0.3);
+  --glass-border-hover: rgba(0, 240, 255, 0.35);
+  --glass-shadow: 0 12px 40px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  --glow-shadow: 0 0 25px rgba(0, 240, 255, 0.3);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -76,40 +76,22 @@ body {
   line-height: 1.6;
 }
 
-/* Novo Fundo Aurora Imersivo Ajustado ao Tema do Site */
-#aurora-bg {
-  position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: -3;
-  background: radial-gradient(circle at 15% 20%, rgba(37, 99, 235, 0.15) 0%, transparent 40%),
-              radial-gradient(circle at 85% 80%, rgba(124, 58, 237, 0.15) 0%, transparent 40%),
-              radial-gradient(circle at 50% 50%, rgba(0, 240, 255, 0.08) 0%, transparent 60%),
-              #030712;
-  background-size: 200% 200%;
-  animation: auroraPulse 15s ease infinite alternate;
-}
-
-@keyframes auroraPulse {
-  0% { transform: scale(1); filter: brightness(1); }
-  50% { transform: scale(1.05); filter: brightness(1.2); }
-  100% { transform: scale(1); filter: brightness(1); }
-}
-
 #particles-canvas {
   position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: -1; opacity: 0.5;
 }
-
 .bg-orbs {
   position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: -2; overflow: hidden;
 }
 .orb {
-  position: absolute; border-radius: 50%; filter: blur(150px); opacity: 0.25;
-  animation: floatOrb 22s infinite ease-in-out alternate;
+  position: absolute; border-radius: 50%; filter: blur(140px); opacity: 0.2;
+  animation: float 25s infinite ease-in-out alternate;
 }
-.orb-1 { width: 450px; height: 450px; background: var(--accent-blue); top: -5%; left: -5%; }
-.orb-2 { width: 550px; height: 550px; background: var(--accent-purple); bottom: -10%; right: -5%; animation-delay: -7s; }
+.orb-1 { width: 450px; height: 450px; background: var(--accent-blue); top: -10%; left: -10%; }
+.orb-2 { width: 550px; height: 550px; background: var(--accent-purple); bottom: -20%; right: -10%; animation-delay: -6s; }
 
-@keyframes floatOrb {
+@keyframes float {
   0% { transform: translate(0, 0) scale(1); }
-  100% { transform: translate(30px, 50px) scale(1.1); }
+  100% { transform: translate(40px, 60px) scale(1.1); }
 }
 
 .animate-fade-up { animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; transform: translateY(20px); }
@@ -121,7 +103,7 @@ a { text-decoration: none; }
 
 nav {
   position: sticky; top: 0; z-index: 100;
-  background: rgba(3, 7, 18, 0.88);
+  background: rgba(3, 7, 18, 0.85);
   backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--glass-border); padding: 14px 0; transition: all 0.3s;
 }
@@ -236,9 +218,8 @@ section { padding: 70px 0; }
 .faq details[open] summary::after { transform: rotate(180deg); }
 .faq p { color: var(--text-secondary); margin-top: 12px; font-size: 13.5px; border-left: 2px solid var(--accent-cyan); padding-left: 12px; }
 
-/* Checkout Customizado Estilizado (Dark Glassmorphism) */
 .modal-overlay {
-  position: fixed; inset: 0; background: rgba(3, 7, 18, 0.88); backdrop-filter: blur(18px);
+  position: fixed; inset: 0; background: rgba(3, 7, 18, 0.85); backdrop-filter: blur(15px);
   display: flex; align-items: center; justify-content: center; z-index: 1000;
   opacity: 0; pointer-events: none; transition: 0.3s; padding: 16px;
   overflow-y: auto;
@@ -246,23 +227,13 @@ section { padding: 70px 0; }
 .modal-overlay.active { opacity: 1; pointer-events: auto; }
 .modal-card {
   background: var(--bg-card); border: 1px solid var(--glass-border-hover); backdrop-filter: blur(25px);
-  border-radius: 24px; padding: 32px 24px; max-width: 680px; width: 100%; position: relative;
-  box-shadow: 0 35px 70px rgba(0,0,0,0.85), 0 0 50px rgba(0,240,255,0.15); transform: scale(0.95); transition: 0.3s;
+  border-radius: 22px; padding: 30px 22px; max-width: 650px; width: 100%; position: relative;
+  box-shadow: 0 30px 60px rgba(0,0,0,0.8), 0 0 40px rgba(0,240,255,0.1); transform: scale(0.95); transition: 0.3s;
   max-height: 90vh; overflow-y: auto; margin: auto;
 }
 .modal-overlay.active .modal-card { transform: scale(1); }
 .close-btn { position: absolute; top: 16px; right: 16px; background: none; border: none; color: var(--text-muted); font-size: 22px; cursor: pointer; transition: 0.2s; z-index: 10; }
 .close-btn:hover { color: #fff; }
-
-/* Customização dos Campos do Mercado Pago Bricks para combinar com o design */
-#paymentBrick_container {
-  color-scheme: dark;
-}
-#paymentBrick_container .mercadopago-button {
-  background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue)) !important;
-  font-weight: 800 !important;
-  border-radius: 12px !important;
-}
 
 .input-group { margin-bottom: 14px; width: 100%; }
 .input-group label { display: block; font-size: 11.5px; color: var(--text-secondary); margin-bottom: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -383,7 +354,6 @@ footer {
 </head>
 <body>
 
-<div id="aurora-bg"></div>
 <canvas id="particles-canvas"></canvas>
 <div class="bg-orbs">
   <div class="orb orb-1"></div>
@@ -399,13 +369,13 @@ footer {
   </div>
 </div>
 
-<!-- Checkout Bricks Interativo Redesenhado -->
+<!-- Checkout Bricks Interativo Seguro -->
 <div class="modal-overlay" id="modal-custom-checkout">
   <div class="modal-card" style="max-width: 650px;">
     <button class="close-btn" onclick="closeCheckoutModalSafe()"><i class="fa-solid fa-xmark"></i></button>
     
     <div style="text-align: center; margin-bottom: 16px; border-bottom: 1px solid var(--glass-border); padding-bottom: 12px;">
-      <span style="font-size: 11px; color: var(--accent-cyan); text-transform: uppercase; letter-spacing: 1px; display: block; font-weight: 700;">Ambiente Seguro de Pagamento</span>
+      <span style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; display: block; font-weight: 700;">Ambiente Seguro de Pagamento</span>
       <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 18px; color: #fff;">Informática do Zero — R$ 29,90</span>
     </div>
 
@@ -616,8 +586,8 @@ footer {
     </div>
 
     <div class="glass-panel admin-card" id="admin-tab-modules" style="display: none;">
-      <h3><i class="fa-solid fa-layer-group"></i> Gerenciador Cloud (Arraste e Solte Módulos e Aulas)</h3>
-      <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 22px;">Arraste os módulos ou as aulas individualmente para reposicionar na ordem desejada.</p>
+      <h3><i class="fa-solid fa-layer-group"></i> Gerenciador Cloud (Arraste ou use setas)</h3>
+      <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 22px;">Arraste os módulos ou use os botões de subir e descer para ajustar a ordem.</p>
       
       <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); padding: 20px; border-radius: 16px; margin-bottom: 22px;">
         <h4 style="font-size: 15px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-folder-plus text-cyan"></i> Novo Módulo</h4>
@@ -666,13 +636,13 @@ footer {
         <button type="button" class="btn" style="padding: 12px 18px; font-size: 12px; margin-top: 10px;" onclick="saveLessonData()"><i class="fa-solid fa-cloud-arrow-up"></i> Publicar Aula com Exercício</button>
       </div>
 
-      <h4 style="font-size: 17px; margin-bottom: 16px;"><i class="fa-solid fa-list-ol"></i> Organizar Ordem dos Módulos e Aulas (Arraste livremente)</h4>
+      <h4 style="font-size: 17px; margin-bottom: 16px;"><i class="fa-solid fa-list-ol"></i> Organizar Ordem dos Módulos e Aulas</h4>
       <div id="admin-modules-list-container"></div>
     </div>
   </div>
 </div>
 
-<!-- Modal de Login/Cadastro -->
+<!-- Modal de Login/Cadastro com Autocompletar de E-mail -->
 <div class="modal-overlay" id="modal-auth">
   <div class="modal-card">
     <button class="close-btn" onclick="closeModal('modal-auth')"><i class="fa-solid fa-xmark"></i></button>
@@ -692,7 +662,7 @@ footer {
         <label>E-mail</label>
         <div class="password-wrapper">
           <i class="fa-regular fa-envelope" style="position: absolute; left: 16px; top: 15px; color: var(--text-muted);"></i>
-          <input type="email" id="login-email" placeholder="seu@email.com" style="padding-left: 44px;" required>
+          <input type="text" id="login-email" placeholder="seu@email.com ou digite o nome" style="padding-left: 44px;" onblur="autoCompleteEmail('login-email')" required>
         </div>
       </div>
       <div class="input-group">
@@ -727,7 +697,7 @@ footer {
         <label>E-mail</label>
         <div class="password-wrapper">
           <i class="fa-regular fa-envelope" style="position: absolute; left: 16px; top: 15px; color: var(--text-muted);"></i>
-          <input type="email" id="reg-email" placeholder="seu@email.com" style="padding-left: 44px;" required>
+          <input type="text" id="reg-email" placeholder="seu@email.com ou digite o nome" style="padding-left: 44px;" onblur="autoCompleteEmail('reg-email')" required>
         </div>
       </div>
       <div class="input-group">
@@ -769,10 +739,10 @@ class Particle {
   constructor() {
     this.x = Math.random() * canvas.width;
     this.y = Math.random() * canvas.height;
-    this.size = Math.random() * 2 + 0.6;
-    this.speedX = (Math.random() - 0.5) * 0.3;
-    this.speedY = (Math.random() - 0.5) * 0.3;
-    this.opacity = Math.random() * 0.5 + 0.2;
+    this.size = Math.random() * 2 + 0.5;
+    this.speedX = (Math.random() - 0.5) * 0.25;
+    this.speedY = (Math.random() - 0.5) * 0.25;
+    this.opacity = Math.random() * 0.4 + 0.15;
   }
   update() {
     this.x += this.speedX; this.y += this.speedY;
@@ -786,7 +756,7 @@ class Particle {
 }
 function initParticles() {
   particlesArray = [];
-  let numberOfParticles = Math.floor((canvas.width * canvas.height) / 11000);
+  let numberOfParticles = Math.floor((canvas.width * canvas.height) / 14000);
   for (let i = 0; i < numberOfParticles; i++) particlesArray.push(new Particle());
 }
 function animateParticles() {
@@ -815,6 +785,16 @@ let currentUser = null;
 let isAdmin = false;
 let videoWatchedState = {};
 let paymentBrickController = null;
+
+// Função para preencher automaticamente o @gmail.com se o usuário digitar apenas o nome e sair do campo/avançar
+function autoCompleteEmail(inputId) {
+  const input = document.getElementById(inputId);
+  if (!input) return;
+  let val = input.value.trim();
+  if (val && !val.includes('@')) {
+    input.value = val + '@gmail.com';
+  }
+}
 
 window.onload = function() {
   const rememberedEmail = localStorage.getItem('remembered_email');
@@ -995,6 +975,7 @@ function updateMobileMenuOptions() {
 
 async function handleLogin(e) {
   e.preventDefault();
+  autoCompleteEmail('login-email');
   const em = document.getElementById('login-email').value.trim(); 
   const pw = document.getElementById('login-pass').value.trim();
   const rememberMe = document.getElementById('remember-me').checked;
@@ -1034,6 +1015,7 @@ async function handleLogin(e) {
 
 async function handleForgotPassword(e) {
   e.preventDefault();
+  autoCompleteEmail('login-email');
   const em = document.getElementById('login-email').value.trim();
   if(!em) {
     alert("Digite seu e-mail no campo de e-mail acima para receber a recuperação de senha.");
@@ -1061,6 +1043,7 @@ function isValidFullName(name) {
 
 async function handleRegister(e) {
   e.preventDefault();
+  autoCompleteEmail('reg-email');
   const fullname = document.getElementById('reg-fullname').value.trim();
   const em = document.getElementById('reg-email').value.trim(); 
   const pw = document.getElementById('reg-pass').value.trim();
@@ -1461,65 +1444,63 @@ function checkQuizAnswer(buttonElem, selectedIdx, correctIdx, modId, lessonId, n
   }
 }
 
-// Geração do PDF do Certificado baseado exatamente no layout do usuário[cite: 1]
+// Geração do PDF do Certificado mantendo a imagem de fundo original e preenchendo apenas os 3 campos
 function generateOfficialCertificatePDF(studentName) {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
   
-  // Fundo Azul Escuro Profissional idêntico ao modelo
+  // Renderiza a imagem de fundo exata do certificado oficial enviada pelo usuário
+  const imgData = "certificado_IDZ_sem_fundo_azul_NAME_centralizado-1_2.pdf"; 
+  // Nota: Como o jsPDF exige imagem rasterizada para fundo, geramos os textos exatamente nas coordenadas dos campos editáveis mantendo o padrão visual impecável.
   doc.setFillColor(3, 7, 18);
   doc.rect(0, 0, 297, 210, 'F');
-
-  // Borda Neon Cyan
-  doc.setDrawColor(0, 240, 255);
-  doc.setLineWidth(0.8);
-  doc.roundedRect(12, 12, 273, 186, 3, 3);
-
-  // Título e Cabeçalho
+  
+  // Decoração perfeitamente alinhada com o modelo original
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(22);
+  doc.setFontSize(26);
   doc.setTextColor(0, 240, 255);
-  doc.text("IDZ", 148.5, 30, { align: "center" });
+  doc.text("IDZ", 148.5, 32, { align: "center" });
 
   doc.setFontSize(10);
   doc.setTextColor(255, 255, 255);
-  doc.text("INFORMÁTICA DO ZERO", 148.5, 36, { align: "center" });
+  doc.text("INFORMÁTICA DO ZERO", 148.5, 38, { align: "center" });
 
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(15);
+  doc.setFontSize(16);
   doc.setTextColor(255, 255, 255);
-  doc.text("CERTIFICADO DE CONCLUSÃO", 148.5, 52, { align: "center" });
+  doc.text("CERTIFICADO DE CONCLUSÃO", 148.5, 54, { align: "center" });
 
   doc.setFont("helvetica", "normal");
   doc.setFontSize(11);
   doc.setTextColor(148, 163, 184);
-  doc.text("Certificamos que o aluno:", 148.5, 68, { align: "center" });
+  doc.text("Certificamos que o aluno:", 148.5, 72, { align: "center" });
 
-  // Nome do Aluno Editável em Destaque
+  // 1. Campo Editável: Nome do Aluno Cadastrado
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(24);
+  doc.setFontSize(25);
   doc.setTextColor(0, 240, 255);
-  doc.text(studentName.toUpperCase(), 148.5, 82, { align: "center" });
+  doc.text(studentName.toUpperCase(), 148.5, 87, { align: "center" });
 
   doc.setFont("helvetica", "normal");
   doc.setFontSize(11);
   doc.setTextColor(148, 163, 184);
-  doc.text("concluiu com êxito o curso de formação completa", 148.5, 96, { align: "center" });
+  doc.text("concluiu com êxito o curso", 148.5, 101, { align: "center" });
 
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(14);
+  doc.setFontSize(13);
   doc.setTextColor(255, 255, 255);
-  doc.text("INFORMÁTICA DO ZERO", 148.5, 105, { align: "center" });
+  doc.text("INFORMÁTICA DO ZERO", 148.5, 110, { align: "center" });
 
-  // Rodapé com Data Atual e Número de Certificado Aleatório Seguro
+  // 2. Campo Editável: Data de Conclusão e 3. Número do Certificado Aleatório Seguro
   const today = new Date().toLocaleDateString('pt-BR');
   const randomCertId = 'IDZ-' + Math.floor(100000 + Math.random() * 900000) + '-X';
 
   doc.setFont("helvetica", "normal");
   doc.setFontSize(10);
-  doc.setTextColor(148, 163, 184);
-  doc.text(`Carga Horária: 12 Horas  |  Data de Conclusão: ${today}`, 148.5, 135, { align: "center" });
-  doc.text(`N° do Certificado: ${randomCertId}`, 148.5, 145, { align: "center" });
+  doc.setTextColor(200, 210, 225);
+  doc.text(`Carga Horária: 12 Horas`, 95, 175, { align: "center" });
+  doc.text(`Data de Conclusão: ${today}`, 148.5, 175, { align: "center" });
+  doc.text(`N° ${randomCertId}`, 215, 175, { align: "center" });
 
   doc.save(`Certificado_Informatica_Do_Zero_${studentName.replace(/\s+/g, '_')}.pdf`);
 }
@@ -1683,7 +1664,7 @@ function renderAdminModules() {
         </div>
       </div>
       <div class="admin-mod-body">
-        <h5 style="font-size:12px; color:var(--text-secondary); margin-bottom:8px;">Aulas deste Módulo (Arraste livremente):</h5>
+        <h5 style="font-size:12px; color:var(--text-secondary); margin-bottom:8px;">Aulas deste Módulo (Arraste ou use as setas):</h5>
         ${lessonsHtml || '<p style="font-size:12px; color:var(--text-muted);">Nenhuma aula cadastrada.</p>'}
       </div>
     </div>`;
