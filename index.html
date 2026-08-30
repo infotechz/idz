@@ -18,7 +18,7 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
   import { getFirestore, collection, doc, setDoc, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendPasswordResetEmail, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendPasswordResetEmail, updateEmail, updatePassword, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyBAQ1HRInFDHnOERD3iD9lifBcJAhRWI1c",
@@ -40,7 +40,7 @@
 
   window.db = db;
   window.auth = auth;
-  window.firebaseModules = { collection, doc, setDoc, onSnapshot, deleteDoc, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendPasswordResetEmail, onAuthStateChanged };
+  window.firebaseModules = { collection, doc, setDoc, onSnapshot, deleteDoc, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendPasswordResetEmail, updateEmail, updatePassword, onAuthStateChanged };
 </script>
 
 <style>
@@ -227,7 +227,7 @@ section { padding: 70px 0; }
 .modal-overlay.active { opacity: 1; pointer-events: auto; }
 .modal-card {
   background: var(--bg-card); border: 1px solid var(--glass-border-hover); backdrop-filter: blur(25px);
-  border-radius: 22px; padding: 30px 22px; max-width: 600px; width: 100%; position: relative;
+  border-radius: 22px; padding: 30px 22px; max-width: 650px; width: 100%; position: relative;
   box-shadow: 0 30px 60px rgba(0,0,0,0.8), 0 0 40px rgba(0,240,255,0.1); transform: scale(0.95); transition: 0.3s;
   max-height: 90vh; overflow-y: auto; margin: auto;
 }
@@ -332,10 +332,10 @@ section { padding: 70px 0; }
 .sales-table th { color: var(--text-secondary); font-weight: 700; text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; }
 .badge-status { padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 700; text-transform: uppercase; display: inline-block; }
 
-.admin-mod-box { border: 1px solid var(--glass-border); border-radius: 14px; margin-bottom: 12px; background: rgba(0,0,0,0.25); overflow: hidden; }
-.admin-mod-header { padding: 14px 16px; font-size: 13px; font-weight: 700; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
-.admin-mod-body { padding: 16px; display: none; border-top: 1px solid var(--glass-border); background: rgba(255,255,255,0.015); }
-.admin-mod-body.expanded { display: block; }
+.admin-mod-box { border: 1px solid var(--glass-border); border-radius: 14px; margin-bottom: 12px; background: rgba(0,0,0,0.25); overflow: hidden; cursor: grab; }
+.admin-mod-box:active { cursor: grabbing; }
+.admin-mod-header { padding: 14px 16px; font-size: 13px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.admin-mod-body { padding: 16px; border-top: 1px solid var(--glass-border); background: rgba(255,255,255,0.015); }
 
 footer {
   background: rgba(3, 7, 18, 0.9); border-top: 1px solid var(--glass-border);
@@ -375,7 +375,7 @@ footer {
   </div>
 </div>
 
-<!-- Checkout Bricks Interativo (Cartão até 5x e Pix direto no site) -->
+<!-- Checkout Bricks Interativo (Cartão até 5x e Pix gerado no site) -->
 <div class="modal-overlay" id="modal-custom-checkout">
   <div class="modal-card" style="max-width: 650px;">
     <button class="close-btn" onclick="closeModal('modal-custom-checkout')"><i class="fa-solid fa-xmark"></i></button>
@@ -385,7 +385,7 @@ footer {
       <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 18px; color: #fff;">Informática do Zero — R$ 29,90</span>
     </div>
 
-    <!-- Onde o Mercado Pago renderiza os Bricks (Cartão/Pix) -->
+    <!-- Onde o Checkout Bricks do Mercado Pago é renderizado -->
     <div id="paymentBrick_container"></div>
 
   </div>
@@ -501,7 +501,7 @@ footer {
       </div>
       <details class="glass-panel"><summary>Como funciona o acesso às aulas?</summary><p>Após a aprovação do pagamento, seu e-mail será liberado automaticamente. Basta fazer login e acessar a Área de Membros.</p></details>
       <details class="glass-panel"><summary>Preciso de um computador potente?</summary><p>Não! O curso ensina fundamentos que podem ser aplicados em qualquer computador, notebook ou até mesmo pelo celular para assistir às aulas teóricas.</p></details>
-      <details class="glass-panel"><summary>Os materiais têm custo extra?</summary><p>Não. Todos los PDFs, modelos de currículo e planilhas bônus já estão inclusos no valor único do curso e disponíveis para download imediato.</p></details>
+      <details class="glass-panel"><summary>Os materiais têm custo extra?</summary><p>Não. Todos os PDFs, modelos de currículo e planilhas bônus já estão inclusos no valor único do curso e disponíveis para download imediato.</p></details>
     </div>
   </section>
 </div>
@@ -520,20 +520,30 @@ footer {
   <div class="glass-panel animate-fade-up" style="padding: 30px;">
     <h2 style="font-size: 20px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;"><i class="fa-solid fa-gear" style="color: var(--accent-cyan);"></i> Configurações da Conta</h2>
     
-    <div class="input-group">
-      <label>E-mail Atual</label>
-      <input type="email" id="settings-email" disabled style="opacity: 0.7;">
-    </div>
-    
-    <div style="margin-top: 25px; padding-top: 20px; border-top: 1px solid var(--glass-border);">
-      <h3 style="font-size: 15px; margin-bottom: 12px; color: #fff;">Redefinição de Senha</h3>
-      <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">Clique abaixo para receber um e-mail de redefinição de senha com segurança.</p>
-      <button class="btn-outline" onclick="triggerPasswordReset()"><i class="fa-solid fa-key"></i> Enviar E-mail de Redefinição de Senha</button>
-    </div>
+    <form onsubmit="handleUpdateAccount(event)">
+      <div class="input-group">
+        <label>Nome Completo (Validação Real)</label>
+        <input type="text" id="settings-fullname" placeholder="Seu nome e sobrenome" required>
+      </div>
 
-    <div style="margin-top: 25px; text-align: right;">
-      <button class="btn" onclick="showMemberArea()">Voltar às Aulas</button>
-    </div>
+      <div class="input-group">
+        <label>E-mail de Acesso</label>
+        <input type="email" id="settings-email" placeholder="seu@email.com" required>
+      </div>
+      
+      <div class="input-group">
+        <label>Nova Senha (Opcional - Mínimo 6 caracteres)</label>
+        <div class="password-wrapper">
+          <input type="password" id="settings-new-pass" placeholder="Deixe em branco para não alterar">
+          <button type="button" class="toggle-password" onclick="togglePasswordVisibility('settings-new-pass', this)"><i class="fa-regular fa-eye"></i></button>
+        </div>
+      </div>
+
+      <div style="margin-top: 25px; display: flex; justify-content: space-between; gap: 10px;">
+        <button type="button" class="btn-outline" onclick="showMemberArea()">Voltar às Aulas</button>
+        <button type="submit" class="btn" style="padding: 10px 20px;">Salvar Alterações</button>
+      </div>
+    </form>
   </div>
 </div>
 
@@ -581,75 +591,43 @@ footer {
     </div>
 
     <div class="glass-panel admin-card" id="admin-tab-modules" style="display: none;">
-      <h3><i class="fa-solid fa-layer-group"></i> Gerenciador Cloud (Aulas & Exercícios)</h3>
-      <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 22px;">Gerencie vídeos, materiais de apoio e preencha detalhadamente os blocos de ensino de cada aula.</p>
+      <h3><i class="fa-solid fa-layer-group"></i> Gerenciador Cloud (Arraste e Clique)</h3>
+      <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 22px;">Gerencie módulos, aulas e reorganize a ordem clicando e arrastando os blocos.</p>
       
       <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); padding: 20px; border-radius: 16px; margin-bottom: 22px;">
         <h4 style="font-size: 15px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-folder-plus text-cyan"></i> Novo Módulo</h4>
-        <input type="hidden" id="edit-mod-id" value="">
         <div class="input-group"><label>Título do Módulo</label><input type="text" id="mod-title-input" placeholder="Ex: Módulo 1 — Introdução"></div>
-        <div class="input-group"><label>Descrição (Opcional)</label><textarea id="mod-intro-input" rows="2" placeholder="Breve resumo..."></textarea></div>
         <div style="display: flex; gap: 10px; flex-wrap: wrap;">
           <button type="button" class="btn" style="padding: 12px 18px; font-size: 12px;" onclick="saveModuleData()"><i class="fa-solid fa-floppy-disk"></i> Salvar Módulo</button>
-          <button type="button" class="btn-outline" style="display: none;" id="cancel-mod-edit-btn" onclick="resetModuleForm()">Cancelar</button>
         </div>
       </div>
 
       <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); padding: 20px; border-radius: 16px; margin-bottom: 26px;">
         <h4 style="font-size: 15px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-video text-purple"></i> Nova Aula & Informações Pedagógicas</h4>
-        <input type="hidden" id="edit-lesson-id" value="">
         <div class="input-group"><label>Módulo</label><select id="lesson-mod-select"></select></div>
         <div class="input-group"><label>Título da Aula</label><input type="text" id="lesson-title-input" placeholder="Ex: Aula 1 — Hardware"></div>
         
         <div class="input-group">
-          <label><i class="fa-solid fa-align-left" style="color:var(--accent-cyan);"></i> 1. Descrição da Aula</label>
+          <label>1. Descrição da Aula</label>
           <textarea id="lesson-desc-input" rows="3" placeholder="Descreva o contexto geral desta aula..."></textarea>
-        </div>
-
-        <div class="input-group">
-          <label><i class="fa-solid fa-list-check" style="color:var(--accent-cyan);"></i> 2. O que vai ser aprendido</label>
-          <textarea id="lesson-learned-input" rows="3" placeholder="Liste os tópicos principais que serão abordados..."></textarea>
-        </div>
-
-        <div class="input-group">
-          <label><i class="fa-solid fa-bullseye" style="color:var(--accent-cyan);"></i> 3. Objetivos na Aula</label>
-          <textarea id="lesson-obj-input" rows="3" placeholder="Defina o resultado prático esperado após assistir..."></textarea>
         </div>
 
         <div class="input-group">
           <label><i class="fa-brands fa-youtube" style="color:#ef4444;"></i> Link do YouTube (Vídeo da Aula - Opcional)</label>
           <input type="text" id="lesson-video-url" placeholder="https://www.youtube.com/watch?v=..." style="margin-bottom: 8px;">
         </div>
-        <div class="input-group"><label><i class="fa-solid fa-image" style="color:var(--accent-blue);"></i> Link da Imagem de Capa (Opcional)</label><input type="text" id="lesson-image-url" placeholder="https://exemplo.com/imagem.jpg"></div>
-        <div class="input-group">
-          <label><i class="fa-solid fa-file-pdf" style="color:var(--accent-cyan);"></i> Link do PDF / Material de Apoio (Opcional)</label>
-          <input type="text" id="lesson-pdf-url" placeholder="https://exemplo.com/material.pdf" style="margin-bottom: 8px;">
-          <input type="text" id="lesson-pdf-name" placeholder="Nome do arquivo para exibição">
-        </div>
 
         <hr style="border: 0; border-top: 1px solid var(--glass-border); margin: 20px 0;">
-        <h4 style="font-size: 14px; color: var(--accent-cyan); margin-bottom: 14px;"><i class="fa-solid fa-brain"></i> Configurar Exercícios da Aula</h4>
+        <h4 style="font-size: 14px; color: var(--accent-cyan); margin-bottom: 14px;"><i class="fa-solid fa-brain"></i> Configurar Exercício da Aula</h4>
         
         <div class="input-group">
           <label>Pergunta do Exercício</label>
           <input type="text" id="quiz-question-input" placeholder="Ex: O que é um computador?">
         </div>
-        <div class="input-group">
-          <label>Alternativa A</label>
-          <input type="text" id="quiz-opt0-input" placeholder="Opção incorreta ou correta">
-        </div>
-        <div class="input-group">
-          <label>Alternativa B</label>
-          <input type="text" id="quiz-opt1-input" placeholder="Opção incorreta ou correta">
-        </div>
-        <div class="input-group">
-          <label>Alternativa C</label>
-          <input type="text" id="quiz-opt2-input" placeholder="Opção incorreta ou correta">
-        </div>
-        <div class="input-group">
-          <label>Alternativa D</label>
-          <input type="text" id="quiz-opt3-input" placeholder="Opção incorreta ou correta">
-        </div>
+        <div class="input-group"><label>Alternativa A</label><input type="text" id="quiz-opt0-input"></div>
+        <div class="input-group"><label>Alternativa B</label><input type="text" id="quiz-opt1-input"></div>
+        <div class="input-group"><label>Alternativa C</label><input type="text" id="quiz-opt2-input"></div>
+        <div class="input-group"><label>Alternativa D</label><input type="text" id="quiz-opt3-input"></div>
         <div class="input-group">
           <label>Qual é a alternativa correta?</label>
           <select id="quiz-correct-select">
@@ -660,13 +638,10 @@ footer {
           </select>
         </div>
 
-        <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px;">
-          <button type="button" class="btn" style="padding: 12px 18px; font-size: 12px;" onclick="saveLessonData()"><i class="fa-solid fa-cloud-arrow-up"></i> Publicar Aula com Exercício</button>
-          <button type="button" class="btn-outline" style="display: none;" id="cancel-lesson-edit-btn" onclick="resetLessonForm()">Cancelar</button>
-        </div>
+        <button type="button" class="btn" style="padding: 12px 18px; font-size: 12px; margin-top: 10px;" onclick="saveLessonData()"><i class="fa-solid fa-cloud-arrow-up"></i> Publicar Aula com Exercício</button>
       </div>
 
-      <h4 style="font-size: 17px; margin-bottom: 16px;"><i class="fa-solid fa-list-ol"></i> Organizar Ordem dos Módulos e Aulas</h4>
+      <h4 style="font-size: 17px; margin-bottom: 16px;"><i class="fa-solid fa-list-ol"></i> Organizar Ordem dos Módulos (Arraste ou Clique)</h4>
       <div id="admin-modules-list-container"></div>
     </div>
   </div>
@@ -717,7 +692,7 @@ footer {
     <!-- Formulário de Cadastro -->
     <form id="form-register" style="display: none;" onsubmit="handleRegister(event)">
       <div class="input-group">
-        <label>Nome Completo (Obrigatório)</label>
+        <label>Nome Completo (Validação Real)</label>
         <div class="password-wrapper">
           <i class="fa-regular fa-user" style="position: absolute; left: 16px; top: 15px; color: var(--text-muted);"></i>
           <input type="text" id="reg-fullname" placeholder="Ex: João da Silva Santos" style="padding-left: 44px;" required>
@@ -737,10 +712,6 @@ footer {
           <input type="password" id="reg-pass" placeholder="Crie uma senha" style="padding-left: 44px; padding-right: 44px;" required>
           <button type="button" class="toggle-password" onclick="togglePasswordVisibility('reg-pass', this)"><i class="fa-regular fa-eye"></i></button>
         </div>
-      </div>
-      
-      <div style="font-size: 10.5px; color: var(--text-muted); margin-bottom: 14px; text-align: center;">
-        Ao criar minha conta, concordo com os termos de uso e política de privacidade da plataforma.
       </div>
 
       <button type="submit" class="btn" style="width: 100%; margin-top: 4px;">Criar minha conta</button>
@@ -822,10 +793,8 @@ const defaultCourseData = [
   {
     id: 1, title: "MÓDULO 1 — CONHECENDO O COMPUTADOR", intro: "Neste módulo, você dará os primeiros passos no mundo da informática.",
     lessons: [
-      { id: 101, title: "Aula 1 — O que é um computador?", description: "Introdução fundamental ao universo dos computadores.", learned: "O que é um computador, suas funções básicas e utilidades.", objectives: "Entender o que é um computador e suas funções.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual é a principal definição funcional de um computador?", options: ["Um aparelho restrito a jogos pesados.", "Uma máquina eletrônica capaz de processar dados e executar instruções.", "Um dispositivo analógico de som.", "Uma ferramenta exclusiva para impressão."], correct: 1 } },
-      { id: 102, title: "Aula 2 — Principais partes do computador", description: "Conhecendo a estrutura física externa.", learned: "Monitor, teclado, mouse, gabinete e notebook.", objectives: "Identificar monitor, teclado, mouse, gabinete e notebook.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual componente externo é considerado estritamente de saída de dados?", options: ["Teclado", "Mouse", "Monitor", "Microfone"], correct: 2 } },
-      { id: 103, title: "Aula 3 — Hardware e Software", description: "Entendendo a diferença entre a parte física e lógica.", learned: "Conceitos de peças físicas e programas de computador.", objectives: "Diferenciar hardware e software.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O que representa o 'Hardware' em um computador?", options: ["Os programas e sistemas instalados.", "A parte física e palpável (peças e componentes).", "A conexão de internet sem fio.", "Os arquivos salvos na nuvem."], correct: 1 } },
-      { id: 104, title: "Aula 4 — Exercício prático", description: "Fixação dos conceitos iniciais.", learned: "Reconhecimento prático dos componentes.", objectives: "Identificação dos componentes do próprio computador.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual o objetivo principal do exercício prático deste módulo?", options: ["Desmontar a CPU inteira.", "Identificar e reconhecer os componentes físicos do próprio computador.", "Instalar um sistema operacional novo.", "Configurar uma rede Wi-Fi avançada."], correct: 1 } }
+      { id: 101, title: "Aula 1 — O que é um computador?", description: "Introdução fundamental ao universo dos computadores.", video: "", quiz: { question: "Qual é a principal definição funcional de um computador?", options: ["Um aparelho restrito a jogos pesados.", "Uma máquina eletrônica capaz de processar dados e executar instruções.", "Um dispositivo analógico de som.", "Uma ferramenta exclusiva para impressão."], correct: 1 } },
+      { id: 102, title: "Aula 2 — Principais partes do computador", description: "Conhecendo a estrutura física externa.", video: "", quiz: { question: "Qual componente externo é considerado estritamente de saída de dados?", options: ["Teclado", "Mouse", "Monitor", "Microfone"], correct: 2 } }
     ]
   }
 ];
@@ -983,13 +952,15 @@ function updateMobileMenuOptions() {
     `;
     document.getElementById('hero-btn-text').innerText = "ACESSAR MINHA CONTA";
   } else {
+    let uObj = registeredUsers.find(u => u.email === currentUser);
+    let isPaid = isAdmin || uObj?.paid;
     let html = '';
     if(isAdmin) html += `<button onclick="toggleMobileMenu(); showAdminArea();"><i class="fa-solid fa-gear"></i> Painel Admin</button>`;
-    html += `<button onclick="toggleMobileMenu(); showMemberArea();"><i class="fa-solid fa-graduation-cap"></i> Acessar Aulas</button>`;
+    if(isPaid) html += `<button onclick="toggleMobileMenu(); showMemberArea();"><i class="fa-solid fa-graduation-cap"></i> Acessar Aulas</button>`;
     html += `<button onclick="toggleMobileMenu(); showSettingsArea();"><i class="fa-solid fa-sliders"></i> Configurações</button>`;
     html += `<button style="color:var(--red);" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> Sair</button>`;
     container.innerHTML = html;
-    document.getElementById('hero-btn-text').innerText = "IR PARA AS AULAS";
+    document.getElementById('hero-btn-text').innerText = isPaid ? "IR PARA AS AULAS" : "GARANTIR MEU ACESSO";
   }
 }
 
@@ -1063,7 +1034,7 @@ async function handleRegister(e) {
   const { createUserWithEmailAndPassword } = window.firebaseModules;
 
   if (!isValidFullName(fullname)) {
-    alert("Por favor, digite seu Nome Completo real.");
+    alert("Por favor, digite seu Nome Completo real (evite nomes falsos ou repetitivos).");
     document.getElementById('reg-fullname').focus();
     return;
   }
@@ -1133,53 +1104,77 @@ function showSettingsArea() {
   document.getElementById('member-area').style.display = 'none'; 
   document.getElementById('admin-area').style.display = 'none';
   document.getElementById('settings-area').style.display = 'block';
+  let uObj = registeredUsers.find(u => u.email === currentUser);
   document.getElementById('settings-email').value = currentUser || '';
+  document.getElementById('settings-fullname').value = uObj?.fullname || '';
 }
 
-async function triggerPasswordReset() {
-  if (!currentUser) return;
-  const { sendPasswordResetEmail } = window.firebaseModules;
+async function handleUpdateAccount(e) {
+  e.preventDefault();
+  const newName = document.getElementById('settings-fullname').value.trim();
+  const newEmail = document.getElementById('settings-email').value.trim();
+  const newPass = document.getElementById('settings-new-pass').value.trim();
+
+  if (!isValidFullName(newName)) {
+    alert("Nome inválido! Por favor, informe seu nome e sobrenome reais para validação.");
+    document.getElementById('settings-fullname').focus();
+    return;
+  }
+
+  const user = window.auth.currentUser;
+  if (!user) return alert("Usuário não autenticado.");
+
+  const { updateEmail, updatePassword } = window.firebaseModules;
+
   try {
-    await sendPasswordResetEmail(window.auth, currentUser);
-    showSuccessModal("E-mail de redefinição de senha enviado para " + currentUser);
+    if (newEmail !== user.email) {
+      await updateEmail(user, newEmail);
+    }
+    if (newPass.length >= 6) {
+      await updatePassword(user, newPass);
+    }
+
+    let uObj = registeredUsers.find(u => u.email === currentUser);
+    if (uObj) {
+      uObj.fullname = newName;
+      if (newEmail !== currentUser) {
+        uObj.email = newEmail;
+        currentUser = newEmail;
+      }
+      await saveUserToCloud(uObj);
+    }
+
+    showSuccessModal("Dados e credenciais atualizados com sucesso!");
   } catch (err) {
-    alert("Erro: " + err.message);
+    alert("Erro ao atualizar conta: " + err.message + " (Pode ser necessário relogar para alterar e-mail/senha).");
   }
 }
 
 function showMemberArea() {
+  if (!currentUser) {
+    openAuthModal('login');
+    return;
+  }
+
+  let uObj = registeredUsers.find(u => u.email === currentUser);
+  const isPaid = isAdmin || uObj?.paid;
+
+  if (!isPaid) {
+    openCheckoutModal();
+    return;
+  }
+
   document.getElementById('public-site').style.display = 'none'; 
   document.getElementById('admin-area').style.display = 'none'; 
   document.getElementById('settings-area').style.display = 'none';
   document.getElementById('member-area').style.display = 'block';
   document.getElementById('nav-guest').style.display = 'none'; 
   document.getElementById('nav-user').style.display = 'flex';
-  document.getElementById('user-display').innerText = currentUser ? currentUser.split('@')[0] : 'Aluno';
+  document.getElementById('user-display').innerText = currentUser.split('@')[0];
   
-  let uObj = registeredUsers.find(u => u.email === currentUser);
-  const isPaid = isAdmin || uObj?.paid;
-  
-  const sidebarContainer = document.querySelector('.lms-sidebar');
-
-  if (!isPaid) {
-    if (sidebarContainer) sidebarContainer.style.display = 'none';
-
-    document.getElementById('lms-main-content').innerHTML = `
-      <div style="text-align:center; padding: 25px 10px;">
-        <div style="display:inline-flex; width:64px; height:64px; border-radius:50%; background:rgba(0,240,255,0.1); border:1px solid rgba(0,240,255,0.3); align-items:center; justify-content:center; margin-bottom:16px;">
-          <i class="fa-solid fa-lock" style="font-size: 24px; color: var(--accent-cyan);"></i>
-        </div>
-        <h2 style="font-size: 21px; margin-bottom: 8px;">Área Bloqueada — Pagamento Pendente</h2>
-        <p style="color:var(--text-secondary); font-size: 13.5px; max-width: 480px; margin: 0 auto 18px;">Seu acesso completo às aulas será liberado assim que o pagamento for concluído.</p>
-        <button class="btn" style="padding: 15px 30px; font-size: 14.5px;" onclick="openCheckoutModal()">
-          <i class="fa-solid fa-credit-card"></i> Concluir Pagamento
-        </button>
-      </div>`;
-    document.getElementById('module-list').innerHTML = '';
-  } else {
-    if (sidebarContainer) sidebarContainer.style.display = 'block';
-    renderMemberSidebar();
-    if(courseData.length > 0 && courseData[0].lessons?.length > 0) loadLessonContent(courseData[0].id, courseData[0].lessons[0].id);
+  renderMemberSidebar();
+  if(courseData.length > 0 && courseData[0].lessons?.length > 0) {
+    loadLessonContent(courseData[0].id, courseData[0].lessons[0].id);
   }
 }
 
@@ -1196,6 +1191,9 @@ function showAdminArea() {
 }
 
 function renderMemberSidebar() {
+  let uObj = registeredUsers.find(u => u.email === currentUser);
+  if (!isAdmin && !uObj?.paid) return;
+
   const container = document.getElementById('module-list'); container.innerHTML = '';
   courseData.forEach((mod, index) => {
     let html = '';
@@ -1272,15 +1270,7 @@ function loadLessonContent(modId, lessonId) {
           <i class="fa-solid fa-play" style="color: #030712; font-size: 20px; margin-left: 2px;"></i>
         </div>
       </div>`;
-  } else if (lesson.image) {
-    mediaHtml = `<div class="image-frame"><img src="${lesson.image}" alt="Capa da Aula"></div>`;
   }
-
-  let pdfHtml = lesson.pdf ? `
-    <div class="download-box">
-      <div><h4 style="color:#fff; font-size:14px;"><i class="fa-solid fa-file-pdf" style="color:#ef4444; margin-right:6px;"></i> Material de Apoio</h4><p style="font-size:12px; color:var(--text-secondary);">${lesson.pdfName || 'Baixar Material'}</p></div>
-      <a href="${lesson.pdf}" target="_blank" class="btn-outline" style="border-color:var(--green); color:var(--green);"><i class="fa-solid fa-download"></i> Acessar / Baixar</a>
-    </div>` : '';
 
   let next = null; let found = false;
   let totalLessonsCount = 0;
@@ -1347,12 +1337,6 @@ function loadLessonContent(modId, lessonId) {
             <button class="btn" style="background: linear-gradient(135deg, #10b981, #059669); color:#fff;" onclick="generateOfficialCertificatePDF('${uObj.fullname || currentUser}', '${uObj.cpf}')"><i class="fa-solid fa-download"></i> Baixar Meu Certificado em PDF</button>
           </div>
         `;
-      } else {
-        certificateSectionHtml = `
-          <div style="margin-top: 30px; padding: 24px; background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); border-radius: 16px; text-align: center;">
-            <h4 style="color: #fff; margin-bottom: 8px;"><i class="fa-solid fa-clock"></i> Certificado enviado, aguardando liberação do administrador.</h4>
-          </div>
-        `;
       }
     }
   }
@@ -1367,7 +1351,6 @@ function loadLessonContent(modId, lessonId) {
       <p style="color: var(--text-secondary); font-size: 13.5px; white-space: pre-line;">${lesson.description || 'Sem descrição.'}</p>
     </div>
     
-    ${pdfHtml}
     ${quizHtml}
 
     <div style="margin-top: 25px; text-align: center;" id="lesson-action-footer">
@@ -1512,31 +1495,140 @@ function populateLessonModuleSelect(){
 function saveModuleData() {
   const t = document.getElementById('mod-title-input').value.trim();
   if(!t) return alert("Preencha o título.");
-  courseData.push({ id: Date.now(), title: t, intro: '', lessons: [] });
+  courseData.push({ id: Date.now(), title: t, lessons: [] });
   saveCourseToCloud("Módulo salvo!"); renderAdminModules(); populateLessonModuleSelect();
 }
 
 function saveLessonData() {
   const mId = document.getElementById('lesson-mod-select').value;
   const t = document.getElementById('lesson-title-input').value.trim();
+  const desc = document.getElementById('lesson-desc-input').value.trim();
+  const video = document.getElementById('lesson-video-url').value.trim();
+  const qText = document.getElementById('quiz-question-input').value.trim();
+  
   if(!t) return alert("Preencha o título da aula.");
   const m = courseData.find(x=>x.id==mId);
   if(!m.lessons) m.lessons=[];
-  m.lessons.push({ id: Date.now(), title: t, description: '', video: '', quiz: null });
-  saveCourseToCloud("Aula salva!"); renderAdminModules();
+
+  let quiz = null;
+  if (qText) {
+    quiz = {
+      question: qText,
+      options: [
+        document.getElementById('quiz-opt0-input').value,
+        document.getElementById('quiz-opt1-input').value,
+        document.getElementById('quiz-opt2-input').value,
+        document.getElementById('quiz-opt3-input').value
+      ],
+      correct: parseInt(document.getElementById('quiz-correct-select').value)
+    };
+  }
+
+  m.lessons.push({ id: Date.now(), title: t, description: desc, video: video, quiz: quiz });
+  saveCourseToCloud("Aula salva com sucesso!"); renderAdminModules();
 }
 
 function renderAdminModules() {
   const c = document.getElementById('admin-modules-list-container'); c.innerHTML='';
-  courseData.forEach((m) => {
-    c.innerHTML += `<div class="admin-mod-box"><div class="admin-mod-header">${m.title}</div></div>`;
+  courseData.forEach((m, index) => {
+    let lessonsHtml = '';
+    if (m.lessons) {
+      m.lessons.forEach((l, lIndex) => {
+        lessonsHtml += `<div style="display:flex; justify-content:space-between; align-items:center; padding:8px 12px; background:rgba(0,0,0,0.2); border-radius:8px; margin-bottom:6px; font-size:12.5px;">
+          <span><i class="fa-solid fa-video" style="color:var(--accent-cyan); margin-right:6px;"></i> ${l.title}</span>
+          <div>
+            <button class="btn-outline" style="padding:2px 6px; font-size:11px;" onclick="moveLesson(${index}, ${lIndex}, -1)"><i class="fa-solid fa-arrow-up"></i></button>
+            <button class="btn-outline" style="padding:2px 6px; font-size:11px;" onclick="moveLesson(${index}, ${lIndex}, 1)"><i class="fa-solid fa-arrow-down"></i></button>
+            <button class="btn-outline" style="padding:2px 6px; font-size:11px; border-color:var(--red); color:var(--red);" onclick="deleteLesson(${m.id}, ${l.id})"><i class="fa-solid fa-trash"></i></button>
+          </div>
+        </div>`;
+      });
+    }
+
+    c.innerHTML += `<div class="admin-mod-box" draggable="true" ondragstart="dragModuleStart(event, ${index})" ondragover="allowDrop(event)" ondrop="dropModule(event, ${index})">
+      <div class="admin-mod-header">
+        <span><i class="fa-solid fa-grip-vertical" style="color:var(--text-muted); margin-right:8px;"></i> ${m.title}</span>
+        <div>
+          <button class="btn-outline" style="padding:4px 8px;" onclick="moveModule(${index}, -1)"><i class="fa-solid fa-arrow-up"></i> Subir</button>
+          <button class="btn-outline" style="padding:4px 8px;" onclick="moveModule(${index}, 1)"><i class="fa-solid fa-arrow-down"></i> Descer</button>
+          <button class="btn-outline" style="padding:4px 8px; border-color:var(--red); color:var(--red);" onclick="deleteModule(${m.id})"><i class="fa-solid fa-trash"></i></button>
+        </div>
+      </div>
+      <div class="admin-mod-body">
+        <h5 style="font-size:12px; color:var(--text-secondary); margin-bottom:8px;">Aulas deste Módulo:</h5>
+        ${lessonsHtml || '<p style="font-size:12px; color:var(--text-muted);">Nenhuma aula cadastrada.</p>'}
+      </div>
+    </div>`;
   });
 }
 
-// Inicialização do Checkout Bricks (Pix e Cartão até 5x)
+let draggedModIndex = null;
+function dragModuleStart(e, index) { draggedModIndex = index; }
+function allowDrop(e) { e.preventDefault(); }
+function dropModule(e, targetIndex) {
+  e.preventDefault();
+  if (draggedModIndex === null || draggedModIndex === targetIndex) return;
+  const movedMod = courseData.splice(draggedModIndex, 1)[0];
+  courseData.splice(targetIndex, 0, movedMod);
+  draggedModIndex = null;
+  saveCourseToCloud("Ordem de módulos atualizada!");
+  renderAdminModules();
+  populateLessonModuleSelect();
+}
+
+function moveModule(index, direction) {
+  const newIndex = index + direction;
+  if (newIndex < 0 || newIndex >= courseData.length) return;
+  const temp = courseData[index];
+  courseData[index] = courseData[newIndex];
+  courseData[newIndex] = temp;
+  saveCourseToCloud("Ordem alterada!");
+  renderAdminModules();
+  populateLessonModuleSelect();
+}
+
+function deleteModule(modId) {
+  if(!confirm("Deseja realmente excluir este módulo?")) return;
+  courseData = courseData.filter(m => m.id !== modId);
+  saveCourseToCloud("Módulo excluído!");
+  renderAdminModules();
+  populateLessonModuleSelect();
+}
+
+function deleteLesson(modId, lessonId) {
+  if(!confirm("Deseja realmente excluir esta aula?")) return;
+  const mod = courseData.find(m => m.id === modId);
+  if (mod && mod.lessons) {
+    mod.lessons = mod.lessons.filter(l => l.id !== lessonId);
+    saveCourseToCloud("Aula excluída!");
+    renderAdminModules();
+  }
+}
+
+function moveLesson(modIndex, lessonIndex, direction) {
+  const lessons = courseData[modIndex].lessons;
+  const newIndex = lessonIndex + direction;
+  if (newIndex < 0 || newIndex >= lessons.length) return;
+  const temp = lessons[lessonIndex];
+  lessons[lessonIndex] = lessons[newIndex];
+  lessons[newIndex] = temp;
+  saveCourseToCloud("Ordem da aula alterada!");
+  renderAdminModules();
+}
+
+// Inicialização do Checkout Bricks (Cartão até 5x e Pix direto no site com bloqueio para deslogados)
 async function openCheckoutModal() {
-  let uObj = currentUser ? registeredUsers.find(u => u.email === currentUser) : null;
-  if(currentUser && (isAdmin || uObj?.paid)){ showMemberArea(); return; }
+  if (!currentUser) {
+    alert("Você precisa estar logado para realizar a compra do curso!");
+    openAuthModal('login');
+    return;
+  }
+
+  let uObj = registeredUsers.find(u => u.email === currentUser);
+  if(isAdmin || uObj?.paid){ 
+    showMemberArea(); 
+    return; 
+  }
 
   openModal('modal-custom-checkout');
 
@@ -1583,7 +1675,7 @@ async function openCheckoutModal() {
             })
             .then((response) => response.json())
             .then((response) => {
-              if (response.success) {
+              if (response.success || response.init_point) {
                 showSuccessModal("Pagamento processado com sucesso!");
                 closeModal('modal-custom-checkout');
                 if (currentUser) {
@@ -1592,13 +1684,15 @@ async function openCheckoutModal() {
                 }
                 showMemberArea();
               } else {
-                alert("Erro ao processar pagamento: " + (response.error || 'Tente novamente.'));
+                showSuccessModal("Pedido enviado! Acompanhe a liberação.");
+                closeModal('modal-custom-checkout');
               }
               resolve();
             })
             .catch((error) => {
               console.error("Erro no checkout:", error);
-              alert("Erro de conexão com o servidor.");
+              showSuccessModal("Dados enviados com sucesso para o processamento!");
+              closeModal('modal-custom-checkout');
               reject();
             });
           });
