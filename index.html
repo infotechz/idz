@@ -324,12 +324,12 @@ section { padding: 70px 0; }
 .sales-table th { color: var(--text-secondary); font-weight: 700; text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; }
 .badge-status { padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 700; text-transform: uppercase; display: inline-block; }
 
-.admin-mod-box { border: 1px solid var(--glass-border); border-radius: 14px; margin-bottom: 12px; background: rgba(0,0,0,0.25); overflow: hidden; cursor: grab; }
-.admin-mod-box:active { cursor: grabbing; }
-.admin-mod-header { padding: 14px 16px; font-size: 13px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
-.admin-mod-body { padding: 16px; border-top: 1px solid var(--glass-border); background: rgba(255,255,255,0.015); }
-.admin-lesson-item-box { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: rgba(0,0,0,0.2); border-radius: 8px; margin-bottom: 6px; font-size: 12.5px; cursor: grab; }
-.admin-lesson-item-box:active { cursor: grabbing; }
+.admin-mod-box { border: 1px solid var(--glass-border); border-radius: 14px; margin-bottom: 12px; background: rgba(0,0,0,0.25); overflow: hidden; }
+.admin-mod-header { padding: 14px 16px; font-size: 13px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; gap: 10px; cursor: pointer; }
+.admin-mod-header:hover { background: rgba(0, 240, 255, 0.05); }
+.admin-mod-body { padding: 16px; border-top: 1px solid var(--glass-border); background: rgba(255,255,255,0.015); display: none; }
+.admin-mod-body.expanded { display: block; }
+.admin-lesson-item-box { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: rgba(0,0,0,0.2); border-radius: 8px; margin-bottom: 6px; font-size: 12.5px; }
 
 footer {
   background: rgba(3, 7, 18, 0.9); border-top: 1px solid var(--glass-border);
@@ -369,7 +369,7 @@ footer {
   </div>
 </div>
 
-<!-- Modal com Checkout Bricks Interativo Seguro (Pix e Cartão) -->
+<!-- Modal com Checkout Bricks Interativo (Pix e Cartão) -->
 <div class="modal-overlay" id="modal-custom-checkout">
   <div class="modal-card" style="max-width: 650px;">
     <button class="close-btn" onclick="closeCheckoutModalSafe()"><i class="fa-solid fa-xmark"></i></button>
@@ -379,7 +379,6 @@ footer {
       <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 18px; color: #fff;">Informática do Zero — R$ 29,90</span>
     </div>
 
-    <!-- Onde o Checkout Bricks do Mercado Pago é renderizado -->
     <div id="paymentBrick_container"></div>
   </div>
 </div>
@@ -545,13 +544,15 @@ footer {
     <h2 style="margin: 0; font-size: 22px;"><i class="fa-solid fa-gear" style="color: var(--text-secondary);"></i> Painel de Administração</h2>
     <div style="display: flex; gap: 10px; flex-wrap: wrap;">
       <button class="btn-outline" onclick="switchAdminTab('dashboard')"><i class="fa-solid fa-chart-pie"></i> Dashboard & Alunos</button>
-      <button class="btn-outline" onclick="switchAdminTab('modules')"><i class="fa-solid fa-pen-to-square"></i> Editar Conteúdo & Exercícios</button>
+      <button class="btn-outline" onclick="switchAdminTab('modules')"><i class="fa-solid fa-pen-to-square"></i> Editar Conteúdo & Aulas</button>
+      <button class="btn-outline" onclick="switchAdminTab('testcheckout')"><i class="fa-solid fa-credit-card"></i> Checkout de Teste (R$ 0,01)</button>
     </div>
   </div>
   
   <div class="admin-grid animate-fade-up">
+    <!-- ABA DASHBOARD -->
     <div class="glass-panel admin-card" id="admin-tab-dashboard">
-      <h3><i class="fa-solid fa-users"></i> Gestão, Progresso e Desempenho dos Alunos</h3>
+      <h3><i class="fa-solid fa-users"></i> Gestão de Alunos, Pagamentos e Status</h3>
       
       <div class="gateway-metrics">
         <div class="metric-box">
@@ -573,10 +574,9 @@ footer {
           <thead>
             <tr>
               <th><i class="fa-regular fa-user"></i> Aluno (Nome / E-mail)</th>
-              <th><i class="fa-solid fa-circle-half-stroke"></i> Status Curso</th>
+              <th><i class="fa-solid fa-circle-half-stroke"></i> Status Pagto</th>
               <th><i class="fa-solid fa-chart-line"></i> Progresso Aulas</th>
-              <th><i class="fa-solid fa-brain"></i> Desempenho Exercícios</th>
-              <th><i class="fa-solid fa-wand-magic-sparkles"></i> Ações & Liberação</th>
+              <th><i class="fa-solid fa-wand-magic-sparkles"></i> Ações & Aprovação</th>
             </tr>
           </thead>
           <tbody id="users-list-body"></tbody>
@@ -584,58 +584,48 @@ footer {
       </div>
     </div>
 
+    <!-- ABA CHECKOUT DE TESTE 1 CENTAVO -->
+    <div class="glass-panel admin-card" id="admin-tab-testcheckout" style="display: none;">
+      <h3><i class="fa-solid fa-cash-register"></i> Checkout de Teste Real (R$ 0,01) para Aluno Selecionado</h3>
+      <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 22px;">Selecione um aluno abaixo para abrir o Checkout Bricks (Pix ou Cartão) cobrando apenas R$ 0,01 e aprovar o acesso para ele.</p>
+      
+      <div class="input-group" style="max-width: 450px;">
+        <label>Escolher Aluno para o Teste</label>
+        <select id="test-student-select"></select>
+      </div>
+      <button class="btn" style="margin-top: 10px;" onclick="openTestCheckoutForSelectedStudent()"><i class="fa-solid fa-play"></i> Iniciar Checkout de R$ 0,01 para o Aluno</button>
+    </div>
+
+    <!-- ABA EDITOR DE MÓDULOS E AULAS (COM RECOLHER/EXPANDIR) -->
     <div class="glass-panel admin-card" id="admin-tab-modules" style="display: none;">
-      <h3><i class="fa-solid fa-layer-group"></i> Gerenciador Cloud (Arraste ou use setas)</h3>
-      <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 22px;">Arraste os módulos ou use os botões de subir e descer para ajustar a ordem.</p>
+      <h3><i class="fa-solid fa-layer-group"></i> Editor de Módulos e Aulas (Clique para Expandir)</h3>
+      <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 22px;">Clique no cabeçalho de cada módulo para recolher ou expandir e editar seu conteúdo.</p>
       
       <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); padding: 20px; border-radius: 16px; margin-bottom: 22px;">
         <h4 style="font-size: 15px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-folder-plus text-cyan"></i> Novo Módulo</h4>
         <div class="input-group"><label>Título do Módulo</label><input type="text" id="mod-title-input" placeholder="Ex: Módulo 1 — Introdução"></div>
-        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-          <button type="button" class="btn" style="padding: 12px 18px; font-size: 12px;" onclick="saveModuleData()"><i class="fa-solid fa-floppy-disk"></i> Salvar Módulo</button>
-        </div>
+        <button type="button" class="btn" style="padding: 12px 18px; font-size: 12px;" onclick="saveModuleData()"><i class="fa-solid fa-floppy-disk"></i> Salvar Novo Módulo</button>
       </div>
 
       <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); padding: 20px; border-radius: 16px; margin-bottom: 26px;">
-        <h4 style="font-size: 15px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-video text-purple"></i> Nova Aula & Informações Pedagógicas</h4>
-        <div class="input-group"><label>Módulo</label><select id="lesson-mod-select"></select></div>
-        <div class="input-group"><label>Título da Aula</label><input type="text" id="lesson-title-input" placeholder="Ex: Aula 1 — Hardware"></div>
+        <h4 style="font-size: 15px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-video text-purple"></i> Adicionar Aula, Descrição e Objetivos</h4>
+        <div class="input-group"><label>Selecionar Módulo</label><select id="lesson-mod-select"></select></div>
+        <div class="input-group"><label>Título da Aula</label><input type="text" id="lesson-title-input" placeholder="Ex: Aula 1 — O que é um computador?"></div>
         
         <div class="input-group">
-          <label>1. Descrição da Aula</label>
-          <textarea id="lesson-desc-input" rows="3" placeholder="Descreva o contexto geral desta aula..."></textarea>
+          <label>O que será aprendido (Descrição & Objetivos)</label>
+          <textarea id="lesson-desc-input" rows="3" placeholder="Descreva os objetivos detalhados e o que será aprendido nesta aula..."></textarea>
         </div>
 
         <div class="input-group">
-          <label><i class="fa-brands fa-youtube" style="color:#ef4444;"></i> Link do YouTube (Vídeo da Aula - Opcional)</label>
-          <input type="text" id="lesson-video-url" placeholder="https://www.youtube.com/watch?v=..." style="margin-bottom: 8px;">
+          <label><i class="fa-brands fa-youtube" style="color:#ef4444;"></i> Link do YouTube (Opcional)</label>
+          <input type="text" id="lesson-video-url" placeholder="https://www.youtube.com/watch?v=...">
         </div>
 
-        <hr style="border: 0; border-top: 1px solid var(--glass-border); margin: 20px 0;">
-        <h4 style="font-size: 14px; color: var(--accent-cyan); margin-bottom: 14px;"><i class="fa-solid fa-brain"></i> Configurar Exercício da Aula</h4>
-        
-        <div class="input-group">
-          <label>Pergunta do Exercício</label>
-          <input type="text" id="quiz-question-input" placeholder="Ex: O que é um computador?">
-        </div>
-        <div class="input-group"><label>Alternativa A</label><input type="text" id="quiz-opt0-input"></div>
-        <div class="input-group"><label>Alternativa B</label><input type="text" id="quiz-opt1-input"></div>
-        <div class="input-group"><label>Alternativa C</label><input type="text" id="quiz-opt2-input"></div>
-        <div class="input-group"><label>Alternativa D</label><input type="text" id="quiz-opt3-input"></div>
-        <div class="input-group">
-          <label>Qual é a alternativa correta?</label>
-          <select id="quiz-correct-select">
-            <option value="0">Alternativa A</option>
-            <option value="1">Alternativa B</option>
-            <option value="2">Alternativa C</option>
-            <option value="3">Alternativa D</option>
-          </select>
-        </div>
-
-        <button type="button" class="btn" style="padding: 12px 18px; font-size: 12px; margin-top: 10px;" onclick="saveLessonData()"><i class="fa-solid fa-cloud-arrow-up"></i> Publicar Aula com Exercício</button>
+        <button type="button" class="btn" style="padding: 12px 18px; font-size: 12px; margin-top: 10px;" onclick="saveLessonData()"><i class="fa-solid fa-cloud-arrow-up"></i> Publicar Aula</button>
       </div>
 
-      <h4 style="font-size: 17px; margin-bottom: 16px;"><i class="fa-solid fa-list-ol"></i> Organizar Ordem dos Módulos e Aulas</h4>
+      <h4 style="font-size: 17px; margin-bottom: 16px;"><i class="fa-solid fa-list-ol"></i> Módulos Cadastrados (Clique para Expandir)</h4>
       <div id="admin-modules-list-container"></div>
     </div>
   </div>
@@ -655,7 +645,6 @@ footer {
       <button class="btn-outline" id="tab-btn-register" style="flex: 1; justify-content: center; border: none; background: transparent; color: var(--text-secondary);" onclick="switchAuthTab('register')">Criar Conta</button>
     </div>
 
-    <!-- Formulário de Login -->
     <form id="form-login" onsubmit="handleLogin(event)">
       <div class="input-group">
         <label>E-mail</label>
@@ -683,7 +672,6 @@ footer {
       <button type="submit" class="btn" style="width: 100%; margin-top: 4px;">Acessar Plataforma</button>
     </form>
 
-    <!-- Formulário de Cadastro -->
     <form id="form-register" style="display: none;" onsubmit="handleRegister(event)">
       <div class="input-group">
         <label>Nome Completo (Validação Real)</label>
@@ -765,12 +753,25 @@ function animateParticles() {
 }
 initParticles(); animateParticles();
 
+// Módulo 1 restaurado com suas 2 aulas originais, descrições e objetivos detalhados
 const defaultCourseData = [
   {
-    id: 1, title: "MÓDULO 1 — CONHECENDO O COMPUTADOR", intro: "Neste módulo, você dará os primeiros passos no mundo da informática.",
+    id: 1, title: "MÓDULO 1 — CONHECENDO O COMPUTADOR", intro: "Neste módulo, você dará os primeiros passos no mundo da informática com total segurança.",
     lessons: [
-      { id: 101, title: "Aula 1 — O que é um computador?", description: "Introdução fundamental ao universo dos computadores.", video: "", quiz: { question: "Qual é a principal definição funcional de um computador?", options: ["Um aparelho restrito a jogos pesados.", "Uma máquina eletrônica capaz de processar dados e executar instruções.", "Um dispositivo analógico de som.", "Uma ferramenta exclusiva para impressão."], correct: 1 } },
-      { id: 102, title: "Aula 2 — Principais partes do computador", description: "Conhecendo a estrutura física externa.", video: "", quiz: { question: "Qual componente externo é considerado estritamente de saída de dados?", options: ["Teclado", "Mouse", "Monitor", "Microfone"], correct: 2 } }
+      { 
+        id: 101, 
+        title: "Aula 1 — O que é um computador?", 
+        description: "O que será aprendido:\n- Compreensão completa do conceito de hardware e software.\n- Como o computador processa dados e executa instruções.\n\nObjetivos da Aula:\n- Desmistificar o uso do computador para iniciantes.\n- Identificar a utilidade prática de cada componente básico no cotidiano.", 
+        video: "", 
+        quiz: { question: "Qual é a principal definição funcional de um computador?", options: ["Um aparelho restrito a jogos pesados.", "Uma máquina eletrônica capaz de processar dados e executar instruções.", "Um dispositivo analógico de som.", "Uma ferramenta exclusiva para impressão."], correct: 1 } 
+      },
+      { 
+        id: 102, 
+        title: "Aula 2 — Principais partes do computador", 
+        description: "O que será aprendido:\n- Diferenciação entre dispositivos de entrada (teclado, mouse) e saída (monitor, impressora).\n- Funções essenciais da CPU e memória RAM.\n\nObjetivos da Aula:\n- Conhecer a estrutura física externa e interna sem complicação técnica.", 
+        video: "", 
+        quiz: { question: "Qual componente externo é considerado estritamente de saída de dados?", options: ["Teclado", "Mouse", "Monitor", "Microfone"], correct: 2 } 
+      }
     ]
   }
 ];
@@ -784,6 +785,8 @@ let currentUser = null;
 let isAdmin = false;
 let videoWatchedState = {};
 let paymentBrickController = null;
+let currentCheckoutAmount = 29.90;
+let checkoutTargetUser = null;
 
 function autoCompleteEmail(inputId) {
   const input = document.getElementById(inputId);
@@ -866,6 +869,7 @@ window.onload = function() {
         }
         if (isAdmin && document.getElementById('admin-area').style.display === 'block') {
           renderDashboard();
+          populateTestStudentSelect();
         }
       });
     }
@@ -913,6 +917,8 @@ function closeModal(id) { document.getElementById(id).classList.remove('active')
 
 function closeCheckoutModalSafe() {
   closeModal('modal-custom-checkout');
+  currentCheckoutAmount = 29.90;
+  checkoutTargetUser = null;
   if (currentUser) {
     let uObj = registeredUsers.find(u => u.email === currentUser);
     if (!isAdmin && (!uObj || !uObj.paid)) {
@@ -1223,7 +1229,7 @@ function showAdminArea() {
   document.getElementById('nav-guest').style.display = 'none'; 
   document.getElementById('nav-user').style.display = 'flex';
   document.getElementById('user-display').innerText = currentUser;
-  switchAdminTab('dashboard'); populateLessonModuleSelect();
+  switchAdminTab('dashboard'); populateLessonModuleSelect(); populateTestStudentSelect();
 }
 
 function renderMemberSidebar() {
@@ -1270,6 +1276,12 @@ function toggleAccordion(headerElem) {
     arrow.classList.remove('fa-chevron-down');
     arrow.classList.add('fa-chevron-up');
   }
+}
+
+// Acordeão exclusivo para a aba Admin (recolher e expandir módulos ao clicar)
+function toggleAdminAccordion(headerElem) {
+  const bodyElem = headerElem.nextElementSibling;
+  bodyElem.classList.toggle('expanded');
 }
 
 function getYouTubeId(url) {
@@ -1390,7 +1402,7 @@ function loadLessonContent(modId, lessonId) {
     ${mediaHtml}
     
     <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); padding: 20px; border-radius: 16px; margin-top: 20px;">
-      <h4 style="color: var(--accent-cyan); margin-bottom: 8px; font-size: 14.5px;"><i class="fa-solid fa-align-left"></i> Descrição</h4>
+      <h4 style="color: var(--accent-cyan); margin-bottom: 8px; font-size: 14.5px;"><i class="fa-solid fa-align-left"></i> O que será aprendido e Objetivos</h4>
       <p style="color: var(--text-secondary); font-size: 13.5px; white-space: pre-line;">${lesson.description || 'Sem descrição.'}</p>
     </div>
     
@@ -1506,93 +1518,16 @@ function generateOfficialCertificatePDF(studentName) {
   doc.setTextColor(255, 255, 255);
   doc.text("INFORMÁTICA DO ZERO", 30, 108);
 
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(9.5);
-  doc.setTextColor(180, 195, 215);
-  doc.text("Durante o curso, o aluno adquiriu conhecimentos essenciais para utilizar o computador", 30, 118);
-  doc.text("e suas ferramentas com segurança e autonomia, desenvolvendo habilidades práticas", 30, 124);
-  doc.text("para o dia a dia, os estudos e o ambiente profissional.", 30, 130);
-
-  doc.setFillColor(15, 23, 42);
-  doc.setDrawColor(0, 240, 255);
-  doc.roundedRect(140, 22, 128, 118, 4, 4, 'FD');
-
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(11);
-  doc.setTextColor(0, 240, 255);
-  doc.text("RESUMO DO QUE FOI APRENDIDO", 152, 32);
-
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(9);
-  doc.setTextColor(220, 230, 242);
-  const topics = [
-    "• Fundamentos do Computador",
-    "• Teclado, Mouse e Atalhos",
-    "• Arquivos e Pastas",
-    "• Internet e Navegação",
-    "• E-mail",
-    "• Documentos (Word)",
-    "• Planilhas (Excel)",
-    "• Apresentações (PowerPoint)",
-    "• Nuvem e Armazenamento",
-    "• Segurança Digital",
-    "• Inteligência Artificial"
-  ];
-  let startY = 43;
-  topics.forEach((topic) => {
-    doc.text(topic, 152, startY);
-    startY += 8;
-  });
-
-  const today = new Date().toLocaleDateString('pt-BR');
-  const randomCertId = 'IDZ-' + Math.floor(100000 + Math.random() * 900000) + '-X';
-
-  doc.setDrawColor(50, 65, 85);
-  doc.line(30, 158, 268, 158);
-
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(9.5);
-  doc.setTextColor(255, 255, 255);
-  doc.text("INSTRUTOR", 45, 172, { align: "center" });
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(8.5);
-  doc.setTextColor(148, 163, 184);
-  doc.text("Informática do Zero", 45, 178, { align: "center" });
-
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(9.5);
-  doc.setTextColor(255, 255, 255);
-  doc.text("CARGA HORÁRIA TOTAL", 110, 172, { align: "center" });
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(8.5);
-  doc.setTextColor(148, 163, 184);
-  doc.text("12 Horas", 110, 178, { align: "center" });
-
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(9.5);
-  doc.setTextColor(255, 255, 255);
-  doc.text("DATA DE CONCLUSÃO", 175, 172, { align: "center" });
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(8.5);
-  doc.setTextColor(148, 163, 184);
-  doc.text(today, 175, 178, { align: "center" });
-
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(9.5);
-  doc.setTextColor(255, 255, 255);
-  doc.text("CÓDIGO DO CERTIFICADO", 238, 172, { align: "center" });
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(8.5);
-  doc.setTextColor(0, 240, 255);
-  doc.text(randomCertId, 238, 178, { align: "center" });
-
   doc.save(`Certificado_Informatica_Do_Zero_${studentName.replace(/\s+/g, '_')}.pdf`);
 }
 
 function switchAdminTab(t) {
   document.getElementById('admin-tab-dashboard').style.display = t==='dashboard'?'block':'none';
   document.getElementById('admin-tab-modules').style.display = t==='modules'?'block':'none';
-  if(t==='dashboard') renderDashboard(); else renderAdminModules();
+  document.getElementById('admin-tab-testcheckout').style.display = t==='testcheckout'?'block':'none';
+  if(t==='dashboard') renderDashboard(); 
+  else if(t==='modules') renderAdminModules();
+  else if(t==='testcheckout') populateTestStudentSelect();
 }
 
 function renderDashboard() {
@@ -1601,83 +1536,60 @@ function renderDashboard() {
   const tbody = document.getElementById('users-list-body'); tbody.innerHTML = '';
   
   let totalLessonsInCourse = 0;
-  let totalQuizInCourse = 0;
-  courseData.forEach(m => {
-    if(m.lessons) {
-      totalLessonsInCourse += m.lessons.length;
-      m.lessons.forEach(l => {
-        if(l.quiz && l.quiz.question) totalQuizInCourse++;
-      });
-    }
-  });
+  courseData.forEach(m => { if(m.lessons) totalLessonsInCourse += m.lessons.length; });
 
   registeredUsers.forEach((u) => {
     let studentEmail = u.email;
     let userCompleted = completedLessons[studentEmail] || {};
-    let userQuiz = quizStatsStorage[studentEmail] || {};
-
     let lessonsDoneCount = Object.keys(userCompleted).length;
     let lessonProgressPercent = totalLessonsInCourse > 0 ? Math.round((lessonsDoneCount / totalLessonsInCourse) * 100) : 0;
     if(lessonProgressPercent > 100) lessonProgressPercent = 100;
-
-    let quizAnsweredCount = Object.keys(userQuiz).length;
-    let correctQuizCount = 0;
-    let errorQuizCount = 0;
-    Object.values(userQuiz).forEach(q => {
-      if(q.correct) correctQuizCount++;
-      if(q.errors) errorQuizCount += q.errors;
-    });
 
     let studentInfo = `<div style="font-weight:600; color:#fff;">${u.fullname || 'Nome não informado'}</div>`;
     studentInfo += `<div style="font-size:11px; color:var(--accent-cyan);">E-mail: ${studentEmail}</div>`;
 
     let progressHtml = `<div style="font-size:12px; color:#fff; font-weight:600;">${lessonsDoneCount} / ${totalLessonsInCourse} aulas (${lessonProgressPercent}%)</div>`;
-    let quizHtml = `<div style="font-size:11.5px; color:var(--text-secondary);">Respondidos: ${quizAnsweredCount}/${totalQuizInCourse}<br><span style="color:var(--green);">Acertos: ${correctQuizCount}</span> | <span style="color:var(--red);">Erros: ${errorQuizCount}</span></div>`;
+
+    // Botão de check (✓) para aprovar e botão de X para remover pagamento
+    let actionButtons = `
+      <button class="btn-outline" style="border-color:var(--green); color:var(--green); padding:6px 10px;" title="Aprovar Pagamento" onclick="setStudentPaymentStatus('${studentEmail}', true)"><i class="fa-solid fa-check"></i></button>
+      <button class="btn-outline" style="border-color:var(--red); color:var(--red); padding:6px 10px;" title="Remover Pagamento" onclick="setStudentPaymentStatus('${studentEmail}', false)"><i class="fa-solid fa-xmark"></i></button>
+    `;
 
     tbody.innerHTML += `<tr>
       <td>${studentInfo}</td>
       <td><span class="badge-status" style="${u.paid?'background:rgba(16,185,129,0.2); color:var(--green);':'background:rgba(239,68,68,0.2); color:var(--red);'}">${u.paid?'Pago':'Pendente'}</span></td>
       <td>${progressHtml}</td>
-      <td>${quizHtml}</td>
-      <td>
-        <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-          ${!u.paid ? `<button class="btn-outline" style="border-color:var(--green); color:var(--green); padding:4px 8px;" onclick="approveUser('${studentEmail}')"><i class="fa-solid fa-check"></i> Pagto</button>`:''}
-          <button class="btn-outline" style="border-color:var(--accent-cyan); color:var(--accent-cyan); padding:4px 8px;" onclick="adminCompleteAllForUser('${studentEmail}')"><i class="fa-solid fa-wand-magic-sparkles"></i> Concluir Tudo</button>
-        </div>
-      </td>
+      <td>${actionButtons}</td>
     </tr>`;
   });
 }
 
-async function approveUser(email) { 
+async function setStudentPaymentStatus(email, status) {
   let u = registeredUsers.find(x => x.email === email);
   if(u) {
-    u.paid = true;
+    u.paid = status;
     await saveUserToCloud(u);
-    showSuccessModal("Pagamento aprovado!"); 
-    renderDashboard(); 
+    showSuccessModal(status ? "Pagamento aprovado com sucesso!" : "Status de pagamento removido!");
+    renderDashboard();
   }
 }
 
-function adminCompleteAllForUser(email) {
-  if(!completedLessons[email]) completedLessons[email] = {};
-  if(!quizStatsStorage[email]) quizStatsStorage[email] = {};
-
-  courseData.forEach(m => {
-    if(m.lessons) {
-      m.lessons.forEach(l => {
-        completedLessons[email][l.id] = true;
-        if(l.quiz && l.quiz.question) {
-          quizStatsStorage[email][l.id] = { answered: true, errors: 0, correct: 1 };
-        }
-      });
-    }
+function populateTestStudentSelect() {
+  const sel = document.getElementById('test-student-select');
+  if(!sel) return;
+  sel.innerHTML = '';
+  registeredUsers.forEach(u => {
+    sel.innerHTML += `<option value="${u.email}">${u.fullname || u.email} (${u.email})</option>`;
   });
+}
 
-  localStorage.setItem('user_completed_lessons', JSON.stringify(completedLessons));
-  localStorage.setItem('user_quiz_stats', JSON.stringify(quizStatsStorage));
-  showSuccessModal(`Todas as aulas e exercícios de ${email} foram concluídos com sucesso!`);
-  renderDashboard();
+function openTestCheckoutForSelectedStudent() {
+  const sel = document.getElementById('test-student-select');
+  if(!sel || !sel.value) return alert("Selecione um aluno para o teste.");
+  checkoutTargetUser = sel.value;
+  currentCheckoutAmount = 0.01; // Valor de 1 centavo
+  openCheckoutModal();
 }
 
 function populateLessonModuleSelect(){
@@ -1697,27 +1609,12 @@ function saveLessonData() {
   const t = document.getElementById('lesson-title-input').value.trim();
   const desc = document.getElementById('lesson-desc-input').value.trim();
   const video = document.getElementById('lesson-video-url').value.trim();
-  const qText = document.getElementById('quiz-question-input').value.trim();
   
   if(!t) return alert("Preencha o título da aula.");
   const m = courseData.find(x=>x.id==mId);
   if(!m.lessons) m.lessons=[];
 
-  let quiz = null;
-  if (qText) {
-    quiz = {
-      question: qText,
-      options: [
-        document.getElementById('quiz-opt0-input').value,
-        document.getElementById('quiz-opt1-input').value,
-        document.getElementById('quiz-opt2-input').value,
-        document.getElementById('quiz-opt3-input').value
-      ],
-      correct: parseInt(document.getElementById('quiz-correct-select').value)
-    };
-  }
-
-  m.lessons.push({ id: Date.now(), title: t, description: desc, video: video, quiz: quiz });
+  m.lessons.push({ id: Date.now(), title: t, description: desc, video: video });
   saveCourseToCloud("Aula salva com sucesso!"); renderAdminModules();
 }
 
@@ -1727,77 +1624,29 @@ function renderAdminModules() {
     let lessonsHtml = '';
     if (m.lessons) {
       m.lessons.forEach((l, lIndex) => {
-        lessonsHtml += `<div class="admin-lesson-item-box" draggable="true" ondragstart="dragLessonStart(event, ${index}, ${lIndex})" ondragover="allowDrop(event)" ondrop="dropLesson(event, ${index}, ${lIndex})">
-          <span><i class="fa-solid fa-grip-vertical" style="color:var(--text-muted); margin-right:6px;"></i> ${l.title}</span>
+        lessonsHtml += `<div class="admin-lesson-item-box">
+          <span><i class="fa-solid fa-file-video" style="color:var(--accent-cyan); margin-right:6px;"></i> ${l.title}</span>
           <div>
-            <button class="btn-outline" style="padding:2px 6px; font-size:11px;" onclick="moveLesson(${index}, ${lIndex}, -1)"><i class="fa-solid fa-arrow-up"></i></button>
-            <button class="btn-outline" style="padding:2px 6px; font-size:11px;" onclick="moveLesson(${index}, ${lIndex}, 1)"><i class="fa-solid fa-arrow-down"></i></button>
             <button class="btn-outline" style="padding:2px 6px; font-size:11px; border-color:var(--red); color:var(--red);" onclick="deleteLesson(${m.id}, ${l.id})"><i class="fa-solid fa-trash"></i></button>
           </div>
         </div>`;
       });
     }
 
-    c.innerHTML += `<div class="admin-mod-box" draggable="true" ondragstart="dragModuleStart(event, ${index})" ondragover="allowDrop(event)" ondrop="dropModule(event, ${index})">
-      <div class="admin-mod-header">
-        <span><i class="fa-solid fa-grip-vertical" style="color:var(--text-muted); margin-right:8px;"></i> ${m.title}</span>
+    c.innerHTML += `<div class="admin-mod-box">
+      <div class="admin-mod-header" onclick="toggleAdminAccordion(this)">
+        <span><i class="fa-solid fa-folder" style="color:var(--accent-cyan); margin-right:8px;"></i> ${m.title}</span>
         <div>
-          <button class="btn-outline" style="padding:4px 8px;" onclick="moveModule(${index}, -1)"><i class="fa-solid fa-arrow-up"></i> Subir</button>
-          <button class="btn-outline" style="padding:4px 8px;" onclick="moveModule(${index}, 1)"><i class="fa-solid fa-arrow-down"></i> Descer</button>
-          <button class="btn-outline" style="padding:4px 8px; border-color:var(--red); color:var(--red);" onclick="deleteModule(${m.id})"><i class="fa-solid fa-trash"></i></button>
+          <button class="btn-outline" style="padding:4px 8px; border-color:var(--red); color:var(--red);" onclick="deleteModule(${m.id})"><i class="fa-solid fa-trash"></i> Excluir Módulo</button>
+          <i class="fa-solid fa-chevron-down" style="font-size: 11px; margin-left: 8px;"></i>
         </div>
       </div>
       <div class="admin-mod-body">
-        <h5 style="font-size:12px; color:var(--text-secondary); margin-bottom:8px;">Aulas deste Módulo (Arraste ou use as setas):</h5>
+        <h5 style="font-size:12px; color:var(--text-secondary); margin-bottom:8px;">Aulas cadastradas neste Módulo:</h5>
         ${lessonsHtml || '<p style="font-size:12px; color:var(--text-muted);">Nenhuma aula cadastrada.</p>'}
       </div>
     </div>`;
   });
-}
-
-let draggedModIndex = null;
-function dragModuleStart(e, index) { draggedModIndex = index; e.stopPropagation(); }
-function allowDrop(e) { e.preventDefault(); }
-function dropModule(e, targetIndex) {
-  e.preventDefault(); e.stopPropagation();
-  if (draggedModIndex === null || draggedModIndex === targetIndex) return;
-  const movedMod = courseData.splice(draggedModIndex, 1)[0];
-  courseData.splice(targetIndex, 0, movedMod);
-  draggedModIndex = null;
-  saveCourseToCloud("Ordem de módulos atualizada!");
-  renderAdminModules();
-  populateLessonModuleSelect();
-}
-
-let draggedLessonInfo = null;
-function dragLessonStart(e, modIndex, lessonIndex) {
-  draggedLessonInfo = { modIndex, lessonIndex };
-  e.stopPropagation();
-}
-function dropLesson(e, targetModIndex, targetLessonIndex) {
-  e.preventDefault(); e.stopPropagation();
-  if (!draggedLessonInfo) return;
-  const { modIndex: srcModIdx, lessonIndex: srcLessonIdx } = draggedLessonInfo;
-  
-  if (srcModIdx === targetModIndex && srcLessonIdx === targetLessonIndex) return;
-
-  const movedLesson = courseData[srcModIdx].lessons.splice(srcLessonIdx, 1)[0];
-  courseData[targetModIndex].lessons.splice(targetLessonIndex, 0, movedLesson);
-  
-  draggedLessonInfo = null;
-  saveCourseToCloud("Ordem de aulas atualizada!");
-  renderAdminModules();
-}
-
-function moveModule(index, direction) {
-  const newIndex = index + direction;
-  if (newIndex < 0 || newIndex >= courseData.length) return;
-  const temp = courseData[index];
-  courseData[index] = courseData[newIndex];
-  courseData[newIndex] = temp;
-  saveCourseToCloud("Ordem alterada!");
-  renderAdminModules();
-  populateLessonModuleSelect();
 }
 
 function deleteModule(modId) {
@@ -1818,125 +1667,115 @@ function deleteLesson(modId, lessonId) {
   }
 }
 
-function moveLesson(modIndex, lessonIndex, direction) {
-  const lessons = courseData[modIndex].lessons;
-  const newIndex = lessonIndex + direction;
-  if (newIndex < 0 || newIndex >= lessons.length) return;
-  const temp = lessons[lessonIndex];
-  lessons[lessonIndex] = lessons[newIndex];
-  lessons[newIndex] = temp;
-  saveCourseToCloud("Ordem da aula alterada!");
-  renderAdminModules();
-}
-
-// Inicialização com suporte a renderização do QR Code do Pix direto na tela
+// Checkout Bricks real integrado para testes e produção
 async function openCheckoutModal() {
-  if (!currentUser) {
-    alert("Você precisa estar logado para realizar a compra!");
+  let targetEmail = checkoutTargetUser || currentUser;
+  if (!targetEmail) {
+    alert("Você precisa estar logado ou selecionar um aluno para realizar o checkout!");
     openAuthModal('login');
     return;
   }
 
-  let uObj = registeredUsers.find(u => u.email === currentUser);
-  
-  if (!isAdmin && (!uObj || !uObj.paid)) {
-    openModal('modal-custom-checkout');
+  openModal('modal-custom-checkout');
 
-    setTimeout(async () => {
-      try {
-        const mp = new MercadoPago(PUBLIC_KEY_MP, { locale: 'pt-BR' });
-        const bricksBuilder = mp.bricks();
+  setTimeout(async () => {
+    try {
+      const mp = new MercadoPago(PUBLIC_KEY_MP, { locale: 'pt-BR' });
+      const bricksBuilder = mp.bricks();
 
-        if (paymentBrickController) {
-          paymentBrickController.unmount();
-        }
-
-        const settings = {
-          initialization: {
-            amount: 29.90,
-            payer: { email: currentUser }
-          },
-          customization: {
-            paymentMethods: {
-              creditCard: 'all',
-              bankTransfer: ['pix'],
-              maxInstallments: 5
-            },
-            visual: {
-              style: { theme: 'dark' }
-            }
-          },
-          callbacks: {
-            onReady: () => {},
-            onSubmit: ({ selectedPaymentMethod, formData }) => {
-              return new Promise((resolve, reject) => {
-                fetch(RAILWAY_BACKEND_URL, {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify(formData)
-                })
-                .then(res => res.json())
-                .then(response => {
-                  if (response.success || response.status === 'approved' || response.status === 'pending') {
-                    
-                    // Se o usuário pagou via Pix e o back-end retornou os dados visuais
-                    if (selectedPaymentMethod === 'bank_transfer' && response.point_of_interaction) {
-                      const pixData = response.point_of_interaction.transaction_data;
-                      const qrCodeBase64 = pixData.qr_code_base64;
-                      const qrCodeCopyPaste = pixData.qr_code;
-
-                      const containerModal = document.getElementById('paymentBrick_container');
-                      containerModal.innerHTML = `
-                        <div style="text-align: center; padding: 20px; color: #fff;">
-                          <h3 style="color: var(--accent-cyan); margin-bottom: 12px; font-size: 18px;"><i class="fa-solid fa-qrcode"></i> Escaneie o QR Code Pix</h3>
-                          <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">Abra o aplicativo do seu banco, escolha Pagar com Pix e aponte a câmera:</p>
-                          <div style="background: #fff; padding: 12px; display: inline-block; border-radius: 12px; margin-bottom: 16px;">
-                            <img src="data:image/png;base64,${qrCodeBase64}" alt="QR Code Pix" style="width: 200px; height: 200px; display: block;">
-                          </div>
-                          <div style="margin-bottom: 16px;">
-                            <label style="font-size: 11px; color: var(--text-secondary); display: block; margin-bottom: 6px; text-transform: uppercase;">Ou copie o código Pix Copia e Cola:</label>
-                            <textarea readonly style="width: 100%; height: 70px; background: rgba(0,0,0,0.5); border: 1px solid var(--glass-border); color: #fff; padding: 8px; border-radius: 8px; font-size: 11px; resize: none;" id="pix-copy-text">${qrCodeCopyPaste}</textarea>
-                            <button class="btn-outline" style="margin-top: 8px; width: 100%; justify-content: center;" onclick="navigator.clipboard.writeText(document.getElementById('pix-copy-text').value); alert('Código Pix copiado com sucesso!');">
-                              <i class="fa-regular fa-copy"></i> Copiar Código Pix
-                            </button>
-                          </div>
-                          <p style="font-size: 11.5px; color: var(--green);"><i class="fa-solid fa-spinner fa-spin"></i> Aguardando a aprovação automática do pagamento...</p>
-                        </div>
-                      `;
-                    } else if (response.status === 'approved') {
-                      showSuccessModal("Pagamento aprovado! Acesso liberado.");
-                      closeModal('modal-custom-checkout');
-                      let userObj = registeredUsers.find(u => u.email === currentUser);
-                      if(userObj) { userObj.paid = true; saveUserToCloud(userObj); }
-                      showMemberArea();
-                    } else {
-                      showSuccessModal("Pagamento processado com sucesso!");
-                      closeModal('modal-custom-checkout');
-                    }
-                  } else {
-                    alert("Erro ao gerar pagamento: " + (response.error || "Tente novamente."));
-                  }
-                  resolve();
-                })
-                .catch(err => {
-                  console.error("Erro:", err);
-                  alert("Erro de conexão com o servidor de pagamento.");
-                  reject();
-                });
-              });
-            },
-            onError: (error) => { console.error('Erro no Brick:', error); }
-          }
-        };
-
-        paymentBrickController = await bricksBuilder.create('payment', 'paymentBrick_container', settings);
-      } catch (e) {
-        console.error("Erro ao iniciar Checkout Bricks:", e);
+      if (paymentBrickController) {
+        paymentBrickController.unmount();
       }
-    }, 200);
-  } else {
-    showMemberArea();
+
+      const settings = {
+        initialization: {
+          amount: currentCheckoutAmount,
+          payer: { email: targetEmail }
+        },
+        customization: {
+          paymentMethods: {
+            creditCard: 'all',
+            bankTransfer: ['pix'],
+            maxInstallments: 5
+          },
+          visual: {
+            style: { theme: 'dark' }
+          }
+        },
+        callbacks: {
+          onReady: () => {},
+          onSubmit: ({ selectedPaymentMethod, formData }) => {
+            return new Promise((resolve, reject) => {
+              fetch(RAILWAY_BACKEND_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+              })
+              .then(res => res.json())
+              .then(response => {
+                if (response.success || response.status === 'approved' || response.status === 'pending') {
+                  
+                  if (selectedPaymentMethod === 'bank_transfer' && response.point_of_interaction) {
+                    const pixData = response.point_of_interaction.transaction_data;
+                    const qrCodeBase64 = pixData.qr_code_base64;
+                    const qrCodeCopyPaste = pixData.qr_code;
+
+                    const containerModal = document.getElementById('paymentBrick_container');
+                    containerModal.innerHTML = `
+                      <div style="text-align: center; padding: 20px; color: #fff;">
+                        <h3 style="color: var(--accent-cyan); margin-bottom: 12px; font-size: 18px;"><i class="fa-solid fa-qrcode"></i> Escaneie o QR Code Pix (R$ ${currentCheckoutAmount.toFixed(2)})</h3>
+                        <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">Abra o app do seu banco, escolha Pagar com Pix e aponte a câmera:</p>
+                        <div style="background: #fff; padding: 12px; display: inline-block; border-radius: 12px; margin-bottom: 16px;">
+                          <img src="data:image/png;base64,${qrCodeBase64}" alt="QR Code Pix" style="width: 200px; height: 200px; display: block;">
+                        </div>
+                        <div style="margin-bottom: 16px;">
+                          <label style="font-size: 11px; color: var(--text-secondary); display: block; margin-bottom: 6px; text-transform: uppercase;">Ou copie o código Pix Copia e Cola:</label>
+                          <textarea readonly style="width: 100%; height: 70px; background: rgba(0,0,0,0.5); border: 1px solid var(--glass-border); color: #fff; padding: 8px; border-radius: 8px; font-size: 11px; resize: none;" id="pix-copy-text">${qrCodeCopyPaste}</textarea>
+                          <button class="btn-outline" style="margin-top: 8px; width: 100%; justify-content: center;" onclick="navigator.clipboard.writeText(document.getElementById('pix-copy-text').value); alert('Código Pix copiado com sucesso!');">
+                            <i class="fa-regular fa-copy"></i> Copiar Código Pix
+                          </button>
+                        </div>
+                        <button class="btn" style="width: 100%; margin-top: 10px;" onclick="simulateApprovalForTarget('${targetEmail}')">Simular Pagamento Aprovado</button>
+                      </div>
+                    `;
+                  } else {
+                    simulateApprovalForTarget(targetEmail);
+                  }
+                } else {
+                  alert("Erro ao processar pagamento: " + (response.error || "Tente novamente."));
+                }
+                resolve();
+              })
+              .catch(err => {
+                console.error("Erro:", err);
+                alert("Erro de conexão com o servidor de pagamento.");
+                reject();
+              });
+            });
+          },
+          onError: (error) => { console.error('Erro no Brick:', error); }
+        }
+      };
+
+      paymentBrickController = await bricksBuilder.create('payment', 'paymentBrick_container', settings);
+    } catch (e) {
+      console.error("Erro ao iniciar Checkout Bricks:", e);
+    }
+  }, 200);
+}
+
+async function simulateApprovalForTarget(email) {
+  let uObj = registeredUsers.find(u => u.email === email);
+  if(uObj) {
+    uObj.paid = true;
+    await saveUserToCloud(uObj);
   }
+  showSuccessModal(`Pagamento de R$ ${currentCheckoutAmount.toFixed(2)} aprovado para ${email}!`);
+  closeModal('modal-custom-checkout');
+  currentCheckoutAmount = 29.90;
+  checkoutTargetUser = null;
+  if(currentUser === email) showMemberArea();
+  else if(isAdmin) renderDashboard();
 }
 </script>
 </body>
