@@ -46,7 +46,7 @@
 <style>
 :root {
   --bg-main: #030712;
-  --bg-card: rgba(15, 23, 42, 0.92);
+  --bg-card: rgba(15, 23, 42, 0.88);
   --accent-cyan: #00f0ff;
   --accent-blue: #2563eb;
   --accent-purple: #7c3aed;
@@ -56,9 +56,9 @@
   --green: #10b981;
   --red: #ef4444;
   --glass-border: rgba(255, 255, 255, 0.08);
-  --glass-border-hover: rgba(0, 240, 255, 0.35);
-  --glass-shadow: 0 12px 40px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  --glow-shadow: 0 0 25px rgba(0, 240, 255, 0.35);
+  --glass-border-hover: rgba(0, 240, 255, 0.4);
+  --glass-shadow: 0 16px 40px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  --glow-shadow: 0 0 30px rgba(0, 240, 255, 0.3);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -76,40 +76,43 @@ body {
   line-height: 1.6;
 }
 
-/* Fundo Modern Liquid UI Trend Aurora Gradient Motion */
+/* Novo Fundo Aurora Imersivo Ajustado ao Tema do Site */
 #aurora-bg {
   position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: -3;
-  background: linear-gradient(125deg, #030712 0%, #081126 40%, #0d0922 70%, #030712 100%);
-  background-size: 400% 400%;
-  animation: auroraMotion 18s ease infinite;
+  background: radial-gradient(circle at 15% 20%, rgba(37, 99, 235, 0.15) 0%, transparent 40%),
+              radial-gradient(circle at 85% 80%, rgba(124, 58, 237, 0.15) 0%, transparent 40%),
+              radial-gradient(circle at 50% 50%, rgba(0, 240, 255, 0.08) 0%, transparent 60%),
+              #030712;
+  background-size: 200% 200%;
+  animation: auroraPulse 15s ease infinite alternate;
 }
 
-@keyframes auroraMotion {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+@keyframes auroraPulse {
+  0% { transform: scale(1); filter: brightness(1); }
+  50% { transform: scale(1.05); filter: brightness(1.2); }
+  100% { transform: scale(1); filter: brightness(1); }
 }
 
 #particles-canvas {
-  position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: -1; opacity: 0.65;
+  position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: -1; opacity: 0.5;
 }
 
 .bg-orbs {
   position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: -2; overflow: hidden;
 }
 .orb {
-  position: absolute; border-radius: 50%; filter: blur(140px); opacity: 0.35;
-  animation: float 20s infinite ease-in-out alternate;
+  position: absolute; border-radius: 50%; filter: blur(150px); opacity: 0.25;
+  animation: floatOrb 22s infinite ease-in-out alternate;
 }
-.orb-1 { width: 500px; height: 500px; background: rgba(0, 240, 255, 0.25); top: -10%; left: -10%; }
-.orb-2 { width: 600px; height: 600px; background: rgba(124, 58, 237, 0.25); bottom: -20%; right: -10%; animation-delay: -5s; }
+.orb-1 { width: 450px; height: 450px; background: var(--accent-blue); top: -5%; left: -5%; }
+.orb-2 { width: 550px; height: 550px; background: var(--accent-purple); bottom: -10%; right: -5%; animation-delay: -7s; }
 
-@keyframes float {
+@keyframes floatOrb {
   0% { transform: translate(0, 0) scale(1); }
-  100% { transform: translate(50px, 70px) scale(1.15); }
+  100% { transform: translate(30px, 50px) scale(1.1); }
 }
 
-.animate-fade-up { animation: fadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; transform: translateY(20px); }
+.animate-fade-up { animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; transform: translateY(20px); }
 @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
 
 .wrap { max-width: 1240px; margin: auto; padding: 0 20px; width: 100%; }
@@ -118,7 +121,7 @@ a { text-decoration: none; }
 
 nav {
   position: sticky; top: 0; z-index: 100;
-  background: rgba(3, 7, 18, 0.85);
+  background: rgba(3, 7, 18, 0.88);
   backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--glass-border); padding: 14px 0; transition: all 0.3s;
 }
@@ -233,8 +236,9 @@ section { padding: 70px 0; }
 .faq details[open] summary::after { transform: rotate(180deg); }
 .faq p { color: var(--text-secondary); margin-top: 12px; font-size: 13.5px; border-left: 2px solid var(--accent-cyan); padding-left: 12px; }
 
+/* Checkout Customizado Estilizado (Dark Glassmorphism) */
 .modal-overlay {
-  position: fixed; inset: 0; background: rgba(3, 7, 18, 0.85); backdrop-filter: blur(15px);
+  position: fixed; inset: 0; background: rgba(3, 7, 18, 0.88); backdrop-filter: blur(18px);
   display: flex; align-items: center; justify-content: center; z-index: 1000;
   opacity: 0; pointer-events: none; transition: 0.3s; padding: 16px;
   overflow-y: auto;
@@ -242,13 +246,23 @@ section { padding: 70px 0; }
 .modal-overlay.active { opacity: 1; pointer-events: auto; }
 .modal-card {
   background: var(--bg-card); border: 1px solid var(--glass-border-hover); backdrop-filter: blur(25px);
-  border-radius: 22px; padding: 30px 22px; max-width: 650px; width: 100%; position: relative;
-  box-shadow: 0 30px 60px rgba(0,0,0,0.8), 0 0 40px rgba(0,240,255,0.1); transform: scale(0.95); transition: 0.3s;
+  border-radius: 24px; padding: 32px 24px; max-width: 680px; width: 100%; position: relative;
+  box-shadow: 0 35px 70px rgba(0,0,0,0.85), 0 0 50px rgba(0,240,255,0.15); transform: scale(0.95); transition: 0.3s;
   max-height: 90vh; overflow-y: auto; margin: auto;
 }
 .modal-overlay.active .modal-card { transform: scale(1); }
 .close-btn { position: absolute; top: 16px; right: 16px; background: none; border: none; color: var(--text-muted); font-size: 22px; cursor: pointer; transition: 0.2s; z-index: 10; }
 .close-btn:hover { color: #fff; }
+
+/* Customização dos Campos do Mercado Pago Bricks para combinar com o design */
+#paymentBrick_container {
+  color-scheme: dark;
+}
+#paymentBrick_container .mercadopago-button {
+  background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue)) !important;
+  font-weight: 800 !important;
+  border-radius: 12px !important;
+}
 
 .input-group { margin-bottom: 14px; width: 100%; }
 .input-group label { display: block; font-size: 11.5px; color: var(--text-secondary); margin-bottom: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -288,10 +302,6 @@ section { padding: 70px 0; }
   border: 1px solid var(--glass-border); overflow: hidden; margin-bottom: 22px; box-shadow: 0 15px 40px rgba(0,0,0,0.5);
 }
 .video-frame iframe, .image-frame img { width: 100%; height: 100%; object-fit: cover; }
-.download-box {
-  background: linear-gradient(to right, rgba(16, 185, 129, 0.08), transparent); border: 1px solid rgba(16, 185, 129, 0.3);
-  padding: 18px 20px; border-radius: 14px; display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; margin-top: 22px;
-}
 
 .quiz-container {
   margin-top: 35px;
@@ -389,13 +399,13 @@ footer {
   </div>
 </div>
 
-<!-- Checkout Bricks Interativo (Cartão até 5x e Pix gerado no site) -->
+<!-- Checkout Bricks Interativo Redesenhado -->
 <div class="modal-overlay" id="modal-custom-checkout">
   <div class="modal-card" style="max-width: 650px;">
     <button class="close-btn" onclick="closeCheckoutModalSafe()"><i class="fa-solid fa-xmark"></i></button>
     
     <div style="text-align: center; margin-bottom: 16px; border-bottom: 1px solid var(--glass-border); padding-bottom: 12px;">
-      <span style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; display: block;">Ambiente Seguro de Pagamento</span>
+      <span style="font-size: 11px; color: var(--accent-cyan); text-transform: uppercase; letter-spacing: 1px; display: block; font-weight: 700;">Ambiente Seguro de Pagamento</span>
       <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 18px; color: #fff;">Informática do Zero — R$ 29,90</span>
     </div>
 
@@ -460,7 +470,7 @@ footer {
           <div><i class="fa-solid fa-check"></i> Módulos passo a passo em vídeo</div>
           <div><i class="fa-solid fa-check"></i> Bônus práticos e exclusivos</div>
           <div><i class="fa-solid fa-check"></i> Acesso via celular ou computador</div>
-          <div><i class="fa-solid fa-check"></i> Certificado de Conclusão</div>
+          <div><i class="fa-solid fa-check"></i> Certificado de Conclusão Oficial</div>
         </div>
         <button class="btn" style="width:100%; margin-top:20px;" onclick="openCheckoutModal()">GARANTIR VAGA — R$ 29,90</button>
       </div>
@@ -565,14 +575,14 @@ footer {
   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 26px; flex-wrap: wrap; gap: 14px;">
     <h2 style="margin: 0; font-size: 22px;"><i class="fa-solid fa-gear" style="color: var(--text-secondary);"></i> Painel de Administração</h2>
     <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-      <button class="btn-outline" onclick="switchAdminTab('dashboard')"><i class="fa-solid fa-chart-pie"></i> Dashboard</button>
+      <button class="btn-outline" onclick="switchAdminTab('dashboard')"><i class="fa-solid fa-chart-pie"></i> Dashboard & Alunos</button>
       <button class="btn-outline" onclick="switchAdminTab('modules')"><i class="fa-solid fa-pen-to-square"></i> Editar Conteúdo & Exercícios</button>
     </div>
   </div>
   
   <div class="admin-grid animate-fade-up">
     <div class="glass-panel admin-card" id="admin-tab-dashboard">
-      <h3><i class="fa-solid fa-users"></i> Gestão de Alunos (Nuvem)</h3>
+      <h3><i class="fa-solid fa-users"></i> Gestão, Progresso e Desempenho dos Alunos</h3>
       
       <div class="gateway-metrics">
         <div class="metric-box">
@@ -593,10 +603,11 @@ footer {
         <table class="sales-table">
           <thead>
             <tr>
-              <th><i class="fa-regular fa-user"></i> Nome Completo & E-mail</th>
+              <th><i class="fa-regular fa-user"></i> Aluno (Nome / E-mail)</th>
               <th><i class="fa-solid fa-circle-half-stroke"></i> Status Curso</th>
-              <th><i class="fa-solid fa-certificate"></i> Certificado</th>
-              <th><i class="fa-solid fa-wand-magic-sparkles"></i> Ações</th>
+              <th><i class="fa-solid fa-chart-line"></i> Progresso Aulas</th>
+              <th><i class="fa-solid fa-brain"></i> Desempenho Exercícios</th>
+              <th><i class="fa-solid fa-wand-magic-sparkles"></i> Ações & Liberação</th>
             </tr>
           </thead>
           <tbody id="users-list-body"></tbody>
@@ -733,24 +744,6 @@ footer {
   </div>
 </div>
 
-<div class="modal-overlay" id="modal-cert-data">
-  <div class="modal-card">
-    <button class="close-btn" onclick="closeModal('modal-cert-data')"><i class="fa-solid fa-xmark"></i></button>
-    <div style="text-align: center; margin-bottom: 20px;">
-      <i class="fa-solid fa-award" style="font-size: 40px; color: var(--accent-cyan); margin-bottom: 8px;"></i>
-      <h3 style="font-size: 19px;">Dados para o Certificado</h3>
-      <p style="font-size: 13px; color: var(--text-secondary); margin-top: 6px;">Confirme seu CPF para emissão do certificado oficial.</p>
-    </div>
-    <form onsubmit="handleSaveCertData(event)">
-      <div class="input-group">
-        <label>CPF</label>
-        <input type="text" id="cert-cpf" placeholder="Ex: 000.000.000-00" required>
-      </div>
-      <button type="submit" class="btn" style="width: 100%; margin-top: 8px;">Salvar e Enviar</button>
-    </form>
-  </div>
-</div>
-
 <footer>
   <div class="wrap">
     <div class="footer-social">
@@ -776,10 +769,10 @@ class Particle {
   constructor() {
     this.x = Math.random() * canvas.width;
     this.y = Math.random() * canvas.height;
-    this.size = Math.random() * 2.5 + 0.8;
-    this.speedX = (Math.random() - 0.5) * 0.4;
-    this.speedY = (Math.random() - 0.5) * 0.4;
-    this.opacity = Math.random() * 0.6 + 0.2;
+    this.size = Math.random() * 2 + 0.6;
+    this.speedX = (Math.random() - 0.5) * 0.3;
+    this.speedY = (Math.random() - 0.5) * 0.3;
+    this.opacity = Math.random() * 0.5 + 0.2;
   }
   update() {
     this.x += this.speedX; this.y += this.speedY;
@@ -793,7 +786,7 @@ class Particle {
 }
 function initParticles() {
   particlesArray = [];
-  let numberOfParticles = Math.floor((canvas.width * canvas.height) / 9000);
+  let numberOfParticles = Math.floor((canvas.width * canvas.height) / 11000);
   for (let i = 0; i < numberOfParticles; i++) particlesArray.push(new Particle());
 }
 function animateParticles() {
@@ -817,6 +810,7 @@ const TARGET_EMAIL = "olliveirazvz@gmail.com";
 let courseData = [];
 let registeredUsers = [];
 let completedLessons = JSON.parse(localStorage.getItem('user_completed_lessons')) || {};
+let quizStatsStorage = JSON.parse(localStorage.getItem('user_quiz_stats')) || {};
 let currentUser = null;
 let isAdmin = false;
 let videoWatchedState = {};
@@ -1017,7 +1011,7 @@ async function handleLogin(e) {
   if (em === TARGET_EMAIL && pw === "478") {
     let adminObj = registeredUsers.find(u => u.email === TARGET_EMAIL);
     if(!adminObj) {
-      adminObj = { email: TARGET_EMAIL, paid: true, role: "admin", fullname: "Administrador Geral", cpf: "000.000.000-00", certReleased: true };
+      adminObj = { email: TARGET_EMAIL, paid: true, role: "admin", fullname: "Administrador Geral", certReleased: true };
       await saveUserToCloud(adminObj);
     }
     setAuthSession(em, true); showAdminArea(); return;
@@ -1082,7 +1076,7 @@ async function handleRegister(e) {
 
   try {
     await createUserWithEmailAndPassword(window.auth, em, pw);
-    let newUser = { email: em, paid: false, role: 'student', fullname: fullname, cpf: '', certReleased: false };
+    let newUser = { email: em, paid: false, role: 'student', fullname: fullname, certReleased: false };
     await saveUserToCloud(newUser);
     setAuthSession(em, false);
     showPublicSite();
@@ -1318,26 +1312,39 @@ function loadLessonContent(modId, lessonId) {
   let next = null; let found = false;
   let totalLessonsCount = 0;
   let completedCount = 0;
+  let totalQuizCount = 0;
+  let answeredQuizCount = 0;
   
   courseData.forEach(m => m.lessons?.forEach(l => {
     totalLessonsCount++;
     if(completedLessons[currentUser] && completedLessons[currentUser][l.id]) completedCount++;
+    if(l.quiz && l.quiz.question) {
+      totalQuizCount++;
+      if(quizStatsStorage[currentUser] && quizStatsStorage[currentUser][l.id]?.answered) answeredQuizCount++;
+    }
     if(found && !next) next = {m:m.id, l:l.id};
     if(l.id === lesson.id) found=true;
   }));
   
   const isDone = completedLessons[currentUser] && completedLessons[currentUser][lesson.id];
-  const allFinished = (totalLessonsCount > 0 && completedCount >= totalLessonsCount);
+  const allLessonsFinished = (totalLessonsCount > 0 && completedCount >= totalLessonsCount);
+  const allQuizFinished = (totalQuizCount === 0 || answeredQuizCount >= totalQuizCount);
+  const courseFullyCompleted = allLessonsFinished && allQuizFinished;
 
   let uObj = registeredUsers.find(u => u.email === currentUser);
   let certReleasedByAdmin = uObj?.certReleased || false;
-  let hasCpf = uObj?.cpf && uObj.cpf.length >= 10;
 
   let quizHtml = '';
   if (lesson.quiz && lesson.quiz.question) {
     let optionsHtml = '';
+    let isQuizAlreadyAnswered = quizStatsStorage[currentUser] && quizStatsStorage[currentUser][lesson.id]?.answered;
+
     lesson.quiz.options.forEach((opt, idx) => {
-      optionsHtml += `<button class="quiz-option-btn" onclick="checkQuizAnswer(this, ${idx}, ${lesson.quiz.correct}, ${mod.id}, ${lesson.id}, ${next ? next.m : 'null'}, ${next ? next.l : 'null'})">
+      let extraClass = '';
+      if (isQuizAlreadyAnswered) {
+        if (idx === lesson.quiz.correct) extraClass = 'correct';
+      }
+      optionsHtml += `<button class="quiz-option-btn ${extraClass}" ${isQuizAlreadyAnswered ? 'disabled' : ''} onclick="checkQuizAnswer(this, ${idx}, ${lesson.quiz.correct}, ${mod.id}, ${lesson.id}, ${next ? next.m : 'null'}, ${next ? next.l : 'null'})">
         <span>${String.fromCharCode(65 + idx)}) ${opt}</span>
       </button>`;
     });
@@ -1346,7 +1353,7 @@ function loadLessonContent(modId, lessonId) {
 
     quizHtml = `
       <div class="quiz-container" id="quiz-block-${lesson.id}" style="display: block;">
-        <div class="quiz-header-badge"><i class="fa-solid fa-brain"></i> Exercício de Fixação</div>
+        <div class="quiz-header-badge"><i class="fa-solid fa-brain"></i> Exercício Obrigatório de Fixação</div>
         
         <div id="quiz-locked-notice-${lesson.id}" style="padding: 14px; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 12px; margin-bottom: 14px; font-size: 13px; color: #f87171; display: ${isUnlocked ? 'none' : 'block'};">
           <i class="fa-solid fa-lock" style="margin-right: 6px;"></i> Assista ao vídeo da aula para liberar os exercícios.
@@ -1355,33 +1362,27 @@ function loadLessonContent(modId, lessonId) {
         <div id="quiz-content-body-${lesson.id}" style="opacity: ${isUnlocked ? '1' : '0.3'}; pointer-events: ${isUnlocked ? 'auto' : 'none'}; transition: 0.3s;">
           <div class="quiz-question-title">${lesson.quiz.question}</div>
           <div class="quiz-options-list">${optionsHtml}</div>
-          <div class="quiz-feedback" id="quiz-feedback-${lesson.id}"></div>
+          <div class="quiz-feedback" id="quiz-feedback-${lesson.id}" style="${isQuizAlreadyAnswered ? 'display: flex;' : ''}">${isQuizAlreadyAnswered ? '<i class="fa-solid fa-circle-check"></i> Exercício já respondido com sucesso!' : ''}</div>
         </div>
       </div>
     `;
   }
 
   let certificateSectionHtml = '';
-  if (allFinished) {
-    if (!hasCpf) {
-      certificateSectionHtml = `
-        <div style="margin-top: 30px; padding: 24px; background: rgba(0,240,255,0.05); border: 1px dashed var(--accent-cyan); border-radius: 16px; text-align: center;">
-          <h4 style="color: var(--accent-cyan); margin-bottom: 8px;"><i class="fa-solid fa-certificate"></i> Parabéns por concluir todas as aulas!</h4>
-          <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">Para emitir o seu certificado oficial, informe seu CPF.</p>
-          <button class="btn" style="background: linear-gradient(135deg, #10b981, #059669); color:#fff;" onclick="openModal('modal-cert-data')"><i class="fa-solid fa-user-pen"></i> Informar CPF para Certificado</button>
-        </div>
-      `;
-    } else {
-      if (certReleasedByAdmin) {
-        certificateSectionHtml = `
-          <div style="margin-top: 30px; padding: 24px; background: rgba(16,185,129,0.1); border: 1px solid var(--green); border-radius: 16px; text-align: center;">
-            <h4 style="color: var(--green); margin-bottom: 8px;"><i class="fa-solid fa-award"></i> Certificado Liberado!</h4>
-            <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">Emitido para: <strong>${uObj.fullname || currentUser}</strong> (CPF: ${uObj.cpf})</p>
-            <button class="btn" style="background: linear-gradient(135deg, #10b981, #059669); color:#fff;" onclick="generateOfficialCertificatePDF('${uObj.fullname || currentUser}', '${uObj.cpf}')"><i class="fa-solid fa-download"></i> Baixar Meu Certificado em PDF</button>
-          </div>
-        `;
-      }
-    }
+  if (courseFullyCompleted || certReleasedByAdmin) {
+    certificateSectionHtml = `
+      <div style="margin-top: 30px; padding: 24px; background: rgba(16,185,129,0.1); border: 1px solid var(--green); border-radius: 16px; text-align: center;">
+        <h4 style="color: var(--green); margin-bottom: 8px;"><i class="fa-solid fa-award"></i> Parabéns! Curso Concluído com Sucesso!</h4>
+        <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">Todas as aulas e exercícios foram finalizados para: <strong>${uObj?.fullname || currentUser}</strong></p>
+        <button class="btn" style="background: linear-gradient(135deg, #10b981, #059669); color:#fff;" onclick="generateOfficialCertificatePDF('${uObj?.fullname || currentUser}')"><i class="fa-solid fa-download"></i> Baixar Certificado Oficial em PDF</button>
+      </div>
+    `;
+  } else {
+    certificateSectionHtml = `
+      <div style="margin-top: 30px; padding: 20px; background: rgba(255,255,255,0.02); border: 1px dashed var(--glass-border); border-radius: 16px; text-align: center;">
+        <p style="font-size: 12.5px; color: var(--text-muted);"><i class="fa-solid fa-lock" style="color:var(--accent-cyan);"></i> O Certificado Oficial será liberado automaticamente após concluir todas as aulas e responder todos os exercícios de fixação.</p>
+      </div>
+    `;
   }
   
   container.innerHTML = `
@@ -1425,14 +1426,19 @@ function checkQuizAnswer(buttonElem, selectedIdx, correctIdx, modId, lessonId, n
 
   allBtns.forEach(btn => btn.disabled = true);
 
+  if(!quizStatsStorage[currentUser]) quizStatsStorage[currentUser] = {};
+  if(!quizStatsStorage[currentUser][lessonId]) quizStatsStorage[currentUser][lessonId] = { answered: true, errors: 0, correct: 0 };
+
   if (selectedIdx === correctIdx) {
     buttonElem.classList.add('correct');
     feedbackDiv.innerHTML = `<i class="fa-solid fa-circle-check"></i> Resposta correta!`;
     feedbackDiv.className = 'quiz-feedback success';
+    quizStatsStorage[currentUser][lessonId].correct = 1;
 
     if(!completedLessons[currentUser]) completedLessons[currentUser] = {};
     completedLessons[currentUser][lessonId] = true;
     localStorage.setItem('user_completed_lessons', JSON.stringify(completedLessons));
+    localStorage.setItem('user_quiz_stats', JSON.stringify(quizStatsStorage));
     renderMemberSidebar();
 
     const footerContainer = document.getElementById('lesson-action-footer');
@@ -1450,48 +1456,72 @@ function checkQuizAnswer(buttonElem, selectedIdx, correctIdx, modId, lessonId, n
     allBtns[correctIdx].classList.add('correct');
     feedbackDiv.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> Resposta incorreta.`;
     feedbackDiv.className = 'quiz-feedback error';
+    quizStatsStorage[currentUser][lessonId].errors = (quizStatsStorage[currentUser][lessonId].errors || 0) + 1;
+    localStorage.setItem('user_quiz_stats', JSON.stringify(quizStatsStorage));
   }
 }
 
-function generateOfficialCertificatePDF(studentName, studentCpf) {
+// Geração do PDF do Certificado baseado exatamente no layout do usuário[cite: 1]
+function generateOfficialCertificatePDF(studentName) {
   const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+  const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+  
+  // Fundo Azul Escuro Profissional idêntico ao modelo
   doc.setFillColor(3, 7, 18);
-  doc.rect(0, 0, 210, 297, 'F');
+  doc.rect(0, 0, 297, 210, 'F');
+
+  // Borda Neon Cyan
   doc.setDrawColor(0, 240, 255);
   doc.setLineWidth(0.8);
-  doc.roundedRect(12, 12, 186, 273, 4, 4);
+  doc.roundedRect(12, 12, 273, 186, 3, 3);
+
+  // Título e Cabeçalho
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(22);
+  doc.setTextColor(0, 240, 255);
+  doc.text("IDZ", 148.5, 30, { align: "center" });
+
+  doc.setFontSize(10);
+  doc.setTextColor(255, 255, 255);
+  doc.text("INFORMÁTICA DO ZERO", 148.5, 36, { align: "center" });
 
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(16);
+  doc.setFontSize(15);
   doc.setTextColor(255, 255, 255);
-  doc.text("CERTIFICADO DE CONCLUSÃO", 105, 50, { align: "center" });
+  doc.text("CERTIFICADO DE CONCLUSÃO", 148.5, 52, { align: "center" });
 
   doc.setFont("helvetica", "normal");
-  doc.setFontSize(12);
+  doc.setFontSize(11);
   doc.setTextColor(148, 163, 184);
-  doc.text("Certificamos que o aluno:", 105, 75, { align: "center" });
+  doc.text("Certificamos que o aluno:", 148.5, 68, { align: "center" });
+
+  // Nome do Aluno Editável em Destaque
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(24);
+  doc.setTextColor(0, 240, 255);
+  doc.text(studentName.toUpperCase(), 148.5, 82, { align: "center" });
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(11);
+  doc.setTextColor(148, 163, 184);
+  doc.text("concluiu com êxito o curso de formação completa", 148.5, 96, { align: "center" });
 
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(20);
+  doc.setFontSize(14);
   doc.setTextColor(255, 255, 255);
-  doc.text(studentName.toUpperCase(), 105, 90, { align: "center" });
+  doc.text("INFORMÁTICA DO ZERO", 148.5, 105, { align: "center" });
 
-  doc.save(`Certificado_${studentName.replace(/\s+/g, '_')}.pdf`);
-}
+  // Rodapé com Data Atual e Número de Certificado Aleatório Seguro
+  const today = new Date().toLocaleDateString('pt-BR');
+  const randomCertId = 'IDZ-' + Math.floor(100000 + Math.random() * 900000) + '-X';
 
-async function handleSaveCertData(e) {
-  e.preventDefault();
-  const fcpf = document.getElementById('cert-cpf').value.trim();
-  if(!fcpf) return alert("Preencha o CPF.");
-  let uObj = registeredUsers.find(u => u.email === currentUser);
-  if(uObj) {
-    uObj.cpf = fcpf;
-    await saveUserToCloud(uObj);
-    showSuccessModal("CPF salvo com sucesso!");
-    closeModal('modal-cert-data');
-    showMemberArea();
-  }
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(10);
+  doc.setTextColor(148, 163, 184);
+  doc.text(`Carga Horária: 12 Horas  |  Data de Conclusão: ${today}`, 148.5, 135, { align: "center" });
+  doc.text(`N° do Certificado: ${randomCertId}`, 148.5, 145, { align: "center" });
+
+  doc.save(`Certificado_Informatica_Do_Zero_${studentName.replace(/\s+/g, '_')}.pdf`);
 }
 
 function switchAdminTab(t) {
@@ -1505,16 +1535,50 @@ function renderDashboard() {
   document.getElementById('admin-total-modules').innerHTML = `${courseData.length}`;
   const tbody = document.getElementById('users-list-body'); tbody.innerHTML = '';
   
+  let totalLessonsInCourse = 0;
+  let totalQuizInCourse = 0;
+  courseData.forEach(m => {
+    if(m.lessons) {
+      totalLessonsInCourse += m.lessons.length;
+      m.lessons.forEach(l => {
+        if(l.quiz && l.quiz.question) totalQuizInCourse++;
+      });
+    }
+  });
+
   registeredUsers.forEach((u) => {
+    let studentEmail = u.email;
+    let userCompleted = completedLessons[studentEmail] || {};
+    let userQuiz = quizStatsStorage[studentEmail] || {};
+
+    let lessonsDoneCount = Object.keys(userCompleted).length;
+    let lessonProgressPercent = totalLessonsInCourse > 0 ? Math.round((lessonsDoneCount / totalLessonsInCourse) * 100) : 0;
+    if(lessonProgressPercent > 100) lessonProgressPercent = 100;
+
+    let quizAnsweredCount = Object.keys(userQuiz).length;
+    let correctQuizCount = 0;
+    let errorQuizCount = 0;
+    Object.values(userQuiz).forEach(q => {
+      if(q.correct) correctQuizCount++;
+      if(q.errors) errorQuizCount += q.errors;
+    });
+
     let studentInfo = `<div style="font-weight:600; color:#fff;">${u.fullname || 'Nome não informado'}</div>`;
-    studentInfo += `<div style="font-size:11px; color:var(--accent-cyan);">E-mail: ${u.email} | CPF: ${u.cpf || 'Não informado'}</div>`;
+    studentInfo += `<div style="font-size:11px; color:var(--accent-cyan);">E-mail: ${studentEmail}</div>`;
+
+    let progressHtml = `<div style="font-size:12px; color:#fff; font-weight:600;">${lessonsDoneCount} / ${totalLessonsInCourse} aulas (${lessonProgressPercent}%)</div>`;
+    let quizHtml = `<div style="font-size:11.5px; color:var(--text-secondary);">Respondidos: ${quizAnsweredCount}/${totalQuizInCourse}<br><span style="color:var(--green);">Acertos: ${correctQuizCount}</span> | <span style="color:var(--red);">Erros: ${errorQuizCount}</span></div>`;
 
     tbody.innerHTML += `<tr>
       <td>${studentInfo}</td>
       <td><span class="badge-status" style="${u.paid?'background:rgba(16,185,129,0.2); color:var(--green);':'background:rgba(239,68,68,0.2); color:var(--red);'}">${u.paid?'Pago':'Pendente'}</span></td>
-      <td>${u.certReleased ? 'Liberado' : 'Pendente'}</td>
+      <td>${progressHtml}</td>
+      <td>${quizHtml}</td>
       <td>
-        ${!u.paid ? `<button class="btn-outline" style="border-color:var(--green); color:var(--green); padding:4px 8px;" onclick="approveUser('${u.email}')"><i class="fa-solid fa-check"></i> Pagto</button>`:''}
+        <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+          ${!u.paid ? `<button class="btn-outline" style="border-color:var(--green); color:var(--green); padding:4px 8px;" onclick="approveUser('${studentEmail}')"><i class="fa-solid fa-check"></i> Pagto</button>`:''}
+          <button class="btn-outline" style="border-color:var(--accent-cyan); color:var(--accent-cyan); padding:4px 8px;" onclick="adminCompleteAllForUser('${studentEmail}')"><i class="fa-solid fa-wand-magic-sparkles"></i> Concluir Tudo</button>
+        </div>
       </td>
     </tr>`;
   });
@@ -1528,6 +1592,27 @@ async function approveUser(email) {
     showSuccessModal("Pagamento aprovado!"); 
     renderDashboard(); 
   }
+}
+
+function adminCompleteAllForUser(email) {
+  if(!completedLessons[email]) completedLessons[email] = {};
+  if(!quizStatsStorage[email]) quizStatsStorage[email] = {};
+
+  courseData.forEach(m => {
+    if(m.lessons) {
+      m.lessons.forEach(l => {
+        completedLessons[email][l.id] = true;
+        if(l.quiz && l.quiz.question) {
+          quizStatsStorage[email][l.id] = { answered: true, errors: 0, correct: 1 };
+        }
+      });
+    }
+  });
+
+  localStorage.setItem('user_completed_lessons', JSON.stringify(completedLessons));
+  localStorage.setItem('user_quiz_stats', JSON.stringify(quizStatsStorage));
+  showSuccessModal(`Todas as aulas e exercícios de ${email} foram concluídos com sucesso!`);
+  renderDashboard();
 }
 
 function populateLessonModuleSelect(){
@@ -1679,8 +1764,20 @@ function moveLesson(modIndex, lessonIndex, direction) {
   renderAdminModules();
 }
 
-// Inicialização do Checkout Bricks (Cartão até 5x e Pix direto no site)
+// Inicialização Segura do Checkout Bricks Integrado com Backend
 async function openCheckoutModal() {
+  if (!currentUser) {
+    alert("Você precisa estar logado para realizar a compra do curso!");
+    openAuthModal('login');
+    return;
+  }
+
+  let uObj = registeredUsers.find(u => u.email === currentUser);
+  if(isAdmin || uObj?.paid){ 
+    showMemberArea(); 
+    return; 
+  }
+
   openModal('modal-custom-checkout');
 
   setTimeout(async () => {
@@ -1727,8 +1824,8 @@ async function openCheckoutModal() {
               })
               .then((response) => response.json())
               .then((response) => {
-                if (response.success || response.init_point) {
-                  showSuccessModal("Pagamento processado com sucesso!");
+                if (response.success || response.status === 'approved') {
+                  showSuccessModal("Pagamento aprovado com sucesso! Acesso liberado.");
                   closeModal('modal-custom-checkout');
                   if (currentUser) {
                     let userObj = registeredUsers.find(u => u.email === currentUser);
@@ -1736,15 +1833,13 @@ async function openCheckoutModal() {
                   }
                   showMemberArea();
                 } else {
-                  showSuccessModal("Pedido enviado! Acompanhe a liberação.");
-                  closeModal('modal-custom-checkout');
+                  alert("Aguardando confirmação do pagamento ou transação recusada. Verifique os dados.");
                 }
                 resolve();
               })
               .catch((error) => {
                 console.error("Erro no checkout:", error);
-                showSuccessModal("Dados enviados com sucesso para o processamento!");
-                closeModal('modal-custom-checkout');
+                alert("Erro ao processar pagamento com o servidor. Tente novamente.");
                 reject();
               });
             });
@@ -1764,7 +1859,7 @@ async function openCheckoutModal() {
     } catch (e) {
       console.error("Erro ao carregar Checkout Bricks:", e);
     }
-  }, 250);
+  }, 200);
 }
 </script>
 </body>
