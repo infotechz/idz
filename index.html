@@ -1806,7 +1806,7 @@ function deleteLesson(modId, lessonId) {
   }
 }
 
-// Checkout com verificação automática de aprovação (Pix e Cartão)
+// Checkout com verificação automática de aprovação (Pix e Cartão) via Back-end
 async function openCheckoutModal() {
   let targetEmail = checkoutTargetUser || currentUser;
   if (!targetEmail) {
@@ -1852,9 +1852,13 @@ async function openCheckoutModal() {
               })
               .then(res => res.json())
               .then(response => {
-                if (response.success || response.status === 'approved' || response.status === 'pending') {
-                  
-                  if (selectedPaymentMethod === 'bank_transfer' && response.point_of_interaction) {
+                if (response.success) {
+                  // Se o pagamento for aprovado de imediato (Cartão ou Pix instantâneo)
+                  if (response.status === 'approved') {
+                    simulateApprovalForTarget(targetEmail);
+                  } 
+                  // Se for Pix pendente, exibe o QR Code e verifica automaticamente
+                  else if (selectedPaymentMethod === 'bank_transfer' && response.point_of_interaction) {
                     const pixData = response.point_of_interaction.transaction_data;
                     const qrCodeBase64 = pixData.qr_code_base64;
                     const qrCodeCopyPaste = pixData.qr_code;
@@ -1880,23 +1884,20 @@ async function openCheckoutModal() {
                       </div>
                     `;
 
-                    // Polling automático para checar status do pagamento Pix
+                    // Consulta periódica segura via back-end para liberar assim que pago
                     if(paymentId) {
                       activePaymentInterval = setInterval(async () => {
                         try {
-                          let checkRes = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
-                            headers: { 'Authorization': `Bearer ${PUBLIC_KEY_MP}` }
-                          });
+                          let checkRes = await fetch(RAILWAY_BACKEND_URL.replace('/criar-pagamento', `/verificar-pagamento/${paymentId}`));
                           let checkData = await checkRes.json();
                           if(checkData.status === 'approved') {
                             clearInterval(activePaymentInterval);
                             activePaymentInterval = null;
                             simulateApprovalForTarget(targetEmail);
                           }
-                        } catch(e) { console.error("Erro ao checar status:", e); }
+                        } catch(e) { /* silencia erro de rede temporário */ }
                       }, 4000);
                     }
-
                   } else {
                     simulateApprovalForTarget(targetEmail);
                   }
@@ -1930,7 +1931,7 @@ async function simulateApprovalForTarget(email) {
     uObj.paid = true;
     await saveUserToCloud(uObj);
   }
-  showSuccessModal(`Pagamento de R$ ${currentCheckoutAmount.toFixed(2)} aprovado para ${email}!`);
+  showSuccessModal(`Pagamento aprovado com sucesso para ${email}! Suas aulas foram liberadas.`);
   closeModal('modal-custom-checkout');
   currentCheckoutAmount = 29.90;
   checkoutTargetUser = null;
