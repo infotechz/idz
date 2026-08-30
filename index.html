@@ -12,6 +12,9 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
+<!-- SDK Oficial do Mercado Pago para Checkout Bricks -->
+<script src="https://sdk.mercadopago.com/js/v2"></script>
+
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
   import { getFirestore, collection, doc, setDoc, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -224,7 +227,7 @@ section { padding: 70px 0; }
 .modal-overlay.active { opacity: 1; pointer-events: auto; }
 .modal-card {
   background: var(--bg-card); border: 1px solid var(--glass-border-hover); backdrop-filter: blur(25px);
-  border-radius: 22px; padding: 30px 22px; max-width: 540px; width: 100%; position: relative;
+  border-radius: 22px; padding: 30px 22px; max-width: 600px; width: 100%; position: relative;
   box-shadow: 0 30px 60px rgba(0,0,0,0.8), 0 0 40px rgba(0,240,255,0.1); transform: scale(0.95); transition: 0.3s;
   max-height: 90vh; overflow-y: auto; margin: auto;
 }
@@ -372,70 +375,19 @@ footer {
   </div>
 </div>
 
-<!-- Checkout interativo conectado ao Back-end da Railway e Mercado Pago -->
+<!-- Checkout Bricks Interativo (Cartão até 5x e Pix direto no site) -->
 <div class="modal-overlay" id="modal-custom-checkout">
-  <div class="modal-card">
+  <div class="modal-card" style="max-width: 650px;">
     <button class="close-btn" onclick="closeModal('modal-custom-checkout')"><i class="fa-solid fa-xmark"></i></button>
     
     <div style="text-align: center; margin-bottom: 16px; border-bottom: 1px solid var(--glass-border); padding-bottom: 12px;">
-      <span style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; display: block;">Você está adquirindo:</span>
-      <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 18px; color: #fff;">Informática do Zero</span>
+      <span style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; display: block;">Ambiente Seguro de Pagamento</span>
+      <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 18px; color: #fff;">Informática do Zero — R$ 29,90</span>
     </div>
 
-    <!-- Etapa 1: Dados Pessoais -->
-    <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); padding: 14px; border-radius: 14px; margin-bottom: 12px;">
-      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px; color: var(--accent-cyan); font-weight: 700; font-size: 12.5px;">
-        <span style="width: 20px; height: 20px; background: rgba(0,240,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px;">1</span> Dados Pessoais (Obrigatório)
-      </div>
+    <!-- Onde o Mercado Pago renderiza os Bricks (Cartão/Pix) -->
+    <div id="paymentBrick_container"></div>
 
-      <div class="input-group">
-        <label>Nome Completo (Nome e Sobrenome)</label>
-        <input type="text" id="checkout-name-input" placeholder="Digite seu nome completo real">
-      </div>
-
-      <div class="input-group">
-        <label>E-mail de Acesso</label>
-        <input type="email" id="checkout-email-input" placeholder="seu@email.com">
-      </div>
-
-      <div class="input-group" style="margin-bottom: 0;">
-        <label>CPF</label>
-        <input type="text" id="checkout-cpf-input" placeholder="000.000.000-00" maxlength="14">
-      </div>
-    </div>
-
-    <!-- Etapa 2: Forma de Pagamento -->
-    <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); padding: 14px; border-radius: 14px; margin-bottom: 16px;">
-      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px; color: var(--accent-cyan); font-weight: 700; font-size: 12.5px;">
-        <span style="width: 20px; height: 20px; background: rgba(0,240,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px;">2</span> Forma de Pagamento
-      </div>
-
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
-        <button type="button" class="btn-outline" id="pay-opt-pix" style="justify-content: center; border-color: var(--accent-cyan); background: rgba(0,240,255,0.1);" onclick="selectPaymentMethod('pix')">
-          <i class="fa-brands fa-pix" style="color: #32BCAD;"></i> Pix Imediato
-        </button>
-        <button type="button" class="btn-outline" id="pay-opt-card" style="justify-content: center;" onclick="selectPaymentMethod('card')">
-          <i class="fa-regular fa-credit-card"></i> Cartão de Crédito
-        </button>
-      </div>
-
-      <!-- Informação do Mercado Pago -->
-      <div id="mercadopago-info-box" style="margin-top: 10px; font-size: 12px; color: var(--text-secondary); background: rgba(0,240,255,0.03); padding: 10px; border-radius: 10px; border: 1px solid rgba(0,240,255,0.15);">
-        <i class="fa-solid fa-bolt" style="color: var(--accent-cyan); margin-right: 4px;"></i> Processado de forma segura via Mercado Pago (Chave API configurada).
-      </div>
-
-      <div style="display: flex; justify-content: space-between; align-items: center; font-size: 14px; background: rgba(255,255,255,0.02); padding: 10px 12px; border-radius: 10px; margin-top: 12px;">
-        <span style="color: var(--text-secondary);">Total Hoje:</span>
-        <strong style="color: var(--green); font-size: 18px;">R$ 29,90</strong>
-      </div>
-    </div>
-
-    <button class="btn" style="width: 100%; padding: 15px; font-size: 14px;" onclick="proceedToPaymentGateway()">
-      <i class="fa-solid fa-lock"></i> Finalizar Pagamento com Segurança
-    </button>
-    <div style="text-align: center; font-size: 11px; color: var(--text-muted); margin-top: 10px;">
-      <i class="fa-solid fa-shield-halved"></i> Integração segura via API Railway & Mercado Pago.
-    </div>
   </div>
 </div>
 
@@ -530,13 +482,13 @@ footer {
           <span class="old-price">R$ 59,90</span>
           <span class="new-price">R$ 29,90</span>
         </div>
-        <p style="color: var(--text-secondary); margin-bottom: 26px; font-size: 13.5px;"><i class="fa-solid fa-lock"></i> Pagamento 100% seguro via Mercado Pago</p>
+        <p style="color: var(--text-secondary); margin-bottom: 26px; font-size: 13.5px;"><i class="fa-solid fa-lock"></i> Pagamento 100% seguro via Checkout Transparente</p>
         <button class="btn" style="width: 100%; max-width: 380px; font-size: 14.5px; padding: 16px;" onclick="openCheckoutModal()">
           COMPRAR AGORA E COMEÇAR <i class="fa-solid fa-arrow-right"></i>
         </button>
         <div style="font-size: 12px; color: var(--text-muted); margin-top: 18px; display: flex; justify-content: center; gap: 16px;">
           <span><i class="fa-brands fa-pix" style="color: #32BCAD;"></i> Pix Imediato</span>
-          <span><i class="fa-regular fa-credit-card"></i> Cartão de Crédito</span>
+          <span><i class="fa-regular fa-credit-card"></i> Cartão em até 5x</span>
         </div>
       </div>
     </div>
@@ -547,9 +499,9 @@ footer {
       <div class="section-header" style="margin-bottom: 28px;">
         <h2>Perguntas Frequentes</h2>
       </div>
-      <details class="glass-panel"><summary>Como funciona o acesso às aulas?</summary><p>Após o pagamento via Mercado Pago, seu e-mail será liberado automaticamente. Basta fazer login e acessar a Área de Membros.</p></details>
+      <details class="glass-panel"><summary>Como funciona o acesso às aulas?</summary><p>Após a aprovação do pagamento, seu e-mail será liberado automaticamente. Basta fazer login e acessar a Área de Membros.</p></details>
       <details class="glass-panel"><summary>Preciso de um computador potente?</summary><p>Não! O curso ensina fundamentos que podem ser aplicados em qualquer computador, notebook ou até mesmo pelo celular para assistir às aulas teóricas.</p></details>
-      <details class="glass-panel"><summary>Os materiais têm custo extra?</summary><p>Não. Todos os PDFs, modelos de currículo e planilhas bônus já estão inclusos no valor único do curso e disponíveis para download imediato.</p></details>
+      <details class="glass-panel"><summary>Os materiais têm custo extra?</summary><p>Não. Todos los PDFs, modelos de currículo e planilhas bônus já estão inclusos no valor único do curso e disponíveis para download imediato.</p></details>
     </div>
   </section>
 </div>
@@ -826,7 +778,7 @@ footer {
 </footer>
 
 <script>
-const MERCADO_PAGO_API_KEY = "de8ec376e1abaf49b242c02d1edc9c9341568b6e77588c5566d8275acf0f7522";
+const PUBLIC_KEY_MP = "APP_USR-0af39126-fabc-4dd9-bbe2-90bbf9fe1521";
 const RAILWAY_BACKEND_URL = "https://backend-informatica-do-zero-production.up.railway.app/criar-pagamento";
 
 const canvas = document.getElementById('particles-canvas');
@@ -885,7 +837,7 @@ let completedLessons = JSON.parse(localStorage.getItem('user_completed_lessons')
 let currentUser = null;
 let isAdmin = false;
 let videoWatchedState = {};
-let selectedPaymentType = 'pix';
+let paymentBrickController = null;
 
 window.onload = function() {
   const rememberedEmail = localStorage.getItem('remembered_email');
@@ -1167,90 +1119,6 @@ function handleLogoClick() {
   }
 }
 
-function selectPaymentMethod(method) {
-  selectedPaymentType = method;
-  const pixBtn = document.getElementById('pay-opt-pix');
-  const cardBtn = document.getElementById('pay-opt-card');
-
-  if (method === 'pix') {
-    pixBtn.style.borderColor = 'var(--accent-cyan)';
-    pixBtn.style.background = 'rgba(0,240,255,0.1)';
-    cardBtn.style.borderColor = 'var(--glass-border)';
-    cardBtn.style.background = 'rgba(255,255,255,0.03)';
-  } else {
-    cardBtn.style.borderColor = 'var(--accent-cyan)';
-    cardBtn.style.background = 'rgba(0,240,255,0.1)';
-    pixBtn.style.borderColor = 'var(--glass-border)';
-    pixBtn.style.background = 'rgba(255,255,255,0.03)';
-  }
-}
-
-function openCheckoutModal() {
-  let uObj = currentUser ? registeredUsers.find(u => u.email === currentUser) : null;
-  if(currentUser && (isAdmin || uObj?.paid)){ showMemberArea(); return; }
-  
-  if(currentUser) {
-    document.getElementById('checkout-email-input').value = currentUser;
-    if(uObj && uObj.fullname) document.getElementById('checkout-name-input').value = uObj.fullname;
-    if(uObj && uObj.cpf) document.getElementById('checkout-cpf-input').value = uObj.cpf;
-  }
-  openModal('modal-custom-checkout');
-}
-
-// INTEGRAÇÃO COM O BACK-END NA RAILWAY E MERCADO PAGO USANDO A API KEY
-async function proceedToPaymentGateway() {
-  const nameVal = document.getElementById('checkout-name-input').value.trim();
-  const emailVal = document.getElementById('checkout-email-input').value.trim();
-  const cpfVal = document.getElementById('checkout-cpf-input').value.trim();
-
-  if (!isValidFullName(nameVal)) {
-    alert("Por favor, digite seu Nome Completo real (Nome e Sobrenome válidos).");
-    document.getElementById('checkout-name-input').focus();
-    return;
-  }
-
-  if (!emailVal || !emailVal.includes('@')) {
-    alert("Por favor, digite um e-mail válido.");
-    document.getElementById('checkout-email-input').focus();
-    return;
-  }
-
-  if (!cpfVal || cpfVal.length < 11) {
-    alert("Por favor, digite um CPF válido.");
-    document.getElementById('checkout-cpf-input').focus();
-    return;
-  }
-
-  try {
-    const response = await fetch(RAILWAY_BACKEND_URL, {
-      method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${MERCADO_PAGO_API_KEY}`
-      },
-      body: JSON.stringify({
-        name: nameVal,
-        email: emailVal,
-        cpf: cpfVal,
-        payment_method: selectedPaymentType,
-        access_token: MERCADO_PAGO_API_KEY
-      })
-    });
-
-    const data = await response.json();
-
-    if (data && (data.init_point || data.checkout_url || data.url)) {
-      window.location.href = data.init_point || data.checkout_url || data.url;
-      return;
-    } else {
-      alert("O back-end respondeu, mas não retornou o link de pagamento. Verifique os logs na Railway.");
-    }
-  } catch (error) {
-    console.error("Erro ao conectar com o back-end da Railway:", error);
-    alert("Não foi possível conectar ao servidor na Railway. Verifique se a aplicação está online.");
-  }
-}
-
 function showPublicSite() {
   document.getElementById('public-site').style.display = 'block'; 
   document.getElementById('member-area').style.display = 'none'; 
@@ -1302,7 +1170,7 @@ function showMemberArea() {
           <i class="fa-solid fa-lock" style="font-size: 24px; color: var(--accent-cyan);"></i>
         </div>
         <h2 style="font-size: 21px; margin-bottom: 8px;">Área Bloqueada — Pagamento Pendente</h2>
-        <p style="color:var(--text-secondary); font-size: 13.5px; max-width: 480px; margin: 0 auto 18px;">Seu acesso completo às aulas será liberado assim que o pagamento via Mercado Pago for concluído.</p>
+        <p style="color:var(--text-secondary); font-size: 13.5px; max-width: 480px; margin: 0 auto 18px;">Seu acesso completo às aulas será liberado assim que o pagamento for concluído.</p>
         <button class="btn" style="padding: 15px 30px; font-size: 14.5px;" onclick="openCheckoutModal()">
           <i class="fa-solid fa-credit-card"></i> Concluir Pagamento
         </button>
@@ -1663,6 +1531,93 @@ function renderAdminModules() {
   courseData.forEach((m) => {
     c.innerHTML += `<div class="admin-mod-box"><div class="admin-mod-header">${m.title}</div></div>`;
   });
+}
+
+// Inicialização do Checkout Bricks (Pix e Cartão até 5x)
+async function openCheckoutModal() {
+  let uObj = currentUser ? registeredUsers.find(u => u.email === currentUser) : null;
+  if(currentUser && (isAdmin || uObj?.paid)){ showMemberArea(); return; }
+
+  openModal('modal-custom-checkout');
+
+  try {
+    const mp = new MercadoPago(PUBLIC_KEY_MP, {
+      locale: 'pt-BR'
+    });
+
+    const bricksBuilder = mp.bricks();
+
+    if (paymentBrickController) {
+      paymentBrickController.unmount();
+    }
+
+    const settings = {
+      initialization: {
+        amount: 29.90,
+        preferenceId: null,
+      },
+      customization: {
+        paymentMethods: {
+          creditCard: 'all',
+          bankTransfer: 'all',
+          maxInstallments: 5
+        },
+        visual: {
+          style: {
+            theme: 'dark'
+          }
+        }
+      },
+      callbacks: {
+        onReady: () => {
+          console.log('Payment Brick renderizado com sucesso');
+        },
+        onSubmit: ({ selectedPaymentMethod, formData }) => {
+          return new Promise((resolve, reject) => {
+            fetch(RAILWAY_BACKEND_URL, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(formData)
+            })
+            .then((response) => response.json())
+            .then((response) => {
+              if (response.success) {
+                showSuccessModal("Pagamento processado com sucesso!");
+                closeModal('modal-custom-checkout');
+                if (currentUser) {
+                  let userObj = registeredUsers.find(u => u.email === currentUser);
+                  if(userObj) { userObj.paid = true; saveUserToCloud(userObj); }
+                }
+                showMemberArea();
+              } else {
+                alert("Erro ao processar pagamento: " + (response.error || 'Tente novamente.'));
+              }
+              resolve();
+            })
+            .catch((error) => {
+              console.error("Erro no checkout:", error);
+              alert("Erro de conexão com o servidor.");
+              reject();
+            });
+          });
+        },
+        onError: (error) => {
+          console.error('Erro no Brick:', error);
+        },
+      },
+    };
+
+    paymentBrickController = await bricksBuilder.create(
+      'payment',
+      'paymentBrick_container',
+      settings
+    );
+
+  } catch (e) {
+    console.error("Erro ao carregar Checkout Bricks:", e);
+  }
 }
 </script>
 </body>
