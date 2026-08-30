@@ -43,7 +43,7 @@
 <style>
 :root {
   --bg-main: #030712;
-  --bg-card: rgba(15, 23, 42, 0.75);
+  --bg-card: rgba(15, 23, 42, 0.92);
   --accent-cyan: #00f0ff;
   --accent-blue: #2563eb;
   --accent-purple: #7c3aed;
@@ -54,7 +54,7 @@
   --red: #ef4444;
   --glass-border: rgba(255, 255, 255, 0.08);
   --glass-border-hover: rgba(0, 240, 255, 0.35);
-  --glass-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  --glass-shadow: 0 12px 40px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1);
   --glow-shadow: 0 0 25px rgba(0, 240, 255, 0.35);
 }
 
@@ -219,21 +219,23 @@ section { padding: 70px 0; }
   position: fixed; inset: 0; background: rgba(3, 7, 18, 0.85); backdrop-filter: blur(15px);
   display: flex; align-items: center; justify-content: center; z-index: 1000;
   opacity: 0; pointer-events: none; transition: 0.3s; padding: 16px;
+  overflow-y: auto;
 }
 .modal-overlay.active { opacity: 1; pointer-events: auto; }
 .modal-card {
   background: var(--bg-card); border: 1px solid var(--glass-border-hover); backdrop-filter: blur(25px);
-  border-radius: 22px; padding: 30px 22px; max-width: 440px; width: 100%; position: relative;
+  border-radius: 22px; padding: 30px 22px; max-width: 540px; width: 100%; position: relative;
   box-shadow: 0 30px 60px rgba(0,0,0,0.8), 0 0 40px rgba(0,240,255,0.1); transform: scale(0.95); transition: 0.3s;
+  max-height: 90vh; overflow-y: auto; margin: auto;
 }
 .modal-overlay.active .modal-card { transform: scale(1); }
-.close-btn { position: absolute; top: 16px; right: 16px; background: none; border: none; color: var(--text-muted); font-size: 22px; cursor: pointer; transition: 0.2s; }
+.close-btn { position: absolute; top: 16px; right: 16px; background: none; border: none; color: var(--text-muted); font-size: 22px; cursor: pointer; transition: 0.2s; z-index: 10; }
 .close-btn:hover { color: #fff; }
 
-.input-group { margin-bottom: 16px; width: 100%; }
+.input-group { margin-bottom: 14px; width: 100%; }
 .input-group label { display: block; font-size: 11.5px; color: var(--text-secondary); margin-bottom: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
 .input-group input, .input-group textarea, .input-group select {
-  width: 100%; padding: 13px 15px; border-radius: 12px; background: rgba(0,0,0,0.4);
+  width: 100%; padding: 12px 14px; border-radius: 12px; background: rgba(0,0,0,0.4);
   border: 1px solid var(--glass-border); color: #fff; font-size: 13.5px; outline: none; transition: 0.3s; font-family: 'Inter', sans-serif;
 }
 .input-group input:focus, .input-group textarea:focus, .input-group select:focus {
@@ -373,9 +375,9 @@ footer {
   </div>
 </div>
 
-<!-- Checkout estilo Perfect Pay integrado ao site -->
+<!-- Checkout interativo conectado com a Perfect Pay -->
 <div class="modal-overlay" id="modal-custom-checkout">
-  <div class="modal-card" style="max-width: 520px; padding: 25px;">
+  <div class="modal-card">
     <button class="close-btn" onclick="closeModal('modal-custom-checkout')"><i class="fa-solid fa-xmark"></i></button>
     
     <div style="text-align: center; margin-bottom: 16px; border-bottom: 1px solid var(--glass-border); padding-bottom: 12px;">
@@ -384,14 +386,14 @@ footer {
     </div>
 
     <!-- Etapa 1: Dados Pessoais -->
-    <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); padding: 16px; border-radius: 14px; margin-bottom: 14px;">
-      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px; color: var(--accent-cyan); font-weight: 700; font-size: 13px;">
-        <span style="width: 22px; height: 22px; background: rgba(0,240,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px;">1</span> Dados Pessoais (Obrigatório)
+    <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); padding: 14px; border-radius: 14px; margin-bottom: 12px;">
+      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px; color: var(--accent-cyan); font-weight: 700; font-size: 12.5px;">
+        <span style="width: 20px; height: 20px; background: rgba(0,240,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px;">1</span> Dados Pessoais (Obrigatório)
       </div>
 
       <div class="input-group">
-        <label>Nome Completo (Mínimo nome e sobrenome)</label>
-        <input type="text" id="checkout-name-input" placeholder="Digite seu nome completo">
+        <label>Nome Completo (Nome e Sobrenome)</label>
+        <input type="text" id="checkout-name-input" placeholder="Digite seu nome completo real">
       </div>
 
       <div class="input-group" style="margin-bottom: 0;">
@@ -400,10 +402,10 @@ footer {
       </div>
     </div>
 
-    <!-- Etapa 2: Pagamento -->
-    <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); padding: 16px; border-radius: 14px; margin-bottom: 18px;">
-      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px; color: var(--accent-cyan); font-weight: 700; font-size: 13px;">
-        <span style="width: 22px; height: 22px; background: rgba(0,240,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px;">2</span> Forma de Pagamento
+    <!-- Etapa 2: Forma de Pagamento -->
+    <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); padding: 14px; border-radius: 14px; margin-bottom: 16px;">
+      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px; color: var(--accent-cyan); font-weight: 700; font-size: 12.5px;">
+        <span style="width: 20px; height: 20px; background: rgba(0,240,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px;">2</span> Forma de Pagamento
       </div>
 
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
@@ -415,9 +417,24 @@ footer {
         </button>
       </div>
 
-      <div id="card-installments-box" style="display: none; margin-bottom: 12px;">
+      <!-- Campos Dinâmicos do Cartão de Crédito -->
+      <div id="card-fields-box" style="display: none; border-top: 1px solid var(--glass-border); padding-top: 12px; margin-top: 10px;">
+        <div class="input-group">
+          <label>Número do Cartão</label>
+          <input type="text" id="cc-number" placeholder="0000 0000 0000 0000" maxlength="19">
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="input-group">
+            <label>Validade (MM/AA)</label>
+            <input type="text" id="cc-expiry" placeholder="MM/AA" maxlength="5">
+          </div>
+          <div class="input-group">
+            <label>CVV (Segurança)</label>
+            <input type="password" id="cc-cvv" placeholder="123" maxlength="4">
+          </div>
+        </div>
         <div class="input-group" style="margin-bottom: 0;">
-          <label>Parcelamento no Cartão</label>
+          <label>Parcelamento</label>
           <select id="checkout-installments">
             <option value="1">1x de R$ 29,90 (Sem juros)</option>
             <option value="2">2x de R$ 15,50</option>
@@ -428,17 +445,22 @@ footer {
         </div>
       </div>
 
-      <div style="display: flex; justify-content: space-between; align-items: center; font-size: 14px; background: rgba(255,255,255,0.02); padding: 10px 12px; border-radius: 10px;">
+      <!-- Informação do Pix -->
+      <div id="pix-info-box" style="margin-top: 10px; font-size: 12px; color: var(--text-secondary); background: rgba(0,240,255,0.03); padding: 10px; border-radius: 10px; border: 1px solid rgba(0,240,255,0.15);">
+        <i class="fa-solid fa-bolt" style="color: var(--accent-cyan); margin-right: 4px;"></i> Ao clicar em finalizar, o QRCode do Pix da Perfect Pay será gerado para pagamento instantâneo.
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; font-size: 14px; background: rgba(255,255,255,0.02); padding: 10px 12px; border-radius: 10px; margin-top: 12px;">
         <span style="color: var(--text-secondary);">Total Hoje:</span>
         <strong style="color: var(--green); font-size: 18px;">R$ 29,90</strong>
       </div>
     </div>
 
-    <button class="btn" style="width: 100%; padding: 16px; font-size: 14.5px;" onclick="proceedToPaymentGateway()">
-      <i class="fa-solid fa-lock"></i> Finalizar Compra na Perfect Pay
+    <button class="btn" style="width: 100%; padding: 15px; font-size: 14px;" onclick="proceedToPaymentGateway()">
+      <i class="fa-solid fa-lock"></i> Finalizar Pagamento via Perfect Pay
     </button>
     <div style="text-align: center; font-size: 11px; color: var(--text-muted); margin-top: 10px;">
-      <i class="fa-solid fa-shield-halved"></i> Pagamento 100% seguro processado via Perfect Pay.
+      <i class="fa-solid fa-shield-halved"></i> Transação criptografada e processada pela Perfect Pay.
     </div>
   </div>
 </div>
@@ -1221,11 +1243,10 @@ async function handleForgotPassword(e) {
   }
 }
 
-// Validação rigorosa de Nome Completo (evita nomes falsos/incompletos)
+// Validação rigorosa de Nome Completo
 function isValidFullName(name) {
   const parts = name.trim().split(/\s+/);
   if (parts.length < 2) return false;
-  // Verifica se cada parte tem pelo menos 2 caracteres e não é número/caractere repetido falso
   for (let p of parts) {
     if (p.length < 2 || /^([a-zA-Z])\1+$/.test(p)) return false;
   }
@@ -1300,7 +1321,8 @@ function selectPaymentMethod(method) {
   selectedPaymentType = method;
   const pixBtn = document.getElementById('pay-opt-pix');
   const cardBtn = document.getElementById('pay-opt-card');
-  const cardBox = document.getElementById('card-installments-box');
+  const cardBox = document.getElementById('card-fields-box');
+  const pixInfoBox = document.getElementById('pix-info-box');
 
   if (method === 'pix') {
     pixBtn.style.borderColor = 'var(--accent-cyan)';
@@ -1308,12 +1330,14 @@ function selectPaymentMethod(method) {
     cardBtn.style.borderColor = 'var(--glass-border)';
     cardBtn.style.background = 'rgba(255,255,255,0.03)';
     cardBox.style.display = 'none';
+    pixInfoBox.style.display = 'block';
   } else {
     cardBtn.style.borderColor = 'var(--accent-cyan)';
     cardBtn.style.background = 'rgba(0,240,255,0.1)';
     pixBtn.style.borderColor = 'var(--glass-border)';
     pixBtn.style.background = 'rgba(255,255,255,0.03)';
     cardBox.style.display = 'block';
+    pixInfoBox.style.display = 'none';
   }
 }
 
@@ -1333,7 +1357,7 @@ function proceedToPaymentGateway() {
   const emailVal = document.getElementById('checkout-email-input').value.trim();
 
   if (!isValidFullName(nameVal)) {
-    alert("Por favor, digite seu Nome Completo real (Nome e Sobrenome válidos). Nomes falsos ou incompletos não são aceitos para segurança do pagamento.");
+    alert("Por favor, digite seu Nome Completo real (Nome e Sobrenome válidos). Nomes falsos ou incompletos não são aceitos.");
     document.getElementById('checkout-name-input').focus();
     return;
   }
@@ -1344,8 +1368,21 @@ function proceedToPaymentGateway() {
     return;
   }
 
-  // Redireciona para o checkout oficial da Perfect Pay passando nome e e-mail pré-preenchidos
-  let finalUrl = `https://go.perfectpay.com.br/PPU38CQFLAP?name=${encodeURIComponent(nameVal)}&email=${encodeURIComponent(emailVal)}`;
+  if (selectedPaymentType === 'card') {
+    const ccNum = document.getElementById('cc-number').value.trim();
+    const ccExp = document.getElementById('cc-expiry').value.trim();
+    const ccCvv = document.getElementById('cc-cvv').value.trim();
+    if (ccNum.length < 13 || !ccExp || ccCvv.length < 3) {
+      alert("Por favor, preencha corretamente todas as informações do Cartão de Crédito.");
+      return;
+    }
+  }
+
+  // Aciona o gateway da Perfect Pay com os dados preenchidos no checkout do site
+  const installments = document.getElementById('checkout-installments')?.value || '1';
+  let paymentParam = selectedPaymentType === 'pix' ? 'pix' : `credit_card&installments=${installments}`;
+  
+  let finalUrl = `https://go.perfectpay.com.br/PPU38CQFLAP?name=${encodeURIComponent(nameVal)}&email=${encodeURIComponent(emailVal)}&payment_method=${paymentParam}`;
   window.location.href = finalUrl;
 }
 
