@@ -1040,7 +1040,6 @@ function isValidFullName(name) {
   return true;
 }
 
-// Tratamento inteligente para e-mail já existente (evita erro em tela e redireciona direto ao login)
 async function handleRegister(e) {
   e.preventDefault();
   autoCompleteEmail('reg-email');
@@ -1838,7 +1837,7 @@ function moveLesson(modIndex, lessonIndex, direction) {
   renderAdminModules();
 }
 
-// Inicialização Rigorosa do Checkout Bricks (Garante checagem real do pagamento com o Mercado Pago)
+// Inicialização Rigorosa do Checkout Bricks com Suporte Completo ao Pix (QR Code)
 async function openCheckoutModal() {
   if (!currentUser) {
     alert("Você precisa estar logado para realizar a compra do curso!");
@@ -1848,7 +1847,7 @@ async function openCheckoutModal() {
 
   let uObj = registeredUsers.find(u => u.email === currentUser);
   
-  // TRAVA DE SEGURANÇA RIGOROSA: Se NÃO for admin E o aluno NÃO tiver pago, abre o modal de pagamento do Mercado Pago
+  // TRAVA DE SEGURANÇA RIGOROSA: Se NÃO for admin E o aluno NÃO tiver pago, abre o modal do Mercado Pago
   if (!isAdmin && (!uObj || !uObj.paid)) {
     openModal('modal-custom-checkout');
 
@@ -1868,11 +1867,14 @@ async function openCheckoutModal() {
           initialization: {
             amount: 29.90,
             preferenceId: null,
+            payer: {
+              email: currentUser
+            }
           },
           customization: {
             paymentMethods: {
               creditCard: 'all',
-              bankTransfer: 'all',
+              bankTransfer: ['pix'],
               maxInstallments: 5
             },
             visual: {
@@ -1905,7 +1907,7 @@ async function openCheckoutModal() {
                     }
                     showMemberArea();
                   } else {
-                    alert("Aguardando confirmação do pagamento ou transação recusada. Verifique os dados.");
+                    alert("Aguardando confirmação do pagamento ou transação pendente. Escaneie o QR Code do Pix para concluir.");
                   }
                   resolve();
                 })
