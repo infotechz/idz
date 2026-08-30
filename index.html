@@ -223,7 +223,7 @@ section { padding: 70px 0; }
 .modal-overlay.active { opacity: 1; pointer-events: auto; }
 .modal-card {
   background: var(--bg-card); border: 1px solid var(--glass-border-hover); backdrop-filter: blur(25px);
-  border-radius: 22px; padding: 30px 22px; max-width: 420px; width: 100%; position: relative;
+  border-radius: 22px; padding: 30px 22px; max-width: 440px; width: 100%; position: relative;
   box-shadow: 0 30px 60px rgba(0,0,0,0.8), 0 0 40px rgba(0,240,255,0.1); transform: scale(0.95); transition: 0.3s;
 }
 .modal-overlay.active .modal-card { transform: scale(1); }
@@ -373,26 +373,28 @@ footer {
   </div>
 </div>
 
-<!-- Modal de Checkout Personalizado (Com a identidade visual do site) -->
+<!-- Modal de Checkout Pix Personalizado com a identidade visual do site -->
 <div class="modal-overlay" id="modal-custom-checkout">
   <div class="modal-card" style="max-width: 440px;">
     <button class="close-btn" onclick="closeModal('modal-custom-checkout')"><i class="fa-solid fa-xmark"></i></button>
     <div style="text-align: center; margin-bottom: 18px;">
-      <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 19px; color: #fff; display: block;">Finalizar Inscrição</span>
+      <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 19px; color: #fff; display: block;">Pagamento via Pix</span>
       <span style="font-size: 13px; color: var(--accent-cyan);">Informática do Zero — R$ 29,90</span>
     </div>
     
-    <div style="background: rgba(0,240,255,0.05); border: 1px solid rgba(0,240,255,0.2); padding: 14px; border-radius: 12px; margin-bottom: 18px; font-size: 12.5px; color: var(--text-secondary);">
-      <i class="fa-solid fa-shield-halved" style="color: var(--accent-cyan); margin-right: 6px;"></i> Ambiente seguro. Digite seu e-mail para continuar o pagamento.
+    <div style="background: rgba(0,240,255,0.05); border: 1px solid rgba(0,240,255,0.2); padding: 14px; border-radius: 12px; margin-bottom: 18px; font-size: 12.5px; color: var(--text-secondary); text-align: center;">
+      <i class="fa-solid fa-qrcode" style="color: var(--accent-cyan); font-size: 24px; margin-bottom: 8px; display: block;"></i>
+      Chave Pix (E-mail): <strong style="color:#fff;">olliveirazvz@gmail.com</strong><br>
+      Valor: <strong style="color:var(--accent-cyan);">R$ 29,90</strong>
     </div>
 
     <div class="input-group">
-      <label>Seu E-mail de Acesso</label>
+      <label>Confirme seu E-mail de Acesso</label>
       <input type="email" id="checkout-email-input" placeholder="seu@email.com">
     </div>
 
-    <button class="btn" style="width: 100%; margin-top: 6px;" onclick="proceedToPaymentGateway()">
-      <i class="fa-solid fa-lock"></i> Ir para Pagamento Seguro
+    <button class="btn" style="width: 100%; margin-top: 6px; background: linear-gradient(135deg, #10b981, #059669); color:#fff;" onclick="submitPixPayment()">
+      <i class="fa-solid fa-check-circle"></i> Já fiz o pagamento via Pix
     </button>
   </div>
 </div>
@@ -454,7 +456,7 @@ footer {
           <div><i class="fa-solid fa-check"></i> Acesso via celular ou computador</div>
           <div><i class="fa-solid fa-check"></i> Certificado de Conclusão</div>
         </div>
-        <button class="btn" style="width:100%; margin-top:20px;" onclick="redirectToPerfectPay()">GARANTIR VAGA — R$ 29,90</button>
+        <button class="btn" style="width:100%; margin-top:20px;" onclick="openCustomCheckout()">GARANTIR VAGA — R$ 29,90</button>
       </div>
     </div>
   </header>
@@ -488,13 +490,12 @@ footer {
           <span class="old-price">R$ 59,90</span>
           <span class="new-price">R$ 29,90</span>
         </div>
-        <p style="color: var(--text-secondary); margin-bottom: 26px; font-size: 13.5px;"><i class="fa-solid fa-lock"></i> Pagamento 100% seguro via Perfect Pay</p>
-        <button class="btn" style="width: 100%; max-width: 380px; font-size: 14.5px; padding: 16px;" onclick="redirectToPerfectPay()">
+        <p style="color: var(--text-secondary); margin-bottom: 26px; font-size: 13.5px;"><i class="fa-solid fa-lock"></i> Pagamento 100% seguro via Pix</p>
+        <button class="btn" style="width: 100%; max-width: 380px; font-size: 14.5px; padding: 16px;" onclick="openCustomCheckout()">
           COMPRAR AGORA E COMEÇAR <i class="fa-solid fa-arrow-right"></i>
         </button>
         <div style="font-size: 12px; color: var(--text-muted); margin-top: 18px; display: flex; justify-content: center; gap: 16px;">
           <span><i class="fa-brands fa-pix" style="color: #32BCAD;"></i> Pix Imediato</span>
-          <span><i class="fa-regular fa-credit-card"></i> Cartão em até 4x</span>
         </div>
       </div>
     </div>
@@ -505,7 +506,7 @@ footer {
       <div class="section-header" style="margin-bottom: 28px;">
         <h2>Perguntas Frequentes</h2>
       </div>
-      <details class="glass-panel"><summary>Como funciona o acesso às aulas?</summary><p>Após o pagamento via Perfect Pay, seu e-mail será liberado automaticamente. Basta fazer login e acessar a Área de Membros.</p></details>
+      <details class="glass-panel"><summary>Como funciona o acesso às aulas?</summary><p>Após o pagamento via Pix, seu e-mail será liberado automaticamente pelo administrador. Basta fazer login e acessar a Área de Membros.</p></details>
       <details class="glass-panel"><summary>Preciso de um computador potente?</summary><p>Não! O curso ensina fundamentos que podem ser aplicados em qualquer computador, notebook ou até mesmo pelo celular para assistir às aulas teóricas.</p></details>
       <details class="glass-panel"><summary>Os materiais têm custo extra?</summary><p>Não. Todos os PDFs, modelos de currículo e planilhas bônus já estão inclusos no valor único do curso e disponíveis para download imediato.</p></details>
     </div>
@@ -814,7 +815,7 @@ const defaultCourseData = [
   {
     id: 1, title: "MÓDULO 1 — CONHECENDO O COMPUTADOR", intro: "Neste módulo, você dará os primeiros passos no mundo da informática.",
     lessons: [
-      { id: 101, title: "Aula 1 — O que é um computador?", description: "Introdução fundamental ao universo dos computadores.", learned: "O que é um computador, suas funções básicas e utilidades.", objectives: "Entender o what é um computador e suas funções.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual é a principal definição funcional de um computador?", options: ["Um aparelho restrito a jogos pesados.", "Uma máquina eletrônica capaz de processar dados e executar instruções.", "Um dispositivo analógico de som.", "Uma ferramenta exclusiva para impressão."], correct: 1 } },
+      { id: 101, title: "Aula 1 — O que é um computador?", description: "Introdução fundamental ao universo dos computadores.", learned: "O que é um computador, suas funções básicas e utilidades.", objectives: "Entender o que é um computador e suas funções.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual é a principal definição funcional de um computador?", options: ["Um aparelho restrito a jogos pesados.", "Uma máquina eletrônica capaz de processar dados e executar instruções.", "Um dispositivo analógico de som.", "Uma ferramenta exclusiva para impressão."], correct: 1 } },
       { id: 102, title: "Aula 2 — Principais partes do computador", description: "Conhecendo a estrutura física externa.", learned: "Monitor, teclado, mouse, gabinete e notebook.", objectives: "Identificar monitor, teclado, mouse, gabinete e notebook.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual componente externo é considerado estritamente de saída de dados?", options: ["Teclado", "Mouse", "Monitor", "Microfone"], correct: 2 } },
       { id: 103, title: "Aula 3 — Hardware e Software", description: "Entendendo a diferença entre a parte física e lógica.", learned: "Conceitos de peças físicas e programas de computador.", objectives: "Diferenciar hardware e software.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O que representa o 'Hardware' em um computador?", options: ["Os programas e sistemas instalados.", "A parte física e palpável (peças e componentes).", "A conexão de internet sem fio.", "Os arquivos salvos na nuvem."], correct: 1 } },
       { id: 104, title: "Aula 4 — Exercício prático", description: "Fixação dos conceitos iniciais.", learned: "Reconhecimento prático dos componentes.", objectives: "Identificação dos componentes do próprio computador.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual o objetivo principal do exercício prático deste módulo?", options: ["Desmontar a CPU inteira.", "Identificar e reconhecer os componentes físicos do próprio computador.", "Instalar um sistema operacional novo.", "Configurar uma rede Wi-Fi avançada."], correct: 1 } }
@@ -1201,7 +1202,7 @@ function handleAccountAction() {
     if (isAdmin || uObj?.paid) {
       showMemberArea();
     } else {
-      redirectToPerfectPay();
+      openCustomCheckout();
     }
   }
 }
@@ -1219,7 +1220,7 @@ function handleLogoClick() {
   }
 }
 
-function redirectToPerfectPay() {
+function openCustomCheckout() {
   let uObj = currentUser ? registeredUsers.find(u => u.email === currentUser) : null;
   if(currentUser && (isAdmin || uObj?.paid)){ showMemberArea(); return; }
   
@@ -1229,13 +1230,24 @@ function redirectToPerfectPay() {
   openModal('modal-custom-checkout');
 }
 
-function proceedToPaymentGateway() {
+async function submitPixPayment() {
   const emailVal = document.getElementById('checkout-email-input').value.trim();
   if(!emailVal) {
     alert("Por favor, digite seu e-mail.");
     return;
   }
-  window.location.href = "https://go.perfectpay.com.br/PPU38CQFLAP?email=" + encodeURIComponent(emailVal);
+  
+  // Verifica se o usuário já existe na nuvem, senão cria com paid: false pendente
+  let uObj = registeredUsers.find(u => u.email === emailVal);
+  if (!uObj) {
+    uObj = { email: emailVal, paid: false, role: 'student', fullname: '', cpf: '', certReleased: false };
+    await saveUserToCloud(uObj);
+  }
+
+  currentUser = emailVal;
+  closeModal('modal-custom-checkout');
+  showSuccessModal("Aviso de pagamento enviado! Assim que o administrador confirmar o seu Pix, seu acesso será liberado.");
+  showMemberArea();
 }
 
 function showPublicSite() {
@@ -1286,12 +1298,12 @@ function showMemberArea() {
     document.getElementById('lms-main-content').innerHTML = `
       <div style="text-align:center; padding: 25px 10px;">
         <div style="display:inline-flex; width:64px; height:64px; border-radius:50%; background:rgba(0,240,255,0.1); border:1px solid rgba(0,240,255,0.3); align-items:center; justify-content:center; margin-bottom:16px;">
-          <i class="fa-solid fa-lock" style="font-size: 24px; color: var(--accent-cyan);"></i>
+          <i class="fa-solid fa-clock" style="font-size: 24px; color: var(--accent-cyan);"></i>
         </div>
-        <h2 style="font-size: 21px; margin-bottom: 8px;">Área Bloqueada — Pagamento Pendente</h2>
-        <p style="color:var(--text-secondary); font-size: 13.5px; max-width: 480px; margin: 0 auto 18px;">Você entrou na área de membros, mas seu acesso completo às aulas ainda não está liberado.</p>
-        <button class="btn" style="padding: 15px 30px; font-size: 14.5px;" onclick="redirectToPerfectPay()">
-          <i class="fa-solid fa-credit-card"></i> Concluir Pagamento via Perfect Pay
+        <h2 style="font-size: 21px; margin-bottom: 8px;">Aguardando Confirmação do Pix</h2>
+        <p style="color:var(--text-secondary); font-size: 13.5px; max-width: 480px; margin: 0 auto 18px;">Faça o Pix para a chave <strong style="color:#fff;">olliveirazvz@gmail.com</strong> (R$ 29,90). Assim que o pagamento for verificado pelo administrador, suas aulas serão liberadas automaticamente.</p>
+        <button class="btn" style="padding: 12px 24px; font-size: 13.5px;" onclick="openCustomCheckout()">
+          <i class="fa-solid fa-qrcode"></i> Ver Dados do Pix Novamente
         </button>
       </div>`;
     document.getElementById('module-list').innerHTML = '';
@@ -1755,7 +1767,7 @@ async function toggleCert(email) {
 }
 
 async function delUser(email) { 
-  if(confirm("Deseja excluir este usuário da nuvem?")){ 
+  if(confirm("Excluir este usuário da nuvem?")){ 
     const { deleteDoc, doc } = window.firebaseModules;
     let safeId = email.replace(/[@.]/g, '_');
     await deleteDoc(doc(window.db, "users", safeId));
