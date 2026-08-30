@@ -684,7 +684,7 @@ footer {
       <button type="submit" class="btn" style="width: 100%; margin-top: 4px;">Acessar Plataforma</button>
     </form>
 
-    <!-- Formulário de Cadastro -->
+    <!-- Formulário de Cadastro com tratamento para e-mail existente -->
     <form id="form-register" style="display: none;" onsubmit="handleRegister(event)">
       <div class="input-group">
         <label>Nome Completo (Validação Real)</label>
@@ -786,7 +786,6 @@ let isAdmin = false;
 let videoWatchedState = {};
 let paymentBrickController = null;
 
-// Função para preencher automaticamente o @gmail.com se o usuário digitar apenas o nome e sair do campo/avançar
 function autoCompleteEmail(inputId) {
   const input = document.getElementById(inputId);
   if (!input) return;
@@ -1041,13 +1040,14 @@ function isValidFullName(name) {
   return true;
 }
 
+// Tratamento inteligente para e-mail já existente (evita erro em tela e redireciona direto ao login)
 async function handleRegister(e) {
   e.preventDefault();
   autoCompleteEmail('reg-email');
   const fullname = document.getElementById('reg-fullname').value.trim();
   const em = document.getElementById('reg-email').value.trim(); 
   const pw = document.getElementById('reg-pass').value.trim();
-  const { createUserWithEmailAndPassword } = window.firebaseModules;
+  const { createUserWithEmailAndPassword, signInWithEmailAndPassword } = window.firebaseModules;
 
   if (!isValidFullName(fullname)) {
     alert("Por favor, digite seu Nome Completo real (evite nomes falsos ou repetitivos).");
@@ -1064,7 +1064,25 @@ async function handleRegister(e) {
     setAuthSession(em, false);
     showPublicSite();
   } catch (err) {
-    alert("Erro ao cadastrar: " + err.message);
+    if (err.code === 'auth/email-already-in-use') {
+      try {
+        await signInWithEmailAndPassword(window.auth, em, pw);
+        let uObj = registeredUsers.find(u => u.email === em);
+        let adminFlag = (uObj?.role === 'admin' || em === TARGET_EMAIL);
+        setAuthSession(em, adminFlag);
+        if (adminFlag) showAdminArea();
+        else {
+          if (uObj && uObj.paid) showMemberArea();
+          else showPublicSite();
+        }
+      } catch (loginErr) {
+        alert("Este e-mail já está cadastrado. Alterne para a aba 'Entrar' e faça login com sua senha.");
+        switchAuthTab('login');
+        document.getElementById('login-email').value = em;
+      }
+    } else {
+      alert("Erro ao cadastrar: " + err.message);
+    }
   }
 }
 
@@ -1444,59 +1462,138 @@ function checkQuizAnswer(buttonElem, selectedIdx, correctIdx, modId, lessonId, n
   }
 }
 
-// Geração do PDF do Certificado mantendo a imagem e identidade visual original e preenchendo os 3 campos exatos[cite: 2]
+// Geração exata do Certificado baseada no seu novo modelo PDF oficial
 function generateOfficialCertificatePDF(studentName) {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
   
+  // Fundo Azul Escuro Idêntico ao PDF original
   doc.setFillColor(3, 7, 18);
   doc.rect(0, 0, 297, 210, 'F');
   
+  // Cabeçalho IDZ
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(26);
+  doc.setFontSize(22);
   doc.setTextColor(0, 240, 255);
-  doc.text("IDZ", 148.5, 32, { align: "center" });
+  doc.text("IDZ", 30, 28);
 
-  doc.setFontSize(10);
+  doc.setFontSize(9);
   doc.setTextColor(255, 255, 255);
-  doc.text("INFORMÁTICA DO ZERO", 148.5, 38, { align: "center" });
+  doc.text("Informática do Zero", 30, 34);
 
+  // Título Principal
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(16);
+  doc.setFontSize(24);
   doc.setTextColor(255, 255, 255);
-  doc.text("CERTIFICADO DE CONCLUSÃO", 148.5, 54, { align: "center" });
-
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(11);
-  doc.setTextColor(148, 163, 184);
-  doc.text("Certificamos que o aluno:", 148.5, 72, { align: "center" });
-
-  // 1. Campo Editável: Nome do Aluno Cadastrado[cite: 2]
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(25);
-  doc.setTextColor(0, 240, 255);
-  doc.text(studentName.toUpperCase(), 148.5, 87, { align: "center" });
-
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(11);
-  doc.setTextColor(148, 163, 184);
-  doc.text("concluiu com êxito o curso", 148.5, 101, { align: "center" });
+  doc.text("CERTIFICADO", 30, 52);
 
   doc.setFont("helvetica", "bold");
   doc.setFontSize(13);
-  doc.setTextColor(255, 255, 255);
-  doc.text("INFORMÁTICA DO ZERO", 148.5, 110, { align: "center" });
+  doc.setTextColor(0, 240, 255);
+  doc.text("DE CONCLUSÃO", 30, 60);
 
-  // 2. Campo Editável: Data de Conclusão e 3. Número do Certificado Único[cite: 2]
+  // Texto descritivo central e Nome do Aluno (Editável)[cite: 3]
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(11);
+  doc.setTextColor(148, 163, 184);
+  doc.text("Certificamos que o aluno:", 30, 75);
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(22);
+  doc.setTextColor(0, 240, 255);
+  doc.text(studentName.toUpperCase(), 30, 88);
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(11);
+  doc.setTextColor(148, 163, 184);
+  doc.text("concluiu com êxito o curso", 30, 100);
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(12);
+  doc.setTextColor(255, 255, 255);
+  doc.text("INFORMÁTICA DO ZERO", 30, 108);
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(9.5);
+  doc.setTextColor(180, 195, 215);
+  doc.text("Durante o curso, o aluno adquiriu conhecimentos essenciais para utilizar o computador", 30, 118);
+  doc.text("e suas ferramentas com segurança e autonomia, desenvolvendo habilidades práticas", 30, 124);
+  doc.text("para o dia a dia, os estudos e o ambiente profissional.", 30, 130);
+
+  // Caixa de Resumo do que foi aprendido (Lado Direito)
+  doc.setFillColor(15, 23, 42);
+  doc.setDrawColor(0, 240, 255);
+  doc.roundedRect(140, 22, 128, 118, 4, 4, 'FD');
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(11);
+  doc.setTextColor(0, 240, 255);
+  doc.text("RESUMO DO QUE FOI APRENDIDO", 152, 32);
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(9);
+  doc.setTextColor(220, 230, 242);
+  const topics = [
+    "• Fundamentos do Computador",
+    "• Teclado, Mouse e Atalhos",
+    "• Arquivos e Pastas",
+    "• Internet e Navegação",
+    "• E-mail",
+    "• Documentos (Word)",
+    "• Planilhas (Excel)",
+    "• Apresentações (PowerPoint)",
+    "• Nuvem e Armazenamento",
+    "• Segurança Digital",
+    "• Inteligência Artificial"
+  ];
+  let startY = 43;
+  topics.forEach((topic) => {
+    doc.text(topic, 152, startY);
+    startY += 8;
+  });
+
+  // Rodapé com os 3 campos editáveis: Carga Horária, Data e Número do Certificado[cite: 3]
   const today = new Date().toLocaleDateString('pt-BR');
   const randomCertId = 'IDZ-' + Math.floor(100000 + Math.random() * 900000) + '-X';
 
+  doc.setDrawColor(50, 65, 85);
+  doc.line(30, 158, 268, 158);
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(9.5);
+  doc.setTextColor(255, 255, 255);
+  doc.text("INSTRUTOR", 45, 172, { align: "center" });
   doc.setFont("helvetica", "normal");
-  doc.setFontSize(10);
-  doc.setTextColor(200, 210, 225);
-  doc.text(`Carga Horária: 12 Horas`, 95, 175, { align: "center" });
-  doc.text(`Data de Conclusão: ${today}`, 148.5, 175, { align: "center" });
-  doc.text(`N° ${randomCertId}`, 215, 175, { align: "center" });
+  doc.setFontSize(8.5);
+  doc.setTextColor(148, 163, 184);
+  doc.text("Informática do Zero", 45, 178, { align: "center" });
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(9.5);
+  doc.setTextColor(255, 255, 255);
+  doc.text("CARGA HORÁRIA TOTAL", 110, 172, { align: "center" });
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(8.5);
+  doc.setTextColor(148, 163, 184);
+  doc.text("12 Horas", 110, 178, { align: "center" });
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(9.5);
+  doc.setTextColor(255, 255, 255);
+  doc.text("DATA DE CONCLUSÃO", 175, 172, { align: "center" });
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(8.5);
+  doc.setTextColor(148, 163, 184);
+  doc.text(today, 175, 178, { align: "center" });
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(9.5);
+  doc.setTextColor(255, 255, 255);
+  doc.text("CÓDIGO DO CERTIFICADO", 238, 172, { align: "center" });
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(8.5);
+  doc.setTextColor(0, 240, 255);
+  doc.text(randomCertId, 238, 178, { align: "center" });
 
   doc.save(`Certificado_Informatica_Do_Zero_${studentName.replace(/\s+/g, '_')}.pdf`);
 }
@@ -1741,7 +1838,7 @@ function moveLesson(modIndex, lessonIndex, direction) {
   renderAdminModules();
 }
 
-// Inicialização Rigorosa do Checkout Bricks (Garante abertura do modal e trava acesso se não pagar)
+// Inicialização Rigorosa do Checkout Bricks (Garante checagem real do pagamento com o Mercado Pago)
 async function openCheckoutModal() {
   if (!currentUser) {
     alert("Você precisa estar logado para realizar a compra do curso!");
@@ -1750,94 +1847,95 @@ async function openCheckoutModal() {
   }
 
   let uObj = registeredUsers.find(u => u.email === currentUser);
-  // Se for admin ou o aluno já tiver pago de verdade, entra nas aulas. Senão, obriga o pagamento.
-  if (!isAdmin && uObj && uObj.paid) {
-    showMemberArea();
-    return;
-  }
+  
+  // TRAVA DE SEGURANÇA RIGOROSA: Se NÃO for admin E o aluno NÃO tiver pago, abre o modal de pagamento do Mercado Pago
+  if (!isAdmin && (!uObj || !uObj.paid)) {
+    openModal('modal-custom-checkout');
 
-  openModal('modal-custom-checkout');
+    setTimeout(async () => {
+      try {
+        const mp = new MercadoPago(PUBLIC_KEY_MP, {
+          locale: 'pt-BR'
+        });
 
-  setTimeout(async () => {
-    try {
-      const mp = new MercadoPago(PUBLIC_KEY_MP, {
-        locale: 'pt-BR'
-      });
+        const bricksBuilder = mp.bricks();
 
-      const bricksBuilder = mp.bricks();
+        if (paymentBrickController) {
+          paymentBrickController.unmount();
+        }
 
-      if (paymentBrickController) {
-        paymentBrickController.unmount();
-      }
-
-      const settings = {
-        initialization: {
-          amount: 29.90,
-          preferenceId: null,
-        },
-        customization: {
-          paymentMethods: {
-            creditCard: 'all',
-            bankTransfer: 'all',
-            maxInstallments: 5
+        const settings = {
+          initialization: {
+            amount: 29.90,
+            preferenceId: null,
           },
-          visual: {
-            style: {
-              theme: 'dark'
+          customization: {
+            paymentMethods: {
+              creditCard: 'all',
+              bankTransfer: 'all',
+              maxInstallments: 5
+            },
+            visual: {
+              style: {
+                theme: 'dark'
+              }
             }
-          }
-        },
-        callbacks: {
-          onReady: () => {
-            console.log('Payment Brick renderizado com sucesso');
           },
-          onSubmit: ({ selectedPaymentMethod, formData }) => {
-            return new Promise((resolve, reject) => {
-              fetch(RAILWAY_BACKEND_URL, {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(formData)
-              })
-              .then((response) => response.json())
-              .then((response) => {
-                if (response.success || response.status === 'approved') {
-                  showSuccessModal("Pagamento aprovado com sucesso! Acesso liberado.");
-                  closeModal('modal-custom-checkout');
-                  if (currentUser) {
-                    let userObj = registeredUsers.find(u => u.email === currentUser);
-                    if(userObj) { userObj.paid = true; saveUserToCloud(userObj); }
+          callbacks: {
+            onReady: () => {
+              console.log('Payment Brick renderizado com sucesso');
+            },
+            onSubmit: ({ selectedPaymentMethod, formData }) => {
+              return new Promise((resolve, reject) => {
+                fetch(RAILWAY_BACKEND_URL, {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify(formData)
+                })
+                .then((response) => response.json())
+                .then((response) => {
+                  if (response.success || response.status === 'approved') {
+                    showSuccessModal("Pagamento aprovado com sucesso! Acesso liberado.");
+                    closeModal('modal-custom-checkout');
+                    if (currentUser) {
+                      let userObj = registeredUsers.find(u => u.email === currentUser);
+                      if(userObj) { userObj.paid = true; saveUserToCloud(userObj); }
+                    }
+                    showMemberArea();
+                  } else {
+                    alert("Aguardando confirmação do pagamento ou transação recusada. Verifique os dados.");
                   }
-                  showMemberArea();
-                } else {
-                  alert("Aguardando confirmação do pagamento ou transação recusada. Verifique os dados.");
-                }
-                resolve();
-              })
-              .catch((error) => {
-                console.error("Erro no checkout:", error);
-                alert("Erro ao processar pagamento com o servidor. Tente novamente.");
-                reject();
+                  resolve();
+                })
+                .catch((error) => {
+                  console.error("Erro no checkout:", error);
+                  alert("Erro ao processar pagamento com o servidor. Tente novamente.");
+                  reject();
+                });
               });
-            });
+            },
+            onError: (error) => {
+              console.error('Erro no Brick:', error);
+            },
           },
-          onError: (error) => {
-            console.error('Erro no Brick:', error);
-          },
-        },
-      };
+        };
 
-      paymentBrickController = await bricksBuilder.create(
-        'payment',
-        'paymentBrick_container',
-        settings
-      );
+        paymentBrickController = await bricksBuilder.create(
+          'payment',
+          'paymentBrick_container',
+          settings
+        );
 
-    } catch (e) {
-      console.error("Erro ao carregar Checkout Bricks:", e);
-    }
-  }, 200);
+      } catch (e) {
+        console.error("Erro ao carregar Checkout Bricks:", e);
+      }
+    }, 200);
+  } else {
+    // Caso seja admin ou já tenha pago, vai direto para as aulas
+    showMemberArea();
+  }
 }
 </script>
 </body>
