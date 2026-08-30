@@ -545,7 +545,7 @@ footer {
     <div style="display: flex; gap: 10px; flex-wrap: wrap;">
       <button class="btn-outline" onclick="switchAdminTab('dashboard')"><i class="fa-solid fa-chart-pie"></i> Dashboard & Alunos</button>
       <button class="btn-outline" onclick="switchAdminTab('modules')"><i class="fa-solid fa-pen-to-square"></i> Editar Conteúdo & Aulas</button>
-      <button class="btn-outline" onclick="switchAdminTab('testcheckout')"><i class="fa-solid fa-credit-card"></i> Checkout de Teste (R$ 0,01)</button>
+      <button class="btn-outline" onclick="switchAdminTab('testcheckout')"><i class="fa-solid fa-credit-card"></i> Checkout de Teste & Cartão</button>
     </div>
   </div>
   
@@ -584,16 +584,22 @@ footer {
       </div>
     </div>
 
-    <!-- ABA CHECKOUT DE TESTE 1 CENTAVO -->
+    <!-- ABA CHECKOUT DE TESTE COM OPÇÃO DE CARTÃO E VALOR -->
     <div class="glass-panel admin-card" id="admin-tab-testcheckout" style="display: none;">
-      <h3><i class="fa-solid fa-cash-register"></i> Checkout de Teste Real (R$ 0,01) para Aluno Selecionado</h3>
-      <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 22px;">Selecione um aluno abaixo para abrir o Checkout Bricks cobrando R$ 0,01. O sistema aprovará o Pix ou Cartão automaticamente assim que pago.</p>
+      <h3><i class="fa-solid fa-cash-register"></i> Checkout de Teste (Pix / Cartão e Valor Personalizado)</h3>
+      <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 22px;">Selecione o aluno, defina o valor desejado e abra o checkout para testar Pix ou Cartão de Crédito.</p>
       
       <div class="input-group" style="max-width: 450px;">
-        <label>Escolher Aluno para o Teste</label>
+        <label>Escolher Aluno</label>
         <select id="test-student-select"></select>
       </div>
-      <button class="btn" style="margin-top: 10px;" onclick="openTestCheckoutForSelectedStudent()"><i class="fa-solid fa-play"></i> Iniciar Checkout de R$ 0,01 para o Aluno</button>
+
+      <div class="input-group" style="max-width: 450px;">
+        <label>Definir Valor do Teste (R$)</label>
+        <input type="number" id="test-amount-input" step="0.01" min="0.01" value="0.01" placeholder="0.01">
+      </div>
+
+      <button class="btn" style="margin-top: 10px;" onclick="openTestCheckoutCustom()"><i class="fa-solid fa-play"></i> Abrir Checkout de Teste</button>
     </div>
 
     <!-- ABA EDITOR DE MÓDULOS E AULAS (COM 3 BLOCOS, ORDENAÇÃO E ANEXOS) -->
@@ -877,10 +883,20 @@ window.onload = function() {
             }
           }
         } else {
-          currentUser = null;
-          isAdmin = false;
-          updateMobileMenuOptions();
-          showPublicSite();
+          // Mantém persistência via localStorage para o F5 caso o Firebase Auth demore no carregamento inicial
+          const persistedUser = localStorage.getItem('persisted_current_user');
+          if (persistedUser) {
+            currentUser = persistedUser;
+            isAdmin = (currentUser === TARGET_EMAIL);
+            updateMobileMenuOptions();
+            if(isAdmin) showAdminArea();
+            else showMemberArea();
+          } else {
+            currentUser = null;
+            isAdmin = false;
+            updateMobileMenuOptions();
+            showPublicSite();
+          }
         }
       });
 
@@ -1142,6 +1158,7 @@ async function handleRegister(e) {
 
 function setAuthSession(em, adminFlag) {
   currentUser = em; isAdmin = adminFlag; 
+  localStorage.setItem('persisted_current_user', em);
   closeModal('modal-auth'); updateMobileMenuOptions();
 }
 
@@ -1149,6 +1166,7 @@ async function logout() {
   const { signOut } = window.firebaseModules;
   if(window.auth) await signOut(window.auth);
   currentUser = null; isAdmin = false;
+  localStorage.removeItem('persisted_current_user');
   location.reload(); 
 }
 
@@ -1231,6 +1249,7 @@ async function handleUpdateAccount(e) {
       if (newEmail !== currentUser) {
         uObj.email = newEmail;
         currentUser = newEmail;
+        localStorage.setItem('persisted_current_user', newEmail);
       }
       await saveUserToCloud(uObj);
     }
@@ -1667,12 +1686,17 @@ function populateTestStudentSelect() {
   });
 }
 
-function openTestCheckoutForSelectedStudent() {
+function openTestCheckoutCustom() {
   const sel = document.getElementById('test-student-select');
+  const amountInput = document.getElementById('test-amount-input');
   if(!sel || !sel.value) return alert("Selecione um aluno para o teste.");
+  
+  let val = parseFloat(amountInput.value);
+  if(isNaN(val) || val <= 0) return alert("Digite um valor válido maior que zero.");
+
   checkoutTargetUser = sel.value;
-  currentCheckoutAmount = 0.01;
-  document.getElementById('checkout-modal-title').innerText = `Checkout Teste Aluno — R$ 0,01`;
+  currentCheckoutAmount = val;
+  document.getElementById('checkout-modal-title').innerText = `Checkout Teste — R$ ${val.toFixed(2)}`;
   openCheckoutModal();
 }
 
@@ -1806,7 +1830,7 @@ function deleteLesson(modId, lessonId) {
   }
 }
 
-// Checkout com verificação automática de aprovação (Pix e Cartão) via Back-end
+// Checkout com suporte a Cartão e Pix e aprovação automática
 async function openCheckoutModal() {
   let targetEmail = checkoutTargetUser || currentUser;
   if (!targetEmail) {
@@ -1853,11 +1877,9 @@ async function openCheckoutModal() {
               .then(res => res.json())
               .then(response => {
                 if (response.success) {
-                  // Se o pagamento for aprovado de imediato (Cartão ou Pix instantâneo)
                   if (response.status === 'approved') {
                     simulateApprovalForTarget(targetEmail);
                   } 
-                  // Se for Pix pendente, exibe o QR Code e verifica automaticamente
                   else if (selectedPaymentMethod === 'bank_transfer' && response.point_of_interaction) {
                     const pixData = response.point_of_interaction.transaction_data;
                     const qrCodeBase64 = pixData.qr_code_base64;
@@ -1884,7 +1906,6 @@ async function openCheckoutModal() {
                       </div>
                     `;
 
-                    // Consulta periódica segura via back-end para liberar assim que pago
                     if(paymentId) {
                       activePaymentInterval = setInterval(async () => {
                         try {
@@ -1895,7 +1916,7 @@ async function openCheckoutModal() {
                             activePaymentInterval = null;
                             simulateApprovalForTarget(targetEmail);
                           }
-                        } catch(e) { /* silencia erro de rede temporário */ }
+                        } catch(e) {}
                       }, 4000);
                     }
                   } else {
