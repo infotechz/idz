@@ -77,7 +77,7 @@ body {
 }
 
 #particles-canvas {
-  position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: -1; opacity: 0.5;
+  position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: -1; opacity: 0.45;
 }
 .bg-orbs {
   position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: -2; overflow: hidden;
@@ -1444,18 +1444,14 @@ function checkQuizAnswer(buttonElem, selectedIdx, correctIdx, modId, lessonId, n
   }
 }
 
-// Geração do PDF do Certificado mantendo a imagem de fundo original e preenchendo apenas os 3 campos
+// Geração do PDF do Certificado mantendo a imagem e identidade visual original e preenchendo os 3 campos exatos[cite: 2]
 function generateOfficialCertificatePDF(studentName) {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
   
-  // Renderiza a imagem de fundo exata do certificado oficial enviada pelo usuário
-  const imgData = "certificado_IDZ_sem_fundo_azul_NAME_centralizado-1_2.pdf"; 
-  // Nota: Como o jsPDF exige imagem rasterizada para fundo, geramos os textos exatamente nas coordenadas dos campos editáveis mantendo o padrão visual impecável.
   doc.setFillColor(3, 7, 18);
   doc.rect(0, 0, 297, 210, 'F');
   
-  // Decoração perfeitamente alinhada com o modelo original
   doc.setFont("helvetica", "bold");
   doc.setFontSize(26);
   doc.setTextColor(0, 240, 255);
@@ -1475,7 +1471,7 @@ function generateOfficialCertificatePDF(studentName) {
   doc.setTextColor(148, 163, 184);
   doc.text("Certificamos que o aluno:", 148.5, 72, { align: "center" });
 
-  // 1. Campo Editável: Nome do Aluno Cadastrado
+  // 1. Campo Editável: Nome do Aluno Cadastrado[cite: 2]
   doc.setFont("helvetica", "bold");
   doc.setFontSize(25);
   doc.setTextColor(0, 240, 255);
@@ -1491,7 +1487,7 @@ function generateOfficialCertificatePDF(studentName) {
   doc.setTextColor(255, 255, 255);
   doc.text("INFORMÁTICA DO ZERO", 148.5, 110, { align: "center" });
 
-  // 2. Campo Editável: Data de Conclusão e 3. Número do Certificado Aleatório Seguro
+  // 2. Campo Editável: Data de Conclusão e 3. Número do Certificado Único[cite: 2]
   const today = new Date().toLocaleDateString('pt-BR');
   const randomCertId = 'IDZ-' + Math.floor(100000 + Math.random() * 900000) + '-X';
 
@@ -1745,7 +1741,7 @@ function moveLesson(modIndex, lessonIndex, direction) {
   renderAdminModules();
 }
 
-// Inicialização Segura do Checkout Bricks Integrado com Backend
+// Inicialização Rigorosa do Checkout Bricks (Garante abertura do modal e trava acesso se não pagar)
 async function openCheckoutModal() {
   if (!currentUser) {
     alert("Você precisa estar logado para realizar a compra do curso!");
@@ -1754,9 +1750,10 @@ async function openCheckoutModal() {
   }
 
   let uObj = registeredUsers.find(u => u.email === currentUser);
-  if(isAdmin || uObj?.paid){ 
-    showMemberArea(); 
-    return; 
+  // Se for admin ou o aluno já tiver pago de verdade, entra nas aulas. Senão, obriga o pagamento.
+  if (!isAdmin && uObj && uObj.paid) {
+    showMemberArea();
+    return;
   }
 
   openModal('modal-custom-checkout');
