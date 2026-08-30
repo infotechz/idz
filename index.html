@@ -579,19 +579,16 @@ footer {
         <div class="input-group"><label>Módulo</label><select id="lesson-mod-select"></select></div>
         <div class="input-group"><label>Título da Aula</label><input type="text" id="lesson-title-input" placeholder="Ex: Aula 1 — Hardware"></div>
         
-        <!-- Bloco 1: Descrição da Aula -->
         <div class="input-group">
           <label><i class="fa-solid fa-align-left" style="color:var(--accent-cyan);"></i> 1. Descrição da Aula</label>
           <textarea id="lesson-desc-input" rows="3" placeholder="Descreva o contexto geral desta aula..."></textarea>
         </div>
 
-        <!-- Bloco 2: O que vai ser aprendido -->
         <div class="input-group">
           <label><i class="fa-solid fa-list-check" style="color:var(--accent-cyan);"></i> 2. O que vai ser aprendido</label>
           <textarea id="lesson-learned-input" rows="3" placeholder="Liste os tópicos principais que serão abordados..."></textarea>
         </div>
 
-        <!-- Bloco 3: Objetivos na Aula -->
         <div class="input-group">
           <label><i class="fa-solid fa-bullseye" style="color:var(--accent-cyan);"></i> 3. Objetivos na Aula</label>
           <textarea id="lesson-obj-input" rows="3" placeholder="Defina o resultado prático esperado após assistir..."></textarea>
@@ -793,6 +790,123 @@ const defaultCourseData = [
       { id: 102, title: "Aula 2 — Principais partes do computador", description: "Conhecendo a estrutura física externa.", learned: "Monitor, teclado, mouse, gabinete e notebook.", objectives: "Identificar monitor, teclado, mouse, gabinete e notebook.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual componente externo é considerado estritamente de saída de dados?", options: ["Teclado", "Mouse", "Monitor", "Microfone"], correct: 2 } },
       { id: 103, title: "Aula 3 — Hardware e Software", description: "Entendendo a diferença entre a parte física e lógica.", learned: "Conceitos de peças físicas e programas de computador.", objectives: "Diferenciar hardware e software.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O que representa o 'Hardware' em um computador?", options: ["Os programas e sistemas instalados.", "A parte física e palpável (peças e componentes).", "A conexão de internet sem fio.", "Os arquivos salvos na nuvem."], correct: 1 } },
       { id: 104, title: "Aula 4 — Exercício prático", description: "Fixação dos conceitos iniciais.", learned: "Reconhecimento prático dos componentes.", objectives: "Identificação dos componentes do próprio computador.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual o objetivo principal do exercício prático deste módulo?", options: ["Desmontar a CPU inteira.", "Identificar e reconhecer os componentes físicos do próprio computador.", "Instalar um sistema operacional novo.", "Configurar uma rede Wi-Fi avançada."], correct: 1 } }
+    ]
+  },
+  {
+    id: 2, title: "MÓDULO 2 — TECLADO, MOUSE E ATALHOS", intro: "Aprenda a controlar o computador com eficiência.",
+    lessons: [
+      { id: 201, title: "Aula 1 — Conhecendo o teclado", description: "Estudo das teclas principais.", learned: "Enter, Espaço, Backspace, Shift, Caps Lock, Ctrl, Alt.", objectives: "Conhecer Enter, Espaço, Backspace, Shift, Caps Lock, Ctrl, Alt.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual tecla é usada para apagar caracteres à esquerda do cursor?", options: ["Enter", "Backspace", "Shift", "Espaço"], correct: 1 } },
+      { id: 202, title: "Aula 2 — Aprendendo a usar o mouse", description: "Domínio dos cliques e navegação.", learned: "Clique, duplo clique, botão direito, rolagem e arrastar.", objectives: "Utilizar clique, duplo clique, botão direito, rolagem e arrastar.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual botão do mouse é normalmente usado para abrir menus de contexto rápidos?", options: ["Botão esquerdo", "Botão direito", "Scroll central", "Nenhum dos botões"], correct: 1 } },
+      { id: 203, title: "Aula 3 — Atalhos essenciais", description: "Agilidade no dia a dia com comandos rápidos.", learned: "Atalhos como Ctrl+C, Ctrl+V, Ctrl+X, Ctrl+Z.", objectives: "Conhecer atalhos como Ctrl+C, Ctrl+V, Ctrl+X, Ctrl+Z.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual atalho de teclado é utilizado para colar um item previamente copiado?", options: ["Ctrl + C", "Ctrl + V", "Ctrl + X", "Ctrl + Z"], correct: 1 } },
+      { id: 204, title: "Aula 4 — Exercício de teclado e mouse", description: "Prática com os periféricos.", learned: "Exercícios práticos de fixação.", objectives: "Colocar em prática os conhecimentos.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O que se busca desenvolver com o exercício prático de teclado e mouse?", options: ["Digitação cega profissional", "Familiaridade e confiança no manuseio dos periféricos", "Programação avançada", "Manutenção de hardware"], correct: 1 } }
+    ]
+  },
+  {
+    id: 3, title: "MÓDULO 3 — ARQUIVOS E PASTAS", intro: "Organize seus documentos com facilidade.",
+    lessons: [
+      { id: 301, title: "Aula 1 — O que são arquivos e pastas?", description: "Conceito de armazenamento local.", learned: "Diferenciar arquivos e pastas.", objectives: "Diferenciar arquivos e pastas.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual é a função básica de uma pasta no sistema operacional?", options: ["Armazenar e organizar arquivos agrupando-os", "Aumentar a velocidade do processador", "Substituir o uso de antivírus", "Transmitir dados via Bluetooth"], correct: 0 } },
+      { id: 302, title: "Aula 2 — Criando e renomeando pastas", description: "Boas práticas de organização.", learned: "Criar pastas e escolher nomes organizados.", objectives: "Criar pastas e escolher nomes organizados.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Por que é importante escolher nomes claros ao criar pastas?", options: ["Para ocupar menos espaço em disco", "Para facilitar a localização futura dos documentos", "Para impedir a exclusão acidental", "Para acelerar a internet"], correct: 1 } },
+      { id: 303, title: "Aula 3 — Copiar, mover e excluir", description: "Gerenciamento seguro de dados.", learned: "Manipular arquivos com segurança.", objectives: "Manipular arquivos com segurança.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual ação transfere um arquivo de um local para outro, apagando-o do local original?", options: ["Copiar", "Mover", "Baixar", "Compactar"], correct: 1 } },
+      { id: 304, title: "Aula 4 — Exercício de organização", description: "Prática de estruturação.", learned: "Criação de árvore de diretórios.", objectives: "Criar sua própria estrutura de pastas.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O exercício de organização de pastas visa principalmente:", options: ["Praticar a criação de diretórios e arranjo lógico de arquivos", "Apagar arquivos inúteis do sistema", "Criar códigos de programação", "Formatar o disco rígido"], correct: 0 } }
+    ]
+  },
+  {
+    id: 4, title: "MÓDULO 4 — INTERNET E PESQUISAS", intro: "Navegue e encontre informações com eficiência.",
+    lessons: [
+      { id: 401, title: "Aula 1 — O que é a internet?", description: "Redes e navegadores.", learned: "Internet, navegador, site e página.", objectives: "Entender internet, navegador, site e página.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O que é um navegador (browser) de internet?", options: ["Um antivírus", "Um software para acessar e visualizar páginas da web", "Um cabo de rede", "Uma planilha eletrônica"], correct: 1 } },
+      { id: 402, title: "Aula 2 — Como fazer pesquisas melhores", description: "Técnicas de busca no Google.", learned: "Utilizar palavras-chave para pesquisas.", objectives: "Utilizar palavras-chave para pesquisas.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O uso de palavras-chave específicas em buscadores serve para:", options: ["Encontrar resultados mais precisos e relevantes", "Travar o navegador", "Exibir propagandas pagas", "Apagar o histórico de navegação"], correct: 0 } },
+      { id: 403, title: "Aula 3 — Downloads e uploads", description: "Transferência de arquivos.", learned: "Diferenciar baixar e enviar arquivos.", objectives: "Diferenciar baixar e enviar arquivos.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O que significa realizar um 'Download' na internet?", options: ["Enviar um arquivo do seu PC para a nuvem", "Baixar/transferir um arquivo da internet para o seu computador", "Imprimir um documento", "Excluir um arquivo da rede"], correct: 1 } },
+      { id: 404, title: "Aula 4 — Exercício de pesquisa", description: "Prática de buscas web.", learned: "Simulação de pesquisas úteis.", objectives: "Realizar pesquisa simples e comparar resultados.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual a finalidade de praticar pesquisas no exercício do módulo?", options: ["Aperfeiçoar a capacidade de buscar e filtrar informações na web", "Criar vírus de computador", "Enviar e-mails em massa", "Configurar roteadores"], correct: 0 } }
+    ]
+  },
+  {
+    id: 5, title: "MÓDULO 5 — E-MAIL", intro: "Domine o envio e organização de mensagens.",
+    lessons: [
+      { id: 501, title: "Aula 1 — Conhecendo o e-mail", description: "Estrutura de correio eletrônico.", learned: "Caixa de entrada, destinatário e assunto.", objectives: "Conhecer caixa de entrada, destinatário e assunto.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual caractere é obrigatório em qualquer endereço de e-mail?", options: ["#", "@", "$", "%"], correct: 1 } },
+      { id: 502, title: "Aula 2 — Enviando mensagens e anexos", description: "Anexando arquivos com segurança.", learned: "Enviar mensagens e anexar documentos.", objectives: "Enviar mensagens e anexar documentos.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Para que serve a opção de 'Anexar' em um e-mail?", options: ["Para enviar arquivos junto com a mensagem (como fotos e documentos)", "Para excluir o e-mail automaticamente", "Para bloquear o destinatário", "Para alterar a senha da conta"], correct: 0 } },
+      { id: 503, title: "Aula 3 — Organização da caixa de entrada", description: "Filtros e spam.", learned: "Manter e-mails organizados.", objectives: "Manter e-mails organizados.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Onde costumam ficar mensagens automáticas suspeitas ou propagandas não solicitadas?", options: ["Na Caixa de Entrada principal", "Na pasta de Spam / Lixo Eletrônico", "Na lixeira definitiva", "Nos contatos salvos"], correct: 1 } },
+      { id: 504, title: "Aula 4 — Exercício de e-mail", description: "Prática de envio.", learned: "Envio simulado com anexo.", objectives: "Praticar envio com arquivo anexado.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O exercício prático de e-mail simula qual situação cotidiana?", options: ["O envio correto de uma mensagem com documento anexado", "A formatação de planilhas complexas", "A criação de apresentações em slides", "A formatação do Windows"], correct: 0 } }
+    ]
+  },
+  {
+    id: 6, title: "MÓDULO 6 — WORD E DOCUMENTOS", intro: "Crie documentos profissionais e organizados.",
+    lessons: [
+      { id: 601, title: "Aula 1 — Conhecendo o editor de textos", description: "Primeiros passos no editor.", learned: "Criar documentos e digitar textos.", objectives: "Criar documentos e digitar textos.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual é a principal utilidade do Microsoft Word?", options: ["Criar planilhas financeiras", "Criar, editar e formatar documentos de texto", "Navegar na internet", "Editar vídeos institucionais"], correct: 1 } },
+      { id: 602, title: "Aula 2 — Formatação de texto", description: "Estilos e fontes.", learned: "Aplicar fonte, negrito e alinhamento.", objectives: "Aplicar fonte, negrito e alinhamento.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual atalho aplica o formato de Negrito no texto selecionado?", options: ["Ctrl + C", "Ctrl + N", "Ctrl + V", "Ctrl + P"], correct: 1 } },
+      { id: 603, title: "Aula 3 — Imagens e tabelas", description: "Elementos visuais em documentos.", learned: "Inserir imagens e tabelas.", objectives: "Inserir imagens e tabelas.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Para que serve inserir tabelas em um documento de texto?", options: ["Para organizar dados estruturados em linhas e colunas", "Para aumentar o zoom da tela", "Para enviar o arquivo por fax", "Para colorir o fundo do monitor"], correct: 0 } },
+      { id: 604, title: "Aula 4 — Exercício de documento", description: "Projeto de texto aplicado.", learned: "Criação de documento completo.", objectives: "Criar documento completo aplicado.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O exercício final deste módulo consiste em:", options: ["Criar e formatar um pequeno documento completo", "Desenvolver um software antivírus", "Montar uma rede de computadores", "Criar gráficos estatísticos avançados"], correct: 0 } }
+    ]
+  },
+  {
+    id: 7, title: "MÓDULO 7 — EXCEL E PLANILHAS", intro: "Domine planilhas, dados e cálculos básicos.",
+    lessons: [
+      { id: 701, title: "Aula 1 — Conhecendo as planilhas", description: "Estrutura de células e colunas.", learned: "Conhecer células, linhas, colunas e abas.", objectives: "Conhecer células, linhas, colunas e abas.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Como é chamada a interseção entre uma coluna e uma linha no Excel?", options: ["Slide", "Célula", "Pasta", "Parágrafo"], correct: 1 } },
+      { id: 702, title: "Aula 2 — Digitando e formatando dados", description: "Inserção correta de dados.", learned: "Inserir informações e organizar tabelas.", objectives: "Inserir informações e organizar tabelas.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Toda fórmula ou operação matemática no Excel inicia obrigatoriamente com:", options: ["O ponto final (.)", "O sinal de igual (=)", "O ponto e vírgula (;)", "A barra inclinada (/)"], correct: 1 } },
+      { id: 703, title: "Aula 3 — Fórmulas básicas", description: "Operações matemáticas simples.", learned: "Utilizar operações simples de cálculo.", objectives: "Utilizar operações simples de cálculo.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual símbolo representa a multiplicação nas fórmulas do Excel?", options: ["+", "-", "*", "/"], correct: 2 } },
+      { id: 704, title: "Aula 4 — Exercício: planilha financeira", description: "Controle de caixa básico.", learned: "Montagem de planilha de receitas e despesas.", objectives: "Montar planilha de entradas e despesas.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O exercício prático deste módulo propõe a criação de:", options: ["Uma planilha simples de controle de entradas e despesas", "Uma carta de apresentação profissional", "Uma apresentação de slides", "Um banco de dados de clientes"], correct: 0 } }
+    ]
+  },
+  {
+    id: 8, title: "MÓDULO 8 — POWERPOINT", intro: "Crie apresentações visuais e impactantes.",
+    lessons: [
+      { id: 801, title: "Aula 1 — Conhecendo apresentações", description: "Conceito de slides.", learned: "Entender o conceito de slides e estrutura.", objectives: "Entender o conceito de slides e estrutura.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual a principal finalidade do Microsoft PowerPoint?", options: ["Criar apresentações visuais em slides", "Gerenciar contas bancárias", "Navegar na web com segurança", "Escrever códigos de sistema"], correct: 0 } },
+      { id: 802, title: "Aula 2 — Criando slides", description: "Adicionando conteúdo visual.", learned: "Criar slides, inserir textos e imagens.", objectives: "Criar slides, inserir textos e imagens.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Ao criar slides, o que é recomendado para garantir boa leitura?", options: ["Usar letras minúsculas e cores idênticas ao fundo", "Manter bom contraste entre o texto e o fundo", "Colocar textos extensos sem espaçamento", "Omitir títulos"], correct: 1 } },
+      { id: 803, title: "Aula 3 — Apresentação e transições", description: "Efeitos visuais moderados.", learned: "Executar apresentação com transições moderadas.", objectives: "Executar apresentação com transições moderadas.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual o cuidado recomendado ao aplicar transições e efeitos nos slides?", options: ["Usar com moderação para não distrair o público", "Aplicar efeitos barulhentos em todos os objetos", "Evitar qualquer tipo de animação", "Usar apenas transições lentas de 10 segundos"], correct: 0 } },
+      { id: 804, title: "Aula 4 — Exercício de apresentação", description: "Projeto de slides.", learned: "Criação de apresentação completa.", objectives: "Criar apresentação simples de três slides.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O exercício de apresentação consiste em criar:", options: ["Uma apresentação simples estruturada em três slides", "Uma planilha contábil completa", "Um documento de texto jurídico", "Uma pasta compactada"], correct: 0 } }
+    ]
+  },
+  {
+    id: 9, title: "MÓDULO 9 — ARMAZENAMENTO EM NUVEM", intro: "Acesse arquivos de qualquer lugar com segurança.",
+    lessons: [
+      { id: 901, title: "Aula 1 — O que é armazenamento em nuvem?", description: "Conceito de nuvem.", learned: "Entender nuvem e armazenamento online.", objectives: "Entender nuvem e armazenamento online.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual a principal vantagem do armazenamento em nuvem?", options: ["Acessar arquivos de diferentes dispositivos conectados à internet", "Aumentar a memória RAM física do PC", "Funcionar sem necessidade de eletricidade", "Eliminar a necessidade de senhas"], correct: 0 } },
+      { id: 902, title: "Aula 2 — Organizando arquivos online", description: "Estruturas virtuais.", learned: "Criar pastas e organizar documentos.", objectives: "Criar pastas e organizar documentos.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "A organização de pastas na nuvem funciona de forma:", options: ["Igual ou muito semelhante à organização no computador local", "Exclusiva para arquivos de música", "Incompatível com documentos do Word", "Automática sem intervenção do usuário"], correct: 0 } },
+      { id: 903, title: "Aula 3 — Compartilhamento", description: "Links e permissões.", learned: "Entender links e permissões de acesso.", objectives: "Entender links e permissões de acesso.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O que se deve verificar ao gerar um link de compartilhamento na nuvem?", options: ["As permissões de acesso concedidas (leitura ou edição)", "A voltagem da tomada do roteador", "A resolução da tela de quem vai receber", "O peso em gramas do arquivo"], correct: 0 } },
+      { id: 904, title: "Aula 4 — Exercício na nuvem", description: "Prática online.", learned: "Uso prático de pastas na nuvem.", objectives: "Criar pasta, adicionar arquivo e compartilhar.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O exercício prático de nuvem envolve:", options: ["Criar uma pasta online, enviar um arquivo e praticar o compartilhamento", "Desinstalar o navegador", "Formatar o HD externo", "Imprimir um documento físico"], correct: 0 } }
+    ]
+  },
+  {
+    id: 10, title: "MÓDULO 10 — SEGURANÇA DIGITAL", intro: "Proteja suas contas e informações na internet.",
+    lessons: [
+      { id: 1001, title: "Aula 1 — Senhas e autenticação", description: "Boas práticas de segurança.", learned: "Criar senhas seguras e autenticação adicional.", objectives: "Criar senhas seguras e autenticação adicional.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O que caracteriza uma senha forte?", options: ["Uso de dados óbvios como data de nascimento", "Combinação de letras maiúsculas/minúsculas, números e símbolos", "Uma sequência numérica simples como 123456", "O primeiro nome do usuário"], correct: 1 } },
+      { id: 1002, title: "Aula 2 — Golpes e phishing", description: "Identificando fraudes digitais.", learned: "Reconhecer mensagens suspeitas e phishing.", objectives: "Reconhecer mensagens suspeitas e phishing.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O que é o golpe de Phishing?", options: ["Uma atualização de segurança legítima", "Mensagens falsas fingindo ser instituições confiáveis para roubar dados", "Um erro de conexão de rede", "Um programa de compactação de arquivos"], correct: 1 } },
+      { id: 1003, title: "Aula 3 — Privacidade", description: "Proteção de dados pessoais.", learned: "Proteger informações pessoais e revisar permissões.", objectives: "Proteger informações pessoais e revisar permissões.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual é uma boa prática relacionada à privacidade digital?", options: ["Publicar o endereço residencial e documentos em redes públicas", "Evitar expor dados pessoais sensíveis desnecessariamente", "Compartilhar senhas com desconhecidos na web", "Desativar todas as travas do navegador"], correct: 1 } },
+      { id: 1004, title: "Aula 4 — Exercício de segurança", description: "Simulação de segurança.", learned: "Análise de cenários seguros.", objectives: "Analisar exemplos práticos e tomar decisões seguras.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O exercício de segurança digital propõe:", options: ["Analisar casos práticos para identificar armadilhas e tomar decisões seguras", "Invadir redes de computadores", "Testar a velocidade da banda larga", "Criar vírus educacionais"], correct: 0 } }
+    ]
+  },
+  {
+    id: 11, title: "MÓDULO 11 — INTELIGÊNCIA ARTIFICIAL", intro: "Conheça conceitos básicos de IA e aprenda a criar prompts.",
+    lessons: [
+      { id: 1101, title: "Aula 1 — O que é Inteligência Artificial?", description: "Introdução à tecnologia de IA.", learned: "Entender IA e suas aplicações.", objectives: "Entender IA e suas aplicações.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O que define uma Inteligência Artificial generativa de texto?", options: ["Um robô físico de limpeza", "Sistemas treinados para processar linguagem natural e gerar conteúdos", "Um antivírus avançado", "Um cabo de fibra óptica"], correct: 1 } },
+      { id: 1102, title: "Aula 2 — Como escrever bons prompts", description: "Comandos eficientes para IA.", learned: "Criar instruções claras com objetivo e contexto.", objectives: "Criar instruções claras com objetivo e contexto.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O que é um 'prompt' no uso de ferramentas de IA?", options: ["A instrução ou comando digitado pelo usuário", "O erro de conexão", "A taxa de assinatura da ferramenta", "O arquivo gerado em PDF"], correct: 0 } },
+      { id: 1103, title: "Aula 3 — IA para estudo e produtividade", description: "Uso prático no dia a dia.", learned: "Utilizar IA para organizar ideias e auxiliar estudos.", objectives: "Utilizar IA para organizar ideias e auxiliar estudos.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Como a IA pode auxiliar na produtividade diária?", options: ["Substituindo o uso de computadores", "Auxiliando na criação de resumos, rascunhos e organização de ideias", "Consertando peças físicas queimadas", "Imprimindo documentos sem papel"], correct: 1 } },
+      { id: 1104, title: "Aula 4 — Exercício de prompt", description: "Prática com inteligência artificial.", learned: "Elaboração de comandos práticos.", objectives: "Criar prompt estruturado e avaliar resultado.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O exercício de prompt consiste em:", options: ["Praticar a criação de comandos claros e estruturados para obter bons resultados da IA", "Desligar o sistema de inteligência", "Formatar o computador", "Criar planilhas financeiras manuais"], correct: 0 } }
+    ]
+  },
+  {
+    id: 12, title: "MÓDULO 12 — PROJETO FINAL", intro: "Aplique tudo o que aprendeu em um projeto prático.",
+    lessons: [
+      { id: 1201, title: "Aula 1 — Planejando o projeto", description: "Etapas iniciais do projeto.", learned: "Definir ideia e planejar etapas.", objectives: "Definir ideia e planejar etapas.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual é o primeiro passo recomendado para iniciar o projeto final?", options: ["Planejar as etapas e definir a ideia a ser desenvolvida", "Imprimir o certificado antes de começar", "Excluir os módulos anteriores", "Desinstalar os editores de texto"], correct: 0 } },
+      { id: 1202, title: "Aula 2 — Criando o projeto", description: "Execução prática.", learned: "Colocar planejamento em prática e organizar arquivos.", objectives: "Colocar planejamento em prática e organizar arquivos.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O que se faz durante a etapa de criação do projeto?", options: ["Colocar o planejamento em prática criando e organizando os arquivos digitais", "Apenas assistir a vídeos sem praticar", "Aguardar o suporte técnico", "Desligar o computador"], correct: 0 } },
+      { id: 1203, title: "Aula 3 — Revisão e organização", description: "Conferência final.", learned: "Conferir informações e corrigir erros.", objectives: "Conferir informações e corrigir erros.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual a importância da revisão antes de finalizar o projeto?", options: ["Garantir que não há erros e que o trabalho está bem organizado", "Aumentar o tamanho do arquivo", "Mudar o idioma do computador", "Apagar o conteúdo produzido"], correct: 0 } },
+      { id: 1204, title: "Aula 4 — Conclusão", description: "Encerramento do curso.", learned: "Finalizar projeto e revisar evolução.", objectives: "Finalizar projeto e revisar evolução.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O que representa a conclusão do projeto final?", options: ["O encerramento prático do curso com consolidação das habilidades adquiridas", "O fim definitivo do uso de computadores", "Uma falha no sistema operacional", "A necessidade de reiniciar o curso do zero"], correct: 0 } }
+    ]
+  },
+  {
+    id: 13, title: "🎁 BÔNUS 1 — 30 ATALHOS DE TECLADO", intro: "Coleção de atalhos úteis para maior agilidade.",
+    lessons: [
+      { id: 1301, title: "Aula — Atalhos essenciais", description: "Lista de comandos rápidos.", learned: "Memorizar atalhos importantes e aumentar produtividade.", objectives: "Memorizar atalhos importantes e aumentar produtividade.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual é o principal benefício de dominar atalhos de teclado?", options: ["Ganhar agilidade e eficiência nas tarefas cotidianas", "Fazer o computador rodar jogos mais pesados", "Evitar o uso do monitor", "Imprimir mais rápido"], correct: 0 } }
+    ]
+  },
+  {
+    id: 14, title: "🎁 BÔNUS 2 — MODELO DE CURRÍCULO", intro: "Aprenda a utilizar modelo simples de currículo.",
+    lessons: [
+      { id: 1401, title: "Aula — Como usar o modelo", description: "Estruturação profissional.", learned: "Organizar informações profissionais e preencher currículo.", objectives: "Organizar informações profissionais e preencher currículo.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "O que é fundamental ao preencher o modelo de currículo?", options: ["Manter a clareza, objetividade e veracidade das informações profissionais", "Escrever textos longos sem parágrafos", "Omitir dados de contato", "Usar fontes ilegíveis"], correct: 0 } }
+    ]
+  },
+  {
+    id: 15, title: "🎁 BÔNUS 3 — PLANILHA FINANCEIRA", intro: "Organização das informações financeiras do dia a dia.",
+    lessons: [
+      { id: 1501, title: "Aula — Como usar a planilha", description: "Controle financeiro pessoal.", learned: "Registrar entradas e despesas com cálculos simples.", objectives: "Registrar entradas e despesas com cálculos simples.", video: "", image: "", pdf: "", pdfName: "", quiz: { question: "Qual a utilidade principal da planilha financeira bônus?", options: ["Ajudar no registro organizado de entradas, despesas e controle diário", "Criar apresentações de slides", "Navegar em sites de compras", "Desenvolver programas de computador"], correct: 0 } }
     ]
   }
 ];
@@ -1305,19 +1419,16 @@ function loadLessonContent(modId, lessonId) {
     <h2 style="margin-bottom: 18px; font-size: 22px; color: #fff;">${lesson.title}</h2>
     ${mediaHtml}
     
-    <!-- 1. Descrição da Aula -->
     <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); padding: 20px; border-radius: 16px; margin-top: 20px;">
       <h4 style="color: var(--accent-cyan); margin-bottom: 8px; font-size: 14.5px;"><i class="fa-solid fa-align-left"></i> Descrição da Aula</h4>
       <p style="color: var(--text-secondary); font-size: 13.5px; white-space: pre-line;">${lesson.description || 'Sem descrição cadastrada.'}</p>
     </div>
 
-    <!-- 2. O que vai ser aprendido -->
     <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); padding: 20px; border-radius: 16px; margin-top: 14px;">
       <h4 style="color: var(--accent-cyan); margin-bottom: 8px; font-size: 14.5px;"><i class="fa-solid fa-list-check"></i> O que vai ser aprendido</h4>
       <p style="color: var(--text-secondary); font-size: 13.5px; white-space: pre-line;">${lesson.learned || 'Nenhum tópico informado.'}</p>
     </div>
 
-    <!-- 3. Objetivos na Aula -->
     <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); padding: 20px; border-radius: 16px; margin-top: 14px;">
       <h4 style="color: var(--accent-cyan); margin-bottom: 8px; font-size: 14.5px;"><i class="fa-solid fa-bullseye"></i> Objetivos na Aula</h4>
       <p style="color: var(--text-secondary); font-size: 13.5px; white-space: pre-line;">${lesson.objectives || 'Nenhum objetivo informado.'}</p>
