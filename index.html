@@ -1012,7 +1012,7 @@ window.onload = function() {
           if (d.lessons) totalCount += d.lessons.length;
         });
 
-        // SE O BANCO ESTIVER VAZIO OU TIVER MENOS DE 15 MÓDULOS, INICIALIZA AUTOMATICAMENTE OS 15 MÓDULOS E 51 AULAS
+        // SE O BANCO ESTIVER VAZIO OU TIVER MENOS DE 15 MÓDULOS, INICIALIZA AUTOMATICAMENTE
         if (snapshot.empty || snapshot.size < 15 || totalCount < 51) {
           for (const mod of defaultCourseData) {
             await setDoc(doc(window.db, "modules", mod.id.toString()), mod);
