@@ -17,7 +17,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getFirestore, collection, doc, setDoc, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+  import { getFirestore, collection, doc, setDoc, getDoc, getDocs, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
   import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendPasswordResetEmail, updateEmail, updatePassword, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
   const firebaseConfig = {
@@ -40,7 +40,7 @@
 
   window.db = db;
   window.auth = auth;
-  window.firebaseModules = { collection, doc, setDoc, onSnapshot, deleteDoc, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendPasswordResetEmail, updateEmail, updatePassword, onAuthStateChanged };
+  window.firebaseModules = { collection, doc, setDoc, getDoc, getDocs, onSnapshot, deleteDoc, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendPasswordResetEmail, updateEmail, updatePassword, onAuthStateChanged };
 </script>
 
 <style>
@@ -970,7 +970,7 @@ window.onload = function() {
   const checkDbInterval = setInterval(() => {
     if (window.db && window.auth) {
       clearInterval(checkDbInterval);
-      const { collection, onSnapshot, setDoc, doc, onAuthStateChanged } = window.firebaseModules;
+      const { collection, onSnapshot, setDoc, doc, onAuthStateChanged, getDocs } = window.firebaseModules;
 
       onAuthStateChanged(window.auth, (user) => {
         if (user) {
@@ -1005,34 +1005,35 @@ window.onload = function() {
         }
       });
 
-      onSnapshot(collection(window.db, "modules"), async (snapshot) => {
-        let totalCount = 0;
-        snapshot.forEach(docSnap => {
-          let d = docSnap.data();
-          if (d.lessons) totalCount += d.lessons.length;
+      // Checagem e inicialização imediata via getDocs para garantir carga instantânea
+      (async () => {
+        try {
+          const snap = await getDocs(collection(window.db, "modules"));
+          if (snap.empty || snap.size < 15) {
+            for (const mod of defaultCourseData) {
+              await setDoc(doc(window.db, "modules", mod.id.toString()), mod);
+            }
+          }
+        } catch (e) {
+          console.error("Erro ao inicializar módulos:", e);
+        }
+      })();
+
+      onSnapshot(collection(window.db, "modules"), (snapshot) => {
+        courseData = [];
+        snapshot.forEach((docSnap) => {
+          courseData.push(docSnap.data());
         });
+        courseData.sort((a, b) => a.id - b.id);
+        
+        updateCourseStatsUI();
 
-        // SE O BANCO ESTIVER VAZIO OU TIVER MENOS DE 15 MÓDULOS, INICIALIZA AUTOMATICAMENTE
-        if (snapshot.empty || snapshot.size < 15 || totalCount < 51) {
-          for (const mod of defaultCourseData) {
-            await setDoc(doc(window.db, "modules", mod.id.toString()), mod);
-          }
-        } else {
-          courseData = [];
-          snapshot.forEach((docSnap) => {
-            courseData.push(docSnap.data());
-          });
-          courseData.sort((a, b) => a.id - b.id);
-          
-          updateCourseStatsUI();
-
-          if (currentUser && document.getElementById('member-area').style.display === 'block') {
-            renderMemberSidebar();
-          }
-          if (isAdmin && document.getElementById('admin-area').style.display === 'block') {
-            renderAdminModules();
-            renderDashboard();
-          }
+        if (currentUser && document.getElementById('member-area').style.display === 'block') {
+          renderMemberSidebar();
+        }
+        if (isAdmin && document.getElementById('admin-area').style.display === 'block') {
+          renderAdminModules();
+          renderDashboard();
         }
       });
 
