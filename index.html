@@ -434,7 +434,7 @@ footer {
   <header class="hero">
     <div class="wrap gridhero">
       <div>
-        <span class="tag"><i class="fa-solid fa-bolt"></i> FORMAÇÃO COMPLETA • 51 AULAS</span>
+        <span class="tag" id="hero-tag-lessons"><i class="fa-solid fa-bolt"></i> FORMAÇÃO COMPLETA • CARREGANDO...</span>
         <h1>Aprenda <span>Informática Definitiva</span> e conquiste sua autonomia digital.</h1>
         <p>Domine o computador, crie planilhas, documentos profissionais, navegue com total segurança e use a Inteligência Artificial a seu favor.</p>
         <button class="btn" onclick="handleAccountAction()"><i class="fa-solid fa-unlock-keyhole"></i> <span id="hero-btn-text">ACESSAR MINHA CONTA</span></button>
@@ -445,7 +445,7 @@ footer {
         <p style="font-size: 13.5px; margin-bottom: 22px;">Aprenda no seu ritmo com suporte dedicado.</p>
         
         <div class="benefits-list">
-          <div><i class="fa-solid fa-check"></i> 51 Aulas práticas em 15 Módulos</div>
+          <div id="benefit-lessons-count"><i class="fa-solid fa-check"></i> Aulas práticas em 15 Módulos</div>
           <div><i class="fa-solid fa-check"></i> Bônus práticos e exclusivos</div>
           <div><i class="fa-solid fa-check"></i> Acesso via celular ou computador</div>
           <div><i class="fa-solid fa-check"></i> Certificado de Conclusão Oficial</div>
@@ -458,7 +458,7 @@ footer {
   <section id="course-details">
     <div class="wrap">
       <div class="section-header">
-        <h2>Conteúdo Programático Completo (15 Módulos & 51 Aulas)</h2>
+        <h2 id="section-course-title">Conteúdo Programático Completo</h2>
         <p>Estrutura passo a passo atualizada com as ferramentas modernas do mercado.</p>
       </div>
       <div class="cards">
@@ -512,7 +512,7 @@ footer {
   <div class="lms-layout animate-fade-up">
     <div class="glass-panel lms-content" id="lms-main-content"></div>
     <div class="glass-panel lms-sidebar">
-      <h3><i class="fa-solid fa-book-open"></i> As 51 Aulas (15 Módulos)</h3>
+      <h3 id="sidebar-title-header"><i class="fa-solid fa-book-open"></i> Aulas e Módulos</h3>
       <div id="module-list"></div>
     </div>
   </div>
@@ -570,8 +570,8 @@ footer {
           <h4 id="admin-total-users">0 <i class="fa-solid fa-user-check" style="font-size: 15px; color: var(--text-muted);"></i></h4>
         </div>
         <div class="metric-box">
-          <span>Total de Aulas</span>
-          <h4 id="admin-total-lessons">51 <i class="fa-solid fa-video" style="font-size: 15px; color: var(--text-muted);"></i></h4>
+          <span>Total Cadastrado</span>
+          <h4 id="admin-total-modules-lessons">0 Módulos / 0 Aulas <i class="fa-solid fa-layer-group" style="font-size: 15px; color: var(--text-muted);"></i></h4>
         </div>
         <div class="metric-box" style="border-left-color: var(--green);">
           <span>Banco Cloud</span>
@@ -809,7 +809,7 @@ function animateParticles() {
 }
 initParticles(); animateParticles();
 
-// OS 15 MÓDULOS E AS 51 AULAS DISTRIBUÍDAS CORRETAMENTE DO ZERO
+// OS 15 MÓDULOS E 51 AULAS PADRÃO DO CURSO
 const defaultCourseData = [
   {
     id: 1, title: "MÓDULO 1 — INTRODUÇÃO À INFORMÁTICA", intro: "Hardware, periféricos e introdução ao ambiente digital.",
@@ -1006,13 +1006,13 @@ window.onload = function() {
       });
 
       onSnapshot(collection(window.db, "modules"), async (snapshot) => {
-        // FORÇA A ATUALIZAÇÃO COMPLETA SE HOUVER MENOS DE 15 MÓDULOS OU MENOS AULAS NO BANCO
         let totalCount = 0;
         snapshot.forEach(docSnap => {
           let d = docSnap.data();
           if (d.lessons) totalCount += d.lessons.length;
         });
 
+        // SE O BANCO ESTIVER VAZIO OU TIVER MENOS DE 15 MÓDULOS, INICIALIZA AUTOMATICAMENTE OS 15 MÓDULOS E 51 AULAS
         if (snapshot.empty || snapshot.size < 15 || totalCount < 51) {
           for (const mod of defaultCourseData) {
             await setDoc(doc(window.db, "modules", mod.id.toString()), mod);
@@ -1023,11 +1023,15 @@ window.onload = function() {
             courseData.push(docSnap.data());
           });
           courseData.sort((a, b) => a.id - b.id);
+          
+          updateCourseStatsUI();
+
           if (currentUser && document.getElementById('member-area').style.display === 'block') {
             renderMemberSidebar();
           }
           if (isAdmin && document.getElementById('admin-area').style.display === 'block') {
             renderAdminModules();
+            renderDashboard();
           }
         }
       });
@@ -1052,6 +1056,24 @@ window.onload = function() {
 
   updateMobileMenuOptions();
 };
+
+function updateCourseStatsUI() {
+  let totalMod = courseData.length;
+  let totalLes = 0;
+  courseData.forEach(m => { if(m.lessons) totalLes += m.lessons.length; });
+
+  const heroTag = document.getElementById('hero-tag-lessons');
+  if(heroTag) heroTag.innerHTML = `<i class="fa-solid fa-bolt"></i> FORMAÇÃO COMPLETA • ${totalLes} AULAS EM ${totalMod} MÓDULOS`;
+
+  const benefitText = document.getElementById('benefit-lessons-count');
+  if(benefitText) benefitText.innerHTML = `<i class="fa-solid fa-check"></i> ${totalLes} Aulas práticas em ${totalMod} Módulos`;
+
+  const sidebarHeader = document.getElementById('sidebar-title-header');
+  if(sidebarHeader) sidebarHeader.innerHTML = `<i class="fa-solid fa-book-open"></i> As ${totalLes} Aulas (${totalMod} Módulos)`;
+
+  const adminModulesLessonsElem = document.getElementById('admin-total-modules-lessons');
+  if(adminModulesLessonsElem) adminModulesLessonsElem.innerHTML = `${totalMod} Módulos / ${totalLes} Aulas <i class="fa-solid fa-layer-group" style="font-size: 15px; color: var(--text-muted);"></i>`;
+}
 
 async function saveCourseToCloud(successMsg = "Alterações salvas na nuvem com sucesso!") {
   if (!window.db) return;
@@ -1755,6 +1777,7 @@ function switchAdminTab(t) {
 
 function renderDashboard() {
   document.getElementById('admin-total-users').innerHTML = `${registeredUsers.length}`;
+  updateCourseStatsUI();
   const tbody = document.getElementById('users-list-body'); tbody.innerHTML = '';
   
   let totalLessonsInCourse = 0;
@@ -1826,18 +1849,23 @@ function openTestCheckoutCustom() {
 }
 
 function populateLessonModuleSelect(){
-  const s = document.getElementById('lesson-mod-select'); s.innerHTML='';
+  const s = document.getElementById('lesson-mod-select'); 
+  if(!s) return;
+  s.innerHTML='';
   courseData.forEach(m => s.innerHTML += `<option value="${m.id}">${m.title}</option>`);
 }
 
 function saveModuleData() {
   const t = document.getElementById('mod-title-input').value.trim();
   if(!t) {
-    showCustomAlert("Atenção", "Preencha o título.");
+    showCustomAlert("Atenção", "Preencha o título do módulo.");
     return;
   }
   courseData.push({ id: Date.now(), title: t, lessons: [] });
-  saveCourseToCloud("Módulo salvo!"); renderAdminModules(); populateLessonModuleSelect();
+  saveCourseToCloud("Módulo salvo com sucesso na nuvem!"); 
+  renderAdminModules(); 
+  populateLessonModuleSelect();
+  updateCourseStatsUI();
 }
 
 function saveLessonData() {
@@ -1856,6 +1884,10 @@ function saveLessonData() {
     return;
   }
   const m = courseData.find(x=>x.id==mId);
+  if(!m) {
+    showCustomAlert("Atenção", "Selecione um módulo válido.");
+    return;
+  }
   if(!m.lessons) m.lessons=[];
 
   let quiz = null;
@@ -1884,11 +1916,15 @@ function saveLessonData() {
     quiz: quiz 
   });
 
-  saveCourseToCloud("Aula salva com sucesso!"); renderAdminModules();
+  saveCourseToCloud("Aula publicada e sincronizada na nuvem!"); 
+  renderAdminModules();
+  updateCourseStatsUI();
 }
 
 function renderAdminModules() {
-  const c = document.getElementById('admin-modules-list-container'); c.innerHTML='';
+  const c = document.getElementById('admin-modules-list-container'); 
+  if(!c) return;
+  c.innerHTML='';
   courseData.forEach((m, index) => {
     let lessonsHtml = '';
     if (m.lessons) {
@@ -1949,6 +1985,7 @@ function deleteModule(modId) {
   saveCourseToCloud("Módulo excluído!");
   renderAdminModules();
   populateLessonModuleSelect();
+  updateCourseStatsUI();
 }
 
 function deleteLesson(modId, lessonId) {
@@ -1958,6 +1995,7 @@ function deleteLesson(modId, lessonId) {
     mod.lessons = mod.lessons.filter(l => l.id !== lessonId);
     saveCourseToCloud("Aula excluída!");
     renderAdminModules();
+    updateCourseStatsUI();
   }
 }
 
