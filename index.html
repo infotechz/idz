@@ -360,6 +360,16 @@ footer {
   <div class="orb orb-2"></div>
 </div>
 
+<!-- MODAL DE ALERTA PERSONALIZADO COM A CARA DO SITE -->
+<div class="modal-overlay" id="custom-alert-modal">
+  <div class="modal-card" style="max-width: 450px; text-align: center; border-color: var(--red);">
+    <i class="fa-solid fa-triangle-exclamation" style="font-size: 48px; color: var(--red); margin-bottom: 16px; filter: drop-shadow(0 0 10px rgba(239,68,68,0.5));"></i>
+    <h3 id="custom-alert-title" style="font-size: 19px; margin-bottom: 10px; color: #fff;">Atenção ao Pagamento</h3>
+    <p id="custom-alert-text" style="color: var(--text-secondary); font-size: 13.5px; margin-bottom: 24px; line-height: 1.5;"></p>
+    <button class="btn" style="width: 100%; background: linear-gradient(135deg, var(--red), #b91c1c); color: #fff;" onclick="closeCustomAlert()">Entendido</button>
+  </div>
+</div>
+
 <div class="modal-overlay" id="success-modal">
   <div class="modal-card" style="text-align: center; border-color: var(--green);">
     <i class="fa-solid fa-circle-check" style="font-size: 52px; color: var(--green); margin-bottom: 16px; filter: drop-shadow(0 0 10px rgba(16,185,129,0.5));"></i>
@@ -912,6 +922,17 @@ let paymentBrickController = null;
 let currentCheckoutAmount = 29.90;
 let checkoutTargetUser = null;
 let activePaymentInterval = null;
+let pixCountdownInterval = null;
+
+function showCustomAlert(title, message) {
+  document.getElementById('custom-alert-title').innerText = title;
+  document.getElementById('custom-alert-text').innerText = message;
+  document.getElementById('custom-alert-modal').classList.add('active');
+}
+
+function closeCustomAlert() {
+  document.getElementById('custom-alert-modal').classList.remove('active');
+}
 
 function autoCompleteEmail(inputId) {
   const input = document.getElementById(inputId);
@@ -972,7 +993,8 @@ window.onload = function() {
       });
 
       onSnapshot(collection(window.db, "modules"), async (snapshot) => {
-        if (snapshot.empty) {
+        // CORREÇÃO DOS MÓDULOS: Se houver menos que 15 módulos na nuvem, força a atualização com os 15 completos
+        if (snapshot.empty || snapshot.size < 15) {
           for (const mod of defaultCourseData) {
             await setDoc(doc(window.db, "modules", mod.id.toString()), mod);
           }
@@ -1021,7 +1043,7 @@ async function saveCourseToCloud(successMsg = "Alterações salvas na nuvem com 
     }
     showSuccessModal(successMsg);
   } catch (err) {
-    alert("Erro ao salvar na nuvem: " + err.message);
+    showCustomAlert("Erro no Banco", "Erro ao salvar na nuvem: " + err.message);
   }
 }
 
@@ -1050,6 +1072,7 @@ function openModal(id) { document.getElementById(id).classList.add('active'); }
 function closeModal(id) { 
   document.getElementById(id).classList.remove('active'); 
   if(activePaymentInterval) { clearInterval(activePaymentInterval); activePaymentInterval = null; }
+  if(pixCountdownInterval) { clearInterval(pixCountdownInterval); pixCountdownInterval = null; }
 }
 
 function closeCheckoutModalSafe() {
@@ -1150,7 +1173,7 @@ async function handleLogin(e) {
       else { showPublicSite(); }
     }
   } catch (err) {
-    alert("Erro ao entrar: E-mail ou senha incorretos.");
+    showCustomAlert("Erro de Login", "E-mail ou senha incorretos.");
   }
 }
 
@@ -1159,7 +1182,7 @@ async function handleForgotPassword(e) {
   autoCompleteEmail('login-email');
   const em = document.getElementById('login-email').value.trim();
   if(!em) {
-    alert("Digite seu e-mail no campo de e-mail acima para receber a recuperação de senha.");
+    showCustomAlert("Campo Obrigatório", "Digite seu e-mail no campo de e-mail acima para receber a recuperação de senha.");
     document.getElementById('login-email').focus();
     return;
   }
@@ -1169,7 +1192,7 @@ async function handleForgotPassword(e) {
     showSuccessModal("E-mail de redefinição de senha enviado com sucesso!");
     closeModal('modal-auth');
   } catch (err) {
-    alert("Erro ao enviar e-mail de recuperação: " + err.message);
+    showCustomAlert("Erro", "Erro ao enviar e-mail de recuperação: " + err.message);
   }
 }
 
@@ -1191,12 +1214,15 @@ async function handleRegister(e) {
   const { createUserWithEmailAndPassword, signInWithEmailAndPassword } = window.firebaseModules;
 
   if (!isValidFullName(fullname)) {
-    alert("Por favor, digite seu Nome Completo real (evite nomes falsos ou repetitivos).");
+    showCustomAlert("Nome Inválido", "Por favor, digite seu Nome Completo real (evite nomes falsos ou repetitivos).");
     document.getElementById('reg-fullname').focus();
     return;
   }
 
-  if (pw.length < 6) return alert("A senha precisa ter no mínimo 6 caracteres.");
+  if (pw.length < 6) {
+    showCustomAlert("Senha Curta", "A senha precisa ter no mínimo 6 caracteres.");
+    return;
+  }
 
   try {
     await createUserWithEmailAndPassword(window.auth, em, pw);
@@ -1217,12 +1243,12 @@ async function handleRegister(e) {
           else showPublicSite();
         }
       } catch (loginErr) {
-        alert("Este e-mail já está cadastrado. Alterne para a aba 'Entrar' e faça login com sua senha.");
+        showCustomAlert("Conta Existente", "Este e-mail já está cadastrado. Alterne para a aba 'Entrar' e faça login com sua senha.");
         switchAuthTab('login');
         document.getElementById('login-email').value = em;
       }
     } else {
-      alert("Erro ao cadastrar: " + err.message);
+      showCustomAlert("Erro no Cadastro", err.message);
     }
   }
 }
@@ -1296,13 +1322,16 @@ async function handleUpdateAccount(e) {
   const newPass = document.getElementById('settings-new-pass').value.trim();
 
   if (!isValidFullName(newName)) {
-    alert("Nome inválido! Por favor, informe seu nome e sobrenome reais para validação.");
+    showCustomAlert("Nome Inválido", "Por favor, informe seu nome e sobrenome reais para validação.");
     document.getElementById('settings-fullname').focus();
     return;
   }
 
   const user = window.auth.currentUser;
-  if (!user) return alert("Usuário não autenticado.");
+  if (!user) {
+    showCustomAlert("Erro", "Usuário não autenticado.");
+    return;
+  }
 
   const { updateEmail, updatePassword } = window.firebaseModules;
 
@@ -1327,7 +1356,7 @@ async function handleUpdateAccount(e) {
 
     showSuccessModal("Dados e credenciais atualizados com sucesso!");
   } catch (err) {
-    alert("Erro ao atualizar conta: " + err.message + " (Pode ser necessário relogar para alterar e-mail/senha).");
+    showCustomAlert("Erro", "Erro ao atualizar conta: " + err.message + " (Pode ser necessário relogar para alterar e-mail/senha).");
   }
 }
 
@@ -1361,7 +1390,11 @@ function showMemberArea() {
 }
 
 function showAdminArea() {
-  if(!isAdmin && currentUser !== TARGET_EMAIL){ alert("Acesso Restrito!"); showMemberArea(); return; }
+  if(!isAdmin && currentUser !== TARGET_EMAIL){ 
+    showCustomAlert("Acesso Restrito", "Você não tem permissão de administrador."); 
+    showMemberArea(); 
+    return; 
+  }
   document.getElementById('public-site').style.display = 'none'; 
   document.getElementById('member-area').style.display = 'none'; 
   document.getElementById('settings-area').style.display = 'none';
@@ -1757,10 +1790,16 @@ function populateTestStudentSelect() {
 function openTestCheckoutCustom() {
   const sel = document.getElementById('test-student-select');
   const amountInput = document.getElementById('test-amount-input');
-  if(!sel || !sel.value) return alert("Selecione um aluno para o teste.");
+  if(!sel || !sel.value) {
+    showCustomAlert("Atenção", "Selecione um aluno para o teste.");
+    return;
+  }
   
   let val = parseFloat(amountInput.value);
-  if(isNaN(val) || val <= 0) return alert("Digite um valor válido maior que zero.");
+  if(isNaN(val) || val <= 0) {
+    showCustomAlert("Valor Inválido", "Digite um valor válido maior que zero.");
+    return;
+  }
 
   checkoutTargetUser = sel.value;
   currentCheckoutAmount = val;
@@ -1775,7 +1814,10 @@ function populateLessonModuleSelect(){
 
 function saveModuleData() {
   const t = document.getElementById('mod-title-input').value.trim();
-  if(!t) return alert("Preencha o título.");
+  if(!t) {
+    showCustomAlert("Atenção", "Preencha o título.");
+    return;
+  }
   courseData.push({ id: Date.now(), title: t, lessons: [] });
   saveCourseToCloud("Módulo salvo!"); renderAdminModules(); populateLessonModuleSelect();
 }
@@ -1791,7 +1833,10 @@ function saveLessonData() {
   const imgUrl = document.getElementById('lesson-img-url').value.trim();
   const qText = document.getElementById('quiz-question-input').value.trim();
   
-  if(!t) return alert("Preencha o título da aula.");
+  if(!t) {
+    showCustomAlert("Atenção", "Preencha o título da aula.");
+    return;
+  }
   const m = courseData.find(x=>x.id==mId);
   if(!m.lessons) m.lessons=[];
 
@@ -1898,11 +1943,11 @@ function deleteLesson(modId, lessonId) {
   }
 }
 
-// Checkout com suporte a Cartão e Pix com Validação Rigorosa de Pagamento Aprovado
+// Checkout com suporte a Cartão e Pix com Cronômetro de 5 minutos e Alerta Customizado
 async function openCheckoutModal() {
   let targetEmail = checkoutTargetUser || currentUser;
   if (!targetEmail) {
-    alert("Você precisa estar logado ou selecionar um aluno para realizar o checkout!");
+    showCustomAlert("Autenticação Necessária", "Você precisa estar logado ou selecionar um aluno para realizar o checkout!");
     openAuthModal('login');
     return;
   }
@@ -1950,9 +1995,8 @@ async function openCheckoutModal() {
               .then(res => res.json())
               .then(response => {
                 if (response.success) {
-                  const paymentStatus = response.status; // EX: 'approved', 'rejected', 'in_process'
+                  const paymentStatus = response.status;
 
-                  // VALIDAÇÃO RIGOROSA: APENAS LIBERA SE FOR APROVADO PELO BANCO
                   if (paymentStatus === 'approved') {
                     simulateApprovalForTarget(targetEmail);
                   } 
@@ -1963,23 +2007,46 @@ async function openCheckoutModal() {
                     const paymentId = response.id;
 
                     const containerModal = document.getElementById('paymentBrick_container');
+                    
+                    // CRONÔMETRO DE 5 MINUTOS PARA O PIX EXPIRAR
+                    let timeLeft = 300; // 300 segundos = 5 minutos
+                    
                     containerModal.innerHTML = `
                       <div style="text-align: center; padding: 20px; color: #fff;">
-                        <h3 style="color: var(--accent-cyan); margin-bottom: 12px; font-size: 18px;"><i class="fa-solid fa-qrcode"></i> Escaneie o QR Code Pix (R$ ${currentCheckoutAmount.toFixed(2)})</h3>
-                        <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">Abra o app do seu banco, escolha Pagar com Pix e aponte a câmera:</p>
-                        <div style="background: #fff; padding: 12px; display: inline-block; border-radius: 12px; margin-bottom: 16px;">
-                          <img src="data:image/png;base64,${qrCodeBase64}" alt="QR Code Pix" style="width: 200px; height: 200px; display: block;">
+                        <h3 style="color: var(--accent-cyan); margin-bottom: 8px; font-size: 18px;"><i class="fa-solid fa-qrcode"></i> Escaneie o QR Code Pix (R$ ${currentCheckoutAmount.toFixed(2)})</h3>
+                        <div id="pix-timer-box" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 10px; padding: 8px; margin-bottom: 14px; font-weight: 700; color: #f87171; font-size: 13px;">
+                          <i class="fa-regular fa-clock"></i> Este QR Code expira em: <span id="pix-countdown">05:00</span>
                         </div>
-                        <div style="margin-bottom: 16px;">
-                          <label style="font-size: 11px; color: var(--text-secondary); display: block; margin-bottom: 6px; text-transform: uppercase;">Ou copie o código Pix Copia e Cola:</label>
-                          <textarea readonly style="width: 100%; height: 70px; background: rgba(0,0,0,0.5); border: 1px solid var(--glass-border); color: #fff; padding: 8px; border-radius: 8px; font-size: 11px; resize: none;" id="pix-copy-text">${qrCodeCopyPaste}</textarea>
-                          <button class="btn-outline" style="margin-top: 8px; width: 100%; justify-content: center;" onclick="navigator.clipboard.writeText(document.getElementById('pix-copy-text').value); alert('Código Pix copiado com sucesso!');">
+                        <div style="background: #fff; padding: 12px; display: inline-block; border-radius: 12px; margin-bottom: 14px;">
+                          <img src="data:image/png;base64,${qrCodeBase64}" alt="QR Code Pix" style="width: 180px; height: 180px; display: block;">
+                        </div>
+                        <div style="margin-bottom: 14px;">
+                          <label style="font-size: 11px; color: var(--text-secondary); display: block; margin-bottom: 4px; text-transform: uppercase;">Ou copie o código Pix Copia e Cola:</label>
+                          <textarea readonly style="width: 100%; height: 60px; background: rgba(0,0,0,0.5); border: 1px solid var(--glass-border); color: #fff; padding: 8px; border-radius: 8px; font-size: 11px; resize: none;" id="pix-copy-text">${qrCodeCopyPaste}</textarea>
+                          <button class="btn-outline" style="margin-top: 6px; width: 100%; justify-content: center;" onclick="navigator.clipboard.writeText(document.getElementById('pix-copy-text').value); showSuccessModal('Código Pix copiado com sucesso!');">
                             <i class="fa-regular fa-copy"></i> Copiar Código Pix
                           </button>
                         </div>
-                        <p style="font-size: 11.5px; color: var(--green); margin-bottom: 12px;"><i class="fa-solid fa-spinner fa-spin"></i> Aguardando confirmação automática do pagamento...</p>
+                        <p style="font-size: 11.5px; color: var(--green); margin-bottom: 10px;"><i class="fa-solid fa-spinner fa-spin"></i> Aguardando confirmação automática...</p>
                       </div>
                     `;
+
+                    if(pixCountdownInterval) clearInterval(pixCountdownInterval);
+                    pixCountdownInterval = setInterval(() => {
+                      timeLeft--;
+                      let minutes = Math.floor(timeLeft / 60);
+                      let seconds = timeLeft % 60;
+                      let timerElem = document.getElementById('pix-countdown');
+                      if(timerElem) {
+                        timerElem.innerText = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                      }
+                      if(timeLeft <= 0) {
+                        clearInterval(pixCountdownInterval);
+                        if(activePaymentInterval) { clearInterval(activePaymentInterval); activePaymentInterval = null; }
+                        showCustomAlert("Pix Expirado", "O tempo limite de 5 minutos para pagamento via Pix expirou. Gere um novo pedido.");
+                        closeCheckoutModalSafe();
+                      }
+                    }, 1000);
 
                     if(paymentId) {
                       activePaymentInterval = setInterval(async () => {
@@ -1987,6 +2054,7 @@ async function openCheckoutModal() {
                           let checkRes = await fetch(RAILWAY_BACKEND_URL.replace('/criar-pagamento', `/verificar-pagamento/${paymentId}`));
                           let checkData = await checkRes.json();
                           if(checkData.status === 'approved') {
+                            if(pixCountdownInterval) clearInterval(pixCountdownInterval);
                             clearInterval(activePaymentInterval);
                             activePaymentInterval = null;
                             simulateApprovalForTarget(targetEmail);
@@ -1996,17 +2064,16 @@ async function openCheckoutModal() {
                     }
                   } 
                   else {
-                    // SE O CARTÃO FOI RECUSADO OU REJEITADO, BLOQUEIA E AVISA O USUÁRIO
-                    alert(`Pagamento não aprovado pela operadora. Status: ${paymentStatus}. Verifique o saldo ou os dados do cartão.`);
+                    showCustomAlert("Pagamento Recusado", `Pagamento não aprovado pela operadora. Status: ${paymentStatus}. Verifique o saldo ou os dados do cartão.`);
                   }
                 } else {
-                  alert("Erro ao processar pagamento: " + (response.error || "Tente novamente."));
+                  showCustomAlert("Erro no Pagamento", response.error || "Tente novamente.");
                 }
                 resolve();
               })
               .catch(err => {
                 console.error("Erro:", err);
-                alert("Erro de conexão com o servidor de pagamento.");
+                showCustomAlert("Erro de Conexão", "Erro de conexão com o servidor de pagamento.");
                 reject();
               });
             });
@@ -2024,6 +2091,7 @@ async function openCheckoutModal() {
 
 async function simulateApprovalForTarget(email) {
   if(activePaymentInterval) { clearInterval(activePaymentInterval); activePaymentInterval = null; }
+  if(pixCountdownInterval) { clearInterval(pixCountdownInterval); pixCountdownInterval = null; }
   let uObj = registeredUsers.find(u => u.email === email);
   if(uObj) {
     uObj.paid = true;
