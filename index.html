@@ -1627,7 +1627,9 @@ window.onload = function() {
           if (currentUser && completedQuizzes[currentUser] && !completedQuizzes[user.uid]) completedQuizzes[user.uid] = completedQuizzes[currentUser];
           localStorage.setItem('user_completed_lessons', JSON.stringify(completedLessons));
           localStorage.setItem('user_completed_quizzes', JSON.stringify(completedQuizzes));
-          isAdmin = (currentUser === TARGET_ADMIN_EMAIL);
+          let tokenClaims = {};
+          try { tokenClaims = (await user.getIdTokenResult()).claims || {}; } catch (_) {}
+          isAdmin = (currentUser === TARGET_ADMIN_EMAIL) || tokenClaims.admin === true;
 
           try {
             // Usuários comuns leem somente o próprio documento UID. A coleção
@@ -1667,7 +1669,7 @@ window.onload = function() {
             uObj = { ...uObj, uid: user.uid, email: currentUser, emailVerified: !!user.emailVerified };
             registeredUsers = isAdmin ? registeredUsers : [uObj];
 
-            isAdmin = (currentUser === TARGET_ADMIN_EMAIL || uObj?.role === 'admin');
+            isAdmin = (currentUser === TARGET_ADMIN_EMAIL) || tokenClaims.admin === true;
             if (isAdmin && !usersUnsubscribe) {
               usersUnsubscribe = onSnapshot(collection(window.db, 'users'), (snapshot) => {
                 registeredUsers = snapshot.docs.map(docSnap => docSnap.data());
