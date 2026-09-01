@@ -2571,18 +2571,14 @@ function generateOfficialCertificatePDF(targetEmail = currentUser) {
   const { jsPDF } = window.jspdf;
   const img = new Image();
   img.onload = () => {
-    const doc = new jsPDF({ orientation:'landscape', unit:'pt', format:[1536,1024] });
+    const doc = new jsPDF({ orientation:'landscape', unit:'pt', format:[1080,720] });
     const imageFormat = img.src.toLowerCase().includes('.png') ? 'PNG' : 'JPEG';
-    doc.addImage(img, imageFormat, 0, 0, 1536, 1024);
+    doc.addImage(img, imageFormat, 0, 0, 1080, 720);
     const date = new Date(uObj.courseCompletedAt || Date.now()).toLocaleDateString('pt-BR');
-    // Coberturas discretas apenas sobre os placeholders, sem blocos escuros.
-    doc.setFillColor(249,247,242); doc.rect(525, 300, 960, 98, 'F');
-    const nameSize = Math.max(24, Math.min(54, 920 / Math.max(studentName.length, 16)));
-    doc.setTextColor(8,27,56); doc.setFont('times','bold'); doc.setFontSize(nameSize); doc.text(studentName.toUpperCase(), 1005, 365, {align:'center', maxWidth:920});
-    doc.setFillColor(226,232,246); doc.rect(450, 930, 305, 42, 'F');
-    doc.setFont('helvetica','bold'); doc.setFontSize(22); doc.setTextColor(20,65,105); doc.text(date, 602, 958, {align:'center'});
-    doc.setFillColor(226,232,246); doc.rect(760, 930, 390, 42, 'F');
-    doc.setFontSize(18); doc.text(uObj.certificateNumber, 955, 958, {align:'center'});
+    const nameSize = Math.max(18, Math.min(34, 520 / Math.max(studentName.length, 16)));
+    doc.setTextColor(8,27,56); doc.setFont('times','bold'); doc.setFontSize(nameSize); doc.text(studentName.toUpperCase(), 585, 250, {align:'center', maxWidth:520});
+    doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(20,65,105); doc.text(date, 368, 687, {align:'center'});
+    doc.setFontSize(10); doc.text(uObj.certificateNumber, 553, 687, {align:'center'});
     const output = doc.output('blob'); const url = URL.createObjectURL(output); const link = document.createElement('a');
     link.href = url; link.download = `Certificado_IDZ_${studentName.replace(/\s+/g,'_')}.pdf`; link.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000); addNotification('Certificado oficial baixado em PDF!');
@@ -2591,7 +2587,7 @@ function generateOfficialCertificatePDF(targetEmail = currentUser) {
     if (!img.dataset.fallback) { img.dataset.fallback = '1'; img.src = 'assets/certificado-idz-template.png'; return; }
     showCustomAlert('Certificado indisponível', 'Envie certificado-idz-template.jpg ou certificado-idz-template.png para a pasta assets do GitHub.');
   };
-  img.src = 'assets/certificado-idz-template.jpg';
+  img.src = 'assets/certificado-idz-clean-template.png';
 }
 
 function switchAdminTab(secName) {
