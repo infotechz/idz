@@ -428,6 +428,9 @@ section { padding: 60px 0; }
 }
 .quiz-feedback.success { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.3); display: flex; align-items: center; gap: 10px; }
 .quiz-feedback.error { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.3); display: flex; align-items: center; gap: 10px; }
+.exercise-toggle { width:100%; justify-content:space-between; margin-top:18px; border-color:rgba(73,217,239,.28); }
+.activity-panel { display:none; margin-top:12px; }
+.activity-panel.is-open { display:block; animation:fadeUp .28s ease both; }
 
 .admin-grid { display: grid; grid-template-columns: 1fr; gap: 24px; }
 .admin-card { padding: 26px; width: 100%; overflow: hidden; }
@@ -2400,7 +2403,8 @@ function loadLessonContent(modId, lessonId) {
     });
 
     quizHtml = `
-      <div class="quiz-container">
+      <button type="button" class="btn-outline exercise-toggle" onclick="document.getElementById('activity-${lesson.id}').classList.toggle('is-open'); this.classList.toggle('is-open')"><i class="fa-solid fa-list-check"></i> Abrir atividade desta aula <i class="fa-solid fa-chevron-down"></i></button>
+      <div class="quiz-container activity-panel" id="activity-${lesson.id}">
         <div class="quiz-header-badge"><i class="fa-solid fa-brain"></i> Exercício de Fixação</div>
         <div class="quiz-question-title">${lesson.quiz.question}</div>
         <div class="quiz-options-list">${optionsHtml}</div>
@@ -2418,6 +2422,7 @@ function loadLessonContent(modId, lessonId) {
         <p style="color: var(--accent-cyan); font-size: 14px; font-weight: 700; margin-bottom: 14px;">Sua Autonomia Digital foi conquistada!</p>
         <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px;">Aluno: <strong>${uObj?.fullname || currentUser}</strong></p>
         <p id="certificate-meta" style="font-size:12px;color:var(--text-secondary);margin:-8px 0 18px">Conclusão: ${uObj?.courseCompletedAt ? new Date(uObj.courseCompletedAt).toLocaleDateString('pt-BR') : new Date().toLocaleDateString('pt-BR')} · Nº ${uObj?.certificateNumber || 'será gerado ao baixar'}</p>
+        ${uObj?.physicalCertificateRequestedAt ? `<div class="delivery-status"><i class="fa-solid fa-truck"></i> Certificado físico: <strong>${uObj.physicalCertificateStatus === 'entregue' ? 'Entregue' : uObj.physicalCertificateStatus === 'a_caminho' ? 'A caminho' : 'Solicitado'}</strong>${uObj.physicalCertificateStatus === 'entregue' ? ' <button class="btn-outline" onclick="confirmPhysicalReceipt()">Confirmar recebimento</button>' : ''}</div>` : ''}
         <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
           <button class="btn" style="background: linear-gradient(135deg, #10b981, #059669); color:#fff; font-size: 14px; padding: 14px 22px;" onclick="generateOfficialCertificatePDF()"><i class="fa-solid fa-file-pdf"></i> Baixar certificado</button>
           <button class="btn-outline" style="font-size:13px;padding:14px 18px" onclick="requestPhysicalCertificate()"><i class="fa-solid fa-truck"></i> Solicitar versão física</button>
@@ -2556,15 +2561,17 @@ async function requestPhysicalCertificate() {
   showSuccessModal('Solicitação enviada', 'O administrador recebeu sua solicitação de certificado físico.');
 }
 
-function generateOfficialCertificatePDF() {
-  const uObj = ensureCertificateRecord(registeredUsers.find(u => u.email === currentUser));
+function generateOfficialCertificatePDF(targetEmail = currentUser) {
+  const uObj = ensureCertificateRecord(registeredUsers.find(u => u.email === targetEmail));
   if (!uObj) return;
-  const studentName = uObj.fullname || currentUser;
+  const studentName = uObj.fullname || targetEmail;
+  if (!window.jspdf?.jsPDF) { showCustomAlert('Certificado indisponível', 'A biblioteca de PDF ainda não carregou. Atualize a página e tente novamente.'); return; }
   const { jsPDF } = window.jspdf;
   const img = new Image();
   img.onload = () => {
     const doc = new jsPDF({ orientation:'landscape', unit:'pt', format:[1536,1024] });
-    doc.addImage(img, 'JPEG', 0, 0, 1536, 1024);
+    const imageFormat = img.src.toLowerCase().includes('.png') ? 'PNG' : 'JPEG';
+    doc.addImage(img, imageFormat, 0, 0, 1536, 1024);
     const date = new Date(uObj.courseCompletedAt || Date.now()).toLocaleDateString('pt-BR');
     // Coberturas discretas apenas sobre os placeholders, sem blocos escuros.
     doc.setFillColor(249,247,242); doc.rect(525, 300, 960, 98, 'F');
@@ -2577,6 +2584,10 @@ function generateOfficialCertificatePDF() {
     const output = doc.output('blob'); const url = URL.createObjectURL(output); const link = document.createElement('a');
     link.href = url; link.download = `Certificado_IDZ_${studentName.replace(/\s+/g,'_')}.pdf`; link.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000); addNotification('Certificado oficial baixado em PDF!');
+  };
+  img.onerror = () => {
+    if (!img.dataset.fallback) { img.dataset.fallback = '1'; img.src = 'assets/certificado-idz-template.png'; return; }
+    showCustomAlert('Certificado indisponível', 'Envie certificado-idz-template.jpg ou certificado-idz-template.png para a pasta assets do GitHub.');
   };
   img.src = 'assets/certificado-idz-template.jpg';
 }
