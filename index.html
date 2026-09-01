@@ -1400,12 +1400,10 @@ function animateParticles() {
 initParticles(); animateParticles();
 
 // ESTRUTURA CURRICULAR V2
-const courseV2Runtime = courseV2.modules.map((mod, moduleIndex) => ({
-  ...mod,
+const courseV2Runtime = courseV2.modules.map((mod, moduleIndex) => Object.assign({}, mod, {
   id: moduleIndex + 1,
   courseVersion: 2,
-  lessons: (mod.lessons || []).map((item, lessonIndex) => ({
-    ...item,
+  lessons: (mod.lessons || []).map((item, lessonIndex) => Object.assign({}, item, {
     id: (moduleIndex + 1) * 100 + lessonIndex + 1,
     moduleId: moduleIndex + 1,
     quiz: item.exercises?.[0] ? {
@@ -1415,6 +1413,7 @@ const courseV2Runtime = courseV2.modules.map((mod, moduleIndex) => ({
     } : null
   }))
 }));
+
 
 function selectCourseData(snapshotData) {
   const hasV2 = snapshotData.some(mod => mod && (mod.courseVersion === 2 || mod.type === 'project'));
