@@ -18,6 +18,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://sdk.mercadopago.com/js/v2"></script>
+<script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -1071,6 +1072,7 @@ nav,#public-site,#member-area,#settings-area,#admin-area,footer { position:relat
       <button class="btn-outline" onclick="switchAdminTab('vendas')"><i class="fa-solid fa-cash-register"></i> Vendas & Transações</button>
       <button class="btn-outline" onclick="switchAdminTab('cart')"><i class="fa-solid fa-cart-shopping"></i> Carrinho / Pendentes</button>
       <button class="btn-outline" onclick="switchAdminTab('modules')"><i class="fa-solid fa-pen-to-square"></i> Módulos & Aulas</button>
+      <button class="btn-outline" onclick="switchAdminTab('certificates')"><i class="fa-solid fa-certificate"></i> Solicitações de Certificado</button>
       <button class="btn-outline" onclick="switchAdminTab('testcheckout')"><i class="fa-solid fa-credit-card"></i> Teste de Pagamento</button>
     </div>
   </div>
@@ -1139,6 +1141,12 @@ nav,#public-site,#member-area,#settings-area,#admin-area,footer { position:relat
           <tbody id="cart-list-body"></tbody>
         </table>
       </div>
+    </div>
+
+    <div class="glass-panel admin-card" id="admin-sec-certificates" style="display:none;">
+      <h3><i class="fa-solid fa-certificate" style="color:var(--accent-gold);"></i> Solicitações de Certificado Físico</h3>
+      <p style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;">Consulte o aluno, endereço informado e prazo para alteração.</p>
+      <div class="table-responsive"><table class="sales-table"><thead><tr><th>Aluno / E-mail</th><th>Endereço</th><th>Solicitado em</th><th>Status</th></tr></thead><tbody id="certificate-requests-body"></tbody></table></div>
     </div>
 
     <!-- SEÇÃO 4: TESTE DE PAGAMENTO -->
@@ -2182,6 +2190,10 @@ async function handleSaveVerification(e) {
 
   let uObj = registeredUsers.find(u => u.email === currentUser);
   if (uObj) {
+    if (uObj.physicalCertificateRequestedAt && uObj.physicalAddressEditUntil && Date.now() > uObj.physicalAddressEditUntil) {
+      showCustomAlert('Prazo encerrado', 'O endereço só pode ser alterado até 3 dias após a solicitação do certificado físico.');
+      return;
+    }
     uObj.verifiedData = vData;
     await saveUserToCloud(uObj);
     showSuccessModal("Dados de verificação vinculados ao perfil!");
@@ -2506,7 +2518,8 @@ function ensureCertificateRecord(userObj) {
   if (!userObj.certificateNumber) {
     const year = new Date(userObj.courseCompletedAt || Date.now()).getFullYear();
     const initial = String(userObj.fullname || userObj.email || 'A').trim().charAt(0).toUpperCase();
-    userObj.certificateNumber = `IDZ-${year}-${Math.floor(1000 + Math.random() * 9000)}X-${initial}`;
+    const uniquePart = (window.crypto?.randomUUID ? crypto.randomUUID().replace(/-/g,'').slice(0,8) : `${Date.now()}${Math.floor(Math.random()*1000)}`).toUpperCase();
+    userObj.certificateNumber = `IDZ-${year}-${uniquePart}X-${initial}`;
     userObj.courseCompletedAt = userObj.courseCompletedAt || new Date().toISOString();
     saveUserToCloud(userObj);
     addNotification(`Conclusão de curso: ${userObj.fullname || userObj.email}`, 'admin', TARGET_ADMIN_EMAIL, 'conclusao');
@@ -2517,35 +2530,60 @@ function ensureCertificateRecord(userObj) {
 async function requestPhysicalCertificate() {
   const uObj = registeredUsers.find(u => u.email === currentUser);
   if (!uObj) return;
+  if (uObj.physicalCertificateRequestedAt) {
+    showCustomAlert('Solicitação já enviada', 'Você só pode solicitar um certificado físico. Para alterar o endereço, use o prazo de até 3 dias após a solicitação.');
+    return;
+  }
+  const address = uObj.verifiedData || {};
+  if (!address.end || !address.cep || !address.cidade || !address.uf) {
+    showSettingsArea();
+    showCustomAlert('Complete seu endereço', 'Preencha os dados de endereço na aba Verificação e clique novamente em Solicitar versão física.');
+    return;
+  }
+  uObj.physicalCertificateRequestedAt = new Date().toISOString();
+  uObj.physicalAddressEditUntil = Date.now() + 3 * 24 * 60 * 60 * 1000;
+  await saveUserToCloud(uObj);
+  const requests = JSON.parse(localStorage.getItem('physical_certificate_requests') || '[]');
+  requests.push({ email:uObj.email, fullname:uObj.fullname || uObj.email, address, requestedAt:uObj.physicalCertificateRequestedAt, status:'pendente' });
+  localStorage.setItem('physical_certificate_requests', JSON.stringify(requests));
+  if (window.db && window.firebaseModules) {
+    const { doc, setDoc } = window.firebaseModules;
+    setDoc(doc(window.db, 'certificate_requests', uObj.email.replace(/[^a-z0-9]/gi,'_')), { email:uObj.email, fullname:uObj.fullname || uObj.email, address, requestedAt:uObj.physicalCertificateRequestedAt, status:'pendente' }).catch(() => {});
+  }
   ensureCertificateRecord(uObj);
   addNotification(`Solicitação de certificado físico: ${uObj.fullname || uObj.email}`, 'admin', TARGET_ADMIN_EMAIL, 'certificado_fisico');
   showSuccessModal('Solicitação enviada', 'O administrador recebeu sua solicitação de certificado físico.');
 }
 
-function generateOfficialCertificatePDF() {
+async function generateOfficialCertificatePDF() {
   const uObj = ensureCertificateRecord(registeredUsers.find(u => u.email === currentUser));
   if (!uObj) return;
   const studentName = uObj.fullname || currentUser;
-  const { jsPDF } = window.jspdf;
-  const img = new Image();
-  img.onload = () => {
-    const doc = new jsPDF({ orientation:'landscape', unit:'pt', format:[1080,720] });
-    doc.addImage(img, 'PNG', 0, 0, 1080, 720);
+  try {
+    const bytes = await fetch('assets/certificado_IDZ_editavel_assinatura_final.pdf').then(r => r.arrayBuffer());
+    const pdf = await PDFLib.PDFDocument.load(bytes);
+    const form = pdf.getForm();
     const date = new Date(uObj.courseCompletedAt || Date.now()).toLocaleDateString('pt-BR');
-    doc.setFillColor(224,230,244); doc.rect(320, 250, 520, 58, 'F');
-    doc.setTextColor(10,28,58); doc.setFont('times','bold'); doc.setFontSize(34); doc.text(studentName.toUpperCase(), 580, 289, {align:'center'});
-    doc.setFillColor(224,230,244); doc.rect(310, 665, 190, 28, 'F');
-    doc.setFont('helvetica','bold'); doc.setFontSize(16); doc.text(date, 405, 684, {align:'center'});
-    doc.setFillColor(224,230,244); doc.rect(570, 665, 200, 28, 'F');
-    doc.setFontSize(15); doc.text(uObj.certificateNumber, 670, 684, {align:'center'});
+    const nameField = form.getTextField('nome_aluno');
+    const dateField = form.getTextField('data_conclusao');
+    const numberField = form.getTextField('numero_certificado');
+    nameField.setText(studentName.toUpperCase()); nameField.setFontSize(Math.max(18, Math.min(30, 620 / Math.max(studentName.length, 16))));
+    dateField.setText(date); dateField.setFontSize(10);
+    numberField.setText(uObj.certificateNumber); numberField.setFontSize(9);
+    const output = await pdf.save();
+    const blob = new Blob([output], { type:'application/pdf' });
+    const url = URL.createObjectURL(blob); const link = document.createElement('a');
+    link.href = url; link.download = `Certificado_IDZ_${studentName.replace(/\s+/g,'_')}.pdf`; link.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
     addNotification('Certificado oficial baixado em PDF!');
-    doc.save(`Certificado_IDZ_${studentName.replace(/\s+/g,'_')}.pdf`);
-  };
-  img.src = 'assets/certificado-idz-template.png';
+  } catch (error) {
+    console.error('Falha ao preencher certificado editável:', error);
+    showCustomAlert('Certificado indisponível', 'Envie o arquivo certificado_IDZ_editavel_assinatura_final.pdf para a pasta assets do site.');
+  }
 }
 
 function switchAdminTab(secName) {
-  ['alunos', 'vendas', 'cart', 'modules', 'testcheckout'].forEach(s => {
+  ['alunos', 'vendas', 'cart', 'modules', 'certificates', 'testcheckout'].forEach(s => {
     let elem = document.getElementById(`admin-sec-${s}`);
     if(elem) elem.style.display = (s === secName) ? 'block' : 'none';
   });
@@ -2553,7 +2591,18 @@ function switchAdminTab(secName) {
   else if(secName === 'vendas') renderSalesTab();
   else if(secName === 'cart') renderCartTab();
   else if(secName === 'modules') renderAdminModules();
+  else if(secName === 'certificates') renderCertificateRequests();
   else if(secName === 'testcheckout') populateTestStudentSelect();
+}
+
+async function renderCertificateRequests() {
+  const body = document.getElementById('certificate-requests-body');
+  if (!body) return;
+  let rows = JSON.parse(localStorage.getItem('physical_certificate_requests') || '[]');
+  if (window.db && window.firebaseModules) {
+    try { const { collection, getDocs } = window.firebaseModules; const snap = await getDocs(collection(window.db, 'certificate_requests')); rows = snap.docs.map(d => d.data()); } catch (_) {}
+  }
+  body.innerHTML = rows.length ? rows.map(r => `<tr><td><strong>${r.fullname}</strong><br><small>${r.email}</small></td><td>${r.address.end || ''}, ${r.address.num || ''} - ${r.address.bairro || ''}<br>${r.address.cidade || ''}/${r.address.uf || ''} - CEP ${r.address.cep || ''}</td><td>${new Date(r.requestedAt).toLocaleDateString('pt-BR')}</td><td><span class="status-badge pending">${r.status}</span></td></tr>`).join('') : '<tr><td colspan="4" style="text-align:center;color:var(--text-secondary)">Nenhuma solicitação recebida.</td></tr>';
 }
 
 function renderDashboard() {
