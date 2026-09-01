@@ -1533,6 +1533,41 @@ let checkoutTargetUser = null;
 let activePaymentInterval = null;
 let pixCountdownInterval = null;
 
+function normalizeLessonContent(lesson) {
+  if (!lesson) return lesson;
+  const title = lesson.title || `Aula ${lesson.id}`;
+  const bloco1 = lesson.bloco1 || lesson.introduction || 'Conceitos fundamentais do tema.';
+  const bloco2 = lesson.bloco2 || lesson.description || 'Aplicação prática do conteúdo.';
+  const bloco3 = lesson.bloco3 || 'Boas práticas e revisão.';
+  const base = { ...lesson,
+    introduction: lesson.introduction || bloco1,
+    description: lesson.description || bloco2,
+    objectives: lesson.objectives || [bloco1, bloco2, bloco3],
+    learningOutcomes: lesson.learningOutcomes || [
+      `Explicar os conceitos apresentados em ${title}.`,
+      `Aplicar ${bloco2.toLowerCase()}`
+    ],
+    contentSummary: lesson.contentSummary || `${bloco1} ${bloco2} ${bloco3}`,
+    practicalExample: lesson.practicalExample || `Pratique o conteúdo de ${title.toLowerCase()} em uma tarefa do dia a dia.`,
+    commonMistakes: lesson.commonMistakes || ['Pular a prática antes de revisar os conceitos.', 'Não conferir o resultado final.'],
+    finalSummary: lesson.finalSummary || `Revise ${title.toLowerCase()} e refaça o exemplo prático.`
+  };
+  if (!Array.isArray(base.exercises) || base.exercises.length < 3) {
+    const oldQuiz = base.quiz;
+    const options = oldQuiz?.options || ['Aplicar o conceito principal', 'Ignorar o conteúdo', 'Apagar os dados', 'Não realizar a atividade'];
+    base.exercises = [
+      { id: `${lesson.id}-1`, number: 1, title: 'Verificação de compreensão', question: oldQuiz?.question || `Qual é o objetivo principal de ${title.toLowerCase()}?`, options, correctAnswer: oldQuiz?.correct ?? 0, explanation: `A resposta está relacionada a: ${bloco1}`, difficulty: 'facil', mandatory: true, estimatedMinutes: 3 },
+      { id: `${lesson.id}-2`, number: 2, title: 'Aplicação prática', question: `Qual ação coloca em prática o conteúdo de ${title.toLowerCase()}?`, options: [`Executar: ${bloco2}`, 'Pular a etapa prática', 'Compartilhar senha', 'Apagar o trabalho'], correctAnswer: 0, explanation: bloco2, difficulty: 'medio', mandatory: true, estimatedMinutes: 5 },
+      { id: `${lesson.id}-3`, number: 3, title: 'Boas práticas', question: `Qual atitude ajuda a evitar erros em ${title.toLowerCase()}?`, options: [`Seguir: ${bloco3}`, 'Ignorar instruções', 'Usar dados aleatórios', 'Não revisar'], correctAnswer: 0, explanation: bloco3, difficulty: 'medio', mandatory: false, estimatedMinutes: 4 }
+    ];
+  }
+  return base;
+}
+
+function normalizeCourseData(modules) {
+  return (modules || []).map(mod => ({ ...mod, lessons: (mod.lessons || []).map(normalizeLessonContent) }));
+}
+
 function showCustomAlert(title, message) {
   safeSetText('custom-alert-title', title);
   safeSetText('custom-alert-text', message);
@@ -1549,6 +1584,7 @@ function closeSuccessModal() { closeModal('success-modal'); }
 function currentProfile() {
   return registeredUsers.find(u => u.uid === currentUserUid) || registeredUsers.find(u => u.email === currentUser) || null;
 }
+function progressKey() { return currentUserUid || currentUser || 'anonymous'; }
 
 function autoCompleteEmail(inputId) {
   let val = safeGetValue(inputId);
@@ -1587,6 +1623,10 @@ window.onload = function() {
         if (user) {
           currentUser = user.email;
           currentUserUid = user.uid;
+          if (currentUser && completedLessons[currentUser] && !completedLessons[user.uid]) completedLessons[user.uid] = completedLessons[currentUser];
+          if (currentUser && completedQuizzes[currentUser] && !completedQuizzes[user.uid]) completedQuizzes[user.uid] = completedQuizzes[currentUser];
+          localStorage.setItem('user_completed_lessons', JSON.stringify(completedLessons));
+          localStorage.setItem('user_completed_quizzes', JSON.stringify(completedQuizzes));
           isAdmin = (currentUser === TARGET_ADMIN_EMAIL);
 
           try {
@@ -1672,8 +1712,12 @@ window.onload = function() {
         try {
           const snap = await getDocs(collection(window.db, "modules"));
           if (snap.empty || snap.size < 15) {
-            for (const mod of defaultCourseData) {
+            for (const mod of normalizeCourseData(defaultCourseData)) {
               await setDoc(doc(window.db, "modules", mod.id.toString()), mod);
+            }
+          } else {
+            for (const mod of snap.docs.map(d => normalizeCourseData([d.data()])[0])) {
+              await setDoc(doc(window.db, 'modules', mod.id.toString()), mod, { merge: true });
             }
           }
         } catch (e) {
@@ -1683,7 +1727,7 @@ window.onload = function() {
 
       onSnapshot(collection(window.db, "modules"), (snapshot) => {
         courseData = [];
-        snapshot.forEach((docSnap) => courseData.push(docSnap.data()));
+        snapshot.forEach((docSnap) => courseData.push(normalizeCourseData([docSnap.data()])[0]));
         courseData.sort((a, b) => a.id - b.id);
         updateCourseStatsUI();
 
@@ -1829,7 +1873,7 @@ async function saveProgressToCloud() {
   if (!uid || !window.db) return;
   try {
     const { doc, setDoc } = window.firebaseModules;
-    await setDoc(doc(window.db, 'users', uid), { progress: { lessons: completedLessons[uid] || completedLessons[currentUser] || {}, exercises: completedQuizzes[uid] || completedQuizzes[currentUser] || {} } }, { merge:true });
+    await setDoc(doc(window.db, 'users', uid), { progress: { lessons: completedLessons[progressKey()] || {}, exercises: completedQuizzes[progressKey()] || {} } }, { merge:true });
   } catch (e) { console.warn('Progresso será mantido localmente até a próxima sincronização.', e); }
 }
 
@@ -2415,7 +2459,7 @@ function updateStudentDashboard() {
   let completedLessonsCount = 0;
   courseData.forEach(m => m.lessons?.forEach(l => {
     totalLessonsCount++;
-    if (completedLessons[currentUser] && completedLessons[currentUser][l.id]) completedLessonsCount++;
+    if (completedLessons[progressKey()] && completedLessons[progressKey()][l.id]) completedLessonsCount++;
   }));
 
   let pct = totalLessonsCount > 0 ? Math.round((completedLessonsCount / totalLessonsCount) * 100) : 0;
@@ -2448,7 +2492,7 @@ function renderMemberSidebar() {
     let html = '';
     if (mod.lessons) {
       mod.lessons.forEach(l => {
-        let isDone = (completedLessons[currentUser] && completedLessons[currentUser][l.id]) && (completedQuizzes[currentUser] && completedQuizzes[currentUser][l.id]);
+        let isDone = (completedLessons[progressKey()] && completedLessons[progressKey()][l.id]) && (completedQuizzes[progressKey()] && completedQuizzes[progressKey()][l.id]);
         html += `<div class="lms-lesson-item" onclick="loadLessonContent(${mod.id}, ${l.id})">
           <span><i class="fa-regular fa-circle-play" style="margin-right: 8px;"></i> ${l.title}</span>
           ${isDone ? '<i class="fa-solid fa-check-circle"></i>' : ''}
@@ -2527,14 +2571,14 @@ function loadLessonContent(modId, lessonId) {
       <a href="${lesson.pdfUrl}" target="_blank" class="btn-outline" style="border-color: #f59e0b; color: #f59e0b;"><i class="fa-solid fa-download"></i> Baixar PDF</a>
     </div>` : '';
 
-  let lessonDone = completedLessons[currentUser] && completedLessons[currentUser][lesson.id];
+  let lessonDone = completedLessons[progressKey()] && completedLessons[progressKey()][lesson.id];
   let uObj = currentProfile();
 
   let totalLessonsCount = 0;
   let completedLessonsCount = 0;
   courseData.forEach(m => m.lessons?.forEach(l => {
     totalLessonsCount++;
-    if(completedLessons[currentUser] && completedLessons[currentUser][l.id]) completedLessonsCount++;
+    if(completedLessons[progressKey()] && completedLessons[progressKey()][l.id]) completedLessonsCount++;
   }));
   let courseFullyCompleted = (completedLessonsCount >= totalLessonsCount) && (totalLessonsCount > 0);
   let certReleasedByAdmin = uObj?.certReleased || false;
@@ -2543,7 +2587,7 @@ function loadLessonContent(modId, lessonId) {
   let quizHtml = '';
   if (lesson.quiz && lesson.quiz.question) {
     let optionsHtml = '';
-    let isQuizAlreadyAnswered = completedQuizzes[currentUser] && completedQuizzes[currentUser][lesson.id];
+  let isQuizAlreadyAnswered = completedQuizzes[progressKey()] && completedQuizzes[progressKey()][lesson.id];
 
     lesson.quiz.options.forEach((opt, idx) => {
       let extraClass = isQuizAlreadyAnswered && (idx === lesson.quiz.correct) ? 'correct' : '';
@@ -2617,8 +2661,8 @@ function activateYouTubePlayer(lessonId, videoId) {
 }
 
 function markLessonAsDone(modId, lessonId) {
-  if(!completedLessons[currentUser]) completedLessons[currentUser] = {};
-  completedLessons[currentUser][lessonId] = true;
+  if(!completedLessons[progressKey()]) completedLessons[progressKey()] = {};
+  completedLessons[progressKey()][lessonId] = true;
   localStorage.setItem('user_completed_lessons', JSON.stringify(completedLessons));
   renderMemberSidebar();
   updateStudentDashboard();
@@ -2634,16 +2678,16 @@ function checkQuizAnswer(buttonElem, selectedIdx, correctIdx, modId, lessonId) {
 
   allBtns.forEach(btn => btn.disabled = true);
 
-  if(!completedQuizzes[currentUser]) completedQuizzes[currentUser] = {};
-  if(!completedLessons[currentUser]) completedLessons[currentUser] = {};
+  if(!completedQuizzes[progressKey()]) completedQuizzes[progressKey()] = {};
+  if(!completedLessons[progressKey()]) completedLessons[progressKey()] = {};
 
   if (selectedIdx === correctIdx) {
     buttonElem.classList.add('correct');
     feedbackDiv.innerHTML = `<i class="fa-solid fa-circle-check"></i> Resposta correta!`;
     feedbackDiv.className = 'quiz-feedback success';
     
-    completedQuizzes[currentUser][lessonId] = true;
-    completedLessons[currentUser][lessonId] = true;
+    completedQuizzes[progressKey()][lessonId] = true;
+    completedLessons[progressKey()][lessonId] = true;
     localStorage.setItem('user_completed_lessons', JSON.stringify(completedLessons));
     localStorage.setItem('user_completed_quizzes', JSON.stringify(completedQuizzes));
     renderMemberSidebar();
@@ -2664,7 +2708,7 @@ function checkAndIssueCertificate() {
   let total = 0, done = 0;
   courseData.forEach(m => m.lessons?.forEach(l => {
     total += 1;
-    if (completedLessons[currentUser]?.[l.id] && (!l.quiz?.question || completedQuizzes[currentUser]?.[l.id])) done += 1;
+    if (completedLessons[progressKey()]?.[l.id] && (!l.quiz?.question || completedQuizzes[progressKey()]?.[l.id])) done += 1;
   }));
   if (total > 0 && done >= total) ensureCertificateRecord(uObj);
 }
