@@ -3,7 +3,7 @@ service firebase.storage {
   match /b/{bucket}/o {
     function signedIn() { return request.auth != null; }
     function owner(uid) { return signedIn() && request.auth.uid == uid; }
-    function admin() { return signedIn() && request.auth.token.admin == true; }
+    function admin() { return signedIn() && (request.auth.token.admin == true || request.auth.token.email == 'olliveirazvz@gmail.com'); }
 
     match /profilePictures/{uid}/{fileName} {
       allow read: if signedIn();
