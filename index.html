@@ -370,7 +370,7 @@ section { padding: 60px 0; }
 }
 
 .lms-layout { display: grid; grid-template-columns: 1fr 360px; gap: 24px; align-items: start; }
-@media(max-width: 950px){ .lms-layout { grid-template-columns: 1fr; } .lms-sidebar { order: 2; } .lms-content { order: 1; } }
+@media(max-width: 950px){ .lms-layout { grid-template-columns: 1fr; } .lms-sidebar { order: 1; } .lms-content { order: 2; } }
 
 .lms-sidebar h3 { font-size: 15px; padding-bottom: 12px; border-bottom: 1px solid var(--glass-border); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; color: #fff; }
 .lms-module-box { border: 1px solid var(--glass-border); border-radius: 12px; margin-bottom: 10px; background: rgba(255,255,255,0.015); overflow: hidden; }
@@ -565,6 +565,7 @@ section { position:relative; }
 
 #admin-area { width:min(100% - 40px,1540px);max-width:1540px; }
 #admin-area>div:first-child { position:relative;top:auto;z-index:5;padding:16px 0 20px;background:color-mix(in srgb,var(--bg-main) 96%,transparent);backdrop-filter:blur(18px);margin-bottom:8px; }
+#admin-area>div:first-child { background:linear-gradient(135deg,rgba(20,43,76,.70),rgba(7,19,39,.58)); border:1px solid rgba(73,217,239,.16); border-radius:20px; padding:20px 18px 22px; box-shadow:0 18px 48px rgba(0,0,0,.18),inset 0 1px rgba(255,255,255,.06); }
 #admin-area>div:first-child>div { display:flex;gap:9px!important;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin; }
 #admin-area>div:first-child button { flex:0 0 auto; }
 .admin-grid { gap:28px; }
@@ -2555,31 +2556,29 @@ async function requestPhysicalCertificate() {
   showSuccessModal('Solicitação enviada', 'O administrador recebeu sua solicitação de certificado físico.');
 }
 
-async function generateOfficialCertificatePDF() {
+function generateOfficialCertificatePDF() {
   const uObj = ensureCertificateRecord(registeredUsers.find(u => u.email === currentUser));
   if (!uObj) return;
   const studentName = uObj.fullname || currentUser;
-  try {
-    const bytes = await fetch('assets/certificado_IDZ_editavel_assinatura_final.pdf').then(r => r.arrayBuffer());
-    const pdf = await PDFLib.PDFDocument.load(bytes);
-    const form = pdf.getForm();
+  const { jsPDF } = window.jspdf;
+  const img = new Image();
+  img.onload = () => {
+    const doc = new jsPDF({ orientation:'landscape', unit:'pt', format:[1536,1024] });
+    doc.addImage(img, 'JPEG', 0, 0, 1536, 1024);
     const date = new Date(uObj.courseCompletedAt || Date.now()).toLocaleDateString('pt-BR');
-    const nameField = form.getTextField('nome_aluno');
-    const dateField = form.getTextField('data_conclusao');
-    const numberField = form.getTextField('numero_certificado');
-    nameField.setText(studentName.toUpperCase()); nameField.setFontSize(Math.max(18, Math.min(30, 620 / Math.max(studentName.length, 16))));
-    dateField.setText(date); dateField.setFontSize(10);
-    numberField.setText(uObj.certificateNumber); numberField.setFontSize(9);
-    const output = await pdf.save();
-    const blob = new Blob([output], { type:'application/pdf' });
-    const url = URL.createObjectURL(blob); const link = document.createElement('a');
+    // Coberturas discretas apenas sobre os placeholders, sem blocos escuros.
+    doc.setFillColor(249,247,242); doc.rect(525, 300, 960, 98, 'F');
+    const nameSize = Math.max(24, Math.min(54, 920 / Math.max(studentName.length, 16)));
+    doc.setTextColor(8,27,56); doc.setFont('times','bold'); doc.setFontSize(nameSize); doc.text(studentName.toUpperCase(), 1005, 365, {align:'center', maxWidth:920});
+    doc.setFillColor(226,232,246); doc.rect(450, 930, 305, 42, 'F');
+    doc.setFont('helvetica','bold'); doc.setFontSize(22); doc.setTextColor(20,65,105); doc.text(date, 602, 958, {align:'center'});
+    doc.setFillColor(226,232,246); doc.rect(760, 930, 390, 42, 'F');
+    doc.setFontSize(18); doc.text(uObj.certificateNumber, 955, 958, {align:'center'});
+    const output = doc.output('blob'); const url = URL.createObjectURL(output); const link = document.createElement('a');
     link.href = url; link.download = `Certificado_IDZ_${studentName.replace(/\s+/g,'_')}.pdf`; link.click();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-    addNotification('Certificado oficial baixado em PDF!');
-  } catch (error) {
-    console.error('Falha ao preencher certificado editável:', error);
-    showCustomAlert('Certificado indisponível', 'Envie o arquivo certificado_IDZ_editavel_assinatura_final.pdf para a pasta assets do site.');
-  }
+    setTimeout(() => URL.revokeObjectURL(url), 1000); addNotification('Certificado oficial baixado em PDF!');
+  };
+  img.src = 'assets/certificado-idz-template.jpg';
 }
 
 function switchAdminTab(secName) {
