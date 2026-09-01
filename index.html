@@ -6,9 +6,11 @@
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <title>Informática do Zero — Plataforma EdTech Premium</title>
 
-<!-- Favicons Basicos e Apple Touch -->
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><polygon points='50,5 90,27 90,73 50,95 10,73 10,27' fill='%230a1f44' stroke='%23ffd700' stroke-width='4'/><text x='50%' y='58%' font-size='32' font-weight='900' fill='%2300f0ff' text-anchor='middle' font-family='sans-serif'>IDZ</text></svg>">
-<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><polygon points='50,5 90,27 90,73 50,95 10,73 10,27' fill='%230a1f44' stroke='%23ffd700' stroke-width='4'/><text x='50%' y='58%' font-size='32' font-weight='900' fill='%2300f0ff' text-anchor='middle' font-family='sans-serif'>IDZ</text></svg>">
+<!-- Identidade oficial extraída do certificado enviado pelo proprietário -->
+<link rel="icon" href="assets/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="256x256" href="assets/apple-touch-icon.png">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -47,7 +49,8 @@
   window.firebaseModules = { 
     collection, doc, setDoc, getDoc, getDocs, onSnapshot, deleteDoc, 
     createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, 
-    sendPasswordResetEmail, updateEmail, updatePassword, onAuthStateChanged 
+    sendPasswordResetEmail, updateEmail, updatePassword, onAuthStateChanged,
+    GoogleAuthProvider, signInWithPopup
   };
 </script>
 
@@ -114,10 +117,7 @@ body.theme-rosa {
 }
 
 /* TEMA CHROMA RGB ANIMAÇÃO */
-@keyframes chromaRotate {
-  0% { filter: hue-rotate(0deg); }
-  100% { filter: hue-rotate(360deg); }
-}
+@keyframes chromaFlow { to { background-position: 200% center; } }
 
 body.theme-rgb {
   --bg-main: #030712;
@@ -127,7 +127,7 @@ body.theme-rgb {
   --accent-purple: #f43f5e;
   --glass-border-hover: #00f0ff;
   --glow-shadow: 0 0 25px rgba(0, 240, 255, 0.5);
-  animation: chromaRotate 12s linear infinite;
+  --rgb-gradient: linear-gradient(90deg,#22d3ee,#2563eb,#7c3aed,#ec4899,#ef4444,#f59e0b,#eab308,#22c55e,#22d3ee);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -174,6 +174,31 @@ a { text-decoration: none; }
 .brand-logo-container {
   display: flex; align-items: center; gap: 12px; cursor: pointer; text-decoration: none;
 }
+.official-brand-logo {
+  display:block; width:206px; height:72px; flex:0 0 auto; overflow:hidden;
+  background-image:url('assets/logo-idz.png'); background-repeat:no-repeat;
+  background-size:cover; background-position:center;
+  border-radius:14px; box-shadow:0 12px 34px rgba(0,0,0,.32);
+}
+.official-brand-logo.compact { width:72px; height:72px; background-size:633px 422px; }
+body.theme-rgb .btn:not(.btn-danger), body.theme-rgb .progress-fill, body.theme-rgb .member-sidebar-item.active {
+  background-image:var(--rgb-gradient)!important; background-size:200% auto!important; animation:chromaFlow 7s linear infinite!important;
+}
+body.theme-rgb .card:hover, body.theme-rgb .admin-card:hover, body.theme-rgb .lesson-card:hover {
+  border-color:transparent; box-shadow:0 0 0 1px #7c3aed,0 18px 55px rgba(34,211,238,.18),0 0 38px rgba(236,72,153,.12);
+}
+
+/* Acabamento EdTech: superfícies, hierarquia, acessibilidade e movimento suave */
+.card,.admin-card,.dashboard-card,.module-card,.lesson-card,.settings-card,.modal-box {
+  background:linear-gradient(145deg,color-mix(in srgb,var(--bg-card) 94%,white 6%),var(--bg-card));
+  border:1px solid color-mix(in srgb,var(--glass-border) 72%,var(--accent-cyan) 28%);
+  box-shadow:0 18px 60px rgba(0,0,0,.28); transition:transform .25s ease,border-color .25s ease,box-shadow .25s ease;
+}
+.card:hover,.admin-card:hover,.dashboard-card:hover,.module-card:hover,.lesson-card:hover { transform:translateY(-3px); border-color:var(--glass-border-hover); box-shadow:0 22px 70px rgba(0,0,0,.36),var(--glow-shadow); }
+.btn,.btn-outline,button { min-height:42px; }
+.btn:focus-visible,.btn-outline:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible { outline:3px solid color-mix(in srgb,var(--accent-cyan) 55%,transparent); outline-offset:3px; }
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
+@media(max-width:760px){.official-brand-logo{width:72px;height:58px;background-size:cover}.wrap{padding-inline:14px}.dashboard-grid,.admin-grid{grid-template-columns:1fr!important}.member-layout{display:block!important}.member-sidebar{position:relative!important;width:100%!important;max-height:none!important;margin-bottom:16px}.modal-box{max-height:92vh;overflow:auto}}
 .brand-symbol-hexagon {
   width: 42px; height: 42px; position: relative; display: flex; align-items: center; justify-content: center;
   background: linear-gradient(135deg, #0a1f44, #001026); border-radius: 10px;
@@ -561,14 +586,8 @@ footer {
 <nav>
   <div class="wrap nav-wrap">
     <!-- LOGO OFICIAL IDZ -->
-    <a href="#" class="brand-logo-container" onclick="handleLogoClick()">
-      <div class="brand-symbol-hexagon">
-        <span class="brand-symbol-text">IDZ<span class="brand-symbol-plus">+</span></span>
-      </div>
-      <div class="brand-text-block">
-        <span class="brand-text-top">Informática</span>
-        <span class="brand-text-bot">do Zero</span>
-      </div>
+    <a href="#" class="brand-logo-container" onclick="handleLogoClick()" aria-label="Informática do Zero — início">
+      <span class="official-brand-logo" role="img" aria-label="Logo oficial IDZ — Informática do Zero"></span>
     </a>
 
     <ul class="nav-links">
@@ -984,9 +1003,7 @@ footer {
   <div class="modal-card">
     <button class="close-btn" onclick="closeModal('modal-auth')"><i class="fa-solid fa-xmark"></i></button>
     <div style="text-align: center; margin-bottom: 20px;">
-      <div class="brand-symbol-hexagon" style="margin: 0 auto 10px auto; width: 48px; height: 48px;">
-        <span class="brand-symbol-text" style="font-size: 18px;">IDZ<span class="brand-symbol-plus">+</span></span>
-      </div>
+      <span class="official-brand-logo" style="margin:0 auto 14px" role="img" aria-label="Logo oficial IDZ — Informática do Zero"></span>
       <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 18px; color: #fff; display: block;">Informática do Zero</span>
       <span style="font-size: 12.5px; color: var(--text-secondary);">Acesse sua conta para continuar seus estudos</span>
     </div>
@@ -1258,9 +1275,7 @@ let salesTransactions = JSON.parse(localStorage.getItem('admin_sales_transaction
   { id: "TX-9841", email: "aluno1@gmail.com", amount: 29.90, method: "Pix", status: "aprovado", date: "31/08/2026 21:10" },
   { id: "TX-9842", email: "aluno2@gmail.com", amount: 29.90, method: "Cartão", status: "pendente", date: "31/08/2026 21:15" }
 ];
-let notificationsList = JSON.parse(localStorage.getItem('user_notifications')) || [
-  { id: 1, text: "Bem-vindo à plataforma educacional de Informática do Zero!", unread: true, date: "31/08/2026" }
-];
+let notificationsList = [];
 let completedLessons = JSON.parse(localStorage.getItem('user_completed_lessons')) || {};
 let completedQuizzes = JSON.parse(localStorage.getItem('user_completed_quizzes')) || {};
 
@@ -1311,8 +1326,8 @@ window.onload = function() {
     if (remElem) remElem.checked = true;
   }
 
-  const savedTheme = localStorage.getItem('app_theme') || 'azul';
-  changeTheme(savedTheme, false);
+  /* A área pública sempre inicia no Azul IDZ; preferências só são carregadas após autenticação. */
+  changeTheme('azul', false);
 
   const checkDbInterval = setInterval(() => {
     if (window.db && window.auth) {
@@ -1345,6 +1360,8 @@ window.onload = function() {
             }
 
             isAdmin = (currentUser === TARGET_ADMIN_EMAIL || uObj?.role === 'admin');
+            changeTheme(localStorage.getItem(`app_theme_${user.uid}`) || 'azul', false);
+            loadNotificationsForCurrentAccount();
             updateNavState(true, currentUser);
 
             if (isAdmin) {
@@ -1362,7 +1379,10 @@ window.onload = function() {
         } else {
           currentUser = null;
           isAdmin = false;
+          notificationsList = [];
+          changeTheme('azul', false);
           updateNavState(false, null);
+          updateNotificationsBadge();
           showPublicSite();
         }
       });
@@ -1448,8 +1468,24 @@ function updateNavState(isLoggedIn, email) {
 }
 
 function changeTheme(themeName, save = true) {
-  document.body.className = `theme-${themeName}`;
-  if(save) localStorage.setItem('app_theme', themeName);
+  const allowed = ['azul','roxo','vermelho','rosa','rgb'];
+  const selected = allowed.includes(themeName) ? themeName : 'azul';
+  allowed.forEach(theme => document.body.classList.remove(`theme-${theme}`));
+  document.body.classList.add(`theme-${selected}`);
+  if(save && currentUser) localStorage.setItem(`app_theme_${window.auth?.currentUser?.uid || currentUser}`, selected);
+}
+
+function notificationOwnerKey(audience = isAdmin ? 'admin' : 'student', userId = null) {
+  if (audience === 'admin') return `notifications_admin_${TARGET_ADMIN_EMAIL}`;
+  const owner = userId || window.auth?.currentUser?.uid || currentUser || 'guest';
+  return `notifications_student_${owner}`;
+}
+
+function loadNotificationsForCurrentAccount() {
+  if (!currentUser) { notificationsList = []; updateNotificationsBadge(); return; }
+  const key = notificationOwnerKey(isAdmin ? 'admin' : 'student');
+  notificationsList = JSON.parse(localStorage.getItem(key) || '[]');
+  updateNotificationsBadge();
 }
 
 function updateCourseStatsUI() {
@@ -1579,16 +1615,18 @@ function openNotificationsModal() {
       `;
     });
     notificationsList.forEach(n => n.unread = false);
-    localStorage.setItem('user_notifications', JSON.stringify(notificationsList));
+    localStorage.setItem(notificationOwnerKey(isAdmin ? 'admin' : 'student'), JSON.stringify(notificationsList));
     updateNotificationsBadge();
   }
   openModal('modal-notifications');
 }
 
-function addNotification(text) {
-  notificationsList.unshift({ id: Date.now(), text: text, unread: true, date: new Date().toLocaleString() });
-  localStorage.setItem('user_notifications', JSON.stringify(notificationsList));
-  updateNotificationsBadge();
+function addNotification(text, audience = 'student', userId = null, type = 'info') {
+  const key = notificationOwnerKey(audience, userId);
+  const list = JSON.parse(localStorage.getItem(key) || '[]');
+  list.unshift({ id: Date.now(), type, audience, userId: userId || null, text, unread: true, date: new Date().toLocaleString('pt-BR') });
+  localStorage.setItem(key, JSON.stringify(list.slice(0, 100)));
+  if ((audience === 'admin' && isAdmin) || (audience === 'student' && !isAdmin && currentUser)) loadNotificationsForCurrentAccount();
 }
 
 async function handleLogin(e) {
@@ -1703,7 +1741,8 @@ async function handleRegister(e) {
     await setDoc(doc(window.db, "users", safeId), newUserDoc);
     salesTransactions.push({ id: "TX-"+Math.floor(1000+Math.random()*9000), email: `${fullname} <${em}>`, amount: 29.90, method: "Pix", status: "pendente", date: new Date().toLocaleString() });
     localStorage.setItem('admin_sales_transactions', JSON.stringify(salesTransactions));
-    addNotification("Novo aluno cadastrado: " + fullname);
+    addNotification("Novo aluno cadastrado: " + fullname, 'admin', TARGET_ADMIN_EMAIL, 'novo_aluno');
+    addNotification("Bem-vindo ao Informática do Zero! Sua conta foi criada com sucesso.", 'student', window.auth.currentUser?.uid || em, 'boas_vindas');
     closeModal('modal-auth');
     showSuccessModal("Conta criada com sucesso! Seja bem-vindo à IDZ.");
   } catch (authErr) {
@@ -1722,6 +1761,13 @@ async function logout() {
   const { signOut } = window.firebaseModules;
   if(window.auth) await signOut(window.auth);
   currentUser = null; isAdmin = false;
+  notificationsList = [];
+  document.querySelectorAll('.modal-overlay.active').forEach(modal => modal.classList.remove('active'));
+  document.getElementById('mobile-menu')?.classList.remove('active');
+  document.getElementById('mobile-overlay')?.classList.remove('active');
+  localStorage.removeItem('app_theme');
+  changeTheme('azul', false);
+  updateNotificationsBadge();
   showPublicSite();
 }
 
@@ -2502,6 +2548,12 @@ function deleteLesson(modId, lessonId) {
 
 function openCheckoutModal() {
   const user = window.auth ? window.auth.currentUser : null;
+  if (!user) {
+    sessionStorage.setItem('pending_checkout', JSON.stringify({ amount: currentCheckoutAmount, createdAt: Date.now() }));
+    showCustomAlert('Entre para continuar', 'Faça login ou crie sua conta antes de abrir o checkout. Sua intenção de compra foi preservada.');
+    openAuthModal('login');
+    return;
+  }
   let payerEmail = user ? user.email : (checkoutTargetUser || 'aluno@email.com');
 
   openModal('modal-custom-checkout');
