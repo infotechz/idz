@@ -49,7 +49,7 @@ const examples = [
   "Resolver um pequeno desafio guiado."
 ];
 
-const courseV2 = {
+const courseV2Data = {
   courseVersion: COURSE_VERSION,
   title: "INFORMÁTICA DO ZERO",
   welcome: { id: "welcome", type: "welcome", title: "Boas-vindas", description: "Conheça a plataforma e comece sua jornada." },
@@ -77,4 +77,4 @@ const courseV2 = {
   ]
 };
 
-if (typeof window !== "undefined") window.IDZ_COURSE_V2 = courseV2;
+if (typeof window !== "undefined") window.IDZ_COURSE_V2 = courseV2Data;
