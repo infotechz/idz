@@ -663,6 +663,15 @@ nav,#public-site,#member-area,#settings-area,#admin-area,footer { position:relat
 
 @media (max-width:820px) { .official-brand-logo{width:176px!important;max-width:43vw!important}.nav-right-cluster .btn-outline,.nav-icon-only,.hamburger{width:36px!important;height:36px!important;min-height:36px!important} }
 @media (max-width:420px) { .official-brand-logo{width:136px!important;max-width:38vw!important}.nav-right-cluster{gap:2px}.nav-right-cluster .btn-outline,.nav-icon-only,.hamburger{width:34px!important;height:34px!important;min-height:34px!important;font-size:13px} }
+
+/* Acabamento premium: vidro mais leve, logo discreta e ações arredondadas. */
+:root { --bg-card: rgba(15,23,42,.62); --surface-1: rgba(12,25,48,.58); --surface-2: rgba(21,38,68,.46); }
+.glass-panel,.modal-card,.admin-card,.card,.hero-card { background:linear-gradient(135deg,rgba(25,48,82,.56),rgba(8,20,40,.48))!important; border-radius:24px; box-shadow:0 20px 60px rgba(0,0,0,.22),inset 0 1px rgba(255,255,255,.09); }
+.btn,.btn-outline,button.btn,button.btn-outline { border-radius:14px!important; box-shadow:0 10px 28px rgba(36,190,255,.16); transition:transform .25s ease,box-shadow .25s ease,background .25s ease; }
+.btn:hover,.btn-outline:hover { transform:translateY(-3px) scale(1.015); box-shadow:0 16px 38px rgba(36,190,255,.28); }
+.official-brand-logo { width:188px!important; max-width:25vw!important; filter:drop-shadow(0 6px 14px rgba(0,0,0,.28)); }
+@media (max-width:820px) { .official-brand-logo{width:160px!important;max-width:42vw!important} }
+@media (max-width:420px) { .official-brand-logo{width:132px!important;max-width:39vw!important} }
 </style>
 </head>
 <body class="theme-azul">
@@ -718,7 +727,7 @@ nav,#public-site,#member-area,#settings-area,#admin-area,footer { position:relat
   <div class="modal-card" style="max-width: 700px;">
     <button class="close-btn" onclick="closeModal('modal-edit-lesson')"><i class="fa-solid fa-xmark"></i></button>
     <h3 style="margin-bottom: 16px; font-size: 18px; color: var(--accent-cyan); display: flex; align-items: center; gap: 8px;">
-      <i class="fa-solid fa-pen"></i> Editar Aula, Blocos e Exercício (Quiz)
+      <i class="fa-solid fa-pen"></i> Editar Aula, Blocos e Atividade Prática
     </h3>
     <input type="hidden" id="edit-mod-id">
     <input type="hidden" id="edit-lesson-id">
@@ -746,7 +755,7 @@ nav,#public-site,#member-area,#settings-area,#admin-area,footer { position:relat
     <div class="input-group"><label>Imagem URL (Capa / Ilustração)</label><input type="text" id="edit-lesson-img"></div>
 
     <hr style="border:0; border-top:1px solid var(--glass-border); margin: 15px 0;">
-    <h4 style="font-size: 14px; color: var(--accent-cyan); margin-bottom: 10px;"><i class="fa-solid fa-brain"></i> Configurar Exercício (Quiz) da Aula</h4>
+    <h4 style="font-size: 14px; color: var(--accent-cyan); margin-bottom: 10px;"><i class="fa-solid fa-brain"></i> Configurar Atividade Prática da Aula</h4>
     <div class="input-group"><label>Pergunta do Quiz</label><input type="text" id="edit-quiz-question"></div>
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
       <div class="input-group"><label>Alternativa A</label><input type="text" id="edit-quiz-opt0"></div>
@@ -764,7 +773,7 @@ nav,#public-site,#member-area,#settings-area,#admin-area,footer { position:relat
       </select>
     </div>
 
-    <button class="btn" style="width: 100%; margin-top: 10px;" onclick="saveEditedLesson()"><i class="fa-solid fa-floppy-disk"></i> Salvar Alterações na Aula e Quiz</button>
+    <button class="btn" style="width: 100%; margin-top: 10px;" onclick="saveEditedLesson()"><i class="fa-solid fa-floppy-disk"></i> Salvar Alterações na Aula e Atividade</button>
   </div>
 </div>
 
@@ -1056,7 +1065,7 @@ nav,#public-site,#member-area,#settings-area,#admin-area,footer { position:relat
 <!-- PAINEL ADMINISTRATIVO EMPRESARIAL COMPLETO -->
 <div id="admin-area" class="wrap" style="display: none; padding-top: 36px;">
   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 26px; flex-wrap: wrap; gap: 14px;">
-    <h2 style="margin: 0; font-size: 22px; color: #fff;"><i class="fa-solid fa-user-shield" style="color: var(--accent-cyan);"></i> Painel Administrativo Empresarial IDZ</h2>
+    <h2 style="margin: 0; font-size: 22px; color: #fff;"><i class="fa-solid fa-user-shield" style="color: var(--accent-cyan);"></i> Painel Administrador IDZ</h2>
     <div style="display: flex; gap: 10px; flex-wrap: wrap;">
       <button class="btn-outline" onclick="switchAdminTab('alunos')"><i class="fa-solid fa-users"></i> Gestão de Alunos</button>
       <button class="btn-outline" onclick="switchAdminTab('vendas')"><i class="fa-solid fa-cash-register"></i> Vendas & Transações</button>
@@ -1086,7 +1095,7 @@ nav,#public-site,#member-area,#settings-area,#admin-area,footer { position:relat
             <tr>
               <th>Aluno (Nome / E-mail / Verificação)</th>
               <th>Status Pagamento</th>
-              <th>Progresso (Aulas e Quiz)</th>
+              <th>Progresso (Aulas e Atividades)</th>
               <th>Ações & Controle de Acesso</th>
             </tr>
           </thead>
@@ -2363,6 +2372,7 @@ function loadLessonContent(modId, lessonId) {
   }));
   let courseFullyCompleted = (completedLessonsCount >= totalLessonsCount) && (totalLessonsCount > 0);
   let certReleasedByAdmin = uObj?.certReleased || false;
+  if (courseFullyCompleted && uObj) ensureCertificateRecord(uObj);
 
   let quizHtml = '';
   if (lesson.quiz && lesson.quiz.question) {
@@ -2394,7 +2404,11 @@ function loadLessonContent(modId, lessonId) {
         <h3 style="color: #fff; font-size: 22px; font-weight: 800; margin-bottom: 6px;">PARABÉNS! CURSO CONCLUÍDO COM SUCESSO!</h3>
         <p style="color: var(--accent-cyan); font-size: 14px; font-weight: 700; margin-bottom: 14px;">Sua Autonomia Digital foi conquistada!</p>
         <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px;">Aluno: <strong>${uObj?.fullname || currentUser}</strong></p>
-        <button class="btn" style="background: linear-gradient(135deg, #10b981, #059669); color:#fff; font-size: 14px; padding: 16px 28px;" onclick="generateOfficialCertificatePDF('${uObj?.fullname || currentUser}')"><i class="fa-solid fa-file-pdf"></i> BAIXAR SEU CERTIFICADO OFICIAL EM PDF</button>
+        <p id="certificate-meta" style="font-size:12px;color:var(--text-secondary);margin:-8px 0 18px">Conclusão: ${uObj?.courseCompletedAt ? new Date(uObj.courseCompletedAt).toLocaleDateString('pt-BR') : new Date().toLocaleDateString('pt-BR')} · Nº ${uObj?.certificateNumber || 'será gerado ao baixar'}</p>
+        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+          <button class="btn" style="background: linear-gradient(135deg, #10b981, #059669); color:#fff; font-size: 14px; padding: 14px 22px;" onclick="generateOfficialCertificatePDF()"><i class="fa-solid fa-file-pdf"></i> Baixar certificado</button>
+          <button class="btn-outline" style="font-size:13px;padding:14px 18px" onclick="requestPhysicalCertificate()"><i class="fa-solid fa-truck"></i> Solicitar versão física</button>
+        </div>
       </div>
     `;
   }
@@ -2440,6 +2454,7 @@ function markLessonAsDone(modId, lessonId) {
   localStorage.setItem('user_completed_lessons', JSON.stringify(completedLessons));
   renderMemberSidebar();
   updateStudentDashboard();
+  checkAndIssueCertificate();
   loadLessonContent(modId, lessonId);
   addNotification("Aula concluída com sucesso!");
 }
@@ -2465,6 +2480,7 @@ function checkQuizAnswer(buttonElem, selectedIdx, correctIdx, modId, lessonId) {
     localStorage.setItem('user_completed_quizzes', JSON.stringify(completedQuizzes));
     renderMemberSidebar();
     updateStudentDashboard();
+    checkAndIssueCertificate();
     addNotification("Exercício concluído com sucesso!");
   } else {
     buttonElem.classList.add('incorrect');
@@ -2474,44 +2490,58 @@ function checkQuizAnswer(buttonElem, selectedIdx, correctIdx, modId, lessonId) {
   }
 }
 
-function generateOfficialCertificatePDF(studentName) {
+function checkAndIssueCertificate() {
+  const uObj = registeredUsers.find(u => u.email === currentUser);
+  if (!uObj || isAdmin) return;
+  let total = 0, done = 0;
+  courseData.forEach(m => m.lessons?.forEach(l => {
+    total += 1;
+    if (completedLessons[currentUser]?.[l.id] && (!l.quiz?.question || completedQuizzes[currentUser]?.[l.id])) done += 1;
+  }));
+  if (total > 0 && done >= total) ensureCertificateRecord(uObj);
+}
+
+function ensureCertificateRecord(userObj) {
+  if (!userObj) return null;
+  if (!userObj.certificateNumber) {
+    const year = new Date(userObj.courseCompletedAt || Date.now()).getFullYear();
+    const initial = String(userObj.fullname || userObj.email || 'A').trim().charAt(0).toUpperCase();
+    userObj.certificateNumber = `IDZ-${year}-${Math.floor(1000 + Math.random() * 9000)}X-${initial}`;
+    userObj.courseCompletedAt = userObj.courseCompletedAt || new Date().toISOString();
+    saveUserToCloud(userObj);
+    addNotification(`Conclusão de curso: ${userObj.fullname || userObj.email}`, 'admin', TARGET_ADMIN_EMAIL, 'conclusao');
+  }
+  return userObj;
+}
+
+async function requestPhysicalCertificate() {
+  const uObj = registeredUsers.find(u => u.email === currentUser);
+  if (!uObj) return;
+  ensureCertificateRecord(uObj);
+  addNotification(`Solicitação de certificado físico: ${uObj.fullname || uObj.email}`, 'admin', TARGET_ADMIN_EMAIL, 'certificado_fisico');
+  showSuccessModal('Solicitação enviada', 'O administrador recebeu sua solicitação de certificado físico.');
+}
+
+function generateOfficialCertificatePDF() {
+  const uObj = ensureCertificateRecord(registeredUsers.find(u => u.email === currentUser));
+  if (!uObj) return;
+  const studentName = uObj.fullname || currentUser;
   const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
-  
-  doc.setFillColor(3, 7, 18);
-  doc.rect(0, 0, 297, 210, 'F');
-  
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(24);
-  doc.setTextColor(0, 240, 255);
-  doc.text("INFORMÁTICA DO ZERO", 30, 32);
-
-  doc.setFontSize(28);
-  doc.setTextColor(255, 255, 255);
-  doc.text("CERTIFICADO DE CONCLUSÃO", 30, 56);
-
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(12);
-  doc.setTextColor(148, 163, 184);
-  doc.text("Certificamos para os devidos fins que o(a) aluno(a):", 30, 75);
-
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(22);
-  doc.setTextColor(0, 240, 255);
-  doc.text(studentName.toUpperCase(), 30, 90);
-
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(12);
-  doc.setTextColor(148, 163, 184);
-  doc.text("concluiu com aproveitamento integral a Formação Completa em Informática,", 30, 106);
-  doc.text("com carga horária de 80 horas e domínio em hardware, Windows, Word, Excel, IA e Segurança.", 30, 114);
-
-  doc.setFontSize(10);
-  doc.setTextColor(100, 116, 139);
-  doc.text(`Emissão Oficial IDZ: ${new Date().toLocaleDateString('pt-BR')}`, 30, 170);
-
-  addNotification("Certificado oficial baixado em PDF!");
-  doc.save(`Certificado_IDZ_${studentName.replace(/\s+/g, '_')}.pdf`);
+  const img = new Image();
+  img.onload = () => {
+    const doc = new jsPDF({ orientation:'landscape', unit:'pt', format:[1080,720] });
+    doc.addImage(img, 'PNG', 0, 0, 1080, 720);
+    const date = new Date(uObj.courseCompletedAt || Date.now()).toLocaleDateString('pt-BR');
+    doc.setFillColor(224,230,244); doc.rect(320, 250, 520, 58, 'F');
+    doc.setTextColor(10,28,58); doc.setFont('times','bold'); doc.setFontSize(34); doc.text(studentName.toUpperCase(), 580, 289, {align:'center'});
+    doc.setFillColor(224,230,244); doc.rect(310, 665, 190, 28, 'F');
+    doc.setFont('helvetica','bold'); doc.setFontSize(16); doc.text(date, 405, 684, {align:'center'});
+    doc.setFillColor(224,230,244); doc.rect(570, 665, 200, 28, 'F');
+    doc.setFontSize(15); doc.text(uObj.certificateNumber, 670, 684, {align:'center'});
+    addNotification('Certificado oficial baixado em PDF!');
+    doc.save(`Certificado_IDZ_${studentName.replace(/\s+/g,'_')}.pdf`);
+  };
+  img.src = 'assets/certificado-idz-template.png';
 }
 
 function switchAdminTab(secName) {
