@@ -431,6 +431,7 @@ section { padding: 60px 0; }
 .exercise-toggle { width:100%; justify-content:space-between; margin-top:18px; border-color:rgba(73,217,239,.28); }
 .activity-panel { display:none; margin-top:12px; }
 .activity-panel.is-open { display:block; animation:fadeUp .28s ease both; }
+.delivery-status { margin:10px auto 18px; padding:10px 14px; border:1px solid rgba(73,217,239,.25); border-radius:12px; color:var(--text-secondary); font-size:12px; display:flex; align-items:center; justify-content:center; gap:8px; flex-wrap:wrap; }
 
 .admin-grid { display: grid; grid-template-columns: 1fr; gap: 24px; }
 .admin-card { padding: 26px; width: 100%; overflow: hidden; }
@@ -2562,6 +2563,7 @@ async function requestPhysicalCertificate() {
 }
 
 function generateOfficialCertificatePDF(targetEmail = currentUser) {
+  if (String(targetEmail).includes('%')) targetEmail = decodeURIComponent(targetEmail);
   const uObj = ensureCertificateRecord(registeredUsers.find(u => u.email === targetEmail));
   if (!uObj) return;
   const studentName = uObj.fullname || targetEmail;
@@ -2612,7 +2614,21 @@ async function renderCertificateRequests() {
   if (window.db && window.firebaseModules) {
     try { const { collection, getDocs } = window.firebaseModules; const snap = await getDocs(collection(window.db, 'certificate_requests')); rows = snap.docs.map(d => d.data()); } catch (_) {}
   }
-  body.innerHTML = rows.length ? rows.map(r => `<tr><td><strong>${r.fullname}</strong><br><small>${r.email}</small></td><td>${r.address.end || ''}, ${r.address.num || ''} - ${r.address.bairro || ''}<br>${r.address.cidade || ''}/${r.address.uf || ''} - CEP ${r.address.cep || ''}</td><td>${new Date(r.requestedAt).toLocaleDateString('pt-BR')}</td><td><span class="status-badge pending">${r.status}</span></td></tr>`).join('') : '<tr><td colspan="4" style="text-align:center;color:var(--text-secondary)">Nenhuma solicitação recebida.</td></tr>';
+  body.innerHTML = rows.length ? rows.map(r => `<tr><td><strong>${r.fullname}</strong><br><small>${r.email}</small></td><td>${r.address.end || ''}, ${r.address.num || ''} - ${r.address.bairro || ''}<br>${r.address.cidade || ''}/${r.address.uf || ''} - CEP ${r.address.cep || ''}</td><td>${new Date(r.requestedAt).toLocaleDateString('pt-BR')}</td><td><span class="status-badge pending">${r.status || 'pendente'}</span><br><button class="btn-outline" style="font-size:11px;padding:6px 9px;margin-top:6px" onclick="generateOfficialCertificatePDF('${encodeURIComponent(r.email)}')">Baixar PDF</button><button class="btn-outline" style="font-size:11px;padding:6px 9px;margin:6px 0 0 4px" onclick="updatePhysicalCertificateStatus('${encodeURIComponent(r.email)}','a_caminho')">Marcar a caminho</button><button class="btn-outline" style="font-size:11px;padding:6px 9px;margin:6px 0 0 4px" onclick="updatePhysicalCertificateStatus('${encodeURIComponent(r.email)}','entregue')">Marcar entregue</button></td></tr>`).join('') : '<tr><td colspan="4" style="text-align:center;color:var(--text-secondary)">Nenhuma solicitação recebida.</td></tr>';
+}
+
+async function updatePhysicalCertificateStatus(encodedEmail, status) {
+  if (!isAdmin) return;
+  const email = decodeURIComponent(encodedEmail); const u = registeredUsers.find(x => x.email === email); if (!u) return;
+  u.physicalCertificateStatus = status; await saveUserToCloud(u);
+  const rows = JSON.parse(localStorage.getItem('physical_certificate_requests') || '[]'); const row = rows.find(x => x.email === email); if (row) row.status = status; localStorage.setItem('physical_certificate_requests', JSON.stringify(rows));
+  addNotification(`Certificado físico de ${u.fullname || email}: ${status}`, 'student', email, 'certificado_status');
+  renderCertificateRequests(); showSuccessModal('Status atualizado', `O certificado foi marcado como ${status === 'a_caminho' ? 'a caminho' : 'entregue'}.`);
+}
+
+async function confirmPhysicalReceipt() {
+  const u = registeredUsers.find(x => x.email === currentUser); if (!u || u.physicalCertificateStatus !== 'entregue') return;
+  u.physicalCertificateStatus = 'recebido'; await saveUserToCloud(u); addNotification('Aluno confirmou o recebimento do certificado físico.', 'admin', TARGET_ADMIN_EMAIL, 'certificado_recebido'); showSuccessModal('Recebimento confirmado', 'Obrigado por confirmar a entrega.');
 }
 
 function renderDashboard() {
