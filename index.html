@@ -1,237 +1,2157 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Informática do Zero — Curso Completo</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Firebase SDKs -->
-    <script type="module">
-      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-      import { getFirestore, doc, setDoc, getDoc, getDocs, collection, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-      window.firebaseModules = { doc, setDoc, getDoc, getDocs, collection, updateDoc };
-    </script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>Informática do Zero — Plataforma Profissional</title>
 
-    <style>
-        :root {
-            --bg-dark: #0b0f19;
-            --bg-card: #1e293b;
-            --bg-hover: #334155;
-            --border-color: #334155;
-            --text-main: #f8fafc;
-            --text-secondary: #94a3b8;
-            --accent-cyan: #38bdf8;
-            --green: #10b981;
-            --accent-blue: #6366f1;
-            --accent-hover: #4f46e5;
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
-        body { background-color: var(--bg-dark); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; }
-        
-        header { background: var(--bg-card); border-bottom: 1px solid var(--border-color); padding: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
-        .logo-area { display: flex; align-items: center; gap: 12px; }
-        .logo-icon { font-size: 28px; color: var(--accent-cyan); }
-        h1 { font-size: 20px; font-weight: 800; color: #fff; letter-spacing: 0.5px; }
-        
-        .container { max-width: 1000px; margin: 30px auto; padding: 0 20px; width: 100%; flex: 1; }
-        
-        .card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 28px; margin-bottom: 24px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3); }
-        
-        .btn { background: var(--accent-blue); color: white; border: none; padding: 12px 24px; border-radius: 10px; font-weight: 600; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; font-size: 14px; }
-        .btn:hover { background: var(--accent-hover); transform: translateY(-1px); }
-        .btn-green { background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 4px 12px rgba(16,185,129,0.3); }
-        .btn-green:hover { opacity: 0.9; }
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-        .module-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; cursor: pointer; }
-        .module-title { font-size: 18px; font-weight: 700; color: var(--accent-cyan); }
-        
-        .lessons-list { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
-        .lesson-item { background: rgba(15, 23, 42, 0.5); border: 1px solid var(--border-color); padding: 14px 18px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; transition: 0.2s; cursor: pointer; }
-        .lesson-item:hover { background: var(--bg-hover); border-color: var(--accent-cyan); }
-        
-        .lesson-title { font-weight: 500; font-size: 15px; display: flex; align-items: center; gap: 10px; }
-        .status-badge { font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 20px; background: rgba(16,185,129,0.15); color: var(--green); border: 1px solid rgba(16,185,129,0.3); }
+<!-- SDK Oficial do Mercado Pago para Checkout Bricks -->
+<script src="https://sdk.mercadopago.com/js/v2"></script>
 
-        #loading { text-align: center; padding: 60px; font-size: 18px; color: var(--text-secondary); }
-        
-        .auth-box { max-width: 420px; margin: 60px auto; text-align: center; }
-        .input-field { width: 100%; padding: 14px 16px; background: rgba(15,23,42,0.6); border: 1px solid var(--border-color); border-radius: 10px; color: #fff; font-size: 15px; margin-bottom: 16px; outline: none; }
-        .input-field:focus { border-color: var(--accent-cyan); }
-    </style>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getFirestore, collection, doc, setDoc, getDoc, getDocs, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendPasswordResetEmail, updateEmail, updatePassword, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBAQ1HRInFDHnOERD3iD9lifBcJAhRWI1c",
+    authDomain: "informatica-do-zero-40928.firebaseapp.com",
+    projectId: "informatica-do-zero-40928",
+    storageBucket: "informatica-do-zero-40928.firebasestorage.app",
+    messagingSenderId: "700791806827",
+    appId: "1:700791806827:web:9556d2ee88f19dd5c9ca2e",
+    measurementId: "G-VV39J2ZW0F"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const auth = getAuth(app);
+
+  setPersistence(auth, browserLocalPersistence).catch((error) => {
+    console.error("Erro na persistência:", error);
+  });
+
+  window.db = db;
+  window.auth = auth;
+  window.firebaseModules = { collection, doc, setDoc, getDoc, getDocs, onSnapshot, deleteDoc, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendPasswordResetEmail, updateEmail, updatePassword, onAuthStateChanged };
+</script>
+
+<style>
+:root {
+  --bg-main: #030712;
+  --bg-card: rgba(15, 23, 42, 0.9);
+  --accent-cyan: #00f0ff;
+  --accent-blue: #2563eb;
+  --accent-purple: #7c3aed;
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --green: #10b981;
+  --red: #ef4444;
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-border-hover: rgba(0, 240, 255, 0.35);
+  --glass-shadow: 0 12px 40px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  --glow-shadow: 0 0 25px rgba(0, 240, 255, 0.3);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 100%; overflow-x: hidden; position: relative; scroll-behavior: smooth; }
+
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--bg-main); }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent-cyan); }
+
+body {
+  font-family: 'Inter', sans-serif;
+  color: var(--text-primary);
+  background-color: var(--bg-main);
+  line-height: 1.6;
+}
+
+#particles-canvas {
+  position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: -1; opacity: 0.45;
+}
+.bg-orbs {
+  position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: -2; overflow: hidden;
+}
+.orb {
+  position: absolute; border-radius: 50%; filter: blur(140px); opacity: 0.2;
+  animation: float 25s infinite ease-in-out alternate;
+}
+.orb-1 { width: 450px; height: 450px; background: var(--accent-blue); top: -10%; left: -10%; }
+.orb-2 { width: 550px; height: 550px; background: var(--accent-purple); bottom: -20%; right: -10%; animation-delay: -6s; }
+
+@keyframes float {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(40px, 60px) scale(1.1); }
+}
+
+.animate-fade-up { animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; transform: translateY(20px); }
+@keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+
+.wrap { max-width: 1240px; margin: auto; padding: 0 20px; width: 100%; }
+h1, h2, h3, h4, .tag, .btn, .badge { font-family: 'Plus Jakarta Sans', sans-serif; }
+a { text-decoration: none; }
+
+nav {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(3, 7, 18, 0.85);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--glass-border); padding: 14px 0; transition: all 0.3s;
+}
+.nav-wrap { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+
+.logo-text-only { display: flex; flex-direction: column; text-decoration: none; line-height: 1.1; cursor: pointer; }
+.logo-text-only .title-top { font-weight: 800; font-size: 17px; color: #fff; letter-spacing: -0.3px; }
+.logo-text-only .title-bot { font-weight: 700; font-size: 13px; color: var(--accent-cyan); }
+
+.nav-links { display: flex; gap: 24px; list-style: none; align-items: center; }
+.nav-links a { color: var(--text-secondary); font-size: 13px; font-weight: 600; transition: 0.3s; }
+.nav-links a:hover { color: var(--accent-cyan); text-shadow: 0 0 10px rgba(0, 240, 255, 0.5); }
+
+.nav-right-cluster { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+
+.btn-outline {
+  padding: 8px 16px; border-radius: 12px; border: 1px solid var(--glass-border-hover);
+  background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); color: #fff;
+  font-weight: 600; font-size: 12px; transition: all 0.3s ease; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
+}
+.btn-outline:hover { 
+  background: rgba(0, 240, 255, 0.1); border-color: var(--accent-cyan); box-shadow: var(--glow-shadow);
+}
+
+.hamburger {
+  background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: #fff; width: 38px; height: 38px; border-radius: 10px; font-size: 16px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center;
+}
+.hamburger:hover { border-color: var(--accent-cyan); color: var(--accent-cyan); }
+
+.mobile-dropdown {
+  position: fixed; top: 0; right: 0; width: 280px; max-width: 85vw; height: 100vh;
+  background: rgba(3, 7, 18, 0.98); backdrop-filter: blur(25px); border-left: 1px solid var(--glass-border);
+  padding: 20px; display: flex; flex-direction: column; gap: 12px; transform: translateX(100%);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); z-index: 999; box-shadow: -20px 0 50px rgba(0,0,0,0.8);
+}
+.mobile-dropdown.active { transform: translateX(0); }
+.mobile-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--glass-border); padding-bottom: 14px; margin-bottom: 6px; }
+.mobile-dropdown button {
+  width: 100%; text-align: left; padding: 12px 14px; background: rgba(255,255,255,0.03);
+  border: 1px solid var(--glass-border); color: #fff; border-radius: 12px; font-weight: 600; font-size: 13px;
+  display: flex; align-items: center; gap: 10px; cursor: pointer;
+}
+.mobile-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 998; display: none; }
+.mobile-overlay.active { display: block; }
+
+.glass-panel {
+  background: var(--bg-card); backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid var(--glass-border); border-radius: 24px; box-shadow: var(--glass-shadow);
+}
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+  color: #030712; font-weight: 800; font-size: 13px; padding: 14px 24px; border-radius: 14px;
+  border: none; box-shadow: 0 10px 30px rgba(0, 102, 255, 0.35);
+  transition: all 0.3s ease; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px;
+}
+.btn:hover { transform: translateY(-2px); box-shadow: 0 15px 35px rgba(0, 240, 255, 0.5); filter: brightness(1.1); }
+
+.hero { padding: 70px 0 50px; }
+.gridhero { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 50px; align-items: center; }
+.tag {
+  display: inline-flex; align-items: center; gap: 8px; padding: 6px 16px; border-radius: 999px;
+  background: rgba(0, 102, 255, 0.15); border: 1px solid rgba(0, 240, 255, 0.4);
+  color: var(--accent-cyan); font-size: 12px; font-weight: 700; margin-bottom: 24px; text-transform: uppercase;
+}
+.hero h1 { font-size: clamp(34px, 4.5vw, 52px); line-height: 1.15; font-weight: 800; letter-spacing: -1px; margin-bottom: 20px; }
+.hero h1 span {
+  background: linear-gradient(135deg, #fff 20%, var(--accent-cyan) 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.hero p { font-size: 17px; color: var(--text-secondary); margin-bottom: 30px; }
+
+.hero-card { padding: 30px; text-align: center; background: radial-gradient(circle at top right, rgba(0, 240, 255, 0.1), transparent 70%), var(--bg-card); border-color: rgba(0, 240, 255, 0.3); }
+.badge-discount {
+  display: inline-block; background: rgba(16, 185, 129, 0.2); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.4);
+  padding: 6px 14px; border-radius: 99px; font-size: 12px; font-weight: 800; margin-bottom: 16px;
+}
+.benefits-list div {
+  display: flex; align-items: center; gap: 10px; justify-content: center; font-size: 14px; color: var(--text-secondary); margin-bottom: 12px;
+}
+.benefits-list div i { color: var(--accent-cyan); }
+
+section { padding: 70px 0; }
+.section-header { text-align: center; margin-bottom: 45px; }
+.section-header h2 { font-size: clamp(26px, 3.5vw, 38px); font-weight: 800; margin-bottom: 14px; }
+.section-header p { max-width: 580px; margin: auto; color: var(--text-secondary); font-size: 15px; }
+
+.cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+.card { padding: 30px 22px; transition: 0.3s; }
+.card:hover { transform: translateY(-8px); border-color: var(--glass-border-hover); box-shadow: var(--glow-shadow); }
+.card .icon {
+  font-size: 26px; margin-bottom: 18px; display: inline-flex; align-items: center; justify-content: center;
+  background: rgba(255, 255, 255, 0.04); width: 56px; height: 56px; border-radius: 14px; border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--accent-cyan);
+}
+.card h3 { font-size: 19px; font-weight: 700; margin-bottom: 10px; }
+.card p { color: var(--text-secondary); font-size: 13.5px; }
+
+.pricebox { max-width: 680px; margin: auto; padding: 45px 30px; text-align: center; border-color: rgba(0, 240, 255, 0.4); box-shadow: 0 20px 60px rgba(0,0,0,0.6), inset 0 0 40px rgba(0,240,255,0.05); }
+.price-tag { display: flex; align-items: center; justify-content: center; gap: 16px; margin: 20px 0; }
+.old-price { text-decoration: line-through; color: var(--text-muted); font-size: 19px; font-weight: 600; }
+.new-price { font-size: 52px; font-weight: 800; color: #fff; text-shadow: 0 0 20px rgba(0,240,255,0.3); }
+
+.faq { max-width: 780px; margin: auto; display: flex; flex-direction: column; gap: 14px; }
+.faq details { padding: 18px 22px; border-radius: 14px; cursor: pointer; transition: 0.3s; }
+.faq details[open] { border-color: var(--accent-cyan); background: rgba(0, 240, 255, 0.025); box-shadow: var(--glow-shadow); }
+.faq summary { font-weight: 700; font-size: 15px; outline: none; display: flex; justify-content: space-between; align-items: center; list-style: none; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after { content: '\f107'; font-family: 'FontAwesome'; color: var(--accent-cyan); transition: transform 0.3s; }
+.faq details[open] summary::after { transform: rotate(180deg); }
+.faq p { color: var(--text-secondary); margin-top: 12px; font-size: 13.5px; border-left: 2px solid var(--accent-cyan); padding-left: 12px; }
+
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(3, 7, 18, 0.85); backdrop-filter: blur(15px);
+  display: flex; align-items: center; justify-content: center; z-index: 1000;
+  opacity: 0; pointer-events: none; transition: 0.3s; padding: 16px;
+  overflow-y: auto;
+}
+.modal-overlay.active { opacity: 1; pointer-events: auto; }
+.modal-card {
+  background: var(--bg-card); border: 1px solid var(--glass-border-hover); backdrop-filter: blur(25px);
+  border-radius: 22px; padding: 30px 22px; max-width: 650px; width: 100%; position: relative;
+  box-shadow: 0 30px 60px rgba(0,0,0,0.8), 0 0 40px rgba(0,240,255,0.1); transform: scale(0.95); transition: 0.3s;
+  max-height: 90vh; overflow-y: auto; margin: auto;
+}
+.modal-overlay.active .modal-card { transform: scale(1); }
+.close-btn { position: absolute; top: 16px; right: 16px; background: none; border: none; color: var(--text-muted); font-size: 22px; cursor: pointer; transition: 0.2s; z-index: 10; }
+.close-btn:hover { color: #fff; }
+
+.input-group { margin-bottom: 14px; width: 100%; text-align: left; }
+.input-group label { display: block; font-size: 11.5px; color: var(--text-secondary); margin-bottom: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.input-group input, .input-group textarea, .input-group select {
+  width: 100%; padding: 12px 14px; border-radius: 12px; background: rgba(0,0,0,0.4);
+  border: 1px solid var(--glass-border); color: #fff; font-size: 13.5px; outline: none; transition: 0.3s; font-family: 'Inter', sans-serif;
+}
+.input-group input:focus, .input-group textarea:focus, .input-group select:focus {
+  border-color: var(--accent-cyan); background: rgba(0,240,255,0.04); box-shadow: 0 0 15px rgba(0,240,255,0.2);
+}
+.password-wrapper { position: relative; }
+.toggle-password {
+  position: absolute; right: 14px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 15px;
+}
+
+.lms-layout { display: grid; grid-template-columns: 1fr 340px; gap: 24px; align-items: start; }
+@media(max-width: 950px){ .lms-layout { grid-template-columns: 1fr; } .lms-sidebar { order: 2; } .lms-content { order: 1; } }
+
+.lms-sidebar h3 { font-size: 15px; padding-bottom: 12px; border-bottom: 1px solid var(--glass-border); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; color: #fff; }
+.lms-module-box { border: 1px solid var(--glass-border); border-radius: 12px; margin-bottom: 10px; background: rgba(255,255,255,0.015); overflow: hidden; }
+.lms-module-header {
+  padding: 13px 15px; font-size: 12.5px; font-weight: 700; cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.25); transition: 0.2s;
+}
+.lms-module-header:hover { background: rgba(0, 240, 255, 0.06); color: var(--accent-cyan); }
+.lms-module-body { padding: 10px; display: none; border-top: 1px solid var(--glass-border); }
+.lms-module-body.expanded { display: block; animation: fadeUp 0.3s ease; }
+.lms-lesson-item {
+  padding: 10px 12px; border-radius: 8px; margin-bottom: 4px; cursor: pointer; font-size: 12.5px;
+  color: var(--text-secondary); transition: 0.2s; display: flex; justify-content: space-between; align-items: center;
+}
+.lms-lesson-item:hover, .lms-lesson-item.active { background: rgba(0, 240, 255, 0.1); color: #fff; font-weight: 600; }
+.lms-lesson-item i.fa-check-circle { color: var(--green); }
+
+.lms-content { padding: 36px; min-height: 520px; }
+.video-frame, .image-frame {
+  width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 16px;
+  border: 1px solid var(--glass-border); overflow: hidden; margin-bottom: 22px; box-shadow: 0 15px 40px rgba(0,0,0,0.5);
+}
+.video-frame iframe, .image-frame img { width: 100%; height: 100%; object-fit: cover; }
+
+.quiz-container {
+  margin-top: 35px;
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.6));
+  border: 1px solid rgba(0, 240, 255, 0.25);
+  border-radius: 20px;
+  padding: 28px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+}
+.quiz-header-badge {
+  display: inline-flex; align-items: center; gap: 8px; padding: 5px 14px; border-radius: 99px;
+  background: rgba(0, 240, 255, 0.1); border: 1px solid rgba(0, 240, 255, 0.3);
+  color: var(--accent-cyan); font-size: 11px; font-weight: 700; text-transform: uppercase; margin-bottom: 14px;
+}
+.quiz-question-title {
+  font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 18px; line-height: 1.5;
+}
+.quiz-options-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+.quiz-option-btn {
+  width: 100%; text-align: left; padding: 14px 18px;
+  background: rgba(255, 255, 255, 0.03); border: 1px solid var(--glass-border);
+  color: var(--text-secondary); border-radius: 12px; font-size: 13.5px; font-weight: 600;
+  cursor: pointer; transition: 0.25s ease; display: flex; align-items: center; justify-content: space-between;
+}
+.quiz-option-btn.correct {
+  background: rgba(16, 185, 129, 0.2) !important; border-color: var(--green) !important; color: #34d399 !important;
+}
+.quiz-option-btn.incorrect {
+  background: rgba(239, 68, 68, 0.2) !important; border-color: var(--red) !important; color: #f87171 !important;
+}
+.quiz-feedback {
+  font-size: 13.5px; font-weight: 600; margin-top: 14px; padding: 12px 16px; border-radius: 10px; display: none;
+}
+.quiz-feedback.success { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.3); display: flex; align-items: center; gap: 10px; }
+.quiz-feedback.error { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.3); display: flex; align-items: center; gap: 10px; }
+
+.admin-grid { display: grid; grid-template-columns: 1fr; gap: 24px; }
+.admin-card { padding: 26px; width: 100%; overflow: hidden; }
+.admin-card h3 { border-bottom: 1px solid var(--glass-border); padding-bottom: 12px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; font-size: 17px; flex-wrap: wrap; }
+
+.gateway-metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 26px; }
+.metric-box { background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); padding: 16px; border-radius: 16px; border-left: 4px solid var(--accent-cyan); }
+.metric-box span { font-size: 11px; color: var(--text-secondary); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; display: block; }
+.metric-box h4 { font-size: 22px; color: #fff; font-weight: 800; margin-top: 4px; display: flex; align-items: center; justify-content: space-between; }
+
+.table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin-bottom: 10px; }
+.sales-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 320px; }
+.sales-table th, .sales-table td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--glass-border); }
+.sales-table th { color: var(--text-secondary); font-weight: 700; text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; }
+.badge-status { padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 700; text-transform: uppercase; display: inline-block; }
+
+.admin-mod-box { border: 1px solid var(--glass-border); border-radius: 14px; margin-bottom: 12px; background: rgba(0,0,0,0.25); overflow: hidden; }
+.admin-mod-header { padding: 14px 16px; font-size: 13px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; gap: 10px; cursor: pointer; }
+.admin-mod-header:hover { background: rgba(0, 240, 255, 0.05); }
+.admin-mod-body { padding: 16px; border-top: 1px solid var(--glass-border); background: rgba(255,255,255,0.015); display: none; }
+.admin-mod-body.expanded { display: block; }
+.admin-lesson-item-box { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: rgba(0,0,0,0.2); border-radius: 8px; margin-bottom: 6px; font-size: 12.5px; }
+
+footer {
+  background: rgba(3, 7, 18, 0.9); border-top: 1px solid var(--glass-border);
+  padding: 40px 0 20px; text-align: center; margin-top: 80px; position: relative; z-index: 10;
+}
+.footer-social { display: flex; justify-content: center; gap: 16px; margin-bottom: 24px; }
+.footer-social a {
+  display: flex; align-items: center; justify-content: center; width: 40px; height: 40px;
+  border-radius: 50%; background: rgba(255,255,255,0.05); color: var(--text-secondary); font-size: 18px;
+  border: 1px solid var(--glass-border); transition: 0.3s;
+}
+.footer-social a:hover { background: var(--accent-cyan); color: #000; border-color: var(--accent-cyan); transform: translateY(-3px); box-shadow: var(--glow-shadow); }
+
+@media (max-width: 768px) {
+  .gridhero { grid-template-columns: 1fr; gap: 40px; text-align: center; }
+  .cards { grid-template-columns: 1fr; }
+  .nav-links { display: none; }
+  .pricebox { padding: 35px 20px; }
+  .new-price { font-size: 42px; }
+}
+</style>
 </head>
 <body>
-    <header>
-        <div class="logo-area">
-            <i class="fa-solid fa-laptop-code logo-icon"></i>
-            <div>
-                <h1>INFORMÁTICA DO ZERO</h1>
-                <p style="color: var(--text-secondary); font-size: 12px;">Plataforma de Ensino Completa</p>
-            </div>
-        </div>
-        <div id="user-header-info" style="font-size: 14px; color: var(--text-secondary);"></div>
-    </header>
 
-    <div class="container" id="app-container">
-        <div id="loading"><i class="fa-solid fa-spinner fa-spin"></i> Inicializando ambiente de estudos...</div>
+<canvas id="particles-canvas"></canvas>
+<div class="bg-orbs">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+</div>
+
+<div class="modal-overlay" id="custom-alert-modal">
+  <div class="modal-card" style="max-width: 450px; text-align: center; border-color: var(--red);">
+    <i class="fa-solid fa-triangle-exclamation" style="font-size: 48px; color: var(--red); margin-bottom: 16px; filter: drop-shadow(0 0 10px rgba(239,68,68,0.5));"></i>
+    <h3 id="custom-alert-title" style="font-size: 19px; margin-bottom: 10px; color: #fff;">Atenção ao Pagamento</h3>
+    <p id="custom-alert-text" style="color: var(--text-secondary); font-size: 13.5px; margin-bottom: 24px; line-height: 1.5;"></p>
+    <button class="btn" style="width: 100%; background: linear-gradient(135deg, var(--red), #b91c1c); color: #fff;" onclick="closeCustomAlert()">Entendido</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="success-modal">
+  <div class="modal-card" style="text-align: center; border-color: var(--green);">
+    <i class="fa-solid fa-circle-check" style="font-size: 52px; color: var(--green); margin-bottom: 16px; filter: drop-shadow(0 0 10px rgba(16,185,129,0.5));"></i>
+    <h3 style="font-size: 21px; margin-bottom: 8px;">Sucesso na Nuvem!</h3>
+    <p id="success-modal-text" style="color: var(--text-secondary); font-size: 13.5px; margin-bottom: 22px;">Sincronizado via Firebase para todos.</p>
+    <button class="btn" style="width: 100%;" onclick="closeSuccessModal()">Continuar <i class="fa-solid fa-arrow-right"></i></button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-custom-checkout">
+  <div class="modal-card" style="max-width: 650px;">
+    <button class="close-btn" onclick="closeCheckoutModalSafe()"><i class="fa-solid fa-xmark"></i></button>
+    
+    <div style="text-align: center; margin-bottom: 16px; border-bottom: 1px solid var(--glass-border); padding-bottom: 12px;">
+      <span style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; display: block; font-weight: 700;">Ambiente Seguro de Pagamento</span>
+      <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 18px; color: #fff;" id="checkout-modal-title">Informática do Zero — R$ 29,90</span>
     </div>
 
-    <!-- Lógica Principal do Aplicativo -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, getDocs, collection } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    <div id="paymentBrick_container"></div>
+  </div>
+</div>
 
-        const firebaseConfig = {
-            projectId: "informatica-do-zero-40928"
-        };
+<nav>
+  <div class="wrap nav-wrap">
+    <a href="#" class="logo-text-only" onclick="handleLogoClick()">
+      <span class="title-top">Informática</span>
+      <span class="title-bot">do Zero</span>
+    </a>
 
-        let app;
-        try { app = initializeApp(firebaseConfig); } catch (e) {}
-        const db = getFirestore();
-        window.db = db;
+    <ul class="nav-links">
+      <li><a href="#course-details" onclick="showPublicSite()">O Curso</a></li>
+      <li><a href="#checkout" onclick="showPublicSite()">Investimento</a></li>
+      <li><a href="#faq" onclick="showPublicSite()">Dúvidas</a></li>
+    </ul>
 
-        let currentUser = localStorage.getItem("idz_user") || null;
+    <div class="nav-right-cluster">
+      <div id="nav-guest">
+        <button class="btn-outline" onclick="openAuthModal('login')"><i class="regular fa-user"></i> Login</button>
+      </div>
 
-        window.generateOfficialCertificatePDF = function(studentName) {
-            alert("Gerando o Certificado Oficial em PDF para: " + (studentName || currentUser || "Aluno(a)") + ". Parabéns pela conquista!");
-        }
+      <div id="nav-user" style="display: none; align-items: center; gap: 8px;">
+        <span style="font-size: 11px; color: var(--accent-cyan); font-weight: 600; white-space: nowrap;" id="user-display">Aluno</span>
+        <button class="btn-outline" style="border-color: rgba(239, 68, 68, 0.4); color: var(--red); padding: 6px 8px;" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i></button>
+      </div>
 
-        window.handleLogin = function(event) {
-            event.preventDefault();
-            const nameInput = document.getElementById("student-name-input").value.trim();
-            if (!nameInput) {
-                alert("Por favor, digite seu nome completo.");
-                return;
-            }
-            currentUser = nameInput;
-            localStorage.setItem("idz_user", currentUser);
-            renderDashboard();
-        }
+      <button class="hamburger" onclick="toggleMobileMenu()"><i class="fa-solid fa-bars"></i></button>
+    </div>
+  </div>
+</nav>
 
-        window.handleLogout = function() {
-            localStorage.removeItem("idz_user");
-            currentUser = null;
-            renderAuthScreen();
-        }
+<div class="mobile-overlay" id="mobile-overlay" onclick="toggleMobileMenu()"></div>
+<div class="mobile-dropdown" id="mobile-menu">
+  <div class="mobile-header">
+    <span style="font-size: 15px; font-weight: 700; color: #fff;">Menu</span>
+    <button onclick="toggleMobileMenu()" style="background:none; border:none; color:var(--text-muted); font-size: 20px; width:auto; padding:0;"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+  <div id="mobile-menu-options" style="display: flex; flex-direction: column; gap: 10px;"></div>
+</div>
 
-        function renderAuthScreen() {
-            document.getElementById('user-header-info').innerHTML = '';
-            const container = document.getElementById('app-container');
-            container.innerHTML = `
-                <div class="card auth-box">
-                    <h2 style="font-size: 22px; margin-bottom: 8px; color: #fff;">Bem-vindo ao Curso!</h2>
-                    <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 24px;">Insira seu nome completo para acessar o painel de aulas e acompanhar seu progresso.</p>
-                    <form onsubmit="handleLogin(event)">
-                        <input type="text" id="student-name-input" class="input-field" placeholder="Seu nome completo..." required autocomplete="name">
-                        <button type="submit" class="btn" style="width: 100%; justify-content: center;">Acessar Plataforma <i class="fa-solid fa-arrow-right"></i></button>
-                    </form>
-                </div>
-            `;
-        }
+<div id="public-site" class="animate-fade-up" style="display: block;">
+  <header class="hero">
+    <div class="wrap gridhero">
+      <div>
+        <span class="tag" id="hero-tag-lessons"><i class="fa-solid fa-bolt"></i> FORMAÇÃO COMPLETA • CARREGANDO...</span>
+        <h1>Aprenda <span>Informática Definitiva</span> e conquiste sua autonomia digital.</h1>
+        <p>Domine o computador, crie planilhas, documentos profissionais, navegue com total segurança e use a Inteligência Artificial a seu favor.</p>
+        <button class="btn" onclick="handleAccountAction()"><i class="fa-solid fa-unlock-keyhole"></i> <span id="hero-btn-text">ACESSAR MINHA CONTA</span></button>
+      </div>
+      <div class="glass-panel hero-card">
+        <span class="badge-discount"><i class="fa-solid fa-fire"></i> ACESSO IMEDIATO</span>
+        <h3 style="font-size: 23px; margin: 10px 0;">Área de Membros Premium</h3>
+        <p style="font-size: 13.5px; margin-bottom: 22px;">Aprenda no seu ritmo com suporte dedicado.</p>
+        
+        <div class="benefits-list">
+          <div id="benefit-lessons-count"><i class="fa-solid fa-check"></i> Aulas práticas em 15 Módulos</div>
+          <div><i class="fa-solid fa-check"></i> Bônus práticos e exclusivos</div>
+          <div><i class="fa-solid fa-check"></i> Acesso via celular ou computador</div>
+          <div><i class="fa-solid fa-check"></i> Certificado de Conclusão Oficial</div>
+        </div>
+        <button class="btn" style="width:100%; margin-top:20px;" onclick="openCheckoutModal()">GARANTIR VAGA — R$ 29,90</button>
+      </div>
+    </div>
+  </header>
 
-        async function renderDashboard() {
-            document.getElementById('user-header-info').innerHTML = `
-                <span><i class="fa-solid fa-user-circle" style="color:var(--accent-cyan); margin-right:6px;"></i> ${currentUser}</span>
-                <button onclick="handleLogout()" style="background:none; border:none; color:var(--text-secondary); cursor:pointer; margin-left:12px; font-size:13px;" title="Sair"><i class="fa-solid fa-right-from-bracket"></i></button>
-            `;
+  <section id="course-details">
+    <div class="wrap">
+      <div class="section-header">
+        <h2 id="section-course-title">Conteúdo Programático Completo</h2>
+        <p>Estrutura passo a passo atualizada com as ferramentas modernas do mercado.</p>
+      </div>
+      <div class="cards">
+        <div class="glass-panel card"><div class="icon"><i class="fa-solid fa-desktop"></i></div><h3>M1: O Computador</h3><p>Hardware, periféricos e introdução ao ambiente digital.</p></div>
+        <div class="glass-panel card"><div class="icon"><i class="fa-solid fa-keyboard"></i></div><h3>M2: Teclado & Mouse</h3><p>Atalhos rápidos para multiplicar sua velocidade diária.</p></div>
+        <div class="glass-panel card"><div class="icon"><i class="fa-regular fa-folder-open"></i></div><h3>M3: Sistema Windows</h3><p>Gerenciamento de pastas, janelas e atalhos do sistema.</p></div>
+        <div class="glass-panel card"><div class="icon"><i class="fa-solid fa-shield-halved"></i></div><h3>M4: Internet & E-mail</h3><p>Navegação segura, pesquisas e configuração de correio.</p></div>
+        <div class="glass-panel card"><div class="icon"><i class="fa-regular fa-file-word"></i></div><h3>M5: Word Essencial</h3><p>Criação de textos, contratos e formatação de documentos.</p></div>
+        <div class="glass-panel card"><div class="icon"><i class="fa-regular fa-file-excel"></i></div><h3>M6: Excel Básico</h3><p>Planilhas, células, tabelas e operações matemáticas.</p></div>
+      </div>
+    </div>
+  </section>
 
-            const container = document.getElementById('app-container');
-            container.innerHTML = `<div id="loading"><i class="fa-solid fa-spinner fa-spin"></i> Carregando módulos do curso...</div>`;
+  <section id="checkout">
+    <div class="wrap">
+      <div class="section-header">
+        <h2>Libere seu Acesso Agora</h2>
+        <p>Inscrição rápida e segura com valor promocional por tempo limitado.</p>
+      </div>
+      <div class="glass-panel pricebox">
+        <span class="badge-discount" style="font-size: 13.5px;"><i class="fa-solid fa-tag"></i> OFERTA ESPECIAL</span>
+        <div class="price-tag">
+          <span class="old-price">R$ 59,90</span>
+          <span class="new-price">R$ 29,90</span>
+        </div>
+        <p style="color: var(--text-secondary); margin-bottom: 26px; font-size: 13.5px;"><i class="fa-solid fa-lock"></i> Pagamento 100% seguro via Pix ou Cartão com validação antifraude</p>
+        <button class="btn" style="width: 100%; max-width: 380px; font-size: 14.5px; padding: 16px;" onclick="openCheckoutModal()">
+          COMPRAR AGORA E COMEÇAR <i class="fa-solid fa-arrow-right"></i>
+        </button>
+        <div style="font-size: 12px; color: var(--text-muted); margin-top: 18px; display: flex; justify-content: center; gap: 16px;">
+          <span><i class="fa-brands fa-pix" style="color: #32BCAD;"></i> Pix Imediato</span>
+          <span><i class="fa-regular fa-credit-card"></i> Cartão de Crédito</span>
+        </div>
+      </div>
+    </div>
+  </section>
 
-            try {
-                const querySnapshot = await getDocs(collection(db, "modules"));
-                if (querySnapshot.empty) {
-                    container.innerHTML = `
-                        <div class="card" style="text-align: center;">
-                            <h2 class="module-title">⚠️ Banco de Dados Vazio</h2>
-                            <p style="color: var(--text-secondary); margin: 15px 0;">Nenhum módulo foi encontrado no Firestore.</p>
-                            <button class="btn" onclick="location.reload()"><i class="fa-solid fa-rotate-right"></i> Recarregar</button>
-                        </div>
-                    `;
-                    return;
-                }
+  <section id="faq">
+    <div class="wrap faq">
+      <div class="section-header" style="margin-bottom: 28px;">
+        <h2>Perguntas Frequentes</h2>
+      </div>
+      <details class="glass-panel"><summary>Como funciona o acesso às aulas?</summary><p>Após a aprovação real do pagamento, seu e-mail é liberado automaticamente para acessar a Área de Membros.</p></details>
+      <details class="glass-panel"><summary>Preciso de um computador potente?</summary><p>Não! Os fundamentos funcionam em qualquer computador ou notebook, e você também pode usar o celular para as aulas.</p></details>
+      <details class="glass-panel"><summary>Os materiais têm custo extra?</summary><p>Não. Todos os PDFs e modelos bônus já estão inclusos no valor único do curso.</p></details>
+    </div>
+  </section>
+</div>
 
-                let modulesList = [];
-                querySnapshot.forEach((docSnap) => {
-                    modulesList.push({ id: docSnap.id, ...docSnap.data() });
-                });
-                modulesList.sort((a, b) => Number(a.id) - Number(b.id));
+<div id="member-area" class="wrap" style="display: none; padding-top: 36px;">
+  <div class="lms-layout animate-fade-up">
+    <div class="glass-panel lms-content" id="lms-main-content"></div>
+    <div class="glass-panel lms-sidebar">
+      <h3 id="sidebar-title-header"><i class="fa-solid fa-book-open"></i> Aulas e Módulos</h3>
+      <div id="module-list"></div>
+    </div>
+  </div>
+</div>
 
-                let htmlContent = `
-                    <div class="card">
-                        <h2 class="module-title"><i class="fa-solid fa-graduation-cap"></i> Painel Geral do Aluno</h2>
-                        <p style="color: var(--text-secondary); line-height: 1.6; margin-top: 8px; font-size: 15px;">
-                            Sua jornada rumo à autonomia digital está dividida em módulos práticos. Estude os conteúdos, fixe o aprendizado com os exercícios e resgate seu certificado ao concluir!
-                        </p>
-                    </div>
-                `;
+<div id="settings-area" class="wrap" style="display: none; padding-top: 36px; max-width: 600px;">
+  <div class="glass-panel animate-fade-up" style="padding: 30px;">
+    <h2 style="font-size: 20px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;"><i class="fa-solid fa-gear" style="color: var(--accent-cyan);"></i> Configurações da Conta</h2>
+    
+    <form onsubmit="handleUpdateAccount(event)">
+      <div class="input-group">
+        <label>Nome Completo (Validação Real)</label>
+        <input type="text" id="settings-fullname" placeholder="Seu nome e sobrenome" required>
+      </div>
 
-                modulesList.forEach(mod => {
-                    htmlContent += `
-                        <div class="card">
-                            <h3 class="module-title">${mod.title}</h3>
-                            <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 16px;">${mod.intro || ''}</p>
-                            <div class="lessons-list">
-                    `;
-                    
-                    if (mod.lessons && Array.isArray(mod.lessons)) {
-                        mod.lessons.forEach(lesson => {
-                            htmlContent += `
-                                <div class="lesson-item">
-                                    <div class="lesson-title">
-                                        <i class="fa-solid fa-play-circle" style="color: var(--accent-cyan); font-size: 18px;"></i>
-                                        <span>${lesson.title}</span>
-                                    </div>
-                                    <span class="status-badge"><i class="fa-solid fa-check"></i> Disponível</span>
-                                </div>
-                            `;
-                        });
-                    }
+      <div class="input-group">
+        <label>E-mail de Acesso</label>
+        <input type="email" id="settings-email" placeholder="seu@email.com" required>
+      </div>
+      
+      <div class="input-group">
+        <label>Nova Senha (Opcional - Mínimo 6 caracteres)</label>
+        <div class="password-wrapper">
+          <input type="password" id="settings-new-pass" placeholder="Deixe em branco para não alterar">
+          <button type="button" class="toggle-password" onclick="togglePasswordVisibility('settings-new-pass', this)"><i class="regular fa-eye"></i></button>
+        </div>
+      </div>
 
-                    htmlContent += `</div></div>`;
-                });
+      <div style="margin-top: 25px; display: flex; justify-content: space-between; gap: 10px;">
+        <button type="button" class="btn-outline" onclick="showMemberArea()">Voltar às Aulas</button>
+        <button type="submit" class="btn" style="padding: 10px 20px;">Salvar Alterações</button>
+      </div>
+    </form>
+  </div>
+</div>
 
-                // Bloco de Conclusão e Certificado
-                htmlContent += `
-                    <div style="margin-top: 40px; padding: 36px; background: radial-gradient(circle at center, rgba(16, 185, 129, 0.15), rgba(15, 23, 42, 0.95)); border: 2px solid var(--green); border-radius: 20px; text-align: center; box-shadow: 0 0 30px rgba(16,185,129,0.25);">
-                        <div style="font-size: 56px; margin-bottom: 12px; filter: drop-shadow(0 0 10px rgba(16,185,129,0.5));">🏆🎉</div>
-                        <h3 style="color: #fff; font-size: 24px; font-weight: 800; margin-bottom: 8px;">PARABÉNS, ${currentUser.toUpperCase()}!</h3>
-                        <p style="color: var(--accent-cyan); font-size: 15px; font-weight: 700; margin-bottom: 16px;">Sua Autonomia Digital começa agora!</p>
-                        
-                        <p style="color: var(--text-secondary); font-size: 14px; max-width: 650px; margin: 0 auto 24px; line-height: 1.6;">
-                            Você passou por todos os fundamentos essenciais da informática, desde o uso do computador e internet até ferramentas de escritório e Inteligência Artificial.
-                            <br><br>
-                            <strong>Quanto mais você utiliza o computador, mais natural se torna o aprendizado.</strong> 🚀💻
-                        </p>
+<div id="admin-area" class="wrap" style="display: none; padding-top: 36px;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 26px; flex-wrap: wrap; gap: 14px;">
+    <h2 style="margin: 0; font-size: 22px;"><i class="fa-solid fa-gear" style="color: var(--text-secondary);"></i> Painel de Administração</h2>
+    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+      <button class="btn-outline" onclick="switchAdminTab('dashboard')"><i class="fa-solid fa-chart-pie"></i> Dashboard & Alunos</button>
+      <button class="btn-outline" onclick="switchAdminTab('modules')"><i class="fa-solid fa-pen-to-square"></i> Editar Conteúdo & Aulas</button>
+      <button class="btn-outline" onclick="switchAdminTab('testcheckout')"><i class="fa-solid fa-credit-card"></i> Checkout de Teste & Cartão</button>
+    </div>
+  </div>
+  
+  <div class="admin-grid animate-fade-up">
+    <div class="glass-panel admin-card" id="admin-tab-dashboard">
+      <h3><i class="fa-solid fa-users"></i> Gestão de Alunos, Pagamentos e Status</h3>
+      
+      <div class="gateway-metrics">
+        <div class="metric-box">
+          <span>Total de Alunos</span>
+          <h4 id="admin-total-users">0 <i class="fa-solid fa-user-check" style="font-size: 15px; color: var(--text-muted);"></i></h4>
+        </div>
+        <div class="metric-box">
+          <span>Total Cadastrado</span>
+          <h4 id="admin-total-modules-lessons">0 Módulos / 0 Aulas <i class="fa-solid fa-layer-group" style="font-size: 15px; color: var(--text-muted);"></i></h4>
+        </div>
+        <div class="metric-box" style="border-left-color: var(--green);">
+          <span>Banco Cloud</span>
+          <h4 style="color: var(--green); font-size: 15px;"><i class="fa-solid fa-cloud"></i> Firebase Nuvem</h4>
+        </div>
+      </div>
 
-                        <button class="btn btn-green" style="padding: 16px 32px; font-size: 15px;" onclick="generateOfficialCertificatePDF('${currentUser}')">
-                            <i class="fa-solid fa-file-pdf" style="font-size: 18px;"></i> BAIXAR SEU CERTIFICADO OFICIAL (PDF)
-                        </button>
-                    </div>
-                `;
+      <div class="table-responsive">
+        <table class="sales-table">
+          <thead>
+            <tr>
+              <th><i class="regular fa-user"></i> Aluno (Nome / E-mail)</th>
+              <th><i class="fa-solid fa-circle-half-stroke"></i> Status Pagto</th>
+              <th><i class="fa-solid fa-chart-line"></i> Progresso Aulas</th>
+              <th><i class="fa-solid fa-wand-magic-sparkles"></i> Ações & Aprovação</th>
+            </tr>
+          </thead>
+          <tbody id="users-list-body"></tbody>
+        </table>
+      </div>
+    </div>
 
-                container.innerHTML = htmlContent;
+    <div class="glass-panel admin-card" id="admin-tab-testcheckout" style="display: none;">
+      <h3><i class="fa-solid fa-cash-register"></i> Checkout de Teste (Pix / Cartão e Valor Personalizado)</h3>
+      <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 22px;">Selecione o aluno, defina o valor desejado e teste a transação com validação de saldo do cartão.</p>
+      
+      <div class="input-group" style="max-width: 450px;">
+        <label>Escolher Aluno</label>
+        <select id="test-student-select"></select>
+      </div>
 
-            } catch (error) {
-                console.error("Erro ao carregar:", error);
-                container.innerHTML = `
-                    <div class="card" style="text-align: center;">
-                        <h2 class="module-title" style="color: #ef4444;">Erro de Conexão</h2>
-                        <p style="color: var(--text-secondary); margin: 15px 0;">Não foi possível carregar os dados do Firebase. Verifique sua conexão ou as regras do banco.</p>
-                        <button class="btn" onclick="location.reload()"><i class="fa-solid fa-rotate-right"></i> Tentar Novamente</button>
-                    </div>
-                `;
-            }
-        }
+      <div class="input-group" style="max-width: 450px;">
+        <label>Definir Valor do Teste (R$)</label>
+        <input type="number" id="test-amount-input" step="0.50" min="1.00" value="1.00" placeholder="1.00">
+      </div>
 
-        window.addEventListener('DOMContentLoaded', () => {
-            if (currentUser) {
-                renderDashboard();
+      <button class="btn" style="margin-top: 10px;" onclick="openTestCheckoutCustom()"><i class="fa-solid fa-play"></i> Abrir Checkout de Teste</button>
+    </div>
+
+    <div class="glass-panel admin-card" id="admin-tab-modules" style="display: none;">
+      <h3><i class="fa-solid fa-layer-group"></i> Editor de Módulos, Blocos e Aulas</h3>
+      <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 22px;">Organize a ordem dos módulos e utilize os blocos pedagógicos para detalhar o conteúdo.</p>
+      
+      <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); padding: 20px; border-radius: 16px; margin-bottom: 22px;">
+        <h4 style="font-size: 15px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-folder-plus text-cyan"></i> Novo Módulo</h4>
+        <div class="input-group"><label>Título do Módulo</label><input type="text" id="mod-title-input" placeholder="Ex: Módulo — Tópico Extra"></div>
+        <button type="button" class="btn" style="padding: 12px 18px; font-size: 12px;" onclick="saveModuleData()"><i class="fa-solid fa-floppy-disk"></i> Salvar Novo Módulo</button>
+      </div>
+
+      <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); padding: 20px; border-radius: 16px; margin-bottom: 26px;">
+        <h4 style="font-size: 15px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-video text-purple"></i> Adicionar Aula com os 3 Blocos & Mídia</h4>
+        
+        <div class="input-group"><label>Selecionar Módulo</label><select id="lesson-mod-select"></select></div>
+        <div class="input-group"><label>Título da Aula</label><input type="text" id="lesson-title-input" placeholder="Ex: Aula — Tópico Avançado"></div>
+        
+        <div class="input-group">
+          <label><i class="fa-solid fa-list-check" style="color:var(--accent-cyan);"></i> Bloco 1: O que vai ser aprendido</label>
+          <textarea id="lesson-bloco1-input" rows="2" placeholder="Descreva os tópicos centrais..."></textarea>
+        </div>
+
+        <div class="input-group">
+          <label><i class="fa-solid fa-align-left" style="color:var(--accent-cyan);"></i> Bloco 2: Descrição da Aula</label>
+          <textarea id="lesson-bloco2-input" rows="3" placeholder="Contextualização geral..."></textarea>
+        </div>
+
+        <div class="input-group">
+          <label><i class="fa-solid fa-bullseye" style="color:var(--accent-cyan);"></i> Bloco 3: Objetivos Pedagógicos</label>
+          <textarea id="lesson-bloco3-input" rows="2" placeholder="Quais os objetivos práticos..."></textarea>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="input-group">
+            <label><i class="fa-brands fa-youtube" style="color:#ef4444;"></i> Link do YouTube</label>
+            <input type="text" id="lesson-video-url" placeholder="https://www.youtube.com/watch?v=...">
+          </div>
+          <div class="input-group">
+            <label><i class="fa-solid fa-file-pdf" style="color:#f59e0b;"></i> Link de Anexo (PDF / Material)</label>
+            <input type="text" id="lesson-pdf-url" placeholder="https://exemplo.com/material.pdf">
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label><i class="regular fa-image" style="color:#10b981;"></i> Link de Foto / Imagem Ilustrativa</label>
+          <input type="text" id="lesson-img-url" placeholder="https://exemplo.com/imagem.png">
+        </div>
+
+        <hr style="border: 0; border-top: 1px solid var(--glass-border); margin: 20px 0;">
+        <h4 style="font-size: 14px; color: var(--accent-cyan); margin-bottom: 14px;"><i class="fa-solid fa-brain"></i> Configurar Exercício (Quiz) da Aula</h4>
+        
+        <div class="input-group"><label>Pergunta do Exercício</label><input type="text" id="quiz-question-input" placeholder="Ex: Qual a função de...?"></div>
+        <div class="input-group"><label>Alternativa A</label><input type="text" id="quiz-opt0-input"></div>
+        <div class="input-group"><label>Alternativa B</label><input type="text" id="quiz-opt1-input"></div>
+        <div class="input-group"><label>Alternativa C</label><input type="text" id="quiz-opt2-input"></div>
+        <div class="input-group"><label>Alternativa D</label><input type="text" id="quiz-opt3-input"></div>
+        <div class="input-group">
+          <label>Alternativa Correta</label>
+          <select id="quiz-correct-select">
+            <option value="0">Alternativa A</option>
+            <option value="1">Alternativa B</option>
+            <option value="2">Alternativa C</option>
+            <option value="3">Alternativa D</option>
+          </select>
+        </div>
+
+        <button type="button" class="btn" style="padding: 12px 18px; font-size: 12px; margin-top: 10px;" onclick="saveLessonData()"><i class="fa-solid fa-cloud-arrow-up"></i> Publicar Aula com Exercício</button>
+      </div>
+
+      <h4 style="font-size: 17px; margin-bottom: 16px;"><i class="fa-solid fa-list-ol"></i> Organizar Ordem dos Módulos e Aulas</h4>
+      <div id="admin-modules-list-container"></div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-auth">
+  <div class="modal-card">
+    <button class="close-btn" onclick="closeModal('modal-auth')"><i class="fa-solid fa-xmark"></i></button>
+    <div style="text-align: center; margin-bottom: 20px;">
+      <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 17px; color: #fff; display: block;">Informática</span>
+      <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 13.5px; color: var(--accent-cyan);">do Zero</span>
+    </div>
+    
+    <div style="display: flex; gap: 8px; margin-bottom: 22px; background: rgba(255,255,255,0.04); padding: 4px; border-radius: 12px;">
+      <button class="btn-outline" id="tab-btn-login" style="flex: 1; justify-content: center; border: none; background: rgba(0,240,255,0.15); color: var(--accent-cyan);" onclick="switchAuthTab('login')">Entrar</button>
+      <button class="btn-outline" id="tab-btn-register" style="flex: 1; justify-content: center; border: none; background: transparent; color: var(--text-secondary);" onclick="switchAuthTab('register')">Criar Conta</button>
+    </div>
+
+    <form id="form-login" onsubmit="handleLogin(event)">
+      <div class="input-group">
+        <label>E-mail</label>
+        <div class="password-wrapper">
+          <i class="regular fa-envelope" style="position: absolute; left: 16px; top: 15px; color: var(--text-muted);"></i>
+          <input type="text" id="login-email" placeholder="seu@email.com ou digite o nome" style="padding-left: 44px;" onblur="autoCompleteEmail('login-email')" required>
+        </div>
+      </div>
+      <div class="input-group">
+        <label>Senha</label>
+        <div class="password-wrapper">
+          <i class="fa-solid fa-lock" style="position: absolute; left: 16px; top: 15px; color: var(--text-muted);"></i>
+          <input type="password" id="login-pass" placeholder="••••••••" style="padding-left: 44px; padding-right: 44px;" required>
+          <button type="button" class="toggle-password" onclick="togglePasswordVisibility('login-pass', this)"><i class="regular fa-eye"></i></button>
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; font-size: 12px;">
+        <label style="display: flex; align-items: center; gap: 6px; color: var(--text-secondary); cursor: pointer; text-transform: none;">
+          <input type="checkbox" id="remember-me" style="width: auto;"> Lembrar minha conta
+        </label>
+        <a href="#" onclick="handleForgotPassword(event)" style="color: var(--accent-cyan); font-weight: 600; font-size: 11px;">Esqueci minha senha</a>
+      </div>
+
+      <button type="submit" class="btn" style="width: 100%; margin-top: 4px;">Acessar Plataforma</button>
+    </form>
+
+    <form id="form-register" style="display: none;" onsubmit="handleRegister(event)">
+      <div class="input-group">
+        <label>Nome Completo (Validação Real)</label>
+        <div class="password-wrapper">
+          <i class="regular fa-user" style="position: absolute; left: 16px; top: 15px; color: var(--text-muted);"></i>
+          <input type="text" id="reg-fullname" placeholder="Ex: João da Silva Santos" style="padding-left: 44px;" required>
+        </div>
+      </div>
+      <div class="input-group">
+        <label>E-mail</label>
+        <div class="password-wrapper">
+          <i class="regular fa-envelope" style="position: absolute; left: 16px; top: 15px; color: var(--text-muted);"></i>
+          <input type="text" id="reg-email" placeholder="seu@email.com ou digite o nome" style="padding-left: 44px;" onblur="autoCompleteEmail('reg-email')" required>
+        </div>
+      </div>
+      <div class="input-group">
+        <label>Senha (mínimo 6 caracteres)</label>
+        <div class="password-wrapper">
+          <i class="fa-solid fa-lock" style="position: absolute; left: 16px; top: 15px; color: var(--text-muted);"></i>
+          <input type="password" id="reg-pass" placeholder="Crie uma senha" style="padding-left: 44px; padding-right: 44px;" required>
+          <button type="button" class="toggle-password" onclick="togglePasswordVisibility('reg-pass', this)"><i class="regular fa-eye"></i></button>
+        </div>
+      </div>
+
+      <button type="submit" class="btn" style="width: 100%; margin-top: 4px;">Criar minha conta</button>
+    </form>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-social">
+      <a href="https://instagram.com/wd.cmo" target="_blank" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+      <a href="mailto:olliveirazvz@gmail.com" aria-label="Email"><i class="regular fa-envelope"></i></a>
+    </div>
+    <div style="font-size: 13.5px; font-weight: 700; color: #fff; margin-bottom: 6px;">Informática do Zero — Plataforma Educacional</div>
+    <div style="color: var(--text-secondary); font-size: 12px;">© 2026 Todos os direitos reservados. Design Exclusivo.</div>
+  </div>
+</footer>
+
+<script>
+const PUBLIC_KEY_MP = "APP_USR-0af39126-fabc-4dd9-bbe2-90bbf9fe1521";
+const RAILWAY_BACKEND_URL = "https://backend-informatica-do-zero-production.up.railway.app/criar-pagamento";
+
+const canvas = document.getElementById('particles-canvas');
+const ctx = canvas.getContext('2d');
+let particlesArray = [];
+function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+window.addEventListener('resize', resizeCanvas); resizeCanvas();
+
+class Particle {
+  constructor() {
+    this.x = Math.random() * canvas.width;
+    this.y = Math.random() * canvas.height;
+    this.size = Math.random() * 2 + 0.5;
+    this.speedX = (Math.random() - 0.5) * 0.25;
+    this.speedY = (Math.random() - 0.5) * 0.25;
+    this.opacity = Math.random() * 0.4 + 0.15;
+  }
+  update() {
+    this.x += this.speedX; this.y += this.speedY;
+    if (this.x < 0) this.x = canvas.width; if (this.x > canvas.width) this.x = 0;
+    if (this.y < 0) this.y = canvas.height; if (this.y > canvas.height) this.y = 0;
+  }
+  draw() {
+    ctx.save(); ctx.globalAlpha = this.opacity; ctx.fillStyle = '#00f0ff';
+    ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+  }
+}
+function initParticles() {
+  particlesArray = [];
+  let numberOfParticles = Math.floor((canvas.width * canvas.height) / 14000);
+  for (let i = 0; i < numberOfParticles; i++) particlesArray.push(new Particle());
+}
+function animateParticles() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  particlesArray.forEach(p => { p.update(); p.draw(); });
+  requestAnimationFrame(animateParticles);
+}
+initParticles(); animateParticles();
+
+const defaultCourseData = [
+  {
+    id: 1, title: "MÓDULO 1 — INTRODUÇÃO À INFORMÁTICA", intro: "Hardware, periféricos e introdução ao ambiente digital.",
+    lessons: [
+      { id: 101, title: "Aula 1 — Arquitetura de Hardware e Software", bloco1: "Componentes físicos e lógicos.", bloco2: "Processador, RAM e SSD.", bloco3: "Identificar peças.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Qual componente armazena dados permanentemente?", options: ["RAM", "Processador", "SSD", "Cooler"], correct: 2 } },
+      { id: 102, title: "Aula 2 — Periféricos e Conectividade Atual", bloco1: "USB, Bluetooth e Wi-Fi.", bloco2: "Conectar acessórios com eficiência.", bloco3: "Dominar conexões.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Qual tecnologia é padrão para sem fio?", options: ["Bluetooth", "Cabo Paralelo", "Rede Discada", "Infrasom"], correct: 0 } },
+      { id: 103, title: "Aula 3 — Ligando e Desligando com Segurança", bloco1: "Processo correto de inicialização.", bloco2: "Evitar perda de dados.", bloco3: "Zelar pelo equipamento.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Por que não se deve desligar o PC direto na tomada?", options: ["Gasta luz", "Pode corromper arquivos", "Queima o mouse", "Não afeta em nada"], correct: 1 } },
+      { id: 104, title: "Aula 4 — Conhecendo a Área de Trabalho", bloco1: "Interface principal.", bloco2: "Ícones e atalhos iniciais.", bloco3: "Navegação rápida.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Onde ficam os atalhos principais?", options: ["Na Área de Trabalho", "Na placa de vídeo", "No teclado", "No estabilizador"], correct: 0 } }
+    ]
+  },
+  {
+    id: 2, title: "MÓDULO 2 — TECLADO E MOUSE", intro: "Agilidade física e atalhos globais de produtividade.",
+    lessons: [
+      { id: 201, title: "Aula 1 — Anatomia do Mouse e Cliques", bloco1: "Scroll, clique duplo e botão direito.", bloco2: "Navegação rápida em menus.", bloco3: "Ganhar precisão.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Para que serve o botão direito?", options: ["Reiniciar", "Abrir menu de contexto", "Desligar", "Atualizar"], correct: 1 } },
+      { id: 202, title: "Aula 2 — Atalhos Universais de Produtividade", bloco1: "Ctrl+C, Ctrl+V, Ctrl+Z.", bloco2: "Economizar cliques.", bloco3: "Multiplicar velocidade.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Qual atalho cola um conteúdo copiado?", options: ["Ctrl+C", "Ctrl+V", "Ctrl+X", "Ctrl+Z"], correct: 1 } },
+      { id: 203, title: "Aula 3 — Funções das Teclas Especiais", bloco1: "Shift, Alt, Ctrl, Tab, Esc.", bloco2: "Funções secundárias.", bloco3: "Domínio do teclado.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Qual tecla cancela ou fecha caixas de diálogo?", options: ["Esc", "Enter", "F5", "Space"], correct: 0 } },
+      { id: 204, title: "Aula 4 — Digitação Eficiente", bloco1: "Posicionamento correto das mãos.", bloco2: "Velocidade sem olhar para as teclas.", bloco3: "Prática diária.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Qual o objetivo da digitação tátil?", options: ["Digitar mais rápido sem olhar", "Gastar o teclado", "Usar apenas dois dedos", "Desligar o PC"], correct: 0 } }
+    ]
+  },
+  {
+    id: 3, title: "MÓDULO 3 — SISTEMA WINDOWS", intro: "Gerenciamento de pastas, janelas e atalhos do sistema.",
+    lessons: [
+      { id: 301, title: "Aula 1 — Barra de Tarefas e Notificações", bloco1: "Personalização e menu iniciar.", bloco2: "Fixar aplicativos.", bloco3: "Organização.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Onde fixamos programas rápidos?", options: ["Lixeira", "Barra de Tarefas", "Painel traseiro", "Cabo de rede"], correct: 1 } },
+      { id: 302, title: "Aula 2 — Explorador de Arquivos", bloco1: "Copiar, mover e excluir.", bloco2: "Estrutura lógica.", bloco3: "Organização digital.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Atalho para nova pasta?", options: ["Ctrl+Shift+N", "Ctrl+C", "F2", "Alt+Tab"], correct: 0 } },
+      { id: 303, title: "Aula 3 — Lixeira e Recuperação de Dados", bloco1: "Como esvaziar e recuperar arquivos.", bloco2: "Segurança contra exclusões acidentais.", bloco3: "Gestão de espaço.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "O que acontece ao esvaziar a lixeira?", options: ["Os arquivos são apagados permanentemente", "O PC acelera", "O monitor desliga", "Nada muda"], correct: 0 } },
+      { id: 304, title: "Aula 4 — Painel de Controle e Configurações", bloco1: "Ajustes de vídeo, som e rede.", bloco2: "Personalização avançada.", bloco3: "Domínio do sistema.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Onde alteramos o volume e resolução de tela?", options: ["Configurações / Painel de Controle", "Bloco de Notas", "Word", "Lixeira"], correct: 0 } }
+    ]
+  },
+  {
+    id: 4, title: "MÓDULO 4 — INTERNET E E-MAIL", intro: "Navegação segura, pesquisas e configuração de correio.",
+    lessons: [
+      { id: 401, title: "Aula 1 — Navegadores e Segurança na Web", bloco1: "Chrome, abas anônimas e HTTPS.", bloco2: "Navegação segura.", bloco3: "Identificar sites confiáveis.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "O que o cadeado indica?", options: ["Site pago", "Conexão criptografada e segura", "Vírus", "Internet lenta"], correct: 1 } },
+      { id: 402, title: "Aula 2 — Configuração e Uso de E-mail", bloco1: "Gmail e Outlook.", bloco2: "Etiqueta corporativa.", bloco3: "Profissionalizar comunicação.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Qual campo traz o resumo do e-mail?", options: ["Senha", "Assunto", "Anexo", "Assinatura"], correct: 1 } },
+      { id: 403, title: "Aula 3 — Anexos e Links na Nuvem", bloco1: "Enviando arquivos grandes.", bloco2: "Segurança nos downloads.", bloco3: "Prática web.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Como enviar arquivos muito pesados por e-mail?", options: ["Usando links de nuvem / anexos seguros", "Imprimindo na tela", "Reiniciando o modem", "Desligando o antivírus"], correct: 0 } }
+    ]
+  },
+  {
+    id: 5, title: "MÓDULO 5 — MICROSOFT WORD", intro: "Criação de textos, contratos e formatação.",
+    lessons: [
+      { id: 501, title: "Aula 1 — Formatação de Textos e Fontes", bloco1: "Alinhamento e espaçamento.", bloco2: "Regras ABNT.", bloco3: "Criar documentos formais.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Qual tecla cria novo parágrafo?", options: ["Enter", "Shift", "Espaço", "Esc"], correct: 0 } },
+      { id: 502, title: "Aula 2 — Tabelas e Imagens", bloco1: "Inserir tabelas e imagens.", bloco2: "Layout atraente.", bloco3: "Apresentação impecável.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Onde encontramos tabelas no Word?", options: ["Página Inicial", "Inserir", "Exibição", "Ajuda"], correct: 1 } },
+      { id: 503, title: "Aula 3 — Salvando em PDF", bloco1: "Exportar documentos.", bloco2: "Compatibilidade universal.", bloco3: "Entrega profissional.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Para que serve o formato PDF?", options: ["Travar formatação para leitura universal", "Criar vírus", "Aumentar tamanho do texto", "Imprimir em 3D"], correct: 0 } }
+    ]
+  },
+  {
+    id: 6, title: "MÓDULO 6 — EXCEL BÁSICO", intro: "Planilhas, células e operações matemáticas.",
+    lessons: [
+      { id: 601, title: "Aula 1 — Entendendo a Grade e Células", bloco1: "Linhas, colunas e células.", bloco2: "Inserir dados.", bloco3: "Navegação.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Célula coluna B linha 3?", options: ["3B", "B3", "Cel-B3", "Linha3B"], correct: 1 } },
+      { id: 602, title: "Aula 2 — Primeiras Fórmulas", bloco1: "Soma e subtração.", bloco2: "Automatizar contas.", bloco3: "Eliminar calculadoras.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Qual caractere inicia fórmulas?", options: ["#", "$", "=", "+"], correct: 2 } },
+      { id: 603, title: "Aula 3 — Formatação de Tabelas e Moeda", bloco1: "Estilos e R$.", bloco2: "Visual financeiro.", bloco3: "Apresentação limpa.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Onde aplicamos o formato de dinheiro R$?", options: ["No botão de Moeda / Estilo de Célula", "No Word", "No Bloco de Notas", "Na Lixeira"], correct: 0 } }
+    ]
+  },
+  {
+    id: 7, title: "MÓDULO 7 — EXCEL INTERMEDIÁRIO", intro: "Funções lógicas, PROCV e gráficos.",
+    lessons: [
+      { id: 701, title: "Aula 1 — A Função SE Condicional", bloco1: "Lógica se/então.", bloco2: "Automatizar decisões.", bloco3: "Relatórios inteligentes.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "O que o SE avalia?", options: ["Cor da célula", "Condição lógica para resultados diferentes", "Tamanho do monitor", "Velocidade de rede"], correct: 1 } },
+      { id: 702, title: "Aula 2 — Gráficos Dinâmicos", bloco1: "Colunas e pizza.", bloco2: "Visualizar números.", bloco3: "Análise gerencial.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Gráfico para proporções?", options: ["Pizza", "Linhas", "Dispersão", "Rede"], correct: 0 } },
+      { id: 703, title: "Aula 3 — Função PROCV Básica", bloco1: "Busca de dados em tabelas.", bloco2: "Cruzamento de informações.", bloco3: "Agilidade.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Para que serve o PROCV?", options: ["Procurar valores verticalmente em uma tabela", "Apagar planilhas", "Imprimir colorido", "Enviar e-mails"], correct: 0 } }
+    ]
+  },
+  {
+    id: 8, title: "MÓDULO 8 — APRESENTAÇÕES DE SLIDES", intro: "Criação de apresentações visuais.",
+    lessons: [
+      { id: 801, title: "Aula 1 — Regras de Ouro para Slides", bloco1: "Hierarquia visual e foco.", bloco2: "Evitar poluição.", bloco3: "Clareza.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Erro comum em slides?", options: ["Usar imagens boas", "Colocar blocos enormes de texto para ler", "Cores sóbrias", "Falar pausadamente"], correct: 1 } },
+      { id: 802, title: "Aula 2 — Animações e Transições", bloco1: "Dinamismo na apresentação.", bloco2: "Uso moderado de efeitos.", bloco3: "Profissionalismo.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Como devem ser as animações de slides?", options: ["Discretas e profissionais", "Exageradas e piscando", "Inexistentes", "Com som alto"], correct: 0 } }
+    ]
+  },
+  {
+    id: 9, title: "MÓDULO 9 — SEGURANÇA DIGITAL", intro: "Prevenção a golpes e senhas fortes.",
+    lessons: [
+      { id: 901, title: "Aula 1 — Detectando Phishing", bloco1: "Links falsos e engenharia social.", bloco2: "Proteger dados.", bloco3: "Navegação defensiva.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "O que é Phishing?", options: ["Antivírus desatualizado", "Tentativa de roubar senhas fingindo ser instituição confiável", "Limpeza de disco", "Falha de teclado"], correct: 1 } },
+      { id: 902, title: "Aula 2 — Criação de Senhas Blindadas", bloco1: "Mistura de caracteres e gerenciadores.", bloco2: "Segurança de contas.", bloco3: "Prevenção.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Qual senha é mais segura?", options: ["123456", "data de nascimento", "Mi@9#xP!zK8", "nome do pet"], correct: 2 } }
+    ]
+  },
+  {
+    id: 10, title: "MÓDULO 10 — MANUTENÇÃO DO SISTEMA", intro: "Limpeza de arquivos e otimização.",
+    lessons: [
+      { id: 1001, title: "Aula 1 — Limpeza de Cache e Espaço", bloco1: "Remover arquivos inúteis.", bloco2: "Recuperar velocidade.", bloco3: "Otimização.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Onde ficam arquivos temporários?", options: ["Placa mãe", "Pastas de cache e temporários do Windows", "Chip de áudio", "Cabo do mouse"], correct: 1 } },
+      { id: 1002, title: "Aula 2 — Atualizações e Antivírus", bloco1: "Manter o sistema seguro.", bloco2: "Correções de falhas.", bloco3: "Proteção.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Para que serve atualizar o sistema?", options: ["Corrigir falhas de segurança e melhorar desempenho", "Aumentar o consumo de luz", "Travar o computador", "Apagar fotos"], correct: 0 } }
+    ]
+  },
+  {
+    id: 11, title: "MÓDULO 11 — NUVEM E BACKUP", intro: "Google Drive e OneDrive.",
+    lessons: [
+      { id: 1101, title: "Aula 1 — Protegendo Arquivos na Nuvem", bloco1: "Upload e compartilhamento.", bloco2: "Acesso remoto.", bloco3: "Backup automático.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Vantagem da nuvem?", options: ["Ocupa menos espaço físico", "Acesso de qualquer dispositivo com internet", "Imune a senhas", "Funciona sem luz"], correct: 1 } }
+    ]
+  },
+  {
+    id: 12, title: "MÓDULO 12 — GOOGLE WORKSPACE", intro: "Ferramentas colaborativas.",
+    lessons: [
+      { id: 1201, title: "Aula 1 — Documentos e Planilhas Online", bloco1: "Edição simultânea.", bloco2: "Permissões de acesso.", bloco3: "Trabalho em equipe.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Onde salvam arquivos do Google Workspace?", options: ["Lixeira", "Google Drive", "Processador", "Roteador"], correct: 1 } }
+    ]
+  },
+  {
+    id: 13, title: "MÓDULO 13 — INTELIGÊNCIA ARTIFICIAL", intro: "Uso prático de assistentes de IA.",
+    lessons: [
+      { id: 1301, title: "Aula 1 — Escrevendo Prompts Eficientes", bloco1: "Como instruir assistentes.", bloco2: "Criação de textos e planilhas.", bloco3: "Produtividade.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "O que é um Prompt?", options: ["Comando ou pergunta enviada à IA", "Velocidade de banda", "Formato PDF", "Antivírus"], correct: 0 } }
+    ]
+  },
+  {
+    id: 14, title: "MÓDULO 14 — EMPREGABILIDADE E CURRÍCULO", intro: "Elaboração de currículos modernos.",
+    lessons: [
+      { id: 1401, title: "Aula 1 — O Currículo na Era Digital", bloco1: "Estrutura direta e competências.", bloco2: "Destaque de informática.", bloco3: "Oportunidades.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "O que priorizar no currículo?", options: ["Excesso de cores", "Objetividade e clareza nas competências", "Cinco páginas de texto", "Dados confidenciais"], correct: 1 } }
+    ]
+  },
+  {
+    id: 15, title: "MÓDULO 15 — PROJETO FINAL E CERTIFICADO", intro: "Consolidação e certificado oficial.",
+    lessons: [
+      { id: 1501, title: "Aula 1 — Encerramento e Emissão", bloco1: "Revisão geral.", bloco2: "Certificado oficial em PDF.", bloco3: "Autonomia digital.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "O que valida a conquista do certificado?", options: ["Conclusão de todas as aulas e exercícios", "Cadastro inicial", "Comprar PC novo", "Navegar em redes"], correct: 0 } }
+    ]
+  }
+];
+
+const TARGET_EMAIL = "olliveirazvz@gmail.com";
+let courseData = [];
+let registeredUsers = [];
+let completedLessons = JSON.parse(localStorage.getItem('user_completed_lessons')) || {};
+let quizStatsStorage = JSON.parse(localStorage.getItem('user_quiz_stats')) || {};
+let currentUser = null;
+let isAdmin = false;
+let videoWatchedState = {};
+let paymentBrickController = null;
+let currentCheckoutAmount = 29.90;
+let checkoutTargetUser = null;
+let activePaymentInterval = null;
+let pixCountdownInterval = null;
+
+function showCustomAlert(title, message) {
+  document.getElementById('custom-alert-title').innerText = title;
+  document.getElementById('custom-alert-text').innerText = message;
+  document.getElementById('custom-alert-modal').classList.add('active');
+}
+
+function closeCustomAlert() {
+  document.getElementById('custom-alert-modal').classList.remove('active');
+}
+
+function autoCompleteEmail(inputId) {
+  const input = document.getElementById(inputId);
+  if (!input) return;
+  let val = input.value.trim();
+  if (val && !val.includes('@')) {
+    input.value = val + '@gmail.com';
+  }
+}
+
+window.onload = function() {
+  const rememberedEmail = localStorage.getItem('remembered_email');
+  const rememberedPass = localStorage.getItem('remembered_pass');
+  if (rememberedEmail) {
+    document.getElementById('login-email').value = rememberedEmail;
+    document.getElementById('remember-me').checked = true;
+  }
+  if (rememberedPass) {
+    document.getElementById('login-pass').value = rememberedPass;
+  }
+
+  const checkDbInterval = setInterval(() => {
+    if (window.db && window.auth) {
+      clearInterval(checkDbInterval);
+      const { collection, onSnapshot, setDoc, doc, onAuthStateChanged, getDocs } = window.firebaseModules;
+
+      onAuthStateChanged(window.auth, (user) => {
+        if (user) {
+          currentUser = user.email;
+          isAdmin = (currentUser === TARGET_EMAIL || (registeredUsers.find(u => u.email === currentUser)?.role === 'admin'));
+          updateMobileMenuOptions();
+          
+          let uObj = registeredUsers.find(u => u.email === currentUser);
+          if (isAdmin || currentUser === TARGET_EMAIL) {
+            showAdminArea();
+          } else {
+            if (uObj && uObj.paid) {
+              showMemberArea();
             } else {
-                renderAuthScreen();
+              showPublicSite();
             }
+          }
+        } else {
+          const persistedUser = localStorage.getItem('persisted_current_user');
+          if (persistedUser) {
+            currentUser = persistedUser;
+            isAdmin = (currentUser === TARGET_EMAIL);
+            updateMobileMenuOptions();
+            if(isAdmin) showAdminArea();
+            else showMemberArea();
+          } else {
+            currentUser = null;
+            isAdmin = false;
+            updateMobileMenuOptions();
+            showPublicSite();
+          }
+        }
+      });
+
+      (async () => {
+        try {
+          const snap = await getDocs(collection(window.db, "modules"));
+          if (snap.empty || snap.size < 15) {
+            for (const mod of defaultCourseData) {
+              await setDoc(doc(window.db, "modules", mod.id.toString()), mod);
+            }
+          }
+        } catch (e) {
+          console.error("Erro ao inicializar módulos:", e);
+        }
+      })();
+
+      onSnapshot(collection(window.db, "modules"), (snapshot) => {
+        courseData = [];
+        snapshot.forEach((docSnap) => {
+          courseData.push(docSnap.data());
         });
-    </script>
+        courseData.sort((a, b) => a.id - b.id);
+        
+        updateCourseStatsUI();
+
+        if (currentUser && document.getElementById('member-area').style.display === 'block') {
+          renderMemberSidebar();
+        }
+        if (isAdmin && document.getElementById('admin-area').style.display === 'block') {
+          renderAdminModules();
+          renderDashboard();
+        }
+      });
+
+      onSnapshot(collection(window.db, "users"), (snapshot) => {
+        registeredUsers = [];
+        snapshot.forEach((docSnap) => {
+          registeredUsers.push(docSnap.data());
+        });
+        if (currentUser) {
+          let uObj = registeredUsers.find(u => u.email === currentUser);
+          isAdmin = (currentUser === TARGET_EMAIL || uObj?.role === 'admin');
+          updateMobileMenuOptions();
+        }
+        if (isAdmin && document.getElementById('admin-area').style.display === 'block') {
+          renderDashboard();
+          populateTestStudentSelect();
+        }
+      });
+    }
+  }, 100);
+
+  updateMobileMenuOptions();
+};
+
+function updateCourseStatsUI() {
+  let totalMod = courseData.length;
+  let totalLes = 0;
+  courseData.forEach(m => { if(m.lessons) totalLes += m.lessons.length; });
+
+  const heroTag = document.getElementById('hero-tag-lessons');
+  if(heroTag) heroTag.innerHTML = `<i class="fa-solid fa-bolt"></i> FORMAÇÃO COMPLETA • ${totalLes} AULAS EM ${totalMod} MÓDULOS`;
+
+  const benefitText = document.getElementById('benefit-lessons-count');
+  if(benefitText) benefitText.innerHTML = `<i class="fa-solid fa-check"></i> ${totalLes} Aulas práticas em ${totalMod} Módulos`;
+
+  const sidebarHeader = document.getElementById('sidebar-title-header');
+  if(sidebarHeader) sidebarHeader.innerHTML = `<i class="fa-solid fa-book-open"></i> As ${totalLes} Aulas (${totalMod} Módulos)`;
+
+  const adminModulesLessonsElem = document.getElementById('admin-total-modules-lessons');
+  if(adminModulesLessonsElem) adminModulesLessonsElem.innerHTML = `${totalMod} Módulos / ${totalLes} Aulas <i class="fa-solid fa-layer-group" style="font-size: 15px; color: var(--text-muted);"></i>`;
+}
+
+async function saveCourseToCloud(successMsg = "Alterações salvas na nuvem com sucesso!") {
+  if (!window.db) return;
+  const { doc, setDoc } = window.firebaseModules;
+  try {
+    for (const mod of courseData) {
+      await setDoc(doc(window.db, "modules", mod.id.toString()), mod);
+    }
+    showSuccessModal(successMsg);
+  } catch (err) {
+    showCustomAlert("Erro no Banco", "Erro ao salvar na nuvem: " + err.message);
+  }
+}
+
+async function saveUserToCloud(userObj) {
+  if (!window.db) return;
+  const { doc, setDoc } = window.firebaseModules;
+  try {
+    let safeId = userObj.email.replace(/[@.]/g, '_');
+    await setDoc(doc(window.db, "users", safeId), userObj);
+  } catch (err) {
+    console.error("Erro ao salvar usuário:", err);
+  }
+}
+
+function showSuccessModal(msg) {
+  document.getElementById('success-modal-text').innerText = msg;
+  document.getElementById('success-modal').classList.add('active');
+}
+function closeSuccessModal() { document.getElementById('success-modal').classList.remove('active'); }
+
+function toggleMobileMenu() {
+  document.getElementById('mobile-menu').classList.toggle('active');
+  document.getElementById('mobile-overlay').classList.toggle('active');
+}
+function openModal(id) { document.getElementById(id).classList.add('active'); }
+function closeModal(id) { 
+  document.getElementById(id).classList.remove('active'); 
+  if(activePaymentInterval) { clearInterval(activePaymentInterval); activePaymentInterval = null; }
+  if(pixCountdownInterval) { clearInterval(pixCountdownInterval); pixCountdownInterval = null; }
+}
+
+function closeCheckoutModalSafe() {
+  closeModal('modal-custom-checkout');
+  currentCheckoutAmount = 29.90;
+  checkoutTargetUser = null;
+  if (currentUser) {
+    let uObj = registeredUsers.find(u => u.email === currentUser);
+    if (!isAdmin && (!uObj || !uObj.paid)) {
+      showPublicSite();
+    }
+  }
+}
+
+function openAuthModal(tab) { switchAuthTab(tab); openModal('modal-auth'); }
+
+function switchAuthTab(tab) {
+  const btnL = document.getElementById('tab-btn-login'); const btnR = document.getElementById('tab-btn-register');
+  const formL = document.getElementById('form-login'); const formR = document.getElementById('form-register');
+  if(tab==='login'){
+    btnL.style.background = 'rgba(0,240,255,0.15)'; btnL.style.color = 'var(--accent-cyan)';
+    btnR.style.background = 'transparent'; btnR.style.color = 'var(--text-secondary)';
+    formL.style.display = 'block'; formR.style.display = 'none';
+  } else {
+    btnR.style.background = 'rgba(0,240,255,0.15)'; btnR.style.color = 'var(--accent-cyan)';
+    btnL.style.background = 'transparent'; btnL.style.color = 'var(--text-secondary)';
+    formR.style.display = 'block'; formL.style.display = 'none';
+  }
+}
+
+function togglePasswordVisibility(id, btn) {
+  const inp = document.getElementById(id); const icon = btn.querySelector('i');
+  if(inp.type === 'password'){ inp.type = 'text'; icon.className = 'regular fa-eye-slash'; }
+  else { inp.type = 'password'; icon.className = 'regular fa-eye'; }
+}
+
+function updateMobileMenuOptions() {
+  const container = document.getElementById('mobile-menu-options');
+  if(!container) return;
+  
+  const userDisplayElem = document.getElementById('user-display');
+  if (currentUser) {
+    userDisplayElem.innerText = currentUser;
+  }
+
+  if(!currentUser){
+    container.innerHTML = `
+      <button onclick="toggleMobileMenu(); openAuthModal('login')"><i class="regular fa-user"></i> Login</button>
+      <button onclick="toggleMobileMenu(); showPublicSite();"><i class="fa-solid fa-house"></i> Início</button>
+    `;
+    document.getElementById('hero-btn-text').innerText = "ACESSAR MINHA CONTA";
+  } else {
+    let uObj = registeredUsers.find(u => u.email === currentUser);
+    let isPaid = isAdmin || uObj?.paid;
+    let html = '';
+    if(isAdmin) html += `<button onclick="toggleMobileMenu(); showAdminArea();"><i class="fa-solid fa-gear"></i> Painel Admin</button>`;
+    if(isPaid) html += `<button onclick="toggleMobileMenu(); showMemberArea();"><i class="fa-solid fa-graduation-cap"></i> Acessar Aulas</button>`;
+    html += `<button onclick="toggleMobileMenu(); showSettingsArea();"><i class="fa-solid fa-sliders"></i> Configurações</button>`;
+    html += `<button style="color:var(--red);" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> Sair</button>`;
+    container.innerHTML = html;
+    document.getElementById('hero-btn-text').innerText = isPaid ? "IR PARA AS AULAS" : "GARANTIR MEU ACESSO";
+  }
+}
+
+async function handleLogin(e) {
+  e.preventDefault();
+  autoCompleteEmail('login-email');
+  const em = document.getElementById('login-email').value.trim(); 
+  const pw = document.getElementById('login-pass').value.trim();
+  const rememberMe = document.getElementById('remember-me').checked;
+  const { signInWithEmailAndPassword } = window.firebaseModules;
+
+  if (rememberMe) {
+    localStorage.setItem('remembered_email', em);
+    localStorage.setItem('remembered_pass', pw);
+  } else {
+    localStorage.removeItem('remembered_email');
+    localStorage.removeItem('remembered_pass');
+  }
+
+  if (em === TARGET_EMAIL && pw === "478") {
+    let adminObj = registeredUsers.find(u => u.email === TARGET_EMAIL);
+    if(!adminObj) {
+      adminObj = { email: TARGET_EMAIL, paid: true, role: "admin", fullname: "Administrador Geral", certReleased: true };
+      await saveUserToCloud(adminObj);
+    }
+    setAuthSession(em, true); showAdminArea(); return;
+  }
+
+  try {
+    await signInWithEmailAndPassword(window.auth, em, pw);
+    let uObj = registeredUsers.find(u => u.email === em);
+    let adminFlag = (uObj?.role === 'admin' || em === TARGET_EMAIL);
+    setAuthSession(em, adminFlag);
+    if(adminFlag) showAdminArea(); 
+    else {
+      if(uObj && uObj.paid) showMemberArea();
+      else { showPublicSite(); }
+    }
+  } catch (err) {
+    showCustomAlert("Erro de Login", "E-mail ou senha incorretos.");
+  }
+}
+
+async function handleForgotPassword(e) {
+  e.preventDefault();
+  autoCompleteEmail('login-email');
+  const em = document.getElementById('login-email').value.trim();
+  if(!em) {
+    showCustomAlert("Campo Obrigatório", "Digite seu e-mail no campo de e-mail acima para receber a recuperação de senha.");
+    document.getElementById('login-email').focus();
+    return;
+  }
+  const { sendPasswordResetEmail } = window.firebaseModules;
+  try {
+    await sendPasswordResetEmail(window.auth, em);
+    showSuccessModal("E-mail de redefinição de senha enviado com sucesso!");
+    closeModal('modal-auth');
+  } catch (err) {
+    showCustomAlert("Erro", "Erro ao enviar e-mail de recuperação: " + err.message);
+  }
+}
+
+function isValidFullName(name) {
+  const parts = name.trim().split(/\s+/);
+  if (parts.length < 2) return false;
+  for (let p of parts) {
+    if (p.length < 2 || /^([a-zA-Z])\1+$/.test(p)) return false;
+  }
+  return true;
+}
+
+async function handleRegister(e) {
+  e.preventDefault();
+  autoCompleteEmail('reg-email');
+  const fullname = document.getElementById('reg-fullname').value.trim();
+  const em = document.getElementById('reg-email').value.trim(); 
+  const pw = document.getElementById('reg-pass').value.trim();
+  const { createUserWithEmailAndPassword, signInWithEmailAndPassword } = window.firebaseModules;
+
+  if (!isValidFullName(fullname)) {
+    showCustomAlert("Nome Inválido", "Por favor, digite seu Nome Completo real (evite nomes falsos ou repetitivos).");
+    document.getElementById('reg-fullname').focus();
+    return;
+  }
+
+  if (pw.length < 6) {
+    showCustomAlert("Senha Curta", "A senha precisa ter no mínimo 6 caracteres.");
+    return;
+  }
+
+  try {
+    await createUserWithEmailAndPassword(window.auth, em, pw);
+    let newUser = { email: em, paid: false, role: 'student', fullname: fullname, certReleased: false };
+    await saveUserToCloud(newUser);
+    setAuthSession(em, false);
+    showPublicSite();
+  } catch (err) {
+    if (err.code === 'auth/email-already-in-use') {
+      try {
+        await signInWithEmailAndPassword(window.auth, em, pw);
+        let uObj = registeredUsers.find(u => u.email === em);
+        let adminFlag = (uObj?.role === 'admin' || em === TARGET_EMAIL);
+        setAuthSession(em, adminFlag);
+        if (adminFlag) showAdminArea();
+        else {
+          if (uObj && uObj.paid) showMemberArea();
+          else showPublicSite();
+        }
+      } catch (loginErr) {
+        showCustomAlert("Conta Existente", "Este e-mail já está cadastrado. Alterne para a aba 'Entrar' e faça login com sua senha.");
+        switchAuthTab('login');
+        document.getElementById('login-email').value = em;
+      }
+    } else {
+      showCustomAlert("Erro no Cadastro", err.message);
+    }
+  }
+}
+
+function setAuthSession(em, adminFlag) {
+  currentUser = em; isAdmin = adminFlag; 
+  localStorage.setItem('persisted_current_user', em);
+  closeModal('modal-auth'); updateMobileMenuOptions();
+}
+
+async function logout() {
+  const { signOut } = window.firebaseModules;
+  if(window.auth) await signOut(window.auth);
+  currentUser = null; isAdmin = false;
+  localStorage.removeItem('persisted_current_user');
+  location.reload(); 
+}
+
+function handleAccountAction() {
+  if (!currentUser) {
+    openAuthModal('login');
+  } else {
+    let uObj = registeredUsers.find(u => u.email === currentUser);
+    if (isAdmin || uObj?.paid) {
+      showMemberArea();
+    } else {
+      openCheckoutModal();
+    }
+  }
+}
+
+function handleLogoClick() {
+  if (currentUser) {
+    let uObj = registeredUsers.find(u => u.email === currentUser);
+    if (isAdmin || uObj?.paid) {
+      showMemberArea();
+    } else {
+      showPublicSite();
+    }
+  } else {
+    showPublicSite();
+  }
+}
+
+function showPublicSite() {
+  document.getElementById('public-site').style.display = 'block'; 
+  document.getElementById('member-area').style.display = 'none'; 
+  document.getElementById('admin-area').style.display = 'none';
+  document.getElementById('settings-area').style.display = 'none';
+  document.getElementById('nav-guest').style.display = currentUser ? 'none' : 'block';
+  document.getElementById('nav-user').style.display = currentUser ? 'flex' : 'none';
+  if (currentUser) {
+    document.getElementById('user-display').innerText = currentUser;
+  }
+}
+
+function showSettingsArea() {
+  document.getElementById('public-site').style.display = 'none'; 
+  document.getElementById('member-area').style.display = 'none'; 
+  document.getElementById('admin-area').style.display = 'none';
+  document.getElementById('settings-area').style.display = 'block';
+  let uObj = registeredUsers.find(u => u.email === currentUser);
+  document.getElementById('settings-email').value = currentUser || '';
+  document.getElementById('settings-fullname').value = uObj?.fullname || '';
+}
+
+async function handleUpdateAccount(e) {
+  e.preventDefault();
+  const newName = document.getElementById('settings-fullname').value.trim();
+  const newEmail = document.getElementById('settings-email').value.trim();
+  const newPass = document.getElementById('settings-new-pass').value.trim();
+
+  if (!isValidFullName(newName)) {
+    showCustomAlert("Nome Inválido", "Por favor, informe seu nome e sobrenome reais para validação.");
+    document.getElementById('settings-fullname').focus();
+    return;
+  }
+
+  const user = window.auth.currentUser;
+  if (!user) {
+    showCustomAlert("Erro", "Usuário não autenticado.");
+    return;
+  }
+
+  const { updateEmail, updatePassword } = window.firebaseModules;
+
+  try {
+    if (newEmail !== user.email) {
+      await updateEmail(user, newEmail);
+    }
+    if (newPass.length >= 6) {
+      await updatePassword(user, newPass);
+    }
+
+    let uObj = registeredUsers.find(u => u.email === currentUser);
+    if (uObj) {
+      uObj.fullname = newName;
+      if (newEmail !== currentUser) {
+        uObj.email = newEmail;
+        currentUser = newEmail;
+        localStorage.setItem('persisted_current_user', newEmail);
+      }
+      await saveUserToCloud(uObj);
+    }
+
+    showSuccessModal("Dados e credenciais atualizados com sucesso!");
+  } catch (err) {
+    showCustomAlert("Erro", "Erro ao atualizar conta: " + err.message + " (Pode ser necessário relogar para alterar e-mail/senha).");
+  }
+}
+
+function showMemberArea() {
+  if (!currentUser) {
+    openAuthModal('login');
+    return;
+  }
+
+  let uObj = registeredUsers.find(u => u.email === currentUser);
+  const isPaid = isAdmin || uObj?.paid;
+
+  if (!isPaid) {
+    showPublicSite();
+    openCheckoutModal();
+    return;
+  }
+
+  document.getElementById('public-site').style.display = 'none'; 
+  document.getElementById('admin-area').style.display = 'none'; 
+  document.getElementById('settings-area').style.display = 'none';
+  document.getElementById('member-area').style.display = 'block';
+  document.getElementById('nav-guest').style.display = 'none'; 
+  document.getElementById('nav-user').style.display = 'flex';
+  document.getElementById('user-display').innerText = currentUser;
+  
+  renderMemberSidebar();
+  if(courseData.length > 0 && courseData[0].lessons?.length > 0) {
+    loadLessonContent(courseData[0].id, courseData[0].lessons[0].id);
+  }
+}
+
+function showAdminArea() {
+  if(!isAdmin && currentUser !== TARGET_EMAIL){ 
+    showCustomAlert("Acesso Restrito", "Você não tem permissão de administrador."); 
+    showMemberArea(); 
+    return; 
+  }
+  document.getElementById('public-site').style.display = 'none'; 
+  document.getElementById('member-area').style.display = 'none'; 
+  document.getElementById('settings-area').style.display = 'none';
+  document.getElementById('admin-area').style.display = 'block';
+  document.getElementById('nav-guest').style.display = 'none'; 
+  document.getElementById('nav-user').style.display = 'flex';
+  document.getElementById('user-display').innerText = currentUser;
+  switchAdminTab('dashboard'); populateLessonModuleSelect(); populateTestStudentSelect();
+}
+
+function renderMemberSidebar() {
+  let uObj = registeredUsers.find(u => u.email === currentUser);
+  if (!isAdmin && (!uObj || !uObj.paid)) return;
+
+  const container = document.getElementById('module-list'); container.innerHTML = '';
+  courseData.forEach((mod, index) => {
+    let html = '';
+    if (mod.lessons) {
+      mod.lessons.forEach(l => {
+        let isDone = completedLessons[currentUser] && completedLessons[currentUser][l.id];
+        html += `<div class="lms-lesson-item" onclick="loadLessonContent(${mod.id}, ${l.id})">
+          <span><i class="regular fa-circle-play" style="margin-right: 8px;"></i> ${l.title}</span>
+          ${isDone ? '<i class="fa-solid fa-check-circle"></i>' : ''}
+        </div>`;
+      });
+    }
+    const box = document.createElement('div'); box.className = 'lms-module-box';
+    box.innerHTML = `
+      <div class="lms-module-header" onclick="toggleAccordion(this)">
+        <span><i class="regular fa-folder" style="margin-right:8px; color:var(--accent-cyan);"></i> ${mod.title}</span>
+        <i class="fa-solid ${index===0?'fa-chevron-up':'fa-chevron-down'} arrow" style="font-size:10px;"></i>
+      </div>
+      <div class="lms-module-body ${index===0?'expanded':''}">${html}</div>
+    `;
+    container.appendChild(box);
+  });
+}
+
+function toggleAccordion(headerElem) {
+  const bodyElem = headerElem.nextElementSibling;
+  const isAlreadyExpanded = bodyElem.classList.contains('expanded');
+  
+  document.querySelectorAll('.lms-module-body').forEach(b => b.classList.remove('expanded'));
+  document.querySelectorAll('.lms-module-header .arrow').forEach(a => {
+    a.classList.remove('fa-chevron-up');
+    a.classList.add('fa-chevron-down');
+  });
+
+  if (!isAlreadyExpanded) {
+    bodyElem.classList.add('expanded');
+    const arrow = headerElem.querySelector('.arrow');
+    arrow.classList.remove('fa-chevron-down');
+    arrow.classList.add('fa-chevron-up');
+  }
+}
+
+function toggleAdminAccordion(headerElem) {
+  const bodyElem = headerElem.nextElementSibling;
+  bodyElem.classList.toggle('expanded');
+}
+
+function getYouTubeId(url) {
+  if (!url) return '';
+  let videoId = '';
+  if (url.includes('youtu.be/')) {
+    videoId = url.split('youtu.be/')[1].split('?')[0];
+  } else if (url.includes('watch?v=')) {
+    videoId = url.split('watch?v=')[1].split('&')[0];
+  } else if (url.includes('embed/')) {
+    videoId = url.split('embed/')[1].split('?')[0];
+  } else {
+    videoId = url.trim();
+  }
+  return videoId;
+}
+
+function loadLessonContent(modId, lessonId) {
+  const mod = courseData.find(m => m.id == modId); 
+  const lesson = mod?.lessons?.find(l => l.id == lessonId);
+  if(!lesson) return;
+  const container = document.getElementById('lms-main-content');
+  
+  const hasVideo = lesson.video && lesson.video.trim() !== '';
+  videoWatchedState[lessonId] = !hasVideo;
+
+  let mediaHtml = '';
+  if (hasVideo) {
+    let videoId = getYouTubeId(lesson.video);
+    mediaHtml = `
+      <div class="video-frame" id="yt-player-container-${lesson.id}" style="position: relative; background: #000; display: flex; align-items: center; justify-content: center; cursor: pointer;" onclick="activateYouTubePlayer('${lesson.id}', '${videoId}')">
+        <img src="https://img.youtube.com/vi/${videoId}/hqdefault.jpg" alt="Capa do Vídeo" style="width: 100%; height: 100%; object-fit: cover; opacity: 0.85; transition: 0.3s;">
+        <div style="position: absolute; width: 75px; height: 52px; background: rgba(0, 240, 255, 0.9); border-radius: 14px; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); transition: 0.3s;">
+          <i class="fa-solid fa-play" style="color: #030712; font-size: 20px; margin-left: 2px;"></i>
+        </div>
+      </div>`;
+  }
+
+  let imgHtml = '';
+  if (lesson.imgUrl && lesson.imgUrl.trim() !== '') {
+    imgHtml = `
+      <div class="image-frame" style="margin-top: 15px;">
+        <img src="${lesson.imgUrl}" alt="Ilustração da Aula" style="width: 100%; height: 100%; object-fit: cover;">
+      </div>`;
+  }
+
+  let pdfHtml = '';
+  if (lesson.pdfUrl && lesson.pdfUrl.trim() !== '') {
+    pdfHtml = `
+      <div style="margin-top: 15px; padding: 14px; background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 12px; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <h4 style="color: #f59e0b; font-size: 14px; margin-bottom: 4px;"><i class="fa-solid fa-file-pdf"></i> Material Complementar</h4>
+          <p style="font-size: 12px; color: var(--text-secondary);">Baixe o arquivo PDF desta aula para acompanhar.</p>
+        </div>
+        <a href="${lesson.pdfUrl}" target="_blank" class="btn-outline" style="border-color: #f59e0b; color: #f59e0b;"><i class="fa-solid fa-download"></i> Baixar PDF</a>
+      </div>`;
+  }
+
+  let next = null; let found = false;
+  let totalLessonsCount = 0;
+  let completedCount = 0;
+  let totalQuizCount = 0;
+  let answeredQuizCount = 0;
+  
+  courseData.forEach(m => m.lessons?.forEach(l => {
+    totalLessonsCount++;
+    if(completedLessons[currentUser] && completedLessons[currentUser][l.id]) completedCount++;
+    if(l.quiz && l.quiz.question) {
+      totalQuizCount++;
+      if(quizStatsStorage[currentUser] && quizStatsStorage[currentUser][l.id]?.answered) answeredQuizCount++;
+    }
+    if(found && !next) next = {m:m.id, l:l.id};
+    if(l.id === lesson.id) found=true;
+  }));
+  
+  const isDone = completedLessons[currentUser] && completedLessons[currentUser][lesson.id];
+  const allLessonsFinished = (totalLessonsCount > 0 && completedCount >= totalLessonsCount);
+  const allQuizFinished = (totalQuizCount === 0 || answeredQuizCount >= totalQuizCount);
+  const courseFullyCompleted = allLessonsFinished && allQuizFinished;
+
+  let uObj = registeredUsers.find(u => u.email === currentUser);
+  let certReleasedByAdmin = uObj?.certReleased || false;
+
+  let quizHtml = '';
+  if (lesson.quiz && lesson.quiz.question) {
+    let optionsHtml = '';
+    let isQuizAlreadyAnswered = quizStatsStorage[currentUser] && quizStatsStorage[currentUser][lesson.id]?.answered;
+
+    lesson.quiz.options.forEach((opt, idx) => {
+      let extraClass = '';
+      if (isQuizAlreadyAnswered) {
+        if (idx === lesson.quiz.correct) extraClass = 'correct';
+      }
+      optionsHtml += `<button class="quiz-option-btn ${extraClass}" ${isQuizAlreadyAnswered ? 'disabled' : ''} onclick="checkQuizAnswer(this, ${idx}, ${lesson.quiz.correct}, ${mod.id}, ${lesson.id}, ${next ? next.m : 'null'}, ${next ? next.l : 'null'})">
+        <span>${String.fromCharCode(65 + idx)}) ${opt}</span>
+      </button>`;
+    });
+
+    const isUnlocked = videoWatchedState[lesson.id] || isDone;
+
+    quizHtml = `
+      <div class="quiz-container" id="quiz-block-${lesson.id}" style="display: block;">
+        <div class="quiz-header-badge"><i class="fa-solid fa-brain"></i> Exercício Obrigatório de Fixação</div>
+        
+        <div id="quiz-locked-notice-${lesson.id}" style="padding: 14px; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 12px; margin-bottom: 14px; font-size: 13px; color: #f87171; display: ${isUnlocked ? 'none' : 'block'};">
+          <i class="fa-solid fa-lock" style="margin-right: 6px;"></i> Assista ao vídeo da aula para liberar os exercícios.
+        </div>
+
+        <div id="quiz-content-body-${lesson.id}" style="opacity: ${isUnlocked ? '1' : '0.3'}; pointer-events: ${isUnlocked ? 'auto' : 'none'}; transition: 0.3s;">
+          <div class="quiz-question-title">${lesson.quiz.question}</div>
+          <div class="quiz-options-list">${optionsHtml}</div>
+          <div class="quiz-feedback" id="quiz-feedback-${lesson.id}" style="${isQuizAlreadyAnswered ? 'display: flex;' : ''}">${isQuizAlreadyAnswered ? '<i class="fa-solid fa-circle-check"></i> Exercício já respondido com sucesso!' : ''}</div>
+        </div>
+      </div>
+    `;
+  }
+
+  let certificateSectionHtml = '';
+  if (courseFullyCompleted || certReleasedByAdmin) {
+    certificateSectionHtml = `
+      <div style="margin-top: 30px; padding: 24px; background: rgba(16,185,129,0.1); border: 1px solid var(--green); border-radius: 16px; text-align: center;">
+        <h4 style="color: var(--green); margin-bottom: 8px;"><i class="fa-solid fa-award"></i> Parabéns! Curso Concluído com Sucesso!</h4>
+        <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">Todas as aulas e exercícios foram finalizados para: <strong>${uObj?.fullname || currentUser}</strong></p>
+        <button class="btn" style="background: linear-gradient(135deg, #10b981, #059669); color:#fff;" onclick="generateOfficialCertificatePDF('${uObj?.fullname || currentUser}')"><i class="fa-solid fa-download"></i> Baixar Certificado Oficial em PDF</button>
+      </div>
+    `;
+  } else {
+    certificateSectionHtml = `
+      <div style="margin-top: 30px; padding: 20px; background: rgba(255,255,255,0.02); border: 1px dashed var(--glass-border); border-radius: 16px; text-align: center;">
+        <p style="font-size: 12.5px; color: var(--text-muted);"><i class="fa-solid fa-lock" style="color:var(--accent-cyan);"></i> O Certificado Oficial será liberado automaticamente após concluir todas as aulas e responder todos os exercícios de fixação.</p>
+      </div>
+    `;
+  }
+  
+  container.innerHTML = `
+    <span style="font-size: 11px; color: var(--accent-cyan); font-weight: 700; text-transform: uppercase;">${mod.title}</span>
+    <h2 style="margin-bottom: 18px; font-size: 22px; color: #fff;">${lesson.title}</h2>
+    ${mediaHtml}
+    ${imgHtml}
+    ${pdfHtml}
+    
+    <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); padding: 20px; border-radius: 16px; margin-top: 20px;">
+      <h4 style="color: var(--accent-cyan); margin-bottom: 8px; font-size: 14.5px;"><i class="fa-solid fa-list-check"></i> O que vai ser aprendido</h4>
+      <p style="color: var(--text-secondary); font-size: 13.5px; white-space: pre-line;">${lesson.bloco1 || 'Não especificado.'}</p>
+    </div>
+
+    <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); padding: 20px; border-radius: 16px; margin-top: 14px;">
+      <h4 style="color: var(--accent-cyan); margin-bottom: 8px; font-size: 14.5px;"><i class="fa-solid fa-align-left"></i> Descrição da Aula</h4>
+      <p style="color: var(--text-secondary); font-size: 13.5px; white-space: pre-line;">${lesson.bloco2 || lesson.description || 'Sem descrição.'}</p>
+    </div>
+
+    <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); padding: 20px; border-radius: 16px; margin-top: 14px;">
+      <h4 style="color: var(--accent-cyan); margin-bottom: 8px; font-size: 14.5px;"><i class="fa-solid fa-bullseye"></i> Objetivos Pedagógicos</h4>
+      <p style="color: var(--text-secondary); font-size: 13.5px; white-space: pre-line;">${lesson.bloco3 || 'Não especificado.'}</p>
+    </div>
+    
+    ${quizHtml}
+
+    <div style="margin-top: 25px; text-align: center;" id="lesson-action-footer">
+      ${isDone ? `
+        <div style="padding: 18px; background: rgba(16,185,129,0.1); border-radius: 14px; border: 1px solid rgba(16,185,129,0.3);">
+          <h3 style="color: var(--green); margin-bottom: 8px; font-size: 16px;"><i class="fa-solid fa-medal"></i> Aula Concluída!</h3>
+          ${next ? `<button class="btn" onclick="loadLessonContent(${next.m}, ${next.l})">Próxima Aula <i class="fa-solid fa-arrow-right"></i></button>` : `<span style="color:var(--accent-cyan); font-weight:bold;">Você concluiu todas as aulas!</span>`}
+        </div>
+      ` : ''}
+    </div>
+    ${certificateSectionHtml}
+  `;
+}
+
+function activateYouTubePlayer(lessonId, videoId) {
+  const container = document.getElementById(`yt-player-container-${lessonId}`);
+  if (!container) return;
+  container.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="width: 100%; height: 100%;"></iframe>`;
+  videoWatchedState[lessonId] = true;
+  document.getElementById(`quiz-locked-notice-${lessonId}`).style.display = 'none';
+  document.getElementById(`quiz-content-body-${lessonId}`).style.opacity = '1';
+  document.getElementById(`quiz-content-body-${lessonId}`).style.pointerEvents = 'auto';
+}
+
+function checkQuizAnswer(buttonElem, selectedIdx, correctIdx, modId, lessonId, nextMod, nextLesson) {
+  const parentContainer = buttonElem.closest('.quiz-container');
+  const allBtns = parentContainer.querySelectorAll('.quiz-option-btn');
+  const feedbackDiv = parentContainer.querySelector('.quiz-feedback');
+
+  allBtns.forEach(btn => btn.disabled = true);
+
+  if(!quizStatsStorage[currentUser]) quizStatsStorage[currentUser] = {};
+  if(!quizStatsStorage[currentUser][lessonId]) quizStatsStorage[currentUser][lessonId] = { answered: true, errors: 0, correct: 0 };
+
+  if (selectedIdx === correctIdx) {
+    buttonElem.classList.add('correct');
+    feedbackDiv.innerHTML = `<i class="fa-solid fa-circle-check"></i> Resposta correta!`;
+    feedbackDiv.className = 'quiz-feedback success';
+    quizStatsStorage[currentUser][lessonId].correct = 1;
+
+    if(!completedLessons[currentUser]) completedLessons[currentUser] = {};
+    completedLessons[currentUser][lessonId] = true;
+    localStorage.setItem('user_completed_lessons', JSON.stringify(completedLessons));
+    localStorage.setItem('user_quiz_stats', JSON.stringify(quizStatsStorage));
+    renderMemberSidebar();
+
+    const footerContainer = document.getElementById('lesson-action-footer');
+    if (footerContainer) {
+      let nextBtnHtml = nextMod ? `<button class="btn" onclick="loadLessonContent(${nextMod}, ${nextLesson})">Próxima Aula <i class="fa-solid fa-arrow-right"></i></button>` : `<span style="color:var(--accent-cyan); font-weight:bold;">Você concluiu todas as aulas!</span>`;
+      footerContainer.innerHTML = `
+        <div style="padding: 18px; background: rgba(16,185,129,0.1); border-radius: 14px; border: 1px solid rgba(16,185,129,0.3);">
+          <h3 style="color: var(--green); margin-bottom: 8px; font-size: 16px;"><i class="fa-solid fa-medal"></i> Aula Concluída!</h3>
+          ${nextBtnHtml}
+        </div>
+      `;
+    }
+  } else {
+    buttonElem.classList.add('incorrect');
+    allBtns[correctIdx].classList.add('correct');
+    feedbackDiv.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> Resposta incorreta.`;
+    feedbackDiv.className = 'quiz-feedback error';
+    quizStatsStorage[currentUser][lessonId].errors = (quizStatsStorage[currentUser][lessonId].errors || 0) + 1;
+    localStorage.setItem('user_quiz_stats', JSON.stringify(quizStatsStorage));
+  }
+}
+
+function generateOfficialCertificatePDF(studentName) {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+  
+  doc.setFillColor(3, 7, 18);
+  doc.rect(0, 0, 297, 210, 'F');
+  
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(22);
+  doc.setTextColor(0, 240, 255);
+  doc.text("IDZ", 30, 28);
+
+  doc.setFontSize(9);
+  doc.setTextColor(255, 255, 255);
+  doc.text("Informática do Zero", 30, 34);
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(24);
+  doc.setTextColor(255, 255, 255);
+  doc.text("CERTIFICADO", 30, 52);
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(13);
+  doc.setTextColor(0, 240, 255);
+  doc.text("DE CONCLUSÃO", 30, 60);
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(11);
+  doc.setTextColor(148, 163, 184);
+  doc.text("Certificamos que o aluno:", 30, 75);
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(22);
+  doc.setTextColor(0, 240, 255);
+  doc.text(studentName.toUpperCase(), 30, 88);
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(11);
+  doc.setTextColor(148, 163, 184);
+  doc.text("concluiu com êxito o curso", 30, 100);
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(12);
+  doc.setTextColor(255, 255, 255);
+  doc.text("INFORMÁTICA DO ZERO", 30, 108);
+
+  doc.save(`Certificado_Informatica_Do_Zero_${studentName.replace(/\s+/g, '_')}.pdf`);
+}
+
+function switchAdminTab(t) {
+  document.getElementById('admin-tab-dashboard').style.display = t==='dashboard'?'block':'none';
+  document.getElementById('admin-tab-modules').style.display = t==='modules'?'block':'none';
+  document.getElementById('admin-tab-testcheckout').style.display = t==='testcheckout'?'block':'none';
+  if(t==='dashboard') renderDashboard(); 
+  else if(t==='modules') renderAdminModules();
+  else if(t==='testcheckout') populateTestStudentSelect();
+}
+
+function renderDashboard() {
+  document.getElementById('admin-total-users').innerHTML = `${registeredUsers.length}`;
+  updateCourseStatsUI();
+  const tbody = document.getElementById('users-list-body'); tbody.innerHTML = '';
+  
+  let totalLessonsInCourse = 0;
+  courseData.forEach(m => { if(m.lessons) totalLessonsInCourse += m.lessons.length; });
+
+  registeredUsers.forEach((u) => {
+    let studentEmail = u.email;
+    let userCompleted = completedLessons[studentEmail] || {};
+    let lessonsDoneCount = Object.keys(userCompleted).length;
+    let lessonProgressPercent = totalLessonsInCourse > 0 ? Math.round((lessonsDoneCount / totalLessonsInCourse) * 100) : 0;
+    if(lessonProgressPercent > 100) lessonProgressPercent = 100;
+
+    let studentInfo = `<div style="font-weight:600; color:#fff;">${u.fullname || 'Nome não informado'}</div>`;
+    studentInfo += `<div style="font-size:11px; color:var(--accent-cyan);">E-mail: ${studentEmail}</div>`;
+
+    let progressHtml = `<div style="font-size:12px; color:#fff; font-weight:600;">${lessonsDoneCount} / ${totalLessonsInCourse} aulas (${lessonProgressPercent}%)</div>`;
+
+    let actionButtons = `
+      <button class="btn-outline" style="border-color:var(--green); color:var(--green); padding:6px 10px;" title="Aprovar Pagamento" onclick="setStudentPaymentStatus('${studentEmail}', true)"><i class="fa-solid fa-check"></i></button>
+      <button class="btn-outline" style="border-color:var(--red); color:var(--red); padding:6px 10px;" title="Remover Pagamento" onclick="setStudentPaymentStatus('${studentEmail}', false)"><i class="fa-solid fa-xmark"></i></button>
+    `;
+
+    tbody.innerHTML += `<tr>
+      <td>${studentInfo}</td>
+      <td><span class="badge-status" style="${u.paid?'background:rgba(16,185,129,0.2); color:var(--green);':'background:rgba(239,68,68,0.2); color:var(--red);'}">${u.paid?'Pago':'Pendente'}</span></td>
+      <td>${progressHtml}</td>
+      <td>${actionButtons}</td>
+    </tr>`;
+  });
+}
+
+async function setStudentPaymentStatus(email, status) {
+  let u = registeredUsers.find(x => x.email === email);
+  if(u) {
+    u.paid = status;
+    await saveUserToCloud(u);
+    showSuccessModal(status ? "Pagamento aprovado com sucesso!" : "Status de pagamento removido!");
+    renderDashboard();
+  }
+}
+
+function populateTestStudentSelect() {
+  const sel = document.getElementById('test-student-select');
+  if(!sel) return;
+  sel.innerHTML = '';
+  registeredUsers.forEach(u => {
+    sel.innerHTML += `<option value="${u.email}">${u.fullname || u.email} (${u.email})</option>`;
+  });
+}
+
+function openTestCheckoutCustom() {
+  const sel = document.getElementById('test-student-select');
+  const amountInput = document.getElementById('test-amount-input');
+  if(!sel || !sel.value) {
+    showCustomAlert("Atenção", "Selecione um aluno para o teste.");
+    return;
+  }
+  
+  let val = parseFloat(amountInput.value);
+  if(isNaN(val) || val <= 0) {
+    showCustomAlert("Valor Inválido", "Digite um valor válido maior que zero.");
+    return;
+  }
+
+  checkoutTargetUser = sel.value;
+  currentCheckoutAmount = val;
+  document.getElementById('checkout-modal-title').innerText = `Checkout Teste — R$ ${val.toFixed(2)}`;
+  openCheckoutModal();
+}
+
+function populateLessonModuleSelect(){
+  const s = document.getElementById('lesson-mod-select'); 
+  if(!s) return;
+  s.innerHTML='';
+  courseData.forEach(m => s.innerHTML += `<option value="${m.id}">${m.title}</option>`);
+}
+
+function saveModuleData() {
+  const t = document.getElementById('mod-title-input').value.trim();
+  if(!t) {
+    showCustomAlert("Atenção", "Preencha o título do módulo.");
+    return;
+  }
+  courseData.push({ id: Date.now(), title: t, lessons: [] });
+  saveCourseToCloud("Módulo salvo com sucesso na nuvem!"); 
+  renderAdminModules(); 
+  populateLessonModuleSelect();
+  updateCourseStatsUI();
+}
+
+function saveLessonData() {
+  const mId = document.getElementById('lesson-mod-select').value;
+  const t = document.getElementById('lesson-title-input').value.trim();
+  const bloco1 = document.getElementById('lesson-bloco1-input').value.trim();
+  const bloco2 = document.getElementById('lesson-bloco2-input').value.trim();
+  const bloco3 = document.getElementById('lesson-bloco3-input').value.trim();
+  const video = document.getElementById('lesson-video-url').value.trim();
+  const pdfUrl = document.getElementById('lesson-pdf-url').value.trim();
+  const imgUrl = document.getElementById('lesson-img-url').value.trim();
+  const qText = document.getElementById('quiz-question-input').value.trim();
+  
+  if(!t) {
+    showCustomAlert("Atenção", "Preencha o título da aula.");
+    return;
+  }
+  const m = courseData.find(x=>x.id==mId);
+  if(!m) {
+    showCustomAlert("Atenção", "Selecione um módulo válido.");
+    return;
+  }
+  if(!m.lessons) m.lessons=[];
+
+  let quiz = null;
+  if (qText) {
+    quiz = {
+      question: qText,
+      options: [
+        document.getElementById('quiz-opt0-input').value,
+        document.getElementById('quiz-opt1-input').value,
+        document.getElementById('quiz-opt2-input').value,
+        document.getElementById('quiz-opt3-input').value
+      ],
+      correct: parseInt(document.getElementById('quiz-correct-select').value)
+    };
+  }
+
+  m.lessons.push({ 
+    id: Date.now(), 
+    title: t, 
+    bloco1: bloco1, 
+    bloco2: bloco2, 
+    bloco3: bloco3, 
+    video: video, 
+    pdfUrl: pdfUrl, 
+    imgUrl: imgUrl, 
+    quiz: quiz 
+  });
+
+  saveCourseToCloud("Aula publicada e sincronizada na nuvem!"); 
+  renderAdminModules();
+  updateCourseStatsUI();
+}
+
+function renderAdminModules() {
+  const c = document.getElementById('admin-modules-list-container'); 
+  if(!c) return;
+  c.innerHTML='';
+  courseData.forEach((m, index) => {
+    let lessonsHtml = '';
+    if (m.lessons) {
+      m.lessons.forEach((l, lIndex) => {
+        lessonsHtml += `<div class="admin-lesson-item-box">
+          <span><i class="fa-solid fa-file-video" style="color:var(--accent-cyan); margin-right:6px;"></i> ${l.title}</span>
+          <div>
+            <button class="btn-outline" style="padding:2px 6px; font-size:11px;" onclick="moveLesson(${index}, ${lIndex}, -1)"><i class="fa-solid fa-arrow-up"></i></button>
+            <button class="btn-outline" style="padding:2px 6px; font-size:11px;" onclick="moveLesson(${index}, ${lIndex}, 1)"><i class="fa-solid fa-arrow-down"></i></button>
+            <button class="btn-outline" style="padding:2px 6px; font-size:11px; border-color:var(--red); color:var(--red);" onclick="deleteLesson(${m.id}, ${l.id})"><i class="fa-solid fa-trash"></i></button>
+          </div>
+        </div>`;
+      });
+    }
+
+    c.innerHTML += `<div class="admin-mod-box">
+      <div class="admin-mod-header">
+        <span onclick="toggleAdminAccordion(this)" style="flex:1;"><i class="regular fa-folder" style="color:var(--accent-cyan); margin-right:8px;"></i> ${m.title}</span>
+        <div>
+          <button class="btn-outline" style="padding:4px 8px;" onclick="moveModule(${index}, -1)"><i class="fa-solid fa-arrow-up"></i></button>
+          <button class="btn-outline" style="padding:4px 8px;" onclick="moveModule(${index}, 1)"><i class="fa-solid fa-arrow-down"></i></button>
+          <button class="btn-outline" style="padding:4px 8px; border-color:var(--red); color:var(--red);" onclick="deleteModule(${m.id})"><i class="fa-solid fa-trash"></i></button>
+        </div>
+      </div>
+      <div class="admin-mod-body">
+        <h5 style="font-size:12px; color:var(--text-secondary); margin-bottom:8px;">Aulas deste Módulo:</h5>
+        ${lessonsHtml || '<p style="font-size:12px; color:var(--text-muted);">Nenhuma aula cadastrada.</p>'}
+      </div>
+    </div>`;
+  });
+}
+
+function moveModule(index, direction) {
+  const newIndex = index + direction;
+  if (newIndex < 0 || newIndex >= courseData.length) return;
+  const temp = courseData[index];
+  courseData[index] = courseData[newIndex];
+  courseData[newIndex] = temp;
+  saveCourseToCloud("Ordem de módulos alterada!");
+  renderAdminModules();
+  populateLessonModuleSelect();
+}
+
+function moveLesson(modIndex, lessonIndex, direction) {
+  const lessons = courseData[modIndex].lessons;
+  const newIndex = lessonIndex + direction;
+  if (newIndex < 0 || newIndex >= lessons.length) return;
+  const temp = lessons[lessonIndex];
+  lessons[lessonIndex] = lessons[newIndex];
+  lessons[newIndex] = temp;
+  saveCourseToCloud("Ordem de aulas alterada!");
+  renderAdminModules();
+}
+
+function deleteModule(modId) {
+  if(!confirm("Deseja realmente excluir este módulo?")) return;
+  courseData = courseData.filter(m => m.id !== modId);
+  saveCourseToCloud("Módulo excluído!");
+  renderAdminModules();
+  populateLessonModuleSelect();
+  updateCourseStatsUI();
+}
+
+function deleteLesson(modId, lessonId) {
+  if(!confirm("Deseja realmente excluir esta aula?")) return;
+  const mod = courseData.find(m => m.id === modId);
+  if (mod && mod.lessons) {
+    mod.lessons = mod.lessons.filter(l => l.id !== lessonId);
+    saveCourseToCloud("Aula excluída!");
+    renderAdminModules();
+    updateCourseStatsUI();
+  }
+}
+
+async function openCheckoutModal() {
+  let targetEmail = checkoutTargetUser || currentUser;
+  if (!targetEmail) {
+    showCustomAlert("Autenticação Necessária", "Você precisa estar logado ou selecionar um aluno para realizar o checkout!");
+    openAuthModal('login');
+    return;
+  }
+
+  openModal('modal-custom-checkout');
+
+  setTimeout(async () => {
+    try {
+      const mp = new MercadoPago(PUBLIC_KEY_MP, { locale: 'pt-BR' });
+      const bricksBuilder = mp.bricks();
+
+      if (paymentBrickController) {
+        paymentBrickController.unmount();
+      }
+
+      const settings = {
+        initialization: {
+          amount: currentCheckoutAmount,
+          payer: { email: targetEmail }
+        },
+        customization: {
+          paymentMethods: {
+            creditCard: 'all',
+            bankTransfer: ['pix'],
+            maxInstallments: 5
+          },
+          visual: {
+            style: { theme: 'dark' }
+          }
+        },
+        callbacks: {
+          onReady: () => {},
+          onSubmit: ({ selectedPaymentMethod, formData }) => {
+            return new Promise((resolve, reject) => {
+              if (!formData.payer) formData.payer = {};
+              if (!formData.payer.identification) {
+                formData.payer.identification = { type: "CPF", number: "12345678909" };
+              }
+
+              fetch(RAILWAY_BACKEND_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+              })
+              .then(res => res.json())
+              .then(response => {
+                if (response.success) {
+                  const paymentStatus = response.status;
+
+                  if (paymentStatus === 'approved') {
+                    simulateApprovalForTarget(targetEmail);
+                  } 
+                  else if (selectedPaymentMethod === 'bank_transfer' && response.point_of_interaction) {
+                    const pixData = response.point_of_interaction.transaction_data;
+                    const qrCodeBase64 = pixData.qr_code_base64;
+                    const qrCodeCopyPaste = pixData.qr_code;
+                    const paymentId = response.id;
+
+                    const containerModal = document.getElementById('paymentBrick_container');
+                    
+                    let timeLeft = 300;
+                    
+                    containerModal.innerHTML = `
+                      <div style="text-align: center; padding: 20px; color: #fff;">
+                        <h3 style="color: var(--accent-cyan); margin-bottom: 8px; font-size: 18px;"><i class="fa-solid fa-qrcode"></i> Escaneie o QR Code Pix (R$ ${currentCheckoutAmount.toFixed(2)})</h3>
+                        <div id="pix-timer-box" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 10px; padding: 8px; margin-bottom: 14px; font-weight: 700; color: #f87171; font-size: 13px;">
+                          <i class="regular fa-clock"></i> Este QR Code expira em: <span id="pix-countdown">05:00</span>
+                        </div>
+                        <div style="background: #fff; padding: 12px; display: inline-block; border-radius: 12px; margin-bottom: 14px;">
+                          <img src="data:image/png;base64,${qrCodeBase64}" alt="QR Code Pix" style="width: 180px; height: 180px; display: block;">
+                        </div>
+                        <div style="margin-bottom: 14px;">
+                          <label style="font-size: 11px; color: var(--text-secondary); display: block; margin-bottom: 4px; text-transform: uppercase;">Ou copie o código Pix Copia e Cola:</label>
+                          <textarea readonly style="width: 100%; height: 60px; background: rgba(0,0,0,0.5); border: 1px solid var(--glass-border); color: #fff; padding: 8px; border-radius: 8px; font-size: 11px; resize: none;" id="pix-copy-text">${qrCodeCopyPaste}</textarea>
+                          <button class="btn-outline" style="margin-top: 6px; width: 100%; justify-content: center;" onclick="navigator.clipboard.writeText(document.getElementById('pix-copy-text').value); showSuccessModal('Código Pix copiado com sucesso!');">
+                            <i class="regular fa-copy"></i> Copiar Código Pix
+                          </button>
+                        </div>
+                        <p style="font-size: 11.5px; color: var(--green); margin-bottom: 10px;"><i class="fa-solid fa-spinner fa-spin"></i> Aguardando confirmação automática...</p>
+                      </div>
+                    `;
+
+                    if(pixCountdownInterval) clearInterval(pixCountdownInterval);
+                    pixCountdownInterval = setInterval(() => {
+                      timeLeft--;
+                      let minutes = Math.floor(timeLeft / 60);
+                      let seconds = timeLeft % 60;
+                      let timerElem = document.getElementById('pix-countdown');
+                      if(timerElem) {
+                        timerElem.innerText = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                      }
+                      if(timeLeft <= 0) {
+                        clearInterval(pixCountdownInterval);
+                        if(activePaymentInterval) { clearInterval(activePaymentInterval); activePaymentInterval = null; }
+                        showCustomAlert("Pix Expirado", "O tempo limite de 5 minutos para pagamento via Pix expirou. Gere um novo pedido.");
+                        closeCheckoutModalSafe();
+                      }
+                    }, 1000);
+
+                    if(paymentId) {
+                      activePaymentInterval = setInterval(async () => {
+                        try {
+                          let checkRes = await fetch(RAILWAY_BACKEND_URL.replace('/criar-pagamento', `/verificar-pagamento/${paymentId}`));
+                          let checkData = await checkRes.json();
+                          if(checkData.status === 'approved') {
+                            if(pixCountdownInterval) clearInterval(pixCountdownInterval);
+                            clearInterval(activePaymentInterval);
+                            activePaymentInterval = null;
+                            simulateApprovalForTarget(targetEmail);
+                          }
+                        } catch(e) {}
+                      }, 4000);
+                    }
+                  } 
+                  else {
+                    showCustomAlert("Pagamento Recusado", `Pagamento não aprovado pela operadora. Status: ${paymentStatus}. Verifique o saldo ou os dados do cartão.`);
+                  }
+                } else {
+                  showCustomAlert("Erro no Pagamento", response.error || "Tente novamente.");
+                }
+                resolve();
+              })
+              .catch(err => {
+                console.error("Erro:", err);
+                showCustomAlert("Erro de Conexão", "Erro de conexão com o servidor de pagamento.");
+                reject();
+              });
+            });
+          },
+          onError: (error) => { console.error('Erro no Brick:', error); }
+        }
+      };
+
+      paymentBrickController = await bricksBuilder.create('payment', 'paymentBrick_container', settings);
+    } catch (e) {
+      console.error("Erro ao iniciar Checkout Bricks:", e);
+    }
+  }, 200);
+}
+
+async function simulateApprovalForTarget(email) {
+  if(activePaymentInterval) { clearInterval(activePaymentInterval); activePaymentInterval = null; }
+  if(pixCountdownInterval) { clearInterval(pixCountdownInterval); pixCountdownInterval = null; }
+  let uObj = registeredUsers.find(u => u.email === email);
+  if(uObj) {
+    uObj.paid = true;
+    await saveUserToCloud(uObj);
+  }
+  showSuccessModal(`Pagamento aprovado com sucesso para ${email}! Suas aulas foram liberadas.`);
+  closeModal('modal-custom-checkout');
+  currentCheckoutAmount = 29.90;
+  checkoutTargetUser = null;
+  document.getElementById('checkout-modal-title').innerText = `Informática do Zero — R$ 29,90`;
+  if(currentUser === email) showMemberArea();
+  else if(isAdmin) renderDashboard();
+}
+</script>
 </body>
 </html>
