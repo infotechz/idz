@@ -4,7 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="referrer" content="strict-origin-when-cross-origin">
-<title>Informática do Zero — Plataforma Empresarial</title>
+<title>Informática do Zero — Plataforma EdTech Premium</title>
+
+<!-- Favicons Basicos e Apple Touch -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><polygon points='50,5 90,27 90,73 50,95 10,73 10,27' fill='%230a1f44' stroke='%23ffd700' stroke-width='4'/><text x='50%' y='58%' font-size='32' font-weight='900' fill='%2300f0ff' text-anchor='middle' font-family='sans-serif'>IDZ</text></svg>">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><polygon points='50,5 90,27 90,73 50,95 10,73 10,27' fill='%230a1f44' stroke='%23ffd700' stroke-width='4'/><text x='50%' y='58%' font-size='32' font-weight='900' fill='%2300f0ff' text-anchor='middle' font-family='sans-serif'>IDZ</text></svg>">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -52,8 +56,9 @@
   --bg-main: #030712;
   --bg-card: rgba(15, 23, 42, 0.94);
   --accent-cyan: #00f0ff;
-  --accent-blue: #2563eb;
+  --accent-blue: #0066ff;
   --accent-purple: #7c3aed;
+  --accent-gold: #ffd700;
   --text-primary: #f8fafc;
   --text-secondary: #94a3b8;
   --text-muted: #64748b;
@@ -64,13 +69,66 @@
   --glass-border-hover: rgba(0, 240, 255, 0.35);
   --glass-shadow: 0 12px 40px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1);
   --glow-shadow: 0 0 25px rgba(0, 240, 255, 0.3);
+  --rgb-border-angle: 0deg;
 }
 
-body.theme-azul { --accent-cyan: #00f0ff; --accent-blue: #2563eb; }
-body.theme-roxo { --accent-cyan: #c084fc; --accent-blue: #7c3aed; }
-body.theme-vermelho { --accent-cyan: #f87171; --accent-blue: #dc2626; }
-body.theme-rosa { --accent-cyan: #f472b6; --accent-blue: #db2777; }
-body.theme-cromado { --accent-cyan: #e2e8f0; --accent-blue: #64748b; --glow-shadow: 0 0 25px rgba(226,232,240,0.4); }
+/* TEMAS SISTÊMICOS COMPLETOS */
+body.theme-azul {
+  --bg-main: #030712;
+  --bg-card: rgba(15, 23, 42, 0.94);
+  --accent-cyan: #00f0ff;
+  --accent-blue: #0066ff;
+  --accent-purple: #3b82f6;
+  --glass-border-hover: rgba(0, 240, 255, 0.4);
+  --glow-shadow: 0 0 25px rgba(0, 240, 255, 0.3);
+}
+
+body.theme-roxo {
+  --bg-main: #0b0717;
+  --bg-card: rgba(23, 15, 38, 0.94);
+  --accent-cyan: #c084fc;
+  --accent-blue: #7c3aed;
+  --accent-purple: #a855f7;
+  --glass-border-hover: rgba(192, 132, 252, 0.4);
+  --glow-shadow: 0 0 25px rgba(124, 58, 237, 0.35);
+}
+
+body.theme-vermelho {
+  --bg-main: #140507;
+  --bg-card: rgba(35, 12, 16, 0.94);
+  --accent-cyan: #f87171;
+  --accent-blue: #dc2626;
+  --accent-purple: #b91c1c;
+  --glass-border-hover: rgba(248, 113, 113, 0.4);
+  --glow-shadow: 0 0 25px rgba(220, 38, 38, 0.35);
+}
+
+body.theme-rosa {
+  --bg-main: #140612;
+  --bg-card: rgba(36, 14, 30, 0.94);
+  --accent-cyan: #f472b6;
+  --accent-blue: #db2777;
+  --accent-purple: #e879f9;
+  --glass-border-hover: rgba(244, 114, 182, 0.4);
+  --glow-shadow: 0 0 25px rgba(219, 39, 119, 0.35);
+}
+
+/* TEMA CHROMA RGB ANIMAÇÃO */
+@keyframes chromaRotate {
+  0% { filter: hue-rotate(0deg); }
+  100% { filter: hue-rotate(360deg); }
+}
+
+body.theme-rgb {
+  --bg-main: #030712;
+  --bg-card: rgba(15, 23, 42, 0.94);
+  --accent-cyan: #00f0ff;
+  --accent-blue: #9333ea;
+  --accent-purple: #f43f5e;
+  --glass-border-hover: #00f0ff;
+  --glow-shadow: 0 0 25px rgba(0, 240, 255, 0.5);
+  animation: chromaRotate 12s linear infinite;
+}
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { width: 100%; overflow-x: hidden; position: relative; scroll-behavior: smooth; }
@@ -94,7 +152,7 @@ body {
   position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: -2; overflow: hidden;
 }
 .orb {
-  position: absolute; border-radius: 50%; filter: blur(140px); opacity: 0.2;
+  position: absolute; border-radius: 50%; filter: blur(140px); opacity: 0.22;
   animation: float 25s infinite ease-in-out alternate;
 }
 .orb-1 { width: 450px; height: 450px; background: var(--accent-blue); top: -10%; left: -10%; }
@@ -112,18 +170,35 @@ body {
 h1, h2, h3, h4, .tag, .btn, .badge { font-family: 'Plus Jakarta Sans', sans-serif; }
 a { text-decoration: none; }
 
+/* BRANDING & LOGO IDZ */
+.brand-logo-container {
+  display: flex; align-items: center; gap: 12px; cursor: pointer; text-decoration: none;
+}
+.brand-symbol-hexagon {
+  width: 42px; height: 42px; position: relative; display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(135deg, #0a1f44, #001026); border-radius: 10px;
+  border: 2px solid var(--accent-gold); box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+  overflow: hidden; flex-shrink: 0;
+}
+.brand-symbol-hexagon::before {
+  content: ''; position: absolute; inset: 0; background: linear-gradient(45deg, transparent, rgba(0, 240, 255, 0.3), transparent);
+}
+.brand-symbol-text {
+  font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 900; font-size: 16px; color: var(--accent-cyan);
+  text-shadow: 0 0 8px rgba(0, 240, 255, 0.8); z-index: 1; letter-spacing: -0.5px;
+}
+.brand-symbol-plus { color: var(--accent-gold); font-size: 12px; font-weight: 800; margin-left: 1px; }
+.brand-text-block { display: flex; flex-direction: column; line-height: 1.15; }
+.brand-text-top { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 16px; color: #ffffff; letter-spacing: -0.3px; }
+.brand-text-bot { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 12.5px; color: var(--accent-cyan); }
+
 nav {
   position: sticky; top: 0; z-index: 100;
-  background: rgba(3, 7, 18, 0.88);
+  background: rgba(3, 7, 18, 0.92);
   backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid var(--glass-border); padding: 14px 0; transition: all 0.3s;
+  border-bottom: 1px solid var(--glass-border); padding: 12px 0; transition: all 0.3s;
 }
-.nav-wrap { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
-
-.logo-text-only { display: flex; flex-direction: column; text-decoration: none; line-height: 1.1; cursor: pointer; }
-.logo-text-only .title-top { font-weight: 800; font-size: 17px; color: #fff; letter-spacing: -0.3px; }
-.logo-text-only .title-bot { font-weight: 700; font-size: 13px; color: var(--accent-cyan); }
-
+.nav-wrap { display: flex; justify-space-between; align-items: center; gap: 12px; }
 .nav-links { display: flex; gap: 24px; list-style: none; align-items: center; }
 .nav-links a { color: var(--text-secondary); font-size: 13px; font-weight: 600; transition: 0.3s; }
 .nav-links a:hover { color: var(--accent-cyan); text-shadow: 0 0 10px rgba(0, 240, 255, 0.5); }
@@ -175,7 +250,7 @@ nav {
 }
 .btn:hover { transform: translateY(-2px); box-shadow: 0 15px 35px rgba(0, 240, 255, 0.5); filter: brightness(1.1); }
 
-.hero { padding: 70px 0 50px; }
+.hero { padding: 60px 0 40px; }
 .gridhero { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 50px; align-items: center; }
 .tag {
   display: inline-flex; align-items: center; gap: 8px; padding: 6px 16px; border-radius: 999px;
@@ -199,7 +274,7 @@ nav {
 }
 .benefits-list div i { color: var(--accent-cyan); }
 
-section { padding: 70px 0; }
+section { padding: 60px 0; }
 .section-header { text-align: center; margin-bottom: 45px; }
 .section-header h2 { font-size: clamp(26px, 3.5vw, 38px); font-weight: 800; margin-bottom: 14px; }
 .section-header p { max-width: 580px; margin: auto; color: var(--text-secondary); font-size: 15px; }
@@ -225,8 +300,8 @@ section { padding: 70px 0; }
 .faq details[open] { border-color: var(--accent-cyan); background: rgba(0, 240, 255, 0.025); box-shadow: var(--glow-shadow); }
 .faq summary { font-weight: 700; font-size: 15px; outline: none; display: flex; justify-content: space-between; align-items: center; list-style: none; }
 .faq summary::-webkit-details-marker { display: none; }
-.faq summary::after { content: '\f107'; font-family: 'FontAwesome'; color: var(--accent-cyan); transition: transform 0.3s; }
-.faq details[open] summary::after { transform: rotate(180deg); }
+.faq summary .faq-arrow { color: var(--accent-cyan); transition: transform 0.3s; font-size: 14px; }
+.faq details[open] summary .faq-arrow { transform: rotate(180deg); }
 .faq p { color: var(--text-secondary); margin-top: 12px; font-size: 13.5px; border-left: 2px solid var(--accent-cyan); padding-left: 12px; }
 
 .modal-overlay {
@@ -260,6 +335,14 @@ section { padding: 70px 0; }
   position: absolute; right: 14px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 15px;
 }
 
+.student-dashboard-header {
+  padding: 24px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.08), rgba(15, 23, 42, 0.95)); border: 1px solid var(--glass-border-hover); border-radius: 20px;
+}
+.student-stat-pill {
+  display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); border-radius: 12px; font-size: 12px; font-weight: 600;
+}
+
 .lms-layout { display: grid; grid-template-columns: 1fr 360px; gap: 24px; align-items: start; }
 @media(max-width: 950px){ .lms-layout { grid-template-columns: 1fr; } .lms-sidebar { order: 2; } .lms-content { order: 1; } }
 
@@ -278,7 +361,7 @@ section { padding: 70px 0; }
 .lms-lesson-item:hover, .lms-lesson-item.active { background: rgba(0, 240, 255, 0.1); color: #fff; font-weight: 600; }
 .lms-lesson-item i.fa-check-circle { color: var(--green); }
 
-.lms-content { padding: 36px; min-height: 520px; }
+.lms-content { padding: 32px; min-height: 520px; }
 .video-frame, .image-frame {
   width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 16px;
   border: 1px solid var(--glass-border); overflow: hidden; margin-bottom: 22px; box-shadow: 0 15px 40px rgba(0,0,0,0.5);
@@ -391,8 +474,8 @@ footer {
 <div class="modal-overlay" id="success-modal">
   <div class="modal-card" style="text-align: center; border-color: var(--green);">
     <i class="fa-solid fa-circle-check" style="font-size: 52px; color: var(--green); margin-bottom: 16px; filter: drop-shadow(0 0 10px rgba(16,185,129,0.5));"></i>
-    <h3 style="font-size: 21px; margin-bottom: 8px;">Sucesso na Nuvem!</h3>
-    <p id="success-modal-text" style="color: var(--text-secondary); font-size: 13.5px; margin-bottom: 22px;">Sincronizado via Firebase para todos.</p>
+    <h3 style="font-size: 21px; margin-bottom: 8px;">Operação Concluída!</h3>
+    <p id="success-modal-text" style="color: var(--text-secondary); font-size: 13.5px; margin-bottom: 22px;">Sincronizado na nuvem com sucesso.</p>
     <button class="btn" style="width: 100%;" onclick="closeSuccessModal()">Continuar <i class="fa-solid fa-arrow-right"></i></button>
   </div>
 </div>
@@ -424,22 +507,22 @@ footer {
       <input type="text" id="edit-lesson-title" placeholder="Título...">
     </div>
     <div class="input-group">
-      <label>Bloco 1 (Resumo)</label>
+      <label>Bloco 1 (Resumo / O que aprenderá)</label>
       <textarea id="edit-lesson-bloco1" rows="2"></textarea>
     </div>
     <div class="input-group">
-      <label>Bloco 2 (Descrição)</label>
+      <label>Bloco 2 (Descrição Detalhada)</label>
       <textarea id="edit-lesson-bloco2" rows="3"></textarea>
     </div>
     <div class="input-group">
-      <label>Bloco 3 (Objetivos)</label>
+      <label>Bloco 3 (Objetivos Pedagógicos)</label>
       <textarea id="edit-lesson-bloco3" rows="2"></textarea>
     </div>
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-      <div class="input-group"><label>Vídeo YouTube</label><input type="text" id="edit-lesson-video"></div>
-      <div class="input-group"><label>PDF Material</label><input type="text" id="edit-lesson-pdf"></div>
+      <div class="input-group"><label>Vídeo YouTube (Link ou ID)</label><input type="text" id="edit-lesson-video"></div>
+      <div class="input-group"><label>PDF Material (URL)</label><input type="text" id="edit-lesson-pdf"></div>
     </div>
-    <div class="input-group"><label>Imagem URL</label><input type="text" id="edit-lesson-img"></div>
+    <div class="input-group"><label>Imagem URL (Capa / Ilustração)</label><input type="text" id="edit-lesson-img"></div>
 
     <hr style="border:0; border-top:1px solid var(--glass-border); margin: 15px 0;">
     <h4 style="font-size: 14px; color: var(--accent-cyan); margin-bottom: 10px;"><i class="fa-solid fa-brain"></i> Configurar Exercício (Quiz) da Aula</h4>
@@ -477,9 +560,15 @@ footer {
 
 <nav>
   <div class="wrap nav-wrap">
-    <a href="#" class="logo-text-only" onclick="handleLogoClick()">
-      <span class="title-top">Informática</span>
-      <span class="title-bot">do Zero</span>
+    <!-- LOGO OFICIAL IDZ -->
+    <a href="#" class="brand-logo-container" onclick="handleLogoClick()">
+      <div class="brand-symbol-hexagon">
+        <span class="brand-symbol-text">IDZ<span class="brand-symbol-plus">+</span></span>
+      </div>
+      <div class="brand-text-block">
+        <span class="brand-text-top">Informática</span>
+        <span class="brand-text-bot">do Zero</span>
+      </div>
     </a>
 
     <ul class="nav-links">
@@ -490,20 +579,20 @@ footer {
 
     <div class="nav-right-cluster">
       <div id="nav-guest">
-        <button class="btn-outline" onclick="openAuthModal('login')"><i class="fa-regular fa-user"></i> Login</button>
+        <button class="btn-outline" onclick="openAuthModal('login')"><i class="fa-regular fa-user"></i> Login / Criar Conta</button>
       </div>
 
       <div id="nav-user" style="display: none; align-items: center; gap: 10px;">
-        <div id="nav-user-avatar" style="width: 32px; height: 32px; border-radius: 50%; overflow: hidden; border: 1px solid var(--accent-cyan); display: flex; align-items: center; justify-content: center; background: rgba(0,240,255,0.1);">
-          <i class="fa-solid fa-user" style="font-size: 12px; color: var(--accent-cyan);"></i>
+        <div id="nav-user-avatar" style="width: 34px; height: 34px; border-radius: 50%; overflow: hidden; border: 1.5px solid var(--accent-cyan); display: flex; align-items: center; justify-content: center; background: rgba(0,240,255,0.1);">
+          <i class="fa-solid fa-user" style="font-size: 13px; color: var(--accent-cyan);"></i>
         </div>
-        <span id="user-display" style="font-size: 12.5px; font-weight: 600; color: var(--text-primary);"></span>
+        <span id="user-display" style="font-size: 12.5px; font-weight: 600; color: var(--text-primary); max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></span>
         <button class="btn-outline" style="position: relative; padding: 6px 10px;" onclick="openNotificationsModal()" title="Notificações">
           <i class="fa-solid fa-bell"></i>
           <span id="notif-badge" style="position: absolute; top: -4px; right: -4px; background: var(--red); color: #fff; font-size: 9px; width: 16px; height: 16px; border-radius: 50%; display: none; align-items: center; justify-content: center; font-weight: 750;">0</span>
         </button>
         <button class="btn-outline" style="border-color: rgba(0, 240, 255, 0.4); color: var(--accent-cyan); padding: 6px 10px;" onclick="showSettingsArea()" title="Configurações da Conta"><i class="fa-solid fa-gear"></i></button>
-        <button class="btn-outline" style="border-color: rgba(239, 68, 68, 0.4); color: var(--red); padding: 6px 8px;" onclick="logout()" title="Sair"><i class="fa-solid fa-right-from-bracket"></i></button>
+        <button class="btn-outline" style="border-color: rgba(239, 68, 68, 0.4); color: var(--red); padding: 6px 8px;" onclick="logout()" title="Sair da Conta"><i class="fa-solid fa-right-from-bracket"></i></button>
       </div>
 
       <button class="hamburger" onclick="toggleMobileMenu()"><i class="fa-solid fa-bars"></i></button>
@@ -514,7 +603,7 @@ footer {
 <div class="mobile-overlay" id="mobile-overlay" onclick="toggleMobileMenu()"></div>
 <div class="mobile-dropdown" id="mobile-menu">
   <div class="mobile-header">
-    <span style="font-size: 15px; font-weight: 700; color: #fff;">Menu</span>
+    <span style="font-size: 15px; font-weight: 700; color: #fff;">Navegação IDZ</span>
     <button onclick="toggleMobileMenu()" style="background:none; border:none; color:var(--text-muted); font-size: 20px; width:auto; padding:0;"><i class="fa-solid fa-xmark"></i></button>
   </div>
   <div id="mobile-menu-options" style="display: flex; flex-direction: column; gap: 10px;"></div>
@@ -524,7 +613,7 @@ footer {
   <header class="hero">
     <div class="wrap gridhero">
       <div>
-        <span class="tag" id="hero-tag-lessons"><i class="fa-solid fa-bolt"></i> FORMAÇÃO COMPLETA</span>
+        <span class="tag" id="hero-tag-lessons"><i class="fa-solid fa-bolt"></i> FORMAÇÃO COMPLETA • CARREGANDO...</span>
         <h1>Aprenda <span>Informática Definitiva</span> e conquiste sua autonomia digital.</h1>
         <p>Domine o computador, crie planilhas, documentos profissionais, navegue com total segurança e use a Inteligência Artificial a seu favor.</p>
         <button class="btn" onclick="handleAccountAction()"><i class="fa-solid fa-unlock-keyhole"></i> <span id="hero-btn-text">ACESSAR MINHA CONTA</span></button>
@@ -535,7 +624,7 @@ footer {
         <p style="font-size: 13.5px; margin-bottom: 22px;">Aprenda no seu ritmo com suporte dedicado.</p>
         
         <div class="benefits-list">
-          <div id="benefit-lessons-count"><i class="fa-solid fa-check"></i> Aulas práticas e dinâmicas</div>
+          <div id="benefit-lessons-count"><i class="fa-solid fa-check"></i> Aulas práticas em 15 Módulos</div>
           <div><i class="fa-solid fa-check"></i> Bônus práticos e exclusivos</div>
           <div><i class="fa-solid fa-check"></i> Acesso via celular ou computador</div>
           <div><i class="fa-solid fa-check"></i> Certificado de Conclusão Oficial</div>
@@ -591,15 +680,28 @@ footer {
       <div class="section-header" style="margin-bottom: 28px;">
         <h2>Perguntas Frequentes</h2>
       </div>
-      <details class="glass-panel"><summary>Como funciona o acesso às aulas?</summary><p>Após a aprovação do pagamento, seu e-mail é liberado automaticamente para acessar a Área de Membros.</p></details>
-      <details class="glass-panel"><summary>Preciso de um computador potente?</summary><p>Não! Os fundamentos funcionam em qualquer computador ou notebook, e você também pode usar o celular para acompanhar as aulas.</p></details>
-      <details class="glass-panel"><summary>Os materiais têm custo extra?</summary><p>Não. Todos os PDFs e modelos bônus já estão inclusos no valor único do curso.</p></details>
+      <details class="glass-panel"><summary><span>Como funciona o acesso às aulas?</span><i class="fa-solid fa-chevron-down faq-arrow"></i></summary><p>Após a aprovação real do pagamento, seu e-mail é liberado automaticamente para acessar a Área de Membros.</p></details>
+      <details class="glass-panel"><summary><span>Preciso de um computador potente?</span><i class="fa-solid fa-chevron-down faq-arrow"></i></summary><p>Não! Os fundamentos funcionam em qualquer computador ou notebook, e você também pode usar o celular para as aulas.</p></details>
+      <details class="glass-panel"><summary><span>Os materiais têm custo extra?</span><i class="fa-solid fa-chevron-down faq-arrow"></i></summary><p>Não. Todos os PDFs e modelos bônus já estão inclusos no valor único do curso.</p></details>
     </div>
   </section>
 </div>
 
-<!-- ÁREA DE MEMBROS (AULAS) -->
+<!-- ÁREA DE MEMBROS & DASHBOARD DO ALUNO -->
 <div id="member-area" class="wrap" style="display: none; padding-top: 36px;">
+  <!-- DASHBOARD RESUMO DO ALUNO -->
+  <div class="student-dashboard-header animate-fade-up">
+    <div>
+      <h2 style="font-size: 20px; color: #fff;" id="student-welcome-title">Olá, Aluno! 👋</h2>
+      <p style="font-size: 13px; color: var(--text-secondary);">Continue de onde parou e conquiste sua autonomia digital.</p>
+    </div>
+    <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+      <div class="student-stat-pill"><i class="fa-solid fa-chart-line" style="color: var(--accent-cyan);"></i> <span id="dash-stat-progress">Progresso: 0%</span></div>
+      <div class="student-stat-pill"><i class="fa-solid fa-check-double" style="color: var(--green);"></i> <span id="dash-stat-lessons">Aulas: 0/0</span></div>
+      <div class="student-stat-pill"><i class="fa-solid fa-award" style="color: var(--accent-gold);"></i> <span id="dash-stat-cert">Certificado: Bloqueado</span></div>
+    </div>
+  </div>
+
   <div class="lms-layout animate-fade-up">
     <div class="glass-panel lms-content" id="lms-main-content"></div>
     <div class="glass-panel lms-sidebar">
@@ -622,13 +724,14 @@ footer {
       </div>
     </div>
 
+    <!-- Abas de Configurações -->
     <div class="settings-tabs">
-      <button class="settings-tab-btn active" onclick="switchSettingsTab('perfil')"><i class="fa-solid fa-user"></i> Perfil</button>
-      <button class="settings-tab-btn" onclick="switchSettingsTab('verificacao')"><i class="fa-solid fa-id-card"></i> Verificação</button>
-      <button class="settings-tab-btn" onclick="switchSettingsTab('seguranca')"><i class="fa-solid fa-lock"></i> Segurança</button>
-      <button class="settings-tab-btn" onclick="switchSettingsTab('tema')"><i class="fa-solid fa-palette"></i> Tema</button>
-      <button class="settings-tab-btn" onclick="switchSettingsTab('conexoes')"><i class="fa-solid fa-link"></i> Conexões</button>
-      <button class="settings-tab-btn" onclick="switchSettingsTab('notificacoes')"><i class="fa-solid fa-bell"></i> Notificações</button>
+      <button class="settings-tab-btn active" onclick="switchSettingsTab(event, 'perfil')"><i class="fa-solid fa-user"></i> Perfil</button>
+      <button class="settings-tab-btn" onclick="switchSettingsTab(event, 'verificacao')"><i class="fa-solid fa-id-card"></i> Verificação</button>
+      <button class="settings-tab-btn" onclick="switchSettingsTab(event, 'seguranca')"><i class="fa-solid fa-lock"></i> Segurança</button>
+      <button class="settings-tab-btn" onclick="switchSettingsTab(event, 'tema')"><i class="fa-solid fa-palette"></i> Tema</button>
+      <button class="settings-tab-btn" onclick="switchSettingsTab(event, 'conexoes')"><i class="fa-solid fa-link"></i> Conexões</button>
+      <button class="settings-tab-btn" onclick="switchSettingsTab(event, 'notificacoes')"><i class="fa-solid fa-bell"></i> Notificações</button>
     </div>
 
     <!-- PAINEL 1: PERFIL -->
@@ -654,7 +757,7 @@ footer {
     <!-- PAINEL 2: VERIFICAÇÃO -->
     <div class="settings-panel" id="spanel-verificacao">
       <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px; background: rgba(0,240,255,0.05); padding: 12px; border-radius: 10px; border: 1px solid var(--glass-border);">
-        <i class="fa-solid fa-circle-info" style="color:var(--accent-cyan);"></i> Estes dados podem ser utilizados caso você escolha receber o certificado físico no endereço informado.
+        <i class="fa-solid fa-circle-info" style="color:var(--accent-cyan);"></i> Estes dados serão vinculados à emissão oficial do seu Certificado e envios físicos.
       </p>
       <form onsubmit="handleSaveVerification(event)">
         <div class="input-group"><label>Nome Completo</label><input type="text" id="v-name" required></div>
@@ -673,7 +776,7 @@ footer {
           <div class="input-group"><label>Cidade</label><input type="text" id="v-cidade" required></div>
           <div class="input-group"><label>Estado</label><input type="text" id="v-uf" maxlength="2" required></div>
         </div>
-        <button type="submit" class="btn" style="width:100%; margin-top:10px;"><i class="fa-solid fa-badge-check"></i> Salvar e Verificar Dados</button>
+        <button type="submit" class="btn" style="width:100%; margin-top:10px;"><i class="fa-solid fa-shield-check"></i> Salvar e Verificar Dados</button>
       </form>
     </div>
 
@@ -683,35 +786,35 @@ footer {
         <div class="input-group">
           <label>Nova Senha (Mínimo 6 caracteres)</label>
           <div class="password-wrapper">
-            <input type="password" id="set-new-pass" placeholder="Deixe em branco para não alterar">
-            <button type="button" class="toggle-password" onclick="togglePasswordVisibility('set-new-pass', this)"><i class="regular fa-eye"></i></button>
+            <input type="password" id="set-new-pass" placeholder="Digite para alterar...">
+            <button type="button" class="toggle-password" onclick="togglePasswordVisibility('set-new-pass', this)"><i class="fa-solid fa-eye"></i></button>
           </div>
         </div>
-        <button type="submit" class="btn" style="width:100%;"><i class="fa-solid fa-lock"></i> Atualizar Senha</button>
+        <button type="submit" class="btn" style="width:100%;"><i class="fa-solid fa-lock"></i> Atualizar Senha de Segurança</button>
       </form>
     </div>
 
     <!-- PAINEL 4: TEMA -->
     <div class="settings-panel" id="spanel-tema">
-      <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">Escolha o tema visual de sua preferência para a plataforma:</p>
+      <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">Escolha o tema visual completo da plataforma IDZ:</p>
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 12px; margin-bottom: 20px;">
-        <button class="btn-outline" style="justify-content:center; border-color:#00f0ff;" onclick="changeTheme('azul')"><i class="fa-solid fa-circle" style="color:#00f0ff;"></i> Azul</button>
+        <button class="btn-outline" style="justify-content:center; border-color:#00f0ff;" onclick="changeTheme('azul')"><i class="fa-solid fa-circle" style="color:#00f0ff;"></i> Azul IDZ</button>
         <button class="btn-outline" style="justify-content:center; border-color:#c084fc;" onclick="changeTheme('roxo')"><i class="fa-solid fa-circle" style="color:#c084fc;"></i> Roxo</button>
         <button class="btn-outline" style="justify-content:center; border-color:#f87171;" onclick="changeTheme('vermelho')"><i class="fa-solid fa-circle" style="color:#f87171;"></i> Vermelho</button>
         <button class="btn-outline" style="justify-content:center; border-color:#f472b6;" onclick="changeTheme('rosa')"><i class="fa-solid fa-circle" style="color:#f472b6;"></i> Rosa</button>
-        <button class="btn-outline" style="justify-content:center; border-color:#e2e8f0;" onclick="changeTheme('cromado')"><i class="fa-solid fa-circle" style="color:#e2e8f0;"></i> Cromado</button>
+        <button class="btn-outline" style="justify-content:center; border-color:#00f0ff; background: linear-gradient(135deg, rgba(0,240,255,0.2), rgba(244,63,94,0.2));" onclick="changeTheme('rgb')"><i class="fa-solid fa-rainbow" style="color:#00f0ff;"></i> CHROMA RGB</button>
       </div>
     </div>
 
     <!-- PAINEL 5: CONEXÕES -->
     <div class="settings-panel" id="spanel-conexoes">
-      <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">Conecte contas externas para login facilitado:</p>
+      <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">Conecte ou gerencie autenticação via Google:</p>
       <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.3); padding: 16px; border-radius: 12px; border: 1px solid var(--glass-border);">
         <div style="display:flex; align-items:center; gap:12px;">
           <i class="fa-brands fa-google" style="font-size: 24px; color: #ea4335;"></i>
           <div>
             <h4 style="font-size: 14px; color:#fff;">Conta Google</h4>
-            <p style="font-size: 11.5px; color:var(--text-secondary);">Conectado via Autenticação Google</p>
+            <p style="font-size: 11.5px; color:var(--text-secondary);">Autenticação Rápida Google Auth</p>
           </div>
         </div>
         <button class="btn-outline" onclick="loginWithGoogle()"><i class="fa-solid fa-link"></i> Conectar / Entrar com Google</button>
@@ -720,14 +823,12 @@ footer {
 
     <!-- PAINEL 6: NOTIFICAÇÕES -->
     <div class="settings-panel" id="spanel-notificacoes">
-      <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">Ative ou desative os avisos que deseja receber:</p>
+      <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">Preferências de alertas e avisos da plataforma:</p>
       <div style="display: flex; flex-direction: column; gap: 12px;">
-        <label style="display:flex; align-items:center; gap:10px; font-size:13px; cursor:pointer;"><input type="checkbox" id="notif-aulas" checked> Novas aulas</label>
+        <label style="display:flex; align-items:center; gap:10px; font-size:13px; cursor:pointer;"><input type="checkbox" id="notif-aulas" checked> Novas aulas e atualizações</label>
         <label style="display:flex; align-items:center; gap:10px; font-size:13px; cursor:pointer;"><input type="checkbox" id="notif-modulos" checked> Novos módulos</label>
-        <label style="display:flex; align-items:center; gap:10px; font-size:13px; cursor:pointer;"><input type="checkbox" id="notif-curso" checked> Atualizações do curso</label>
         <label style="display:flex; align-items:center; gap:10px; font-size:13px; cursor:pointer;"><input type="checkbox" id="notif-exercicios" checked> Novos exercícios</label>
-        <label style="display:flex; align-items:center; gap:10px; font-size:13px; cursor:pointer;"><input type="checkbox" id="notif-certificados" checked> Certificados</label>
-        <label style="display:flex; align-items:center; gap:10px; font-size:13px; cursor:pointer;"><input type="checkbox" id="notif-conta" checked> Mudanças importantes na conta</label>
+        <label style="display:flex; align-items:center; gap:10px; font-size:13px; cursor:pointer;"><input type="checkbox" id="notif-certificados" checked> Liberação de Certificados</label>
       </div>
     </div>
 
@@ -737,10 +838,10 @@ footer {
   </div>
 </div>
 
-<!-- PAINEL ADMINISTRATIVO EMPRESARIAL SEPARADO -->
+<!-- PAINEL ADMINISTRATIVO EMPRESARIAL COMPLETO -->
 <div id="admin-area" class="wrap" style="display: none; padding-top: 36px;">
   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 26px; flex-wrap: wrap; gap: 14px;">
-    <h2 style="margin: 0; font-size: 22px;"><i class="fa-solid fa-gear" style="color: var(--text-secondary);"></i> Painel de Administração Empresarial</h2>
+    <h2 style="margin: 0; font-size: 22px; color: #fff;"><i class="fa-solid fa-user-shield" style="color: var(--accent-cyan);"></i> Painel Administrativo Empresarial IDZ</h2>
     <div style="display: flex; gap: 10px; flex-wrap: wrap;">
       <button class="btn-outline" onclick="switchAdminTab('alunos')"><i class="fa-solid fa-users"></i> Gestão de Alunos</button>
       <button class="btn-outline" onclick="switchAdminTab('vendas')"><i class="fa-solid fa-cash-register"></i> Vendas & Transações</button>
@@ -771,7 +872,7 @@ footer {
               <th>Aluno (Nome / E-mail / Verificação)</th>
               <th>Status Pagamento</th>
               <th>Progresso (Aulas e Quiz)</th>
-              <th>Ações & Validação de Progresso</th>
+              <th>Ações & Controle de Acesso</th>
             </tr>
           </thead>
           <tbody id="users-list-body"></tbody>
@@ -782,7 +883,7 @@ footer {
     <!-- SEÇÃO 2: VENDAS & TRANSAÇÕES -->
     <div class="glass-panel admin-card" id="admin-sec-vendas" style="display: none;">
       <h3><i class="fa-solid fa-cash-register" style="color:var(--green);"></i> Seção 2: Histórico de Vendas e Status Automáticos</h3>
-      <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">O status das transações é atualizado automaticamente pelo gateway de pagamento oficial.</p>
+      <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">Transações registradas via gateway com status em tempo real.</p>
       <div class="table-responsive">
         <table class="sales-table">
           <thead>
@@ -818,11 +919,11 @@ footer {
 
     <!-- SEÇÃO 4: TESTE DE PAGAMENTO -->
     <div class="glass-panel admin-card" id="admin-sec-testcheckout" style="display: none;">
-      <h3><i class="fa-solid fa-credit-card"></i> Seção 4: Teste de Pagamento</h3>
-      <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 22px;">Selecione o aluno e teste a transação com valor personalizado.</p>
+      <h3><i class="fa-solid fa-credit-card"></i> Seção 4: Teste de Pagamento Customizado</h3>
+      <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 22px;">Selecione o aluno e simule a transação com valor personalizado.</p>
       
       <div class="input-group" style="max-width: 450px;">
-        <label>Escolher Aluno</label>
+        <label>Escolher Aluno Alvo</label>
         <select id="test-student-select"></select>
       </div>
 
@@ -834,27 +935,27 @@ footer {
       <button class="btn" style="margin-top: 10px;" onclick="openTestCheckoutCustom()"><i class="fa-solid fa-play"></i> Abrir Teste de Pagamento</button>
     </div>
 
-    <!-- SEÇÃO 5: MÓDULOS E AULAS -->
+    <!-- SEÇÃO 5: MÓDULOS E AULAS (COM ACORDEÃO E LÁPIS) -->
     <div class="glass-panel admin-card" id="admin-sec-modules" style="display: none;">
-      <h3><i class="fa-solid fa-layer-group"></i> Seção 5: Editor de Módulos, Aulas e Exercícios</h3>
+      <h3><i class="fa-solid fa-layer-group"></i> Seção 5: Editor Completo de Módulos, Aulas e Exercícios</h3>
       <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); padding: 20px; border-radius: 16px; margin-bottom: 22px;">
         <h4 style="font-size: 15px; margin-bottom: 14px;"><i class="fa-solid fa-folder-plus text-cyan"></i> Novo Módulo</h4>
-        <div class="input-group"><label>Título do Módulo</label><input type="text" id="mod-title-input" placeholder="Ex: Módulo — Tópico Extra"></div>
-        <button type="button" class="btn" style="padding: 12px 18px; font-size: 12px;" onclick="saveModuleData()"><i class="fa-solid fa-floppy-disk"></i> Salvar Módulo</button>
+        <div class="input-group"><label>Título do Módulo</label><input type="text" id="mod-title-input" placeholder="Ex: Módulo 16 — Inteligência Artificial Avançada"></div>
+        <button type="button" class="btn" style="padding: 12px 18px; font-size: 12px;" onclick="saveModuleData()"><i class="fa-solid fa-floppy-disk"></i> Criar Módulo</button>
       </div>
 
       <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); padding: 20px; border-radius: 16px; margin-bottom: 26px;">
-        <h4 style="font-size: 15px; margin-bottom: 14px;"><i class="fa-solid fa-video text-purple"></i> Adicionar Aula com Blocos e Exercício</h4>
+        <h4 style="font-size: 15px; margin-bottom: 14px;"><i class="fa-solid fa-video text-purple"></i> Adicionar Nova Aula com Blocos e Exercício</h4>
         <div class="input-group"><label>Selecionar Módulo</label><select id="lesson-mod-select"></select></div>
-        <div class="input-group"><label>Título da Aula</label><input type="text" id="lesson-title-input" placeholder="Ex: Aula — Tópico Avançado"></div>
-        <div class="input-group"><label>Bloco 1</label><textarea id="lesson-bloco1-input" rows="2"></textarea></div>
-        <div class="input-group"><label>Bloco 2</label><textarea id="lesson-bloco2-input" rows="3"></textarea></div>
-        <div class="input-group"><label>Bloco 3</label><textarea id="lesson-bloco3-input" rows="2"></textarea></div>
+        <div class="input-group"><label>Título da Aula</label><input type="text" id="lesson-title-input" placeholder="Ex: Aula 1 — Introdução aos Prompts"></div>
+        <div class="input-group"><label>Bloco 1 (Resumo / O que aprenderá)</label><textarea id="lesson-bloco1-input" rows="2"></textarea></div>
+        <div class="input-group"><label>Bloco 2 (Descrição Detalhada)</label><textarea id="lesson-bloco2-input" rows="3"></textarea></div>
+        <div class="input-group"><label>Bloco 3 (Objetivos Pedagógicos)</label><textarea id="lesson-bloco3-input" rows="2"></textarea></div>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
           <div class="input-group"><label>Link YouTube</label><input type="text" id="lesson-video-url"></div>
-          <div class="input-group"><label>Link PDF</label><input type="text" id="lesson-pdf-url"></div>
+          <div class="input-group"><label>Link PDF Material</label><input type="text" id="lesson-pdf-url"></div>
         </div>
-        <div class="input-group"><label>Link Imagem</label><input type="text" id="lesson-img-url"></div>
+        <div class="input-group"><label>Link Imagem Capa</label><input type="text" id="lesson-img-url"></div>
         
         <h4 style="font-size: 14px; color: var(--accent-cyan); margin: 15px 0 10px;"><i class="fa-solid fa-brain"></i> Exercício (Quiz) da Aula</h4>
         <div class="input-group"><label>Pergunta do Quiz</label><input type="text" id="new-quiz-question"></div>
@@ -866,25 +967,28 @@ footer {
         </div>
         <div class="input-group">
           <label>Alternativa Correta</label>
-          <select id="new-quiz-correct"><option value="0">A</option><option value="1">B</option><option value="2">C</option><option value="3">D</option></select>
+          <select id="new-quiz-correct"><option value="0">Alternativa A</option><option value="1">Alternativa B</option><option value="2">Alternativa C</option><option value="3">Alternativa D</option></select>
         </div>
 
         <button type="button" class="btn" style="padding: 12px 18px; font-size: 12px; margin-top: 10px;" onclick="saveLessonData()"><i class="fa-solid fa-cloud-arrow-up"></i> Publicar Aula com Quiz</button>
       </div>
 
-      <h4 style="font-size: 17px; margin-bottom: 16px;"><i class="fa-solid fa-list-ol"></i> Módulos Cadastrados</h4>
+      <h4 style="font-size: 17px; margin-bottom: 16px;"><i class="fa-solid fa-list-ol"></i> Módulos e Aulas Cadastrados (Clique para Expandir / Editar)</h4>
       <div id="admin-modules-list-container"></div>
     </div>
   </div>
 </div>
 
-<!-- MODAL DE AUTENTICAÇÃO -->
+<!-- MODAL DE AUTENTICAÇÃO COMPLETO -->
 <div class="modal-overlay" id="modal-auth">
   <div class="modal-card">
     <button class="close-btn" onclick="closeModal('modal-auth')"><i class="fa-solid fa-xmark"></i></button>
     <div style="text-align: center; margin-bottom: 20px;">
-      <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 17px; color: #fff; display: block;">Informática</span>
-      <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 13.5px; color: var(--accent-cyan);">do Zero</span>
+      <div class="brand-symbol-hexagon" style="margin: 0 auto 10px auto; width: 48px; height: 48px;">
+        <span class="brand-symbol-text" style="font-size: 18px;">IDZ<span class="brand-symbol-plus">+</span></span>
+      </div>
+      <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 18px; color: #fff; display: block;">Informática do Zero</span>
+      <span style="font-size: 12.5px; color: var(--text-secondary);">Acesse sua conta para continuar seus estudos</span>
     </div>
     
     <div style="display: flex; gap: 8px; margin-bottom: 22px; background: rgba(255,255,255,0.04); padding: 4px; border-radius: 12px;">
@@ -902,7 +1006,7 @@ footer {
       <div class="input-group">
         <label>E-mail</label>
         <div class="password-wrapper">
-          <i class="regular fa-envelope" style="position: absolute; left: 16px; top: 15px; color: var(--text-muted);"></i>
+          <i class="fa-regular fa-envelope" style="position: absolute; left: 16px; top: 15px; color: var(--text-muted);"></i>
           <input type="text" id="login-email" placeholder="seu@email.com" style="padding-left: 44px;" onblur="autoCompleteEmail('login-email')" required>
         </div>
       </div>
@@ -911,7 +1015,7 @@ footer {
         <div class="password-wrapper">
           <i class="fa-solid fa-lock" style="position: absolute; left: 16px; top: 15px; color: var(--text-muted);"></i>
           <input type="password" id="login-pass" placeholder="••••••••" style="padding-left: 44px; padding-right: 44px;" required>
-          <button type="button" class="toggle-password" onclick="togglePasswordVisibility('login-pass', this)"><i class="regular fa-eye"></i></button>
+          <button type="button" class="toggle-password" onclick="togglePasswordVisibility('login-pass', this)"><i class="fa-solid fa-eye"></i></button>
         </div>
       </div>
 
@@ -927,16 +1031,16 @@ footer {
 
     <form id="form-register" style="display: none;" onsubmit="handleRegister(event)">
       <div class="input-group">
-        <label>Nome Completo</label>
+        <label>Nome Completo (Validação Real)</label>
         <div class="password-wrapper">
-          <i class="regular fa-user" style="position: absolute; left: 16px; top: 15px; color: var(--text-muted);"></i>
+          <i class="fa-regular fa-user" style="position: absolute; left: 16px; top: 15px; color: var(--text-muted);"></i>
           <input type="text" id="reg-fullname" placeholder="Ex: João da Silva Santos" style="padding-left: 44px;" required>
         </div>
       </div>
       <div class="input-group">
         <label>E-mail</label>
         <div class="password-wrapper">
-          <i class="regular fa-envelope" style="position: absolute; left: 16px; top: 15px; color: var(--text-muted);"></i>
+          <i class="fa-regular fa-envelope" style="position: absolute; left: 16px; top: 15px; color: var(--text-muted);"></i>
           <input type="text" id="reg-email" placeholder="seu@email.com" style="padding-left: 44px;" onblur="autoCompleteEmail('reg-email')" required>
         </div>
       </div>
@@ -944,8 +1048,8 @@ footer {
         <label>Senha (mínimo 6 caracteres)</label>
         <div class="password-wrapper">
           <i class="fa-solid fa-lock" style="position: absolute; left: 16px; top: 15px; color: var(--text-muted);"></i>
-          <input type="password" id="reg-pass" placeholder="Crie uma senha" style="padding-left: 44px; padding-right: 44px;" required>
-          <button type="button" class="toggle-password" onclick="togglePasswordVisibility('reg-pass', this)"><i class="regular fa-eye"></i></button>
+          <input type="password" id="reg-pass" placeholder="Crie uma senha segura" style="padding-left: 44px; padding-right: 44px;" required>
+          <button type="button" class="toggle-password" onclick="togglePasswordVisibility('reg-pass', this)"><i class="fa-solid fa-eye"></i></button>
         </div>
       </div>
 
@@ -958,10 +1062,10 @@ footer {
   <div class="wrap">
     <div class="footer-social">
       <a href="https://instagram.com/wd.cmo" target="_blank" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
-      <a href="mailto:olliveirazvz@gmail.com" aria-label="Email"><i class="regular fa-envelope"></i></a>
+      <a href="mailto:olliveirazvz@gmail.com" aria-label="Email"><i class="fa-regular fa-envelope"></i></a>
     </div>
-    <div style="font-size: 13.5px; font-weight: 700; color: #fff; margin-bottom: 6px;">Informática do Zero — Plataforma Educacional</div>
-    <div style="color: var(--text-secondary); font-size: 12px;">© 2026 Todos os direitos reservados. Design Exclusivo.</div>
+    <div style="font-size: 13.5px; font-weight: 700; color: #fff; margin-bottom: 6px;">Informática do Zero — Plataforma Educacional EdTech</div>
+    <div style="color: var(--text-secondary); font-size: 12px;">© 2026 Todos os direitos reservados. Design Exclusivo IDZ.</div>
   </div>
 </footer>
 
@@ -1034,6 +1138,7 @@ function animateParticles() {
 }
 initParticles(); animateParticles();
 
+// ESTRUTURA COMPLETA DE MÓDULOS E AULAS RESTAURADA
 const defaultCourseData = [
   {
     id: 1, title: "MÓDULO 1 — INTRODUÇÃO À INFORMÁTICA", intro: "Hardware, periféricos e introdução ao ambiente digital.",
@@ -1048,23 +1153,119 @@ const defaultCourseData = [
     id: 2, title: "MÓDULO 2 — TECLADO E MOUSE", intro: "Agilidade física e atalhos globais de produtividade.",
     lessons: [
       { id: 201, title: "Aula 1 — Anatomia do Mouse e Cliques", bloco1: "Scroll, clique duplo e botão direito.", bloco2: "Navegação rápida em menus.", bloco3: "Ganhar precisão.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Para que serve o botão direito?", options: ["Reiniciar", "Abrir menu de contexto", "Desligar", "Atualizar"], correct: 1 } },
-      { id: 202, title: "Aula 2 — Atalhos Universais de Produtividade", bloco1: "Ctrl+C, Ctrl+V, Ctrl+Z.", bloco2: "Economizar cliques.", bloco3: "Multiplicar velocidade.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Qual atalho cola um conteúdo copiado?", options: ["Ctrl+C", "Ctrl+V", "Ctrl+X", "Ctrl+Z"], correct: 1 } }
+      { id: 202, title: "Aula 2 — Atalhos Universais de Produtividade", bloco1: "Ctrl+C, Ctrl+V, Ctrl+Z.", bloco2: "Economizar cliques.", bloco3: "Multiplicar velocidade.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Qual atalho cola um conteúdo copiado?", options: ["Ctrl+C", "Ctrl+V", "Ctrl+X", "Ctrl+Z"], correct: 1 } },
+      { id: 203, title: "Aula 3 — Funções das Teclas Especiais", bloco1: "Shift, Alt, Ctrl, Tab, Esc.", bloco2: "Funções secundárias.", bloco3: "Domínio do teclado.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Qual tecla cancela ou fecha caixas de diálogo?", options: ["Esc", "Enter", "F5", "Space"], correct: 0 } },
+      { id: 204, title: "Aula 4 — Digitação Eficiente", bloco1: "Posicionamento correto das mãos.", bloco2: "Velocidade sem olhar para as teclas.", bloco3: "Prática diária.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Qual o objetivo da digitação tátil?", options: ["Digitar mais rápido sem olhar", "Gastar o teclado", "Usar apenas dois dedos", "Desligar o PC"], correct: 0 } }
+    ]
+  },
+  {
+    id: 3, title: "MÓDULO 3 — SISTEMA WINDOWS", intro: "Gerenciamento de pastas, janelas e atalhos do sistema.",
+    lessons: [
+      { id: 301, title: "Aula 1 — Barra de Tarefas e Notificações", bloco1: "Personalização e menu iniciar.", bloco2: "Fixar aplicativos.", bloco3: "Organização.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Onde fixamos programas rápidos?", options: ["Lixeira", "Barra de Tarefas", "Painel traseiro", "Cabo de rede"], correct: 1 } },
+      { id: 302, title: "Aula 2 — Explorador de Arquivos", bloco1: "Copiar, mover e excluir.", bloco2: "Estrutura lógica.", bloco3: "Organização digital.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Atalho para nova pasta?", options: ["Ctrl+Shift+N", "Ctrl+C", "F2", "Alt+Tab"], correct: 0 } },
+      { id: 303, title: "Aula 3 — Lixeira e Recuperação de Dados", bloco1: "Como esvaziar e recuperar arquivos.", bloco2: "Segurança contra exclusões acidentais.", bloco3: "Gestão de espaço.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "O que acontece ao esvaziar a lixeira?", options: ["Os arquivos são apagados permanentemente", "O PC acelera", "O monitor desliga", "Nada muda"], correct: 0 } },
+      { id: 304, title: "Aula 4 — Painel de Controle e Configurações", bloco1: "Ajustes de vídeo, som e rede.", bloco2: "Personalização avançada.", bloco3: "Domínio do sistema.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Onde alteramos o volume e resolução de tela?", options: ["Configurações / Painel de Controle", "Bloco de Notas", "Word", "Lixeira"], correct: 0 } }
+    ]
+  },
+  {
+    id: 4, title: "MÓDULO 4 — INTERNET E E-MAIL", intro: "Navegação segura, pesquisas e configuração de correio.",
+    lessons: [
+      { id: 401, title: "Aula 1 — Navegadores e Segurança na Web", bloco1: "Chrome, abas anônimas e HTTPS.", bloco2: "Navegação segura.", bloco3: "Identificar sites confiáveis.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "O que o cadeado indica?", options: ["Site pago", "Conexão criptografada e segura", "Vírus", "Internet lenta"], correct: 1 } },
+      { id: 402, title: "Aula 2 — Configuração e Uso de E-mail", bloco1: "Gmail e Outlook.", bloco2: "Etiqueta corporativa.", bloco3: "Profissionalizar comunicação.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Qual campo traz o resumo do e-mail?", options: ["Senha", "Assunto", "Anexo", "Assinatura"], correct: 1 } },
+      { id: 403, title: "Aula 3 — Anexos e Links na Nuvem", bloco1: "Enviando arquivos grandes.", bloco2: "Segurança nos downloads.", bloco3: "Prática web.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Como enviar arquivos muito pesados por e-mail?", options: ["Usando links de nuvem / anexos seguros", "Imprimindo na tela", "Reiniciando o modem", "Desligando o antivírus"], correct: 0 } }
+    ]
+  },
+  {
+    id: 5, title: "MÓDULO 5 — MICROSOFT WORD", intro: "Criação de textos, contratos e formatação.",
+    lessons: [
+      { id: 501, title: "Aula 1 — Formatação de Textos e Fontes", bloco1: "Alinhamento e espaçamento.", bloco2: "Regras ABNT.", bloco3: "Criar documentos formais.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Qual tecla cria novo parágrafo?", options: ["Enter", "Shift", "Espaço", "Esc"], correct: 0 } },
+      { id: 502, title: "Aula 2 — Tabelas e Imagens", bloco1: "Inserir tabelas e imagens.", bloco2: "Layout atraente.", bloco3: "Apresentação impecável.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Onde encontramos tabelas no Word?", options: ["Página Inicial", "Inserir", "Exibição", "Ajuda"], correct: 1 } },
+      { id: 503, title: "Aula 3 — Salvando em PDF", bloco1: "Exportar documentos.", bloco2: "Compatibilidade universal.", bloco3: "Entrega profissional.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Para que serve o formato PDF?", options: ["Travar formatação para leitura universal", "Criar vírus", "Aumentar tamanho do texto", "Imprimir em 3D"], correct: 0 } }
+    ]
+  },
+  {
+    id: 6, title: "MÓDULO 6 — EXCEL BÁSICO", intro: "Planilhas, células e operações matemáticas.",
+    lessons: [
+      { id: 601, title: "Aula 1 — Entendendo a Grade e Células", bloco1: "Linhas, colunas e células.", bloco2: "Inserir dados.", bloco3: "Navegação.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Célula coluna B linha 3?", options: ["3B", "B3", "Cel-B3", "Linha3B"], correct: 1 } },
+      { id: 602, title: "Aula 2 — Primeiras Fórmulas", bloco1: "Soma e subtração.", bloco2: "Automatizar contas.", bloco3: "Eliminar calculadoras.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Qual caractere inicia fórmulas?", options: ["#", "$", "=", "+"], correct: 2 } },
+      { id: 603, title: "Aula 3 — Formatação de Tabelas e Moeda", bloco1: "Estilos e R$.", bloco2: "Visual financeiro.", bloco3: "Apresentação limpa.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Onde aplicamos o formato de dinheiro R$?", options: ["No botão de Moeda / Estilo de Célula", "No Word", "No Bloco de Notas", "Na Lixeira"], correct: 0 } }
+    ]
+  },
+  {
+    id: 7, title: "MÓDULO 7 — EXCEL INTERMEDIÁRIO", intro: "Funções lógicas, PROCV e gráficos.",
+    lessons: [
+      { id: 701, title: "Aula 1 — A Função SE Condicional", bloco1: "Lógica se/então.", bloco2: "Automatizar decisões.", bloco3: "Relatórios inteligentes.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "O que o SE avalia?", options: ["Cor da célula", "Condição lógica para resultados diferentes", "Tamanho do monitor", "Velocidade de rede"], correct: 1 } },
+      { id: 702, title: "Aula 2 — Gráficos Dinâmicos", bloco1: "Colunas e pizza.", bloco2: "Visualizar números.", bloco3: "Análise gerencial.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Gráfico para proporções?", options: ["Pizza", "Linhas", "Dispersão", "Rede"], correct: 0 } },
+      { id: 703, title: "Aula 3 — Função PROCV Básica", bloco1: "Busca de dados em tabelas.", bloco2: "Cruzamento de informações.", bloco3: "Agilidade.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Para que serve o PROCV?", options: ["Procurar valores verticalmente em uma tabela", "Apagar planilhas", "Imprimir colorido", "Enviar e-mails"], correct: 0 } }
+    ]
+  },
+  {
+    id: 8, title: "MÓDULO 8 — APRESENTAÇÕES DE SLIDES", intro: "Criação de apresentações visuais.",
+    lessons: [
+      { id: 801, title: "Aula 1 — Regras de Ouro para Slides", bloco1: "Hierarquia visual e foco.", bloco2: "Evitar poluição.", bloco3: "Clareza.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Erro comum em slides?", options: ["Usar imagens boas", "Colocar blocos enormes de texto para ler", "Cores sóbrias", "Falar pausadamente"], correct: 1 } },
+      { id: 802, title: "Aula 2 — Animações e Transições", bloco1: "Dinamismo na apresentação.", bloco2: "Uso moderado de efeitos.", bloco3: "Profissionalismo.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Como devem ser as animações de slides?", options: ["Discretas e profissionais", "Exageradas e piscando", "Inexistentes", "Com som alto"], correct: 0 } }
+    ]
+  },
+  {
+    id: 9, title: "MÓDULO 9 — SEGURANÇA DIGITAL", intro: "Prevenção a golpes e senhas fortes.",
+    lessons: [
+      { id: 901, title: "Aula 1 — Detectando Phishing", bloco1: "Links falsos e engenharia social.", bloco2: "Proteger dados.", bloco3: "Navegação defensiva.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "O que é Phishing?", options: ["Antivírus desatualizado", "Tentativa de roubar senhas fingindo ser instituição confiável", "Limpeza de disco", "Falha de teclado"], correct: 1 } },
+      { id: 902, title: "Aula 2 — Criação de Senhas Blindadas", bloco1: "Mistura de caracteres e gerenciadores.", bloco2: "Segurança de contas.", bloco3: "Prevenção.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Qual senha é mais segura?", options: ["123456", "data de nascimento", "Mi@9#xP!zK8", "nome do pet"], correct: 2 } }
+    ]
+  },
+  {
+    id: 10, title: "MÓDULO 10 — MANUTENÇÃO DO SISTEMA", intro: "Limpeza de arquivos e otimização.",
+    lessons: [
+      { id: 1001, title: "Aula 1 — Limpeza de Cache e Espaço", bloco1: "Remover arquivos inúteis.", bloco2: "Recuperar velocidade.", bloco3: "Otimização.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Onde ficam arquivos temporários?", options: ["Placa mãe", "Pastas de cache e temporários do Windows", "Chip de áudio", "Cabo do mouse"], correct: 1 } },
+      { id: 1002, title: "Aula 2 — Atualizações e Antivírus", bloco1: "Manter o sistema seguro.", bloco2: "Correções de falhas.", bloco3: "Proteção.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Para que serve atualizar o sistema?", options: ["Corrigir falhas de segurança e melhorar desempenho", "Aumentar o consumo de luz", "Travar o computador", "Apagar fotos"], correct: 0 } }
+    ]
+  },
+  {
+    id: 11, title: "MÓDULO 11 — NUVEM E BACKUP", intro: "Google Drive e OneDrive.",
+    lessons: [
+      { id: 1101, title: "Aula 1 — Protegendo Arquivos na Nuvem", bloco1: "Upload e compartilhamento.", bloco2: "Acesso remoto.", bloco3: "Backup automático.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Vantagem da nuvem?", options: ["Ocupa menos espaço físico", "Acesso de qualquer dispositivo com internet", "Imune a senhas", "Funciona sem luz"], correct: 1 } }
+    ]
+  },
+  {
+    id: 12, title: "MÓDULO 12 — GOOGLE WORKSPACE", intro: "Ferramentas colaborativas.",
+    lessons: [
+      { id: 1201, title: "Aula 1 — Documentos e Planilhas Online", bloco1: "Edição simultânea.", bloco2: "Permissões de acesso.", bloco3: "Trabalho em equipe.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Onde salvam arquivos do Google Workspace?", options: ["Lixeira", "Google Drive", "Processador", "Roteador"], correct: 1 } }
+    ]
+  },
+  {
+    id: 13, title: "MÓDULO 13 — INTELIGÊNCIA ARTIFICIAL", intro: "Uso prático de assistentes de IA.",
+    lessons: [
+      { id: 1301, title: "Aula 1 — Escrevendo Prompts Eficientes", bloco1: "Como instruir assistentes.", bloco2: "Criação de textos e planilhas.", bloco3: "Produtividade.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "O que é um Prompt?", options: ["Comando ou pergunta enviada à IA", "Velocidade de banda", "Formato PDF", "Antivírus"], correct: 0 } }
+    ]
+  },
+  {
+    id: 14, title: "MÓDULO 14 — EMPREGABILIDADE E CURRÍCULO", intro: "Elaboração de currículos modernos.",
+    lessons: [
+      { id: 1401, title: "Aula 1 — O Currículo na Era Digital", bloco1: "Estrutura direta e competências.", bloco2: "Destaque de informática.", bloco3: "Oportunidades.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "O que priorizar no currículo?", options: ["Excesso de cores", "Objetividade e clareza nas competências", "Cinco páginas de texto", "Dados confidenciais"], correct: 1 } }
+    ]
+  },
+  {
+    id: 15, title: "MÓDULO 15 — PROJETO FINAL E CERTIFICADO", intro: "Consolidação e certificado oficial.",
+    lessons: [
+      { id: 1501, title: "Aula 1 — Encerramento e Emissão", bloco1: "Revisão geral.", bloco2: "Certificado oficial em PDF.", bloco3: "Autonomia digital.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "O que valida a conquista do certificado?", options: ["Conclusão de todas as aulas e exercícios", "Cadastro inicial", "Comprar PC novo", "Navegar em redes"], correct: 0 } }
     ]
   }
 ];
 
 let courseData = [];
 let registeredUsers = [];
-let salesTransactions = JSON.parse(localStorage.getItem('admin_sales_transactions')) || [];
+let salesTransactions = JSON.parse(localStorage.getItem('admin_sales_transactions')) || [
+  { id: "TX-9841", email: "aluno1@gmail.com", amount: 29.90, method: "Pix", status: "aprovado", date: "31/08/2026 21:10" },
+  { id: "TX-9842", email: "aluno2@gmail.com", amount: 29.90, method: "Cartão", status: "pendente", date: "31/08/2026 21:15" }
+];
 let notificationsList = JSON.parse(localStorage.getItem('user_notifications')) || [
-  { id: 1, text: "Bem-vindo à plataforma de Informática do Zero!", unread: true, date: "31/08/2026" }
+  { id: 1, text: "Bem-vindo à plataforma educacional de Informática do Zero!", unread: true, date: "31/08/2026" }
 ];
 let completedLessons = JSON.parse(localStorage.getItem('user_completed_lessons')) || {};
 let completedQuizzes = JSON.parse(localStorage.getItem('user_completed_quizzes')) || {};
 
 let currentUser = null;
 let isAdmin = false;
-let pendingPurchaseIntent = false;
 let videoWatchedState = {};
 let paymentBrickController = null;
 let currentCheckoutAmount = 29.90;
@@ -1092,6 +1293,16 @@ function autoCompleteEmail(inputId) {
   }
 }
 
+function isValidFullName(name) {
+  if (!name || typeof name !== 'string') return false;
+  const parts = name.trim().split(/\s+/);
+  if (parts.length < 2) return false;
+  for (let p of parts) {
+    if (p.length < 2 || /^([a-zA-Z])\1+$/.test(p)) return false;
+  }
+  return true;
+}
+
 window.onload = function() {
   const rememberedEmail = localStorage.getItem('remembered_email');
   if (rememberedEmail) {
@@ -1099,7 +1310,6 @@ window.onload = function() {
     const remElem = document.getElementById('remember-me');
     if (remElem) remElem.checked = true;
   }
-  localStorage.removeItem('remembered_pass');
 
   const savedTheme = localStorage.getItem('app_theme') || 'azul';
   changeTheme(savedTheme, false);
@@ -1144,13 +1354,8 @@ window.onload = function() {
             } else {
               showPublicSite();
             }
-
-            if (pendingPurchaseIntent) {
-              pendingPurchaseIntent = false;
-              setTimeout(() => { openCheckoutModal(); }, 500);
-            }
           } catch(err) {
-            console.error("Erro ao sincronizar perfil do Firestore:", err);
+            console.error("Erro ao sincronizar Firestore:", err);
             updateNavState(true, currentUser);
             showPublicSite();
           }
@@ -1165,7 +1370,7 @@ window.onload = function() {
       (async () => {
         try {
           const snap = await getDocs(collection(window.db, "modules"));
-          if (snap.empty) {
+          if (snap.empty || snap.size < 15) {
             for (const mod of defaultCourseData) {
               await setDoc(doc(window.db, "modules", mod.id.toString()), mod);
             }
@@ -1183,6 +1388,7 @@ window.onload = function() {
 
         if (currentUser && document.getElementById('member-area')?.style.display === 'block') {
           renderMemberSidebar();
+          updateStudentDashboard();
         }
         if (isAdmin && document.getElementById('admin-area')?.style.display === 'block') {
           renderAdminModules();
@@ -1233,7 +1439,7 @@ function updateNavState(isLoggedIn, email) {
     if (navUser) navUser.style.display = 'none';
     if (mobileContainer) {
       mobileContainer.innerHTML = `
-        <button onclick="toggleMobileMenu(); openAuthModal('login')"><i class="regular fa-user"></i> Login / Criar Conta</button>
+        <button onclick="toggleMobileMenu(); openAuthModal('login')"><i class="fa-regular fa-user"></i> Login / Criar Conta</button>
         <button onclick="toggleMobileMenu(); showPublicSite();"><i class="fa-solid fa-house"></i> Início</button>
       `;
     }
@@ -1266,7 +1472,7 @@ async function saveCourseToCloud(successMsg = "Alterações salvas com sucesso!"
     }
     showSuccessModal(successMsg);
   } catch (err) {
-    showCustomAlert("Erro no Banco", "Erro ao sincronizar com a nuvem.");
+    showCustomAlert("Erro no Banco", "Erro ao sincronizar dados com a nuvem.");
   }
 }
 
@@ -1330,8 +1536,8 @@ function togglePasswordVisibility(id, btn) {
   const inp = document.getElementById(id); 
   if (!inp) return;
   const icon = btn.querySelector('i');
-  if(inp.type === 'password'){ inp.type = 'text'; if(icon) icon.className = 'regular fa-eye-slash'; }
-  else { inp.type = 'password'; if(icon) icon.className = 'regular fa-eye'; }
+  if(inp.type === 'password'){ inp.type = 'text'; if(icon) icon.className = 'fa-solid fa-eye-slash'; }
+  else { inp.type = 'password'; if(icon) icon.className = 'fa-solid fa-eye'; }
 }
 
 function updateNavAvatar() {
@@ -1341,7 +1547,7 @@ function updateNavAvatar() {
   if(uObj && uObj.avatar) {
     avatarContainer.innerHTML = `<img src="${uObj.avatar}" alt="Avatar" style="width:100%; height:100%; object-fit:cover;">`;
   } else {
-    avatarContainer.innerHTML = `<i class="fa-solid fa-user" style="font-size: 12px; color: var(--accent-cyan);"></i>`;
+    avatarContainer.innerHTML = `<i class="fa-solid fa-user" style="font-size: 13px; color: var(--accent-cyan);"></i>`;
   }
 }
 
@@ -1398,14 +1604,22 @@ async function handleLogin(e) {
   } else {
     localStorage.removeItem('remembered_email');
   }
-  localStorage.removeItem('remembered_pass');
 
   try {
     await signInWithEmailAndPassword(window.auth, em, pw);
     closeModal('modal-auth');
     showSuccessModal("Login realizado com sucesso!");
   } catch (err) {
-    showCustomAlert("Erro de Acesso", "E-mail ou senha incorretos.");
+    console.error("Erro no Auth (código):", err.code, "| mensagem:", err.message);
+    let errorMap = {
+      'auth/invalid-credential': "E-mail ou senha incorretos.",
+      'auth/user-not-found': "Conta não encontrada para este e-mail.",
+      'auth/wrong-password': "Senha incorreta.",
+      'auth/too-many-requests': "Muitas tentativas sem sucesso. Aguarde um momento.",
+      'auth/user-disabled': "Esta conta de usuário foi desativada.",
+      'auth/network-request-failed': "Falha de conexão com a rede."
+    };
+    showCustomAlert("Erro de Acesso", errorMap[err.code] || "E-mail ou senha incorretos.");
   }
 }
 
@@ -1435,7 +1649,8 @@ async function loginWithGoogle() {
     closeModal('modal-auth');
     showSuccessModal("Autenticado com sucesso via Google!");
   } catch(e) {
-    showCustomAlert("Erro no Google Login", "Não foi possível autenticar com o Google.");
+    console.error("Erro Google Auth:", e);
+    showCustomAlert("Erro no Google Login", "Não foi possível autenticar com a conta Google.");
   }
 }
 
@@ -1444,16 +1659,16 @@ async function handleForgotPassword(e) {
   autoCompleteEmail('login-email');
   const em = safeGetValue('login-email');
   if(!em) {
-    showCustomAlert("Campo Obrigatório", "Digite seu e-mail no campo de login acima para receber as instruções.");
+    showCustomAlert("Campo Obrigatório", "Digite seu e-mail no campo de login para receber o link de recuperação.");
     return;
   }
   const { sendPasswordResetEmail } = window.firebaseModules;
   try {
     await sendPasswordResetEmail(window.auth, em);
-    showSuccessModal("E-mail de redefinição enviado com sucesso!");
+    showSuccessModal("E-mail de redefinição enviado com sucesso! Verifique sua caixa de entrada.");
     closeModal('modal-auth');
   } catch (err) {
-    showCustomAlert("Erro", "Não foi possível enviar o e-mail de redefinição.");
+    showCustomAlert("Erro na Recuperação", "Erro ao enviar e-mail de redefinição: " + err.message);
   }
 }
 
@@ -1465,8 +1680,8 @@ async function handleRegister(e) {
   const pw = safeGetValue('reg-pass');
   const { createUserWithEmailAndPassword, doc, setDoc } = window.firebaseModules;
 
-  if (!fullname || fullname.trim().length < 3) {
-    showCustomAlert("Nome Inválido", "Por favor, digite seu Nome Completo.");
+  if (!isValidFullName(fullname)) {
+    showCustomAlert("Nome Inválido", "Por favor, digite seu Nome Completo real (Nome e Sobrenome).");
     return;
   }
 
@@ -1475,37 +1690,32 @@ async function handleRegister(e) {
     return;
   }
 
-  let userCredential;
   try {
-    userCredential = await createUserWithEmailAndPassword(window.auth, em, pw);
+    await createUserWithEmailAndPassword(window.auth, em, pw);
+    const safeId = em.replace(/[@.]/g, '_');
+    const newUserDoc = { 
+      email: em, 
+      paid: em === TARGET_ADMIN_EMAIL, 
+      role: em === TARGET_ADMIN_EMAIL ? 'admin' : 'student', 
+      fullname: fullname,
+      createdAt: new Date().toISOString()
+    };
+    await setDoc(doc(window.db, "users", safeId), newUserDoc);
+    salesTransactions.push({ id: "TX-"+Math.floor(1000+Math.random()*9000), email: `${fullname} <${em}>`, amount: 29.90, method: "Pix", status: "pendente", date: new Date().toLocaleString() });
+    localStorage.setItem('admin_sales_transactions', JSON.stringify(salesTransactions));
+    addNotification("Novo aluno cadastrado: " + fullname);
+    closeModal('modal-auth');
+    showSuccessModal("Conta criada com sucesso! Seja bem-vindo à IDZ.");
   } catch (authErr) {
+    console.error("Erro Cadastro:", authErr);
     if (authErr.code === 'auth/email-already-in-use') {
-      showCustomAlert("Conta Existente", "Este e-mail já possui uma conta. Faça login para continuar.");
+      showCustomAlert("Conta Existente", "Este e-mail já possui conta cadastrada. Faça login para prosseguir.");
       switchAuthTab('login');
       safeSetValue('login-email', em);
     } else {
-      showCustomAlert("Erro no Cadastro", "Não foi possível concluir o cadastro. Verifique os dados e tente novamente.");
+      showCustomAlert("Erro no Cadastro", authErr.message);
     }
-    return;
   }
-
-  const safeId = em.replace(/[@.]/g, '_');
-  const newUserDoc = { 
-    email: em, 
-    paid: em === TARGET_ADMIN_EMAIL, 
-    role: em === TARGET_ADMIN_EMAIL ? 'admin' : 'student', 
-    fullname: fullname,
-    createdAt: new Date().toISOString()
-  };
-
-  try {
-    await setDoc(doc(window.db, "users", safeId), newUserDoc);
-  } catch (fsErr) {
-    console.warn("Aviso ao criar documento no Firestore:", fsErr);
-  }
-
-  closeModal('modal-auth');
-  showSuccessModal("Conta criada com sucesso! Seja bem-vindo.");
 }
 
 async function logout() {
@@ -1525,7 +1735,16 @@ function handleAccountAction() {
 }
 
 function handleLogoClick() {
-  showPublicSite();
+  if (currentUser) {
+    let uObj = registeredUsers.find(u => u.email === currentUser);
+    if (isAdmin || uObj?.paid) {
+      showMemberArea();
+    } else {
+      showPublicSite();
+    }
+  } else {
+    showPublicSite();
+  }
 }
 
 function showPublicSite() {
@@ -1535,10 +1754,10 @@ function showPublicSite() {
   const s = document.getElementById('settings-area'); if(s) s.style.display = 'none';
 }
 
-function switchSettingsTab(tabName) {
+function switchSettingsTab(e, tabName) {
   document.querySelectorAll('.settings-tab-btn').forEach(b => b.classList.remove('active'));
   document.querySelectorAll('.settings-panel').forEach(p => p.classList.remove('active'));
-  if (event && event.currentTarget) event.currentTarget.classList.add('active');
+  if (e && e.currentTarget) e.currentTarget.classList.add('active');
   const targetP = document.getElementById(`spanel-${tabName}`);
   if (targetP) targetP.classList.add('active');
 }
@@ -1566,7 +1785,7 @@ function showSettingsArea() {
     safeSetValue('v-cidade', uObj.verifiedData.cidade || '');
     safeSetValue('v-uf', uObj.verifiedData.uf || '');
   } else {
-    safeSetHTML('verified-badge-status', `<span style="color:var(--yellow);"><i class="fa-solid fa-circle-exclamation"></i> Status: Não Verificado</span>`);
+    safeSetHTML('verified-badge-status', `<span style="color:var(--yellow);"><i class="fa-solid fa-triangle-exclamation"></i> Status: Não Verificado (Preencha para liberar o certificado)</span>`);
   }
 }
 
@@ -1582,6 +1801,7 @@ async function handleUpdateProfile(e) {
     await saveUserToCloud(uObj);
     showSuccessModal("Perfil atualizado com sucesso!");
     updateNavAvatar();
+    updateStudentDashboard();
   }
 }
 
@@ -1604,7 +1824,7 @@ async function handleSaveVerification(e) {
   if (uObj) {
     uObj.verifiedData = vData;
     await saveUserToCloud(uObj);
-    showSuccessModal("Dados de verificação salvos!");
+    showSuccessModal("Dados de verificação vinculados ao perfil!");
   }
 }
 
@@ -1621,8 +1841,9 @@ async function handleUpdatePassword(e) {
   try {
     await updatePassword(user, newPass);
     showSuccessModal("Senha atualizada com sucesso!");
+    addNotification("Sua senha foi alterada com sucesso.");
   } catch (err) {
-    showCustomAlert("Erro", "Erro ao atualizar senha.");
+    showCustomAlert("Erro", "Erro ao atualizar senha: " + err.message);
   }
 }
 
@@ -1644,10 +1865,28 @@ function showMemberArea() {
   document.getElementById('public-site').style.display = 'none';
   const m = document.getElementById('member-area'); if(m) m.style.display = 'block';
   
+  updateStudentDashboard();
   renderMemberSidebar();
   if(courseData.length > 0 && courseData[0].lessons?.length > 0) {
     loadLessonContent(courseData[0].id, courseData[0].lessons[0].id);
   }
+}
+
+function updateStudentDashboard() {
+  let uObj = registeredUsers.find(u => u.email === currentUser);
+  safeSetText('student-welcome-title', `Olá, ${uObj?.fullname || currentUser} 👋`);
+
+  let totalLessonsCount = 0;
+  let completedLessonsCount = 0;
+  courseData.forEach(m => m.lessons?.forEach(l => {
+    totalLessonsCount++;
+    if (completedLessons[currentUser] && completedLessons[currentUser][l.id]) completedLessonsCount++;
+  }));
+
+  let pct = totalLessonsCount > 0 ? Math.round((completedLessonsCount / totalLessonsCount) * 100) : 0;
+  safeSetText('dash-stat-progress', `Progresso: ${pct}%`);
+  safeSetText('dash-stat-lessons', `Aulas: ${completedLessonsCount}/${totalLessonsCount}`);
+  safeSetText('dash-stat-cert', pct >= 100 ? "Certificado: Liberado 🏆" : "Certificado: Bloqueado 🔒");
 }
 
 function showAdminArea() {
@@ -1676,7 +1915,7 @@ function renderMemberSidebar() {
       mod.lessons.forEach(l => {
         let isDone = (completedLessons[currentUser] && completedLessons[currentUser][l.id]) && (completedQuizzes[currentUser] && completedQuizzes[currentUser][l.id]);
         html += `<div class="lms-lesson-item" onclick="loadLessonContent(${mod.id}, ${l.id})">
-          <span><i class="regular fa-circle-play" style="margin-right: 8px;"></i> ${l.title}</span>
+          <span><i class="fa-regular fa-circle-play" style="margin-right: 8px;"></i> ${l.title}</span>
           ${isDone ? '<i class="fa-solid fa-check-circle"></i>' : ''}
         </div>`;
       });
@@ -1684,7 +1923,7 @@ function renderMemberSidebar() {
     const box = document.createElement('div'); box.className = 'lms-module-box';
     box.innerHTML = `
       <div class="lms-module-header" onclick="toggleAccordion(this)">
-        <span><i class="regular fa-folder" style="margin-right:8px; color:var(--accent-cyan);"></i> ${mod.title}</span>
+        <span><i class="fa-regular fa-folder" style="margin-right:8px; color:var(--accent-cyan);"></i> ${mod.title}</span>
         <i class="fa-solid ${index===0?'fa-chevron-up':'fa-chevron-down'} arrow" style="font-size:10px;"></i>
       </div>
       <div class="lms-module-body ${index===0?'expanded':''}">${html}</div>
@@ -1749,12 +1988,21 @@ function loadLessonContent(modId, lessonId) {
   let imgHtml = lesson.imgUrl ? `<div class="image-frame"><img src="${lesson.imgUrl}" alt="Ilustração"></div>` : '';
   let pdfHtml = lesson.pdfUrl ? `
     <div style="margin-top: 15px; padding: 14px; background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 12px; display: flex; justify-content: space-between; align-items: center;">
-      <div><h4 style="color: #f59e0b; font-size: 14px;"><i class="fa-solid fa-file-pdf"></i> Material PDF</h4></div>
+      <div><h4 style="color: #f59e0b; font-size: 14px;"><i class="fa-solid fa-file-pdf"></i> Material PDF Complementar</h4></div>
       <a href="${lesson.pdfUrl}" target="_blank" class="btn-outline" style="border-color: #f59e0b; color: #f59e0b;"><i class="fa-solid fa-download"></i> Baixar PDF</a>
     </div>` : '';
 
   let lessonDone = completedLessons[currentUser] && completedLessons[currentUser][lesson.id];
   let uObj = registeredUsers.find(u => u.email === currentUser);
+
+  let totalLessonsCount = 0;
+  let completedLessonsCount = 0;
+  courseData.forEach(m => m.lessons?.forEach(l => {
+    totalLessonsCount++;
+    if(completedLessons[currentUser] && completedLessons[currentUser][l.id]) completedLessonsCount++;
+  }));
+  let courseFullyCompleted = (completedLessonsCount >= totalLessonsCount) && (totalLessonsCount > 0);
+  let certReleasedByAdmin = uObj?.certReleased || false;
 
   let quizHtml = '';
   if (lesson.quiz && lesson.quiz.question) {
@@ -1778,19 +2026,45 @@ function loadLessonContent(modId, lessonId) {
     `;
   }
 
+  let certificateSectionHtml = '';
+  if (courseFullyCompleted || certReleasedByAdmin) {
+    certificateSectionHtml = `
+      <div style="margin-top: 35px; padding: 32px; background: radial-gradient(circle at center, rgba(16, 185, 129, 0.15), rgba(15, 23, 42, 0.95)); border: 2px solid var(--green); border-radius: 24px; text-align: center; box-shadow: 0 0 30px rgba(16,185,129,0.25);">
+        <div style="font-size: 52px; margin-bottom: 12px; filter: drop-shadow(0 0 10px rgba(16,185,129,0.5));">🏆🎉</div>
+        <h3 style="color: #fff; font-size: 22px; font-weight: 800; margin-bottom: 6px;">PARABÉNS! CURSO CONCLUÍDO COM SUCESSO!</h3>
+        <p style="color: var(--accent-cyan); font-size: 14px; font-weight: 700; margin-bottom: 14px;">Sua Autonomia Digital foi conquistada!</p>
+        <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px;">Aluno: <strong>${uObj?.fullname || currentUser}</strong></p>
+        <button class="btn" style="background: linear-gradient(135deg, #10b981, #059669); color:#fff; font-size: 14px; padding: 16px 28px;" onclick="generateOfficialCertificatePDF('${uObj?.fullname || currentUser}')"><i class="fa-solid fa-file-pdf"></i> BAIXAR SEU CERTIFICADO OFICIAL EM PDF</button>
+      </div>
+    `;
+  }
+
   container.innerHTML = `
     <span style="font-size: 11px; color: var(--accent-cyan); font-weight: 700; text-transform: uppercase;">${mod.title}</span>
     <h2 style="margin-bottom: 18px; font-size: 22px; color: #fff;">${lesson.title}</h2>
     ${mediaHtml} ${imgHtml} ${pdfHtml}
     
     <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); padding: 20px; border-radius: 16px; margin-top: 20px;">
-      <h4 style="color: var(--accent-cyan); margin-bottom: 8px; font-size: 14.5px;"><i class="fa-solid fa-list-check"></i> Conteúdo da Aula</h4>
-      <p style="color: var(--text-secondary); font-size: 13.5px; white-space: pre-line;">${lesson.bloco1 || 'Introdução teórica.'}</p>
+      <h4 style="color: var(--accent-cyan); margin-bottom: 8px; font-size: 14.5px;"><i class="fa-solid fa-list-check"></i> O que vai aprender nesta aula</h4>
+      <p style="color: var(--text-secondary); font-size: 13.5px; white-space: pre-line;">${lesson.bloco1 || 'Introdução pedagógica aos conceitos principais.'}</p>
     </div>
+
+    <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); padding: 20px; border-radius: 16px; margin-top: 14px;">
+      <h4 style="color: var(--accent-cyan); margin-bottom: 8px; font-size: 14.5px;"><i class="fa-solid fa-align-left"></i> Descrição Detalhada</h4>
+      <p style="color: var(--text-secondary); font-size: 13.5px; white-space: pre-line;">${lesson.bloco2 || 'Acompanhe com atenção todos os passos recomendados.'}</p>
+    </div>
+
+    <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); padding: 20px; border-radius: 16px; margin-top: 14px;">
+      <h4 style="color: var(--accent-cyan); margin-bottom: 8px; font-size: 14.5px;"><i class="fa-solid fa-bullseye"></i> Objetivos Pedagógicos</h4>
+      <p style="color: var(--text-secondary); font-size: 13.5px; white-space: pre-line;">${lesson.bloco3 || 'Dominar a prática do tópico abordado.'}</p>
+    </div>
+    
     ${quizHtml}
+    
     <div style="margin-top: 25px; text-align: center;">
-      ${!lessonDone ? `<button class="btn" onclick="markLessonAsDone(${mod.id}, ${lesson.id})"><i class="fa-solid fa-check"></i> Marcar como Concluída</button>` : ''}
+      ${!lessonDone ? `<button class="btn" onclick="markLessonAsDone(${mod.id}, ${lesson.id})"><i class="fa-solid fa-check"></i> Marcar Aula como Concluída</button>` : ''}
     </div>
+    ${certificateSectionHtml}
   `;
 }
 
@@ -1805,6 +2079,7 @@ function markLessonAsDone(modId, lessonId) {
   completedLessons[currentUser][lessonId] = true;
   localStorage.setItem('user_completed_lessons', JSON.stringify(completedLessons));
   renderMemberSidebar();
+  updateStudentDashboard();
   loadLessonContent(modId, lessonId);
   addNotification("Aula concluída com sucesso!");
 }
@@ -1829,13 +2104,54 @@ function checkQuizAnswer(buttonElem, selectedIdx, correctIdx, modId, lessonId) {
     localStorage.setItem('user_completed_lessons', JSON.stringify(completedLessons));
     localStorage.setItem('user_completed_quizzes', JSON.stringify(completedQuizzes));
     renderMemberSidebar();
-    addNotification("Exercício concluído!");
+    updateStudentDashboard();
+    addNotification("Exercício concluído com sucesso!");
   } else {
     buttonElem.classList.add('incorrect');
     allBtns[correctIdx].classList.add('correct');
-    feedbackDiv.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> Resposta incorreta.`;
+    feedbackDiv.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> Resposta incorreta. Revise a aula.`;
     feedbackDiv.className = 'quiz-feedback error';
   }
+}
+
+function generateOfficialCertificatePDF(studentName) {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+  
+  doc.setFillColor(3, 7, 18);
+  doc.rect(0, 0, 297, 210, 'F');
+  
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(24);
+  doc.setTextColor(0, 240, 255);
+  doc.text("INFORMÁTICA DO ZERO", 30, 32);
+
+  doc.setFontSize(28);
+  doc.setTextColor(255, 255, 255);
+  doc.text("CERTIFICADO DE CONCLUSÃO", 30, 56);
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(12);
+  doc.setTextColor(148, 163, 184);
+  doc.text("Certificamos para os devidos fins que o(a) aluno(a):", 30, 75);
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(22);
+  doc.setTextColor(0, 240, 255);
+  doc.text(studentName.toUpperCase(), 30, 90);
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(12);
+  doc.setTextColor(148, 163, 184);
+  doc.text("concluiu com aproveitamento integral a Formação Completa em Informática,", 30, 106);
+  doc.text("com carga horária de 80 horas e domínio em hardware, Windows, Word, Excel, IA e Segurança.", 30, 114);
+
+  doc.setFontSize(10);
+  doc.setTextColor(100, 116, 139);
+  doc.text(`Emissão Oficial IDZ: ${new Date().toLocaleDateString('pt-BR')}`, 30, 170);
+
+  addNotification("Certificado oficial baixado em PDF!");
+  doc.save(`Certificado_IDZ_${studentName.replace(/\s+/g, '_')}.pdf`);
 }
 
 function switchAdminTab(secName) {
@@ -1858,19 +2174,40 @@ function renderDashboard() {
   if(!tbody) return;
   tbody.innerHTML = '';
 
+  let totalLessonsInCourse = 0;
+  let totalQuizInCourse = 0;
+  courseData.forEach(m => {
+    if(m.lessons) {
+      totalLessonsInCourse += m.lessons.length;
+      m.lessons.forEach(l => { if(l.quiz && l.quiz.question) totalQuizInCourse++; });
+    }
+  });
+
   registeredUsers.forEach((u) => {
     let studentEmail = u.email;
-    let verifiedLabel = u.verifiedData ? `<span style="color:var(--green); font-size:10px;"><i class="fa-solid fa-badge-check"></i> Verificado</span>` : `<span style="color:var(--yellow); font-size:10px;"><i class="fa-solid fa-circle-exclamation"></i> Pendente</span>`;
+    let userCompleted = completedLessons[studentEmail] || {};
+    let userQuizzes = completedQuizzes[studentEmail] || {};
+    let lessonsDoneCount = Object.keys(userCompleted).length;
+    let quizzesDoneCount = Object.keys(userQuizzes).length;
+    
+    let totalItems = totalLessonsInCourse + totalQuizInCourse;
+    let doneItems = lessonsDoneCount + quizzesDoneCount;
+    let percent = totalItems > 0 ? Math.round((doneItems / totalItems) * 100) : 0;
+    if(percent > 100) percent = 100;
+
+    let verifiedLabel = u.verifiedData ? `<span style="color:var(--green); font-size:10px;"><i class="fa-solid fa-circle-check"></i> Verificado</span>` : `<span style="color:var(--yellow); font-size:10px;"><i class="fa-solid fa-triangle-exclamation"></i> Pendente</span>`;
+
+    let studentInfo = `<div style="font-weight:600; color:#fff;">${u.fullname || 'Aluno'} ${verifiedLabel}</div>`;
+    studentInfo += `<div style="font-size:11px; color:var(--accent-cyan);">${studentEmail}</div>`;
 
     tbody.innerHTML += `<tr>
-      <td>
-        <div style="font-weight:600; color:#fff;">${u.fullname || 'Aluno'} ${verifiedLabel}</div>
-        <div style="font-size:11px; color:var(--accent-cyan);">${studentEmail}</div>
-      </td>
+      <td>${studentInfo}</td>
       <td><span class="badge-status" style="${u.paid?'background:rgba(16,185,129,0.2); color:var(--green);':'background:rgba(239,68,68,0.2); color:var(--red);'}">${u.paid?'Pago':'Pendente'}</span></td>
-      <td><div style="font-size:11.5px; color:#fff;">Status do Acesso</div></td>
+      <td><div style="font-size:11.5px; color:#fff;">Progresso: ${percent}% (${lessonsDoneCount}/${totalLessonsInCourse} Aulas)</div></td>
       <td>
-        <button class="btn-outline" style="border-color:var(--green); color:var(--green); padding:4px 8px;" onclick="setStudentPaymentStatus('${studentEmail}', true)"><i class="fa-solid fa-check"></i> Aprovar Acesso</button>
+        <button class="btn-outline" style="border-color:var(--green); color:var(--green); padding:4px 8px;" title="Liberar Progresso Total" onclick="setStudentProgress('${studentEmail}', true)"><i class="fa-solid fa-check-double"></i></button>
+        <button class="btn-outline" style="border-color:var(--red); color:var(--red); padding:4px 8px;" title="Resetar Progresso" onclick="setStudentProgress('${studentEmail}', false)"><i class="fa-solid fa-rotate-left"></i></button>
+        <button class="btn-outline" style="border-color:var(--accent-cyan); color:var(--accent-cyan); padding:4px 8px;" title="Aprovar Pagamento Acesso" onclick="setStudentPaymentStatus('${studentEmail}', true)"><i class="fa-solid fa-check"></i></button>
       </td>
     </tr>`;
   });
@@ -1881,10 +2218,11 @@ function renderSalesTab() {
   if(!salesTbody) return;
   salesTbody.innerHTML = '';
   salesTransactions.forEach((tx) => {
+    let badgeColor = tx.status==='aprovado'?'var(--green)':(tx.status==='pendente'?'var(--yellow)':'var(--red)');
     salesTbody.innerHTML += `<tr>
       <td><strong>${tx.id}</strong><br><span style="font-size:11px; color:var(--text-secondary);">${tx.email}</span></td>
       <td>R$ ${tx.amount.toFixed(2)} (${tx.method})</td>
-      <td><span class="badge-status" style="background:rgba(16,185,129,0.2); color:var(--green);">${tx.status}</span></td>
+      <td><span class="badge-status" style="background:${badgeColor}22; color:${badgeColor};">${tx.status}</span></td>
       <td><span style="font-size:11px; color:var(--text-muted);">${tx.date}</span></td>
     </tr>`;
   });
@@ -1893,7 +2231,57 @@ function renderSalesTab() {
 function renderCartTab() {
   const cBody = document.getElementById('cart-list-body');
   if(!cBody) return;
-  cBody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:20px;">Nenhum item pendente.</td></tr>`;
+  cBody.innerHTML = '';
+  let pendingSales = salesTransactions.filter(s => s.status === 'pendente' || s.status === 'recusado');
+  if(pendingSales.length === 0) {
+    cBody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:20px;">Nenhum carrinho pendente.</td></tr>`;
+    return;
+  }
+  pendingSales.forEach((tx) => {
+    cBody.innerHTML += `<tr>
+      <td><strong>${tx.email}</strong><br><span style="font-size:11px; color:var(--text-secondary);">${tx.id}</span></td>
+      <td>R$ ${tx.amount.toFixed(2)}</td>
+      <td><span class="badge-status" style="background:rgba(245,158,11,0.2); color:var(--yellow);">${tx.status}</span></td>
+      <td>
+        <button class="btn-outline" style="border-color:var(--green); color:var(--green); padding:6px 10px;" onclick="approveCartItem('${tx.email}')"><i class="fa-solid fa-check"></i> Aprovar Acesso</button>
+      </td>
+    </tr>`;
+  });
+}
+
+async function approveCartItem(emailStr) {
+  let emailClean = emailStr.includes('<') ? emailStr.split('<')[1].replace('>', '').trim() : emailStr;
+  let u = registeredUsers.find(x => x.email === emailClean);
+  if (u) {
+    u.paid = true;
+    await saveUserToCloud(u);
+  }
+  updateTxStatus(emailClean, 'aprovado');
+  showSuccessModal(`Acesso aprovado para ${emailClean}!`);
+  renderDashboard();
+  renderSalesTab();
+  renderCartTab();
+}
+
+async function setStudentProgress(email, complete) {
+  if(!completedLessons[email]) completedLessons[email] = {};
+  if(!completedQuizzes[email]) completedQuizzes[email] = {};
+
+  courseData.forEach(m => {
+    m.lessons?.forEach(l => {
+      if(complete) {
+        completedLessons[email][l.id] = true;
+        if(l.quiz && l.quiz.question) completedQuizzes[email][l.id] = true;
+      } else {
+        completedLessons[email][l.id] = false;
+        if(l.quiz) completedQuizzes[email][l.id] = false;
+      }
+    });
+  });
+  localStorage.setItem('user_completed_lessons', JSON.stringify(completedLessons));
+  localStorage.setItem('user_completed_quizzes', JSON.stringify(completedQuizzes));
+  showSuccessModal(complete ? "Progresso total liberado para o aluno!" : "Progresso resetado!");
+  renderDashboard();
 }
 
 async function setStudentPaymentStatus(email, status) {
@@ -1901,9 +2289,20 @@ async function setStudentPaymentStatus(email, status) {
   if(u) {
     u.paid = status;
     await saveUserToCloud(u);
-    showSuccessModal("Status do aluno atualizado com sucesso!");
+    updateTxStatus(email, status ? 'aprovado' : 'pendente');
+    showSuccessModal(status ? "Acesso liberado!" : "Status alterado!");
     renderDashboard();
   }
+}
+
+function updateTxStatus(email, st) {
+  let tx = salesTransactions.find(s => s.email.includes(email));
+  if(tx) tx.status = st;
+  localStorage.setItem('admin_sales_transactions', JSON.stringify(salesTransactions));
+}
+
+function simulateApprovalForTarget(email) {
+  setStudentPaymentStatus(email, true);
 }
 
 function populateTestStudentSelect() {
@@ -1917,12 +2316,12 @@ function populateTestStudentSelect() {
 
 function openTestCheckoutCustom() {
   if(!isAdmin) {
-    showCustomAlert("Acesso Negado", "Apenas o administrador pode acessar o teste.");
+    showCustomAlert("Acesso Negado", "Apenas administradores podem testar pagamentos.");
     return;
   }
   const sel = document.getElementById('test-student-select');
   if(!sel || !sel.value) {
-    showCustomAlert("Atenção", "Selecione um aluno para realizar o teste de pagamento.");
+    showCustomAlert("Atenção", "Selecione um aluno.");
     return;
   }
   const amountInput = document.getElementById('test-amount-input');
@@ -1931,7 +2330,7 @@ function openTestCheckoutCustom() {
   checkoutTargetUser = sel.value;
   currentCheckoutAmount = isNaN(val) ? 1.00 : val;
   safeSetText('checkout-modal-title', `Teste de Pagamento — R$ ${currentCheckoutAmount.toFixed(2)}`);
-  openCheckoutModal(true);
+  openCheckoutModal();
 }
 
 function populateLessonModuleSelect(){
@@ -1945,9 +2344,10 @@ function saveModuleData() {
   const t = safeGetValue('mod-title-input');
   if(!t) { showCustomAlert("Atenção", "Preencha o título do módulo."); return; }
   courseData.push({ id: Date.now(), title: t, lessons: [] });
-  saveCourseToCloud("Módulo salvo com sucesso!"); 
+  saveCourseToCloud("Módulo criado na nuvem!"); 
   renderAdminModules(); 
   populateLessonModuleSelect();
+  updateCourseStatsUI();
 }
 
 function saveLessonData() {
@@ -1959,6 +2359,21 @@ function saveLessonData() {
   if(!m) return;
   if(!m.lessons) m.lessons = [];
 
+  const qText = safeGetValue('new-quiz-question');
+  let quiz = null;
+  if(qText) {
+    quiz = {
+      question: qText,
+      options: [
+        safeGetValue('new-quiz-opt0'),
+        safeGetValue('new-quiz-opt1'),
+        safeGetValue('new-quiz-opt2'),
+        safeGetValue('new-quiz-opt3')
+      ],
+      correct: parseInt(safeGetValue('new-quiz-correct') || '0')
+    };
+  }
+
   m.lessons.push({ 
     id: Date.now(), 
     title: t, 
@@ -1967,11 +2382,13 @@ function saveLessonData() {
     bloco3: safeGetValue('lesson-bloco3-input'), 
     video: safeGetValue('lesson-video-url'), 
     pdfUrl: safeGetValue('lesson-pdf-url'), 
-    imgUrl: safeGetValue('lesson-img-url') 
+    imgUrl: safeGetValue('lesson-img-url'),
+    quiz: quiz
   });
 
-  saveCourseToCloud("Aula publicada!"); 
+  saveCourseToCloud("Aula e quiz publicados!"); 
   renderAdminModules();
+  updateCourseStatsUI();
 }
 
 function renderAdminModules() {
@@ -1982,25 +2399,110 @@ function renderAdminModules() {
     let lessonsHtml = '';
     if (m.lessons) {
       m.lessons.forEach((l) => {
-        lessonsHtml += `<div class="admin-lesson-item-box"><span>${l.title}</span></div>`;
+        lessonsHtml += `<div class="admin-lesson-item-box">
+          <span><i class="fa-solid fa-file-video" style="color:var(--accent-cyan); margin-right:6px;"></i> ${l.title}</span>
+          <div>
+            <button class="btn-outline" style="padding:4px 8px; font-size:11px;" onclick="openEditLessonModal(${m.id}, ${l.id})" title="Editar"><i class="fa-solid fa-pen"></i></button>
+            <button class="btn-outline" style="padding:4px 8px; font-size:11px; border-color:var(--red); color:var(--red);" onclick="deleteLesson(${m.id}, ${l.id})" title="Excluir"><i class="fa-solid fa-trash"></i></button>
+          </div>
+        </div>`;
       });
     }
     c.innerHTML += `<div class="admin-mod-box">
-      <div class="admin-mod-header" onclick="toggleAdminAccordion(this)"><span>${m.title}</span></div>
-      <div class="admin-mod-body">${lessonsHtml || '<p style="font-size:12px; color:var(--text-muted);">Sem aulas.</p>'}</div>
+      <div class="admin-mod-header" onclick="toggleAdminAccordion(this)">
+        <span><i class="fa-regular fa-folder" style="color:var(--accent-cyan); margin-right:8px;"></i> ${m.title}</span>
+        <i class="fa-solid fa-chevron-down" style="font-size:10px;"></i>
+      </div>
+      <div class="admin-mod-body">
+        <h5 style="font-size:12px; color:var(--text-secondary); margin-bottom:8px;">Aulas do Módulo:</h5>
+        ${lessonsHtml || '<p style="font-size:12px; color:var(--text-muted);">Nenhuma aula.</p>'}
+      </div>
     </div>`;
   });
 }
 
-function openCheckoutModal(isAdminTest = false) {
-  const user = window.auth ? window.auth.currentUser : null;
-  
-  if (!user && !isAdminTest) {
-    pendingPurchaseIntent = true;
-    showCustomAlert("Autenticação Necessária", "Você precisa estar logado na sua conta para realizar a compra.");
-    openAuthModal('login');
-    return;
+function openEditLessonModal(modId, lessonId) {
+  const mod = courseData.find(m => m.id == modId);
+  const lesson = mod?.lessons?.find(l => l.id == lessonId);
+  if(!lesson) return;
+
+  safeSetValue('edit-mod-id', modId);
+  safeSetValue('edit-lesson-id', lessonId);
+  safeSetValue('edit-lesson-title', lesson.title || '');
+  safeSetValue('edit-lesson-bloco1', lesson.bloco1 || '');
+  safeSetValue('edit-lesson-bloco2', lesson.bloco2 || '');
+  safeSetValue('edit-lesson-bloco3', lesson.bloco3 || '');
+  safeSetValue('edit-lesson-video', lesson.video || '');
+  safeSetValue('edit-lesson-pdf', lesson.pdfUrl || '');
+  safeSetValue('edit-lesson-img', lesson.imgUrl || '');
+
+  if(lesson.quiz) {
+    safeSetValue('edit-quiz-question', lesson.quiz.question || '');
+    safeSetValue('edit-quiz-opt0', lesson.quiz.options?.[0] || '');
+    safeSetValue('edit-quiz-opt1', lesson.quiz.options?.[1] || '');
+    safeSetValue('edit-quiz-opt2', lesson.quiz.options?.[2] || '');
+    safeSetValue('edit-quiz-opt3', lesson.quiz.options?.[3] || '');
+    safeSetValue('edit-quiz-correct', lesson.quiz.correct || 0);
+  } else {
+    safeSetValue('edit-quiz-question', '');
+    safeSetValue('edit-quiz-opt0', '');
+    safeSetValue('edit-quiz-opt1', '');
+    safeSetValue('edit-quiz-opt2', '');
+    safeSetValue('edit-quiz-opt3', '');
   }
+
+  openModal('modal-edit-lesson');
+}
+
+function saveEditedLesson() {
+  const modId = safeGetValue('edit-mod-id');
+  const lessonId = safeGetValue('edit-lesson-id');
+  const mod = courseData.find(m => m.id == modId);
+  if(!mod) return;
+  const lesson = mod.lessons.find(l => l.id == lessonId);
+  if(!lesson) return;
+
+  lesson.title = safeGetValue('edit-lesson-title');
+  lesson.bloco1 = safeGetValue('edit-lesson-bloco1');
+  lesson.bloco2 = safeGetValue('edit-lesson-bloco2');
+  lesson.bloco3 = safeGetValue('edit-lesson-bloco3');
+  lesson.video = safeGetValue('edit-lesson-video');
+  lesson.pdfUrl = safeGetValue('edit-lesson-pdf');
+  lesson.imgUrl = safeGetValue('edit-lesson-img');
+
+  const qText = safeGetValue('edit-quiz-question');
+  if(qText) {
+    lesson.quiz = {
+      question: qText,
+      options: [
+        safeGetValue('edit-quiz-opt0'),
+        safeGetValue('edit-quiz-opt1'),
+        safeGetValue('edit-quiz-opt2'),
+        safeGetValue('edit-quiz-opt3')
+      ],
+      correct: parseInt(safeGetValue('edit-quiz-correct') || '0')
+    };
+  }
+
+  saveCourseToCloud("Aula e quiz atualizados na nuvem!");
+  closeModal('modal-edit-lesson');
+  renderAdminModules();
+}
+
+function deleteLesson(modId, lessonId) {
+  if(!confirm("Deseja realmente excluir esta aula?")) return;
+  const mod = courseData.find(m => m.id === modId);
+  if (mod && mod.lessons) {
+    mod.lessons = mod.lessons.filter(l => l.id !== lessonId);
+    saveCourseToCloud("Aula removida!");
+    renderAdminModules();
+    updateCourseStatsUI();
+  }
+}
+
+function openCheckoutModal() {
+  const user = window.auth ? window.auth.currentUser : null;
+  let payerEmail = user ? user.email : (checkoutTargetUser || 'aluno@email.com');
 
   openModal('modal-custom-checkout');
 
@@ -2012,8 +2514,6 @@ function openCheckoutModal(isAdminTest = false) {
       if (paymentBrickController) {
         paymentBrickController.unmount();
       }
-
-      let payerEmail = user ? user.email : (checkoutTargetUser || 'aluno@email.com');
 
       paymentBrickController = await bricksBuilder.create('payment', 'paymentBrick_container', {
         initialization: {
@@ -2036,25 +2536,25 @@ function openCheckoutModal(isAdminTest = false) {
               .then(res => res.json())
               .then(response => {
                 if (response.success && response.status === 'approved') {
-                  showSuccessModal("Pagamento Aprovado!");
+                  showSuccessModal("Pagamento Aprovado com Sucesso!");
                   closeModal('modal-custom-checkout');
                   if(user) setStudentPaymentStatus(user.email, true);
                 } else {
-                  showCustomAlert("Aviso de Pagamento", "O pagamento foi gerado ou está aguardando confirmação.");
+                  showCustomAlert("Aviso de Pagamento", "O pagamento foi gerado. Aguardando confirmação do gateway.");
                 }
                 resolve();
               })
               .catch(err => {
-                showCustomAlert("Erro no Pagamento", "Falha de comunicação com o servidor de pagamento.");
+                showCustomAlert("Erro no Pagamento", "Falha de comunicação com o servidor Mercado Pago.");
                 reject();
               });
             });
           },
-          onError: (error) => { console.error('Erro no Brick:', error); }
+          onError: (error) => { console.error('Erro no Brick Mercado Pago:', error); }
         }
       });
     } catch (e) {
-      console.error("Erro ao carregar checkout:", e);
+      console.error("Erro ao carregar checkout Mercado Pago:", e);
     }
   }, 200);
 }
