@@ -17,13 +17,11 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://sdk.mercadopago.com/js/v2"></script>
-<script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getFirestore, collection, doc, setDoc, getDoc, getDocs, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithCustomToken, signOut, sendPasswordResetEmail, updateEmail, updatePassword, onAuthStateChanged, setPersistence, browserLocalPersistence, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+  import { getFirestore, collection, doc, setDoc, getDoc, getDocs, onSnapshot, deleteDoc, query, where, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithCustomToken, signOut, sendPasswordResetEmail, sendEmailVerification, updateEmail, updatePassword, updateProfile, onAuthStateChanged, setPersistence, browserLocalPersistence, browserSessionPersistence, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyBAQ1HRInFDHnOERD3iD9lifBcJAhRWI1c",
@@ -39,18 +37,15 @@
   const db = getFirestore(app);
   const auth = getAuth(app);
 
-  setPersistence(auth, browserLocalPersistence).catch((error) => {
-    console.error("Erro na persistência do Firebase Auth:", error);
-  });
-
   window.db = db;
   window.auth = auth;
   window.GoogleAuthProvider = GoogleAuthProvider;
   window.signInWithPopup = signInWithPopup;
-  window.firebaseModules = { 
-    collection, doc, setDoc, getDoc, getDocs, onSnapshot, deleteDoc, 
+  window.firebaseModules = {
+    collection, doc, setDoc, getDoc, getDocs, onSnapshot, deleteDoc, query, where, orderBy, limit,
     createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithCustomToken, signOut, 
-    sendPasswordResetEmail, updateEmail, updatePassword, onAuthStateChanged,
+    sendPasswordResetEmail, sendEmailVerification, updateEmail, updatePassword, updateProfile, onAuthStateChanged,
+    setPersistence, browserLocalPersistence, browserSessionPersistence,
     GoogleAuthProvider, signInWithPopup
   };
 </script>
@@ -1305,7 +1300,6 @@ nav,#public-site,#member-area,#settings-area,#admin-area,footer { position:relat
 </footer>
 
 <script>
-const PUBLIC_KEY_MP = "APP_USR-0af39126-fabc-4dd9-bbe2-90bbf9fe1521";
 const RAILWAY_BACKEND_URL = "https://backend-informatica-do-zero-production.up.railway.app/criar-pagamento";
 const ADMIN_COMPAT_LOGIN_URL = "https://backend-informatica-do-zero-production.up.railway.app/admin/compat-login";
 const TARGET_ADMIN_EMAIL = "olliveirazvz@gmail.com";
@@ -1576,19 +1570,27 @@ window.onload = function() {
             registeredUsers = [];
             snap.forEach((docSnap) => registeredUsers.push(docSnap.data()));
 
-            let uObj = registeredUsers.find(u => u.email === currentUser);
+            // UID é o identificador principal. O documento antigo por e-mail é
+            // lido apenas para a migração gradual, sem apagar dados existentes.
+            const uidRef = doc(window.db, 'users', user.uid);
+            const uidSnap = await getDoc(uidRef);
+            let uObj = uidSnap.exists() ? uidSnap.data() : registeredUsers.find(u => u.email === currentUser);
             
             if (!uObj) {
-              const safeId = currentUser.replace(/[@.]/g, '_');
               uObj = {
+                uid: user.uid,
                 email: currentUser,
                 paid: currentUser === TARGET_ADMIN_EMAIL,
                 role: currentUser === TARGET_ADMIN_EMAIL ? 'admin' : 'student',
                 fullname: user.displayName || currentUser.split('@')[0],
                 createdAt: new Date().toISOString()
               };
-              await setDoc(doc(window.db, "users", safeId), uObj);
+              await setDoc(uidRef, uObj);
               registeredUsers.push(uObj);
+            } else if (!uObj.uid || !uidSnap.exists()) {
+              // Copia o perfil legado para users/{uid}; o legado permanece intacto.
+              uObj = { ...uObj, uid: user.uid, email: currentUser };
+              await setDoc(uidRef, uObj, { merge: true });
             }
 
             isAdmin = (currentUser === TARGET_ADMIN_EMAIL || uObj?.role === 'admin');
@@ -1596,7 +1598,9 @@ window.onload = function() {
             loadNotificationsForCurrentAccount();
             updateNavState(true, currentUser);
 
-            if (isAdmin) {
+            if (!user.emailVerified && !isAdmin && user.providerData.every(p => p.providerId === 'password')) {
+              showEmailVerificationGate(user);
+            } else if (isAdmin) {
               showAdminArea();
             } else if (uObj && uObj.paid) {
               showMemberArea();
@@ -1720,6 +1724,37 @@ function loadNotificationsForCurrentAccount() {
   updateNotificationsBadge();
 }
 
+function showEmailVerificationGate(user) {
+  ['public-site','member-area','admin-area','settings-area'].forEach(id => { const el=document.getElementById(id); if(el) el.style.display='none'; });
+  showCustomAlert('Verifique seu e-mail', `Enviamos um link de confirmação para ${user.email}. Confirme a conta para acessar as aulas.`);
+  const modal = document.getElementById('modal-auth');
+  if (modal) {
+    switchAuthTab('login');
+    openModal('modal-auth');
+    const box = modal.querySelector('.auth-box');
+    if (box && !box.querySelector('#verification-actions')) {
+      const actions = document.createElement('div');
+      actions.id = 'verification-actions';
+      actions.style.cssText = 'margin-top:14px;display:flex;gap:8px;flex-wrap:wrap';
+      actions.innerHTML = `<button type="button" class="btn-outline" onclick="resendVerificationEmail()">Reenviar e-mail</button><button type="button" class="btn-primary" onclick="refreshVerificationStatus()">Já confirmei</button>`;
+      box.appendChild(actions);
+    }
+  }
+}
+
+async function resendVerificationEmail() {
+  try { await window.firebaseModules.sendEmailVerification(window.auth.currentUser); showSuccessModal('E-mail reenviado. Verifique também a pasta de spam.'); }
+  catch (_) { showCustomAlert('Aguarde um pouco', 'Por segurança, espere alguns segundos antes de solicitar outro e-mail.'); }
+}
+
+async function refreshVerificationStatus() {
+  const user = window.auth.currentUser;
+  if (!user) return;
+  await user.reload();
+  if (user.emailVerified) { closeModal('modal-auth'); window.location.reload(); }
+  else showCustomAlert('Ainda não confirmado', 'Abra o link recebido no e-mail e tente novamente.');
+}
+
 function updateCourseStatsUI() {
   let totalMod = courseData.length;
   let totalLes = 0;
@@ -1748,11 +1783,21 @@ async function saveUserToCloud(userObj) {
   if (!window.db) return;
   const { doc, setDoc } = window.firebaseModules;
   try {
-    let safeId = userObj.email.replace(/[@.]/g, '_');
-    await setDoc(doc(window.db, "users", safeId), userObj);
+    const uid = userObj.uid || window.auth?.currentUser?.uid;
+    if (!uid) throw new Error('UID ausente');
+    await setDoc(doc(window.db, "users", uid), { ...userObj, uid }, { merge: true });
   } catch (err) {
     console.error("Erro ao salvar usuário:", err);
   }
+}
+
+async function saveProgressToCloud() {
+  const uid = window.auth?.currentUser?.uid;
+  if (!uid || !window.db) return;
+  try {
+    const { doc, setDoc } = window.firebaseModules;
+    await setDoc(doc(window.db, 'users', uid), { progress: { lessons: completedLessons[uid] || completedLessons[currentUser] || {}, exercises: completedQuizzes[uid] || completedQuizzes[currentUser] || {} } }, { merge:true });
+  } catch (e) { console.warn('Progresso será mantido localmente até a próxima sincronização.', e); }
 }
 
 function toggleMobileMenu() {
@@ -1929,7 +1974,7 @@ async function handleLogin(e) {
   const em = normalizeEmail(safeGetValue('login-email')); 
   const pw = safeGetValue('login-pass');
   const rememberMe = document.getElementById('remember-me')?.checked;
-  const { signInWithEmailAndPassword } = window.firebaseModules;
+  const { signInWithEmailAndPassword, setPersistence, browserLocalPersistence, browserSessionPersistence } = window.firebaseModules;
 
   if (rememberMe) {
     localStorage.setItem('remembered_email', em);
@@ -1938,6 +1983,7 @@ async function handleLogin(e) {
   }
 
   try {
+    await setPersistence(window.auth, rememberMe ? browserLocalPersistence : browserSessionPersistence);
     await signInWithEmailAndPassword(window.auth, em, pw);
     closeModal('modal-auth');
     showSuccessModal("Login realizado com sucesso!");
@@ -1995,20 +2041,22 @@ async function loginWithGoogle() {
     const result = await signInWithPopup(window.auth, provider);
     const user = result.user;
     
-    let safeId = user.email.replace(/[@.]/g, '_');
-    let userRef = doc(window.db, "users", safeId);
+    let userRef = doc(window.db, "users", user.uid);
     let userSnap = await getDoc(userRef);
 
     if (!userSnap.exists()) {
       let newUser = { 
         email: user.email, 
-        paid: user.email === TARGET_ADMIN_EMAIL, 
-        role: user.email === TARGET_ADMIN_EMAIL ? 'admin' : 'student', 
+        uid: user.uid,
+        paid: false,
+        role: 'student',
         fullname: user.displayName || 'Aluno Google', 
         avatar: user.photoURL || '',
         createdAt: new Date().toISOString()
       };
       await setDoc(userRef, newUser);
+    } else {
+      await setDoc(userRef, { uid:user.uid, email:user.email, fullname:user.displayName || userSnap.data().fullname || 'Aluno Google', avatar:user.photoURL || userSnap.data().avatar || '' }, { merge:true });
     }
 
     closeModal('modal-auth');
@@ -2043,7 +2091,7 @@ async function handleRegister(e) {
   const fullname = safeGetValue('reg-fullname');
   const em = normalizeEmail(safeGetValue('reg-email')); 
   const pw = safeGetValue('reg-pass');
-  const { createUserWithEmailAndPassword, doc, setDoc } = window.firebaseModules;
+  const { createUserWithEmailAndPassword, sendEmailVerification, updateProfile, doc, setDoc } = window.firebaseModules;
 
   if (!isValidFullName(fullname)) {
     showCustomAlert("Nome Inválido", "Por favor, digite seu Nome Completo real (Nome e Sobrenome).");
@@ -2056,22 +2104,24 @@ async function handleRegister(e) {
   }
 
   try {
-    await createUserWithEmailAndPassword(window.auth, em, pw);
-    const safeId = em.replace(/[@.]/g, '_');
+    const credential = await createUserWithEmailAndPassword(window.auth, em, pw);
+    await updateProfile(credential.user, { displayName: fullname });
+    await sendEmailVerification(credential.user);
     const newUserDoc = { 
+      uid: credential.user.uid,
       email: em, 
-      paid: em === TARGET_ADMIN_EMAIL, 
-      role: em === TARGET_ADMIN_EMAIL ? 'admin' : 'student', 
+      paid: false,
+      role: 'student',
       fullname: fullname,
       createdAt: new Date().toISOString()
     };
-    await setDoc(doc(window.db, "users", safeId), newUserDoc);
+    await setDoc(doc(window.db, "users", credential.user.uid), newUserDoc);
     salesTransactions.push({ id: "TX-"+Math.floor(1000+Math.random()*9000), email: `${fullname} <${em}>`, amount: 29.90, method: "Pix", status: "pendente", date: new Date().toLocaleString() });
     localStorage.setItem('admin_sales_transactions', JSON.stringify(salesTransactions));
     addNotification("Novo aluno cadastrado: " + fullname, 'admin', TARGET_ADMIN_EMAIL, 'novo_aluno');
     addNotification("Bem-vindo ao Informática do Zero! Sua conta foi criada com sucesso.", 'student', window.auth.currentUser?.uid || em, 'boas_vindas');
     closeModal('modal-auth');
-    showSuccessModal("Conta criada com sucesso! Seja bem-vindo à IDZ.");
+    showSuccessModal("Conta criada! Enviamos um link de confirmação para seu e-mail.");
   } catch (authErr) {
     console.error("Erro Cadastro:", authErr);
     if (authErr.code === 'auth/email-already-in-use') {
@@ -2971,80 +3021,31 @@ function openCheckoutModal() {
     showCustomAlert('Entre para continuar', 'Faça login ou crie sua conta antes de abrir o checkout. Sua intenção de compra foi preservada.');
     return;
   }
-  let payerEmail = user ? user.email : (checkoutTargetUser || 'aluno@email.com');
-
+  const payerEmail = user.email;
   resetPixPanel();
   openModal('modal-custom-checkout');
+  const host = document.getElementById('paymentBrick_container');
+  if (!host) return;
+  host.innerHTML = `<div class="idz-checkout-form">
+    <h3>Pagamento seguro IDZ</h3><p>Escolha Pix ou cartão. Seus dados são processados pela API segura da plataforma.</p>
+    <label>Método <select id="idz-pay-method"><option value="pix">Pix</option><option value="card">Cartão</option></select></label>
+    <label>CPF <input id="idz-pay-cpf" inputmode="numeric" placeholder="000.000.000-00"></label>
+    <button class="btn-primary" type="button" onclick="submitIdzCheckout()">Continuar pagamento</button>
+  </div>`;
+}
 
-  // Ao trocar Pix por cartão dentro do Brick, remove imediatamente o QR anterior.
-  const brickHost = document.getElementById('paymentBrick_container');
-  if (brickHost && !brickHost.dataset.pixSwitchBound) {
-    brickHost.addEventListener('change', (event) => {
-      const input = event.target;
-      if (input?.type === 'radio' && !String(input.value || '').toLowerCase().includes('pix')) resetPixPanel();
-    });
-    brickHost.dataset.pixSwitchBound = '1';
-  }
-
-  setTimeout(async () => {
-    try {
-      const mp = new MercadoPago(PUBLIC_KEY_MP, { locale: 'pt-BR' });
-      const bricksBuilder = mp.bricks();
-
-      if (paymentBrickController) {
-        paymentBrickController.unmount();
-      }
-
-      paymentBrickController = await bricksBuilder.create('payment', 'paymentBrick_container', {
-        initialization: {
-          amount: currentCheckoutAmount,
-          payer: { email: payerEmail }
-        },
-        customization: {
-          paymentMethods: { creditCard: 'all', bankTransfer: ['pix'], maxInstallments: 5 },
-          visual: { style: { theme: 'dark' } }
-        },
-        callbacks: {
-          onReady: () => {},
-          onSubmit: ({ selectedPaymentMethod, formData }) => {
-            return new Promise((resolve, reject) => {
-              fetch(RAILWAY_BACKEND_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData)
-              })
-              .then(async res => {
-                const payload = await res.json().catch(() => ({}));
-                if (!res.ok) throw new Error(payload.message || 'O gateway recusou a criação do pagamento.');
-                return payload;
-              })
-              .then(response => {
-                if (String(selectedPaymentMethod || '').toLowerCase().includes('card') || String(formData?.payment_method_id || '').toLowerCase().includes('card')) resetPixPanel();
-                if (response.success && response.status === 'approved') {
-                  showSuccessModal("Pagamento Aprovado com Sucesso!");
-                  closeModal('modal-custom-checkout');
-                  if(user) setStudentPaymentStatus(user.email, true);
-                } else if (showPixPayment(response)) {
-                  /* Pix criado: mantém checkout aberto para o aluno escanear/copiar. */
-                } else {
-                  showCustomAlert("Aviso de Pagamento", "O pagamento foi criado, mas o backend não devolveu QR Code ou código Pix. Atualize o endpoint para retornar pix.qr_code e pix.qr_code_base64.");
-                }
-                resolve();
-              })
-              .catch(err => {
-                console.error('Falha ao criar pagamento:', err);
-                showCustomAlert("Erro no Pagamento", err.message || "Falha de comunicação com o servidor de pagamento.");
-                reject();
-              });
-            });
-          },
-          onError: (error) => { console.error('Erro no Brick Mercado Pago:', error); }
-        }
-      });
-    } catch (e) {
-      console.error("Erro ao carregar checkout Mercado Pago:", e);
-    }
-  }, 200);
+async function submitIdzCheckout() {
+  const user = window.auth?.currentUser;
+  if (!user) return;
+  const method = document.getElementById('idz-pay-method')?.value || 'pix';
+  const cpf = document.getElementById('idz-pay-cpf')?.value || '';
+  try {
+    const response = await fetch(`${RAILWAY_BACKEND_URL}/api/checkout`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ uid:user.uid, email:user.email, amount:currentCheckoutAmount, paymentMethod:method, cpf }) });
+    const payload = await response.json().catch(()=>({}));
+    if (!response.ok) throw new Error(payload.message || 'Não foi possível iniciar o pagamento.');
+    if (method === 'pix' || payload.pix || payload.qr_code) showPixPayment(payload);
+    else showSuccessModal('Pagamento enviado para processamento.');
+  } catch (e) { showCustomAlert('Erro no pagamento', e.message); }
 }
 </script>
 </body>
