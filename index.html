@@ -25,6 +25,7 @@
   import { getFirestore, collection, doc, setDoc, getDoc, getDocs, onSnapshot, deleteDoc, query, where, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
   import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
   import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithCustomToken, signOut, sendPasswordResetEmail, sendEmailVerification, updateEmail, updatePassword, updateProfile, onAuthStateChanged, setPersistence, browserLocalPersistence, browserSessionPersistence, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+  import { courseV2 } from "./course-v2.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyBAQ1HRInFDHnOERD3iD9lifBcJAhRWI1c",
@@ -864,7 +865,7 @@ nav,#public-site,#member-area,#settings-area,#admin-area,footer { position:relat
         <p style="font-size: 13.5px; margin-bottom: 22px;">Aprenda no seu ritmo com suporte dedicado.</p>
         
         <div class="benefits-list">
-          <div id="benefit-lessons-count"><i class="fa-solid fa-check"></i> Aulas práticas em 15 Módulos</div>
+          <div id="benefit-lessons-count"><i class="fa-solid fa-check"></i> 12 Módulos + Projeto Final</div>
           <div><i class="fa-solid fa-check"></i> Bônus práticos e exclusivos</div>
           <div><i class="fa-solid fa-check"></i> Acesso via celular ou computador</div>
           <div><i class="fa-solid fa-check"></i> Certificado de Conclusão Oficial</div>
@@ -1398,116 +1399,38 @@ function animateParticles() {
 }
 initParticles(); animateParticles();
 
-// ESTRUTURA COMPLETA DE MÓDULOS E AULAS RESTAURADA
-const defaultCourseData = [
-  {
-    id: 1, title: "MÓDULO 1 — INTRODUÇÃO À INFORMÁTICA", intro: "Hardware, periféricos e introdução ao ambiente digital.",
-    lessons: [
-      { id: 101, title: "Aula 1 — Arquitetura de Hardware e Software", bloco1: "Componentes físicos e lógicos.", bloco2: "Processador, RAM e SSD.", bloco3: "Identificar peças.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Qual componente armazena dados permanentemente?", options: ["RAM", "Processador", "SSD", "Cooler"], correct: 2 } },
-      { id: 102, title: "Aula 2 — Periféricos e Conectividade Atual", bloco1: "USB, Bluetooth e Wi-Fi.", bloco2: "Conectar acessórios com eficiência.", bloco3: "Dominar conexões.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Qual tecnologia é padrão para sem fio?", options: ["Bluetooth", "Cabo Paralelo", "Rede Discada", "Infrasom"], correct: 0 } },
-      { id: 103, title: "Aula 3 — Ligando e Desligando com Segurança", bloco1: "Processo correto de inicialização.", bloco2: "Evitar perda de dados.", bloco3: "Zelar pelo equipamento.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Por que não se deve desligar o PC direto na tomada?", options: ["Gasta luz", "Pode corromper arquivos", "Queima o mouse", "Não afeta em nada"], correct: 1 } },
-      { id: 104, title: "Aula 4 — Conhecendo a Área de Trabalho", bloco1: "Interface principal.", bloco2: "Ícones e atalhos iniciais.", bloco3: "Navegação rápida.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Onde ficam os atalhos principais?", options: ["Na Área de Trabalho", "Na placa de vídeo", "No teclado", "No estabilizador"], correct: 0 } }
-    ]
-  },
-  {
-    id: 2, title: "MÓDULO 2 — TECLADO E MOUSE", intro: "Agilidade física e atalhos globais de produtividade.",
-    lessons: [
-      { id: 201, title: "Aula 1 — Anatomia do Mouse e Cliques", bloco1: "Scroll, clique duplo e botão direito.", bloco2: "Navegação rápida em menus.", bloco3: "Ganhar precisão.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Para que serve o botão direito?", options: ["Reiniciar", "Abrir menu de contexto", "Desligar", "Atualizar"], correct: 1 } },
-      { id: 202, title: "Aula 2 — Atalhos Universais de Produtividade", bloco1: "Ctrl+C, Ctrl+V, Ctrl+Z.", bloco2: "Economizar cliques.", bloco3: "Multiplicar velocidade.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Qual atalho cola um conteúdo copiado?", options: ["Ctrl+C", "Ctrl+V", "Ctrl+X", "Ctrl+Z"], correct: 1 } },
-      { id: 203, title: "Aula 3 — Funções das Teclas Especiais", bloco1: "Shift, Alt, Ctrl, Tab, Esc.", bloco2: "Funções secundárias.", bloco3: "Domínio do teclado.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Qual tecla cancela ou fecha caixas de diálogo?", options: ["Esc", "Enter", "F5", "Space"], correct: 0 } },
-      { id: 204, title: "Aula 4 — Digitação Eficiente", bloco1: "Posicionamento correto das mãos.", bloco2: "Velocidade sem olhar para as teclas.", bloco3: "Prática diária.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Qual o objetivo da digitação tátil?", options: ["Digitar mais rápido sem olhar", "Gastar o teclado", "Usar apenas dois dedos", "Desligar o PC"], correct: 0 } }
-    ]
-  },
-  {
-    id: 3, title: "MÓDULO 3 — SISTEMA WINDOWS", intro: "Gerenciamento de pastas, janelas e atalhos do sistema.",
-    lessons: [
-      { id: 301, title: "Aula 1 — Barra de Tarefas e Notificações", bloco1: "Personalização e menu iniciar.", bloco2: "Fixar aplicativos.", bloco3: "Organização.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Onde fixamos programas rápidos?", options: ["Lixeira", "Barra de Tarefas", "Painel traseiro", "Cabo de rede"], correct: 1 } },
-      { id: 302, title: "Aula 2 — Explorador de Arquivos", bloco1: "Copiar, mover e excluir.", bloco2: "Estrutura lógica.", bloco3: "Organização digital.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Atalho para nova pasta?", options: ["Ctrl+Shift+N", "Ctrl+C", "F2", "Alt+Tab"], correct: 0 } },
-      { id: 303, title: "Aula 3 — Lixeira e Recuperação de Dados", bloco1: "Como esvaziar e recuperar arquivos.", bloco2: "Segurança contra exclusões acidentais.", bloco3: "Gestão de espaço.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "O que acontece ao esvaziar a lixeira?", options: ["Os arquivos são apagados permanentemente", "O PC acelera", "O monitor desliga", "Nada muda"], correct: 0 } },
-      { id: 304, title: "Aula 4 — Painel de Controle e Configurações", bloco1: "Ajustes de vídeo, som e rede.", bloco2: "Personalização avançada.", bloco3: "Domínio do sistema.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Onde alteramos o volume e resolução de tela?", options: ["Configurações / Painel de Controle", "Bloco de Notas", "Word", "Lixeira"], correct: 0 } }
-    ]
-  },
-  {
-    id: 4, title: "MÓDULO 4 — INTERNET E E-MAIL", intro: "Navegação segura, pesquisas e configuração de correio.",
-    lessons: [
-      { id: 401, title: "Aula 1 — Navegadores e Segurança na Web", bloco1: "Chrome, abas anônimas e HTTPS.", bloco2: "Navegação segura.", bloco3: "Identificar sites confiáveis.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "O que o cadeado indica?", options: ["Site pago", "Conexão criptografada e segura", "Vírus", "Internet lenta"], correct: 1 } },
-      { id: 402, title: "Aula 2 — Configuração e Uso de E-mail", bloco1: "Gmail e Outlook.", bloco2: "Etiqueta corporativa.", bloco3: "Profissionalizar comunicação.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Qual campo traz o resumo do e-mail?", options: ["Senha", "Assunto", "Anexo", "Assinatura"], correct: 1 } },
-      { id: 403, title: "Aula 3 — Anexos e Links na Nuvem", bloco1: "Enviando arquivos grandes.", bloco2: "Segurança nos downloads.", bloco3: "Prática web.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Como enviar arquivos muito pesados por e-mail?", options: ["Usando links de nuvem / anexos seguros", "Imprimindo na tela", "Reiniciando o modem", "Desligando o antivírus"], correct: 0 } }
-    ]
-  },
-  {
-    id: 5, title: "MÓDULO 5 — MICROSOFT WORD", intro: "Criação de textos, contratos e formatação.",
-    lessons: [
-      { id: 501, title: "Aula 1 — Formatação de Textos e Fontes", bloco1: "Alinhamento e espaçamento.", bloco2: "Regras ABNT.", bloco3: "Criar documentos formais.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Qual tecla cria novo parágrafo?", options: ["Enter", "Shift", "Espaço", "Esc"], correct: 0 } },
-      { id: 502, title: "Aula 2 — Tabelas e Imagens", bloco1: "Inserir tabelas e imagens.", bloco2: "Layout atraente.", bloco3: "Apresentação impecável.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Onde encontramos tabelas no Word?", options: ["Página Inicial", "Inserir", "Exibição", "Ajuda"], correct: 1 } },
-      { id: 503, title: "Aula 3 — Salvando em PDF", bloco1: "Exportar documentos.", bloco2: "Compatibilidade universal.", bloco3: "Entrega profissional.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Para que serve o formato PDF?", options: ["Travar formatação para leitura universal", "Criar vírus", "Aumentar tamanho do texto", "Imprimir em 3D"], correct: 0 } }
-    ]
-  },
-  {
-    id: 6, title: "MÓDULO 6 — EXCEL BÁSICO", intro: "Planilhas, células e operações matemáticas.",
-    lessons: [
-      { id: 601, title: "Aula 1 — Entendendo a Grade e Células", bloco1: "Linhas, colunas e células.", bloco2: "Inserir dados.", bloco3: "Navegação.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Célula coluna B linha 3?", options: ["3B", "B3", "Cel-B3", "Linha3B"], correct: 1 } },
-      { id: 602, title: "Aula 2 — Primeiras Fórmulas", bloco1: "Soma e subtração.", bloco2: "Automatizar contas.", bloco3: "Eliminar calculadoras.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Qual caractere inicia fórmulas?", options: ["#", "$", "=", "+"], correct: 2 } },
-      { id: 603, title: "Aula 3 — Formatação de Tabelas e Moeda", bloco1: "Estilos e R$.", bloco2: "Visual financeiro.", bloco3: "Apresentação limpa.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Onde aplicamos o formato de dinheiro R$?", options: ["No botão de Moeda / Estilo de Célula", "No Word", "No Bloco de Notas", "Na Lixeira"], correct: 0 } }
-    ]
-  },
-  {
-    id: 7, title: "MÓDULO 7 — EXCEL INTERMEDIÁRIO", intro: "Funções lógicas, PROCV e gráficos.",
-    lessons: [
-      { id: 701, title: "Aula 1 — A Função SE Condicional", bloco1: "Lógica se/então.", bloco2: "Automatizar decisões.", bloco3: "Relatórios inteligentes.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "O que o SE avalia?", options: ["Cor da célula", "Condição lógica para resultados diferentes", "Tamanho do monitor", "Velocidade de rede"], correct: 1 } },
-      { id: 702, title: "Aula 2 — Gráficos Dinâmicos", bloco1: "Colunas e pizza.", bloco2: "Visualizar números.", bloco3: "Análise gerencial.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Gráfico para proporções?", options: ["Pizza", "Linhas", "Dispersão", "Rede"], correct: 0 } },
-      { id: 703, title: "Aula 3 — Função PROCV Básica", bloco1: "Busca de dados em tabelas.", bloco2: "Cruzamento de informações.", bloco3: "Agilidade.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Para que serve o PROCV?", options: ["Procurar valores verticalmente em uma tabela", "Apagar planilhas", "Imprimir colorido", "Enviar e-mails"], correct: 0 } }
-    ]
-  },
-  {
-    id: 8, title: "MÓDULO 8 — APRESENTAÇÕES DE SLIDES", intro: "Criação de apresentações visuais.",
-    lessons: [
-      { id: 801, title: "Aula 1 — Regras de Ouro para Slides", bloco1: "Hierarquia visual e foco.", bloco2: "Evitar poluição.", bloco3: "Clareza.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Erro comum em slides?", options: ["Usar imagens boas", "Colocar blocos enormes de texto para ler", "Cores sóbrias", "Falar pausadamente"], correct: 1 } },
-      { id: 802, title: "Aula 2 — Animações e Transições", bloco1: "Dinamismo na apresentação.", bloco2: "Uso moderado de efeitos.", bloco3: "Profissionalismo.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Como devem ser as animações de slides?", options: ["Discretas e profissionais", "Exageradas e piscando", "Inexistentes", "Com som alto"], correct: 0 } }
-    ]
-  },
-  {
-    id: 9, title: "MÓDULO 9 — SEGURANÇA DIGITAL", intro: "Prevenção a golpes e senhas fortes.",
-    lessons: [
-      { id: 901, title: "Aula 1 — Detectando Phishing", bloco1: "Links falsos e engenharia social.", bloco2: "Proteger dados.", bloco3: "Navegação defensiva.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "O que é Phishing?", options: ["Antivírus desatualizado", "Tentativa de roubar senhas fingindo ser instituição confiável", "Limpeza de disco", "Falha de teclado"], correct: 1 } },
-      { id: 902, title: "Aula 2 — Criação de Senhas Blindadas", bloco1: "Mistura de caracteres e gerenciadores.", bloco2: "Segurança de contas.", bloco3: "Prevenção.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Qual senha é mais segura?", options: ["123456", "data de nascimento", "Mi@9#xP!zK8", "nome do pet"], correct: 2 } }
-    ]
-  },
-  {
-    id: 10, title: "MÓDULO 10 — MANUTENÇÃO DO SISTEMA", intro: "Limpeza de arquivos e otimização.",
-    lessons: [
-      { id: 1001, title: "Aula 1 — Limpeza de Cache e Espaço", bloco1: "Remover arquivos inúteis.", bloco2: "Recuperar velocidade.", bloco3: "Otimização.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Onde ficam arquivos temporários?", options: ["Placa mãe", "Pastas de cache e temporários do Windows", "Chip de áudio", "Cabo do mouse"], correct: 1 } },
-      { id: 1002, title: "Aula 2 — Atualizações e Antivírus", bloco1: "Manter o sistema seguro.", bloco2: "Correções de falhas.", bloco3: "Proteção.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Para que serve atualizar o sistema?", options: ["Corrigir falhas de segurança e melhorar desempenho", "Aumentar o consumo de luz", "Travar o computador", "Apagar fotos"], correct: 0 } }
-    ]
-  },
-  {
-    id: 11, title: "MÓDULO 11 — NUVEM E BACKUP", intro: "Google Drive e OneDrive.",
-    lessons: [
-      { id: 1101, title: "Aula 1 — Protegendo Arquivos na Nuvem", bloco1: "Upload e compartilhamento.", bloco2: "Acesso remoto.", bloco3: "Backup automático.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Vantagem da nuvem?", options: ["Ocupa menos espaço físico", "Acesso de qualquer dispositivo com internet", "Imune a senhas", "Funciona sem luz"], correct: 1 } }
-    ]
-  },
-  {
-    id: 12, title: "MÓDULO 12 — GOOGLE WORKSPACE", intro: "Ferramentas colaborativas.",
-    lessons: [
-      { id: 1201, title: "Aula 1 — Documentos e Planilhas Online", bloco1: "Edição simultânea.", bloco2: "Permissões de acesso.", bloco3: "Trabalho em equipe.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Onde salvam arquivos do Google Workspace?", options: ["Lixeira", "Google Drive", "Processador", "Roteador"], correct: 1 } }
-    ]
-  },
-  {
-    id: 13, title: "MÓDULO 13 — INTELIGÊNCIA ARTIFICIAL", intro: "Uso prático de assistentes de IA.",
-    lessons: [
-      { id: 1301, title: "Aula 1 — Escrevendo Prompts Eficientes", bloco1: "Como instruir assistentes.", bloco2: "Criação de textos e planilhas.", bloco3: "Produtividade.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "O que é um Prompt?", options: ["Comando ou pergunta enviada à IA", "Velocidade de banda", "Formato PDF", "Antivírus"], correct: 0 } }
-    ]
-  },
-  {
-    id: 14, title: "MÓDULO 14 — EMPREGABILIDADE E CURRÍCULO", intro: "Elaboração de currículos modernos.",
-    lessons: [
-      { id: 1401, title: "Aula 1 — O Currículo na Era Digital", bloco1: "Estrutura direta e competências.", bloco2: "Destaque de informática.", bloco3: "Oportunidades.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "O que priorizar no currículo?", options: ["Excesso de cores", "Objetividade e clareza nas competências", "Cinco páginas de texto", "Dados confidenciais"], correct: 1 } }
-    ]
-  },
-  {
-    id: 15, title: "MÓDULO 15 — PROJETO FINAL E CERTIFICADO", intro: "Consolidação e certificado oficial.",
-    lessons: [
-      { id: 1501, title: "Aula 1 — Encerramento e Emissão", bloco1: "Revisão geral.", bloco2: "Certificado oficial em PDF.", bloco3: "Autonomia digital.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "O que valida a conquista do certificado?", options: ["Conclusão de todas as aulas e exercícios", "Cadastro inicial", "Comprar PC novo", "Navegar em redes"], correct: 0 } }
+// ESTconst courseV2Runtime = courseV2.modules.map((mod, moduleIndex) => ({
+  ...mod,
+  id: moduleIndex + 1,
+  courseVersion: 2,
+  lessons: (mod.lessons || []).map((item, lessonIndex) => ({
+    ...item,
+    id: (moduleIndex + 1) * 100 + lessonIndex + 1,
+    moduleId: moduleIndex + 1,
+    quiz: item.exercises?.[0] ? {
+      question: item.exercises[0].question,
+      options: item.exercises[0].options,
+      correct: item.exercises[0].correctAnswer
+    } : null
+  }))
+}));
+
+function selectCourseData(snapshotData) {
+  const hasV2 = snapshotData.some(mod => mod && (mod.courseVersion === 2 || mod.type === 'project'));
+  if (!hasV2 && snapshotData.length) {
+    try {
+      localStorage.setItem('course_migration_v1_history', JSON.stringify({
+        savedAt: new Date().toISOString(),
+        modules: snapshotData
+      }));
+    } catch (_) {}
+  }
+  return hasV2
+    ? normalizeCourseData(snapshotData)
+    : normalizeCourseData(courseV2Runtime);
+}
+
+avegar em redes"], correct: 0 } }
     ]
   }
 ];
@@ -1713,24 +1636,18 @@ window.onload = function() {
       (async () => {
         try {
           const snap = await getDocs(collection(window.db, "modules"));
-          if (snap.empty || snap.size < 15) {
-            for (const mod of normalizeCourseData(defaultCourseData)) {
-              await setDoc(doc(window.db, "modules", mod.id.toString()), mod);
-            }
-          } else {
-            for (const mod of snap.docs.map(d => normalizeCourseData([d.data()])[0])) {
-              await setDoc(doc(window.db, 'modules', mod.id.toString()), mod, { merge: true });
-            }
-          }
+          const snapshotData = snap.docs.map(d => d.data());
+          courseData = selectCourseData(snapshotData);
+          updateCourseStatsUI();
         } catch (e) {
           console.error("Erro ao inicializar coleção de módulos:", e);
         }
       })();
 
       onSnapshot(collection(window.db, "modules"), (snapshot) => {
-        courseData = [];
-        snapshot.forEach((docSnap) => courseData.push(normalizeCourseData([docSnap.data()])[0]));
-        courseData.sort((a, b) => a.id - b.id);
+        const snapshotData = snapshot.docs.map(docSnap => docSnap.data());
+        courseData = selectCourseData(snapshotData);
+        courseData.sort((a, b) => Number(a.id) - Number(b.id));
         updateCourseStatsUI();
 
         if (currentUser && document.getElementById('member-area')?.style.display === 'block') {
