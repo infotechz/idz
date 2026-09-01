@@ -22,7 +22,6 @@
 
 <script src="course-v2.js"></script>
 <script type="module">
-  const courseV2 = window.IDZ_COURSE_V2 || { modules: [] };
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
   import { getFirestore, collection, doc, setDoc, getDoc, getDocs, onSnapshot, deleteDoc, query, where, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
   import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
@@ -1318,6 +1317,7 @@ nav,#public-site,#member-area,#settings-area,#admin-area,footer { position:relat
 </footer>
 
 <script>
+const courseV2 = window.IDZ_COURSE_V2 || { modules: [] };
 const RAILWAY_BACKEND_URL = "https://backend-informatica-do-zero-production.up.railway.app";
 const MP_PUBLIC_KEY = "APP_USR-0af39126-fabc-4dd9-bbe2-90bbf9fe1521";
 const ADMIN_COMPAT_LOGIN_URL = "https://backend-informatica-do-zero-production.up.railway.app/admin/compat-login";
