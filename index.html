@@ -16,8 +16,9 @@
 
     <style>
         :root {
-            --bg-dark: #0f172a;
+            --bg-dark: #0b0f19;
             --bg-card: #1e293b;
+            --bg-hover: #334155;
             --border-color: #334155;
             --text-main: #f8fafc;
             --text-secondary: #94a3b8;
@@ -28,66 +29,124 @@
         }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
         body { background-color: var(--bg-dark); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; }
-        header { background: var(--bg-card); border-bottom: 1px solid var(--border-color); padding: 20px; text-align: center; }
-        h1 { font-size: 24px; font-weight: 800; color: #fff; }
-        .container { max-width: 900px; margin: 30px auto; padding: 0 20px; width: 100%; flex: 1; }
-        .card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 24px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .btn { background: var(--accent-blue); color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; }
+        
+        header { background: var(--bg-card); border-bottom: 1px solid var(--border-color); padding: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+        .logo-area { display: flex; align-items: center; gap: 12px; }
+        .logo-icon { font-size: 28px; color: var(--accent-cyan); }
+        h1 { font-size: 20px; font-weight: 800; color: #fff; letter-spacing: 0.5px; }
+        
+        .container { max-width: 1000px; margin: 30px auto; padding: 0 20px; width: 100%; flex: 1; }
+        
+        .card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 28px; margin-bottom: 24px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3); }
+        
+        .btn { background: var(--accent-blue); color: white; border: none; padding: 12px 24px; border-radius: 10px; font-weight: 600; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; font-size: 14px; }
         .btn:hover { background: var(--accent-hover); transform: translateY(-1px); }
-        .module-title { font-size: 18px; font-weight: 700; color: var(--accent-cyan); margin-bottom: 10px; }
-        .lesson-item { padding: 12px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
-        .lesson-item:last-child { border-bottom: none; }
-        #loading { text-align: center; padding: 50px; font-size: 18px; color: var(--text-secondary); }
+        .btn-green { background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 4px 12px rgba(16,185,129,0.3); }
+        .btn-green:hover { opacity: 0.9; }
+
+        .module-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; cursor: pointer; }
+        .module-title { font-size: 18px; font-weight: 700; color: var(--accent-cyan); }
+        
+        .lessons-list { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
+        .lesson-item { background: rgba(15, 23, 42, 0.5); border: 1px solid var(--border-color); padding: 14px 18px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; transition: 0.2s; cursor: pointer; }
+        .lesson-item:hover { background: var(--bg-hover); border-color: var(--accent-cyan); }
+        
+        .lesson-title { font-weight: 500; font-size: 15px; display: flex; align-items: center; gap: 10px; }
+        .status-badge { font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 20px; background: rgba(16,185,129,0.15); color: var(--green); border: 1px solid rgba(16,185,129,0.3); }
+
+        #loading { text-align: center; padding: 60px; font-size: 18px; color: var(--text-secondary); }
+        
+        .auth-box { max-width: 420px; margin: 60px auto; text-align: center; }
+        .input-field { width: 100%; padding: 14px 16px; background: rgba(15,23,42,0.6); border: 1px solid var(--border-color); border-radius: 10px; color: #fff; font-size: 15px; margin-bottom: 16px; outline: none; }
+        .input-field:focus { border-color: var(--accent-cyan); }
     </style>
 </head>
 <body>
     <header>
-        <h1>💻 INFORMÁTICA DO ZERO</h1>
-        <p style="color: var(--text-secondary); font-size: 14px; margin-top: 5px;">Curso Completo para Iniciantes</p>
+        <div class="logo-area">
+            <i class="fa-solid fa-laptop-code logo-icon"></i>
+            <div>
+                <h1>INFORMÁTICA DO ZERO</h1>
+                <p style="color: var(--text-secondary); font-size: 12px;">Plataforma de Ensino Completa</p>
+            </div>
+        </div>
+        <div id="user-header-info" style="font-size: 14px; color: var(--text-secondary);"></div>
     </header>
 
     <div class="container" id="app-container">
-        <div id="loading"><i class="fa-solid fa-spinner fa-spin"></i> Carregando curso e estrutura...</div>
+        <div id="loading"><i class="fa-solid fa-spinner fa-spin"></i> Inicializando ambiente de estudos...</div>
     </div>
 
-    <!-- Script principal de integração e carregamento dinâmico -->
+    <!-- Lógica Principal do Aplicativo -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, doc, getDoc, getDocs, collection } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, getDocs, collection } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // Substitua abaixo com as suas credenciais reais do Firebase se ainda não estiverem configuradas globalmente
         const firebaseConfig = {
-            apiKey: "SUA_API_KEY",
-            authDomain: "SEU_AUTH_DOMAIN",
-            projectId: "informatica-do-zero-40928",
-            storageBucket: "SEU_STORAGE_BUCKET",
-            messagingSenderId: "SEU_MESSAGING_SENDER_ID",
-            appId: "SEU_APP_ID"
+            projectId: "informatica-do-zero-40928"
         };
 
         let app;
-        try {
-            app = initializeApp(firebaseConfig);
-        } catch (e) {
-            // Caso já inicializado em outro script
-        }
+        try { app = initializeApp(firebaseConfig); } catch (e) {}
         const db = getFirestore();
         window.db = db;
 
+        let currentUser = localStorage.getItem("idz_user") || null;
+
         window.generateOfficialCertificatePDF = function(studentName) {
-            alert("Gerando o Certificado Oficial em PDF para: " + (studentName || "Aluno(a)") + ". Parabéns pela conquista!");
+            alert("Gerando o Certificado Oficial em PDF para: " + (studentName || currentUser || "Aluno(a)") + ". Parabéns pela conquista!");
         }
 
-        async function initApp() {
+        window.handleLogin = function(event) {
+            event.preventDefault();
+            const nameInput = document.getElementById("student-name-input").value.trim();
+            if (!nameInput) {
+                alert("Por favor, digite seu nome completo.");
+                return;
+            }
+            currentUser = nameInput;
+            localStorage.setItem("idz_user", currentUser);
+            renderDashboard();
+        }
+
+        window.handleLogout = function() {
+            localStorage.removeItem("idz_user");
+            currentUser = null;
+            renderAuthScreen();
+        }
+
+        function renderAuthScreen() {
+            document.getElementById('user-header-info').innerHTML = '';
             const container = document.getElementById('app-container');
+            container.innerHTML = `
+                <div class="card auth-box">
+                    <h2 style="font-size: 22px; margin-bottom: 8px; color: #fff;">Bem-vindo ao Curso!</h2>
+                    <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 24px;">Insira seu nome completo para acessar o painel de aulas e acompanhar seu progresso.</p>
+                    <form onsubmit="handleLogin(event)">
+                        <input type="text" id="student-name-input" class="input-field" placeholder="Seu nome completo..." required autocomplete="name">
+                        <button type="submit" class="btn" style="width: 100%; justify-content: center;">Acessar Plataforma <i class="fa-solid fa-arrow-right"></i></button>
+                    </form>
+                </div>
+            `;
+        }
+
+        async function renderDashboard() {
+            document.getElementById('user-header-info').innerHTML = `
+                <span><i class="fa-solid fa-user-circle" style="color:var(--accent-cyan); margin-right:6px;"></i> ${currentUser}</span>
+                <button onclick="handleLogout()" style="background:none; border:none; color:var(--text-secondary); cursor:pointer; margin-left:12px; font-size:13px;" title="Sair"><i class="fa-solid fa-right-from-bracket"></i></button>
+            `;
+
+            const container = document.getElementById('app-container');
+            container.innerHTML = `<div id="loading"><i class="fa-solid fa-spinner fa-spin"></i> Carregando módulos do curso...</div>`;
+
             try {
                 const querySnapshot = await getDocs(collection(db, "modules"));
                 if (querySnapshot.empty) {
                     container.innerHTML = `
                         <div class="card" style="text-align: center;">
-                            <h2 class="module-title">⚠️ Nenhum Módulo Encontrado no Banco de Dados</h2>
-                            <p style="color: var(--text-secondary); margin: 15px 0;">O banco do Firestore está vazio. Certifique-se de ter injetado a ementa completa pelo console do navegador.</p>
-                            <button class="btn" onclick="location.reload()"><i class="fa-solid fa-rotate-right"></i> Recarregar Página</button>
+                            <h2 class="module-title">⚠️ Banco de Dados Vazio</h2>
+                            <p style="color: var(--text-secondary); margin: 15px 0;">Nenhum módulo foi encontrado no Firestore.</p>
+                            <button class="btn" onclick="location.reload()"><i class="fa-solid fa-rotate-right"></i> Recarregar</button>
                         </div>
                     `;
                     return;
@@ -97,15 +156,13 @@
                 querySnapshot.forEach((docSnap) => {
                     modulesList.push({ id: docSnap.id, ...docSnap.data() });
                 });
-                // Ordena por ID numérico
                 modulesList.sort((a, b) => Number(a.id) - Number(b.id));
 
                 let htmlContent = `
                     <div class="card">
-                        <h2 class="module-title"><i class="fa-solid fa-graduation-cap"></i> Bem-vindo ao Painel do Aluno</h2>
-                        <p style="color: var(--text-secondary); line-height: 1.6; margin-top: 8px;">
-                            Sua jornada rumo à autonomia digital está estruturada em 12 módulos principais e 3 bônus exclusivos. 
-                            Estude as aulas, responda aos quizzes e resgate seu certificado ao final!
+                        <h2 class="module-title"><i class="fa-solid fa-graduation-cap"></i> Painel Geral do Aluno</h2>
+                        <p style="color: var(--text-secondary); line-height: 1.6; margin-top: 8px; font-size: 15px;">
+                            Sua jornada rumo à autonomia digital está dividida em módulos práticos. Estude os conteúdos, fixe o aprendizado com os exercícios e resgate seu certificado ao concluir!
                         </p>
                     </div>
                 `;
@@ -114,16 +171,19 @@
                     htmlContent += `
                         <div class="card">
                             <h3 class="module-title">${mod.title}</h3>
-                            <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 15px;">${mod.intro || ''}</p>
-                            <div style="background: rgba(15,23,42,0.4); border-radius: 8px; border: 1px solid var(--border-color);">
+                            <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 16px;">${mod.intro || ''}</p>
+                            <div class="lessons-list">
                     `;
                     
                     if (mod.lessons && Array.isArray(mod.lessons)) {
                         mod.lessons.forEach(lesson => {
                             htmlContent += `
                                 <div class="lesson-item">
-                                    <span style="font-weight: 500; font-size: 15px;"><i class="fa-regular fa-circle-play" style="color: var(--accent-cyan); margin-right: 8px;"></i> ${lesson.title}</span>
-                                    <span style="font-size: 12px; color: var(--green); font-weight: 600;"><i class="fa-solid fa-check"></i> Disponível</span>
+                                    <div class="lesson-title">
+                                        <i class="fa-solid fa-play-circle" style="color: var(--accent-cyan); font-size: 18px;"></i>
+                                        <span>${lesson.title}</span>
+                                    </div>
+                                    <span class="status-badge"><i class="fa-solid fa-check"></i> Disponível</span>
                                 </div>
                             `;
                         });
@@ -132,20 +192,20 @@
                     htmlContent += `</div></div>`;
                 });
 
-                // Bloco de Conclusão e Certificado Oficial (Ativado ao final do curso)
+                // Bloco de Conclusão e Certificado
                 htmlContent += `
-                    <div style="margin-top: 35px; padding: 32px; background: radial-gradient(circle at center, rgba(16, 185, 129, 0.15), rgba(15, 23, 42, 0.95)); border: 2px solid var(--green); border-radius: 24px; text-align: center; box-shadow: 0 0 30px rgba(16,185,129,0.25);">
+                    <div style="margin-top: 40px; padding: 36px; background: radial-gradient(circle at center, rgba(16, 185, 129, 0.15), rgba(15, 23, 42, 0.95)); border: 2px solid var(--green); border-radius: 20px; text-align: center; box-shadow: 0 0 30px rgba(16,185,129,0.25);">
                         <div style="font-size: 56px; margin-bottom: 12px; filter: drop-shadow(0 0 10px rgba(16,185,129,0.5));">🏆🎉</div>
-                        <h3 style="color: #fff; font-size: 24px; font-weight: 800; margin-bottom: 8px;">PARABÉNS! VOCÊ CONCLUIU A SUA JORNADA!</h3>
+                        <h3 style="color: #fff; font-size: 24px; font-weight: 800; margin-bottom: 8px;">PARABÉNS, ${currentUser.toUpperCase()}!</h3>
                         <p style="color: var(--accent-cyan); font-size: 15px; font-weight: 700; margin-bottom: 16px;">Sua Autonomia Digital começa agora!</p>
                         
                         <p style="color: var(--text-secondary); font-size: 14px; max-width: 650px; margin: 0 auto 24px; line-height: 1.6;">
-                            Você passou com sucesso por todos os fundamentos do computador, teclado e mouse, arquivos, internet, e-mail, documentos, planilhas, apresentações, nuvem, segurança digital e inteligência artificial.
+                            Você passou por todos os fundamentos essenciais da informática, desde o uso do computador e internet até ferramentas de escritório e Inteligência Artificial.
                             <br><br>
-                            <strong>Lembre-se: quanto mais você utiliza o computador, mais natural se torna o aprendizado.</strong> 🚀💻
+                            <strong>Quanto mais você utiliza o computador, mais natural se torna o aprendizado.</strong> 🚀💻
                         </p>
 
-                        <button class="btn" style="background: linear-gradient(135deg, #10b981, #059669); color: #fff; font-size: 14px; padding: 16px 28px; box-shadow: 0 10px 25px rgba(16,185,129,0.4);" onclick="generateOfficialCertificatePDF('Aluno(a)')">
+                        <button class="btn btn-green" style="padding: 16px 32px; font-size: 15px;" onclick="generateOfficialCertificatePDF('${currentUser}')">
                             <i class="fa-solid fa-file-pdf" style="font-size: 18px;"></i> BAIXAR SEU CERTIFICADO OFICIAL (PDF)
                         </button>
                     </div>
@@ -154,18 +214,24 @@
                 container.innerHTML = htmlContent;
 
             } catch (error) {
-                console.error("Erro ao carregar o curso:", error);
+                console.error("Erro ao carregar:", error);
                 container.innerHTML = `
                     <div class="card" style="text-align: center;">
-                        <h2 class="module-title" style="color: #ef4444;">Erro ao Conectar com o Firebase</h2>
-                        <p style="color: var(--text-secondary); margin: 15px 0;">Verifique se as Regras de Segurança do Firestore estão configuradas como públicas (<code style="color:var(--accent-cyan)">allow read, write: if true;</code>).</p>
+                        <h2 class="module-title" style="color: #ef4444;">Erro de Conexão</h2>
+                        <p style="color: var(--text-secondary); margin: 15px 0;">Não foi possível carregar os dados do Firebase. Verifique sua conexão ou as regras do banco.</p>
                         <button class="btn" onclick="location.reload()"><i class="fa-solid fa-rotate-right"></i> Tentar Novamente</button>
                     </div>
                 `;
             }
         }
 
-        window.addEventListener('DOMContentLoaded', initApp);
+        window.addEventListener('DOMContentLoaded', () => {
+            if (currentUser) {
+                renderDashboard();
+            } else {
+                renderAuthScreen();
+            }
+        });
     </script>
 </body>
 </html>
