@@ -16,7 +16,7 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
   import { getFirestore, collection, doc, setDoc, getDoc, getDocs, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendPasswordResetEmail, updateEmail, updatePassword, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendPasswordResetEmail, updateEmail, updatePassword, onAuthStateChanged, setPersistence, browserLocalPersistence, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyBAQ1HRInFDHnOERD3iD9lifBcJAhRWI1c",
@@ -38,6 +38,8 @@
 
   window.db = db;
   window.auth = auth;
+  window.GoogleAuthProvider = GoogleAuthProvider;
+  window.signInWithPopup = signInWithPopup;
   window.firebaseModules = { collection, doc, setDoc, getDoc, getDocs, onSnapshot, deleteDoc, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendPasswordResetEmail, updateEmail, updatePassword, onAuthStateChanged };
 </script>
 
@@ -59,6 +61,13 @@
   --glass-shadow: 0 12px 40px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1);
   --glow-shadow: 0 0 25px rgba(0, 240, 255, 0.3);
 }
+
+/* TEMAS DINÂMICOS */
+body.theme-azul { --accent-cyan: #00f0ff; --accent-blue: #2563eb; }
+body.theme-roxo { --accent-cyan: #c084fc; --accent-blue: #7c3aed; }
+body.theme-vermelho { --accent-cyan: #f87171; --accent-blue: #dc2626; }
+body.theme-rosa { --accent-cyan: #f472b6; --accent-blue: #db2777; }
+body.theme-cromado { --accent-cyan: #e2e8f0; --accent-blue: #64748b; --glow-shadow: 0 0 25px rgba(226,232,240,0.4); }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { width: 100%; overflow-x: hidden; position: relative; scroll-behavior: smooth; }
@@ -330,6 +339,13 @@ section { padding: 70px 0; }
 .admin-mod-body.expanded { display: block; }
 .admin-lesson-item-box { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: rgba(0,0,0,0.2); border-radius: 8px; margin-bottom: 6px; font-size: 12.5px; }
 
+/* CONFIGURAÇÕES ABAS */
+.settings-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; border-bottom: 1px solid var(--glass-border); padding-bottom: 14px; }
+.settings-tab-btn { background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); color: var(--text-secondary); padding: 8px 14px; border-radius: 10px; font-weight: 600; font-size: 12.5px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 6px; }
+.settings-tab-btn.active { background: rgba(0, 240, 255, 0.15); border-color: var(--accent-cyan); color: var(--accent-cyan); }
+.settings-panel { display: none; }
+.settings-panel.active { display: block; animation: fadeUp 0.3s ease; }
+
 footer {
   background: rgba(3, 7, 18, 0.9); border-top: 1px solid var(--glass-border);
   padding: 40px 0 20px; text-align: center; margin-top: 80px; position: relative; z-index: 10;
@@ -351,7 +367,7 @@ footer {
 }
 </style>
 </head>
-<body>
+<body class="theme-azul">
 
 <canvas id="particles-canvas"></canvas>
 <div class="bg-orbs">
@@ -359,15 +375,17 @@ footer {
   <div class="orb orb-2"></div>
 </div>
 
+<!-- MODAL DE ALERTA PROFISSIONAL -->
 <div class="modal-overlay" id="custom-alert-modal">
   <div class="modal-card" style="max-width: 450px; text-align: center; border-color: var(--red);">
     <i class="fa-solid fa-triangle-exclamation" style="font-size: 48px; color: var(--red); margin-bottom: 16px; filter: drop-shadow(0 0 10px rgba(239,68,68,0.5));"></i>
-    <h3 id="custom-alert-title" style="font-size: 19px; margin-bottom: 10px; color: #fff;">Atenção ao Pagamento</h3>
+    <h3 id="custom-alert-title" style="font-size: 19px; margin-bottom: 10px; color: #fff;">Atenção do Sistema</h3>
     <p id="custom-alert-text" style="color: var(--text-secondary); font-size: 13.5px; margin-bottom: 24px; line-height: 1.5;"></p>
     <button class="btn" style="width: 100%; background: linear-gradient(135deg, var(--red), #b91c1c); color: #fff;" onclick="closeCustomAlert()">Entendido</button>
   </div>
 </div>
 
+<!-- MODAL DE SUCESSO -->
 <div class="modal-overlay" id="success-modal">
   <div class="modal-card" style="text-align: center; border-color: var(--green);">
     <i class="fa-solid fa-circle-check" style="font-size: 52px; color: var(--green); margin-bottom: 16px; filter: drop-shadow(0 0 10px rgba(16,185,129,0.5));"></i>
@@ -377,24 +395,24 @@ footer {
   </div>
 </div>
 
+<!-- MODAL DE CHECKOUT -->
 <div class="modal-overlay" id="modal-custom-checkout">
   <div class="modal-card" style="max-width: 650px;">
     <button class="close-btn" onclick="closeCheckoutModalSafe()"><i class="fa-solid fa-xmark"></i></button>
-    
     <div style="text-align: center; margin-bottom: 16px; border-bottom: 1px solid var(--glass-border); padding-bottom: 12px;">
       <span style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; display: block; font-weight: 700;">Ambiente Seguro de Pagamento</span>
       <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 18px; color: #fff;" id="checkout-modal-title">Informática do Zero — R$ 29,90</span>
     </div>
-
     <div id="paymentBrick_container"></div>
   </div>
 </div>
 
+<!-- MODAL EDITAR AULA E EXERCÍCIO -->
 <div class="modal-overlay" id="modal-edit-lesson">
-  <div class="modal-card" style="max-width: 650px;">
+  <div class="modal-card" style="max-width: 700px;">
     <button class="close-btn" onclick="closeModal('modal-edit-lesson')"><i class="fa-solid fa-xmark"></i></button>
     <h3 style="margin-bottom: 16px; font-size: 18px; color: var(--accent-cyan); display: flex; align-items: center; gap: 8px;">
-      <i class="fa-solid fa-pen"></i> Editar Aula / Módulo
+      <i class="fa-solid fa-pen"></i> Editar Aula, Blocos e Exercício (Quiz)
     </h3>
     <input type="hidden" id="edit-mod-id">
     <input type="hidden" id="edit-lesson-id">
@@ -421,7 +439,37 @@ footer {
     </div>
     <div class="input-group"><label>Imagem URL</label><input type="text" id="edit-lesson-img"></div>
 
-    <button class="btn" style="width: 100%; margin-top: 10px;" onclick="saveEditedLesson()"><i class="fa-solid fa-floppy-disk"></i> Salvar Alterações na Aula</button>
+    <hr style="border:0; border-top:1px solid var(--glass-border); margin: 15px 0;">
+    <h4 style="font-size: 14px; color: var(--accent-cyan); margin-bottom: 10px;"><i class="fa-solid fa-brain"></i> Configurar Exercício (Quiz) da Aula</h4>
+    <div class="input-group"><label>Pergunta do Quiz</label><input type="text" id="edit-quiz-question"></div>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+      <div class="input-group"><label>Alternativa A</label><input type="text" id="edit-quiz-opt0"></div>
+      <div class="input-group"><label>Alternativa B</label><input type="text" id="edit-quiz-opt1"></div>
+      <div class="input-group"><label>Alternativa C</label><input type="text" id="edit-quiz-opt2"></div>
+      <div class="input-group"><label>Alternativa D</label><input type="text" id="edit-quiz-opt3"></div>
+    </div>
+    <div class="input-group">
+      <label>Alternativa Correta</label>
+      <select id="edit-quiz-correct">
+        <option value="0">Alternativa A</option>
+        <option value="1">Alternativa B</option>
+        <option value="2">Alternativa C</option>
+        <option value="3">Alternativa D</option>
+      </select>
+    </div>
+
+    <button class="btn" style="width: 100%; margin-top: 10px;" onclick="saveEditedLesson()"><i class="fa-solid fa-floppy-disk"></i> Salvar Alterações na Aula e Quiz</button>
+  </div>
+</div>
+
+<!-- MODAL CENTRAL DE NOTIFICAÇÕES -->
+<div class="modal-overlay" id="modal-notifications">
+  <div class="modal-card" style="max-width: 500px;">
+    <button class="close-btn" onclick="closeModal('modal-notifications')"><i class="fa-solid fa-xmark"></i></button>
+    <h3 style="margin-bottom: 16px; font-size: 18px; color: var(--accent-cyan); display: flex; align-items: center; gap: 8px;">
+      <i class="fa-solid fa-bell"></i> Central de Notificações
+    </h3>
+    <div id="notifications-list-modal" style="display: flex; flex-direction: column; gap: 10px; max-height: 400px; overflow-y: auto;"></div>
   </div>
 </div>
 
@@ -443,8 +491,14 @@ footer {
         <button class="btn-outline" onclick="openAuthModal('login')"><i class="fa-regular fa-user"></i> Login</button>
       </div>
 
-      <div id="nav-user" style="display: none; align-items: center; gap: 8px;">
-        <span style="font-size: 11px; color: var(--accent-cyan); font-weight: 600; white-space: nowrap;" id="user-display">Aluno</span>
+      <div id="nav-user" style="display: none; align-items: center; gap: 10px;">
+        <div id="nav-user-avatar" style="width: 32px; height: 32px; border-radius: 50%; overflow: hidden; border: 1px solid var(--accent-cyan); display: flex; align-items: center; justify-content: center; background: rgba(0,240,255,0.1);">
+          <i class="fa-solid fa-user" style="font-size: 12px; color: var(--accent-cyan);"></i>
+        </div>
+        <button class="btn-outline" style="position: relative; padding: 6px 10px;" onclick="openNotificationsModal()" title="Notificações">
+          <i class="fa-solid fa-bell"></i>
+          <span id="notif-badge" style="position: absolute; top: -4px; right: -4px; background: var(--red); color: #fff; font-size: 9px; width: 16px; height: 16px; border-radius: 50%; display: none; align-items: center; justify-content: center; font-weight: 750;">0</span>
+        </button>
         <button class="btn-outline" style="border-color: rgba(0, 240, 255, 0.4); color: var(--accent-cyan); padding: 6px 10px;" onclick="showSettingsArea()" title="Configurações da Conta"><i class="fa-solid fa-gear"></i></button>
         <button class="btn-outline" style="border-color: rgba(239, 68, 68, 0.4); color: var(--red); padding: 6px 8px;" onclick="logout()" title="Sair"><i class="fa-solid fa-right-from-bracket"></i></button>
       </div>
@@ -541,6 +595,7 @@ footer {
   </section>
 </div>
 
+<!-- ÁREA DE MEMBROS (AULAS) -->
 <div id="member-area" class="wrap" style="display: none; padding-top: 36px;">
   <div class="lms-layout animate-fade-up">
     <div class="glass-panel lms-content" id="lms-main-content"></div>
@@ -551,113 +606,170 @@ footer {
   </div>
 </div>
 
-<div id="settings-area" class="wrap" style="display: none; padding-top: 36px; max-width: 700px;">
+<!-- CONFIGURAÇÕES DA CONTA COM ABAS -->
+<div id="settings-area" class="wrap" style="display: none; padding-top: 36px; max-width: 750px;">
   <div class="glass-panel animate-fade-up" style="padding: 36px;">
-    <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 30px; border-bottom: 1px solid var(--glass-border); padding-bottom: 18px;">
+    <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 24px; border-bottom: 1px solid var(--glass-border); padding-bottom: 16px;">
       <div style="width: 52px; height: 52px; border-radius: 16px; background: rgba(0,240,255,0.1); border: 1px solid var(--glass-border-hover); display: flex; align-items: center; justify-content: center; color: var(--accent-cyan); font-size: 22px;">
         <i class="fa-solid fa-gear"></i>
       </div>
       <div>
         <h2 style="font-size: 21px; color: #fff;">Configurações Avançadas da Conta</h2>
-        <p style="font-size: 13px; color: var(--text-secondary);">Gerencie suas credenciais profissionais, preferências e segurança do perfil.</p>
-      </div>
-    </div>
-    
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 30px;">
-      <div style="background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); padding: 18px; border-radius: 16px;">
-        <span style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; font-weight: 700; display: block; margin-bottom: 6px;"><i class="fa-solid fa-shield-halved" style="color:var(--green);"></i> Status do Acesso</span>
-        <h4 style="font-size: 16px; color: var(--green);">Membro Ativo Premium</h4>
-      </div>
-      <div style="background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); padding: 18px; border-radius: 16px;">
-        <span style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; font-weight: 700; display: block; margin-bottom: 6px;"><i class="fa-solid fa-cloud" style="color:var(--accent-cyan);"></i> Sincronização</span>
-        <h4 style="font-size: 16px; color: #fff;">Cloud Firebase Ativa</h4>
+        <p style="font-size: 13px; color: var(--text-secondary);">Gerencie seu perfil, verificação, temas, segurança e preferências.</p>
       </div>
     </div>
 
-    <form onsubmit="handleUpdateAccount(event)">
-      <div class="input-group">
-        <label><i class="regular fa-user" style="color:var(--accent-cyan); margin-right:6px;"></i> Nome Completo (Validação Real)</label>
-        <input type="text" id="settings-fullname" placeholder="Seu nome e sobrenome" required>
-      </div>
+    <!-- Abas de Configurações -->
+    <div class="settings-tabs">
+      <button class="settings-tab-btn active" onclick="switchSettingsTab('perfil')"><i class="fa-solid fa-user"></i> Perfil</button>
+      <button class="settings-tab-btn" onclick="switchSettingsTab('verificacao')"><i class="fa-solid fa-id-card"></i> Verificação</button>
+      <button class="settings-tab-btn" onclick="switchSettingsTab('seguranca')"><i class="fa-solid fa-lock"></i> Segurança</button>
+      <button class="settings-tab-btn" onclick="switchSettingsTab('tema')"><i class="fa-solid fa-palette"></i> Tema</button>
+      <button class="settings-tab-btn" onclick="switchSettingsTab('conexoes')"><i class="fa-solid fa-link"></i> Conexões</button>
+      <button class="settings-tab-btn" onclick="switchSettingsTab('notificacoes')"><i class="fa-solid fa-bell"></i> Notificações</button>
+    </div>
 
-      <div class="input-group">
-        <label><i class="regular fa-envelope" style="color:var(--accent-cyan); margin-right:6px;"></i> E-mail de Acesso Profissional</label>
-        <input type="email" id="settings-email" placeholder="seu@email.com" required>
-      </div>
-      
-      <div class="input-group">
-        <label><i class="fa-solid fa-lock" style="color:var(--accent-cyan); margin-right:6px;"></i> Nova Senha (Opcional - Mínimo 6 caracteres)</label>
-        <div class="password-wrapper">
-          <input type="password" id="settings-new-pass" placeholder="Deixe em branco para manter a atual">
-          <button type="button" class="toggle-password" onclick="togglePasswordVisibility('settings-new-pass', this)"><i class="regular fa-eye"></i></button>
+    <!-- PAINEL 1: PERFIL -->
+    <div class="settings-panel active" id="spanel-perfil">
+      <form onsubmit="handleUpdateProfile(event)">
+        <div class="input-group">
+          <label>URL da Foto de Perfil (Avatar)</label>
+          <input type="text" id="set-avatar" placeholder="https://exemplo.com/sua-foto.jpg">
         </div>
-      </div>
+        <div class="input-group">
+          <label>Nome de Exibição</label>
+          <input type="text" id="set-fullname" required>
+        </div>
+        <div class="input-group">
+          <label>E-mail de Acesso</label>
+          <input type="email" id="set-email" required>
+        </div>
+        <div id="verified-badge-status" style="margin-bottom: 16px; font-size: 13px; font-weight: 600;"></div>
+        <button type="submit" class="btn" style="width:100%;"><i class="fa-solid fa-floppy-disk"></i> Salvar Perfil</button>
+      </form>
+    </div>
 
-      <div style="margin-top: 30px; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;">
-        <button type="button" class="btn-outline" onclick="showMemberArea()"><i class="fa-solid fa-arrow-left"></i> Voltar às Aulas</button>
-        <button type="submit" class="btn" style="padding: 12px 24px;"><i class="fa-solid fa-floppy-disk"></i> Salvar Alterações</button>
+    <!-- PAINEL 2: VERIFICAÇÃO -->
+    <div class="settings-panel" id="spanel-verificacao">
+      <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px; background: rgba(0,240,255,0.05); padding: 12px; border-radius: 10px; border: 1px solid var(--glass-border);">
+        <i class="fa-solid fa-circle-info" style="color:var(--accent-cyan);"></i> Estes dados podem ser utilizados caso você escolha receber o certificado físico no endereço informado.
+      </p>
+      <form onsubmit="handleSaveVerification(event)">
+        <div class="input-group"><label>Nome Completo</label><input type="text" id="v-name" required></div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="input-group"><label>Data de Nascimento</label><input type="date" id="v-nasc" required></div>
+          <div class="input-group"><label>CPF</label><input type="text" id="v-cpf" placeholder="000.000.000-00" required></div>
+        </div>
+        <div class="input-group"><label>Endereço Completo</label><input type="text" id="v-end" placeholder="Rua, Avenida..." required></div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+          <div class="input-group"><label>CEP</label><input type="text" id="v-cep" required></div>
+          <div class="input-group"><label>Número</label><input type="text" id="v-num" required></div>
+          <div class="input-group"><label>Complemento</label><input type="text" id="v-comp"></div>
+        </div>
+        <div style="display:grid; grid-template-columns: 2fr 2fr 1fr; gap: 10px;">
+          <div class="input-group"><label>Bairro</label><input type="text" id="v-bairro" required></div>
+          <div class="input-group"><label>Cidade</label><input type="text" id="v-cidade" required></div>
+          <div class="input-group"><label>Estado</label><input type="text" id="v-uf" maxlength="2" required></div>
+        </div>
+        <button type="submit" class="btn" style="width:100%; margin-top:10px;"><i class="fa-solid fa-badge-check"></i> Salvar e Verificar Dados</button>
+      </form>
+    </div>
+
+    <!-- PAINEL 3: SEGURANÇA -->
+    <div class="settings-panel" id="spanel-seguranca">
+      <form onsubmit="handleUpdatePassword(event)">
+        <div class="input-group">
+          <label>Nova Senha (Mínimo 6 caracteres)</label>
+          <div class="password-wrapper">
+            <input type="password" id="set-new-pass" placeholder="Deixe em branco para não alterar">
+            <button type="button" class="toggle-password" onclick="togglePasswordVisibility('set-new-pass', this)"><i class="regular fa-eye"></i></button>
+          </div>
+        </div>
+        <button type="submit" class="btn" style="width:100%;"><i class="fa-solid fa-lock"></i> Atualizar Senha</button>
+      </form>
+    </div>
+
+    <!-- PAINEL 4: TEMA -->
+    <div class="settings-panel" id="spanel-tema">
+      <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">Escolha o tema visual de sua preferência para a plataforma:</p>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 12px; margin-bottom: 20px;">
+        <button class="btn-outline" style="justify-content:center; border-color:#00f0ff;" onclick="changeTheme('azul')"><i class="fa-solid fa-circle" style="color:#00f0ff;"></i> Azul</button>
+        <button class="btn-outline" style="justify-content:center; border-color:#c084fc;" onclick="changeTheme('roxo')"><i class="fa-solid fa-circle" style="color:#c084fc;"></i> Roxo</button>
+        <button class="btn-outline" style="justify-content:center; border-color:#f87171;" onclick="changeTheme('vermelho')"><i class="fa-solid fa-circle" style="color:#f87171;"></i> Vermelho</button>
+        <button class="btn-outline" style="justify-content:center; border-color:#f472b6;" onclick="changeTheme('rosa')"><i class="fa-solid fa-circle" style="color:#f472b6;"></i> Rosa</button>
+        <button class="btn-outline" style="justify-content:center; border-color:#e2e8f0;" onclick="changeTheme('cromado')"><i class="fa-solid fa-circle" style="color:#e2e8f0;"></i> Cromado</button>
       </div>
-    </form>
+    </div>
+
+    <!-- PAINEL 5: CONEXÕES -->
+    <div class="settings-panel" id="spanel-conexoes">
+      <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">Conecte contas externas para login facilitado:</p>
+      <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.3); padding: 16px; border-radius: 12px; border: 1px solid var(--glass-border);">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <i class="fa-brands fa-google" style="font-size: 24px; color: #ea4335;"></i>
+          <div>
+            <h4 style="font-size: 14px; color:#fff;">Conta Google</h4>
+            <p style="font-size: 11.5px; color:var(--text-secondary);">Conectado via Autenticação Google</p>
+          </div>
+        </div>
+        <button class="btn-outline" onclick="loginWithGoogle()"><i class="fa-solid fa-link"></i> Conectar / Entrar com Google</button>
+      </div>
+    </div>
+
+    <!-- PAINEL 6: NOTIFICAÇÕES -->
+    <div class="settings-panel" id="spanel-notificacoes">
+      <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">Ative ou desative os avisos que deseja receber:</p>
+      <div style="display: flex; flex-direction: column; gap: 12px;">
+        <label style="display:flex; align-items:center; gap:10px; font-size:13px; cursor:pointer;"><input type="checkbox" id="notif-aulas" checked> Novas aulas</label>
+        <label style="display:flex; align-items:center; gap:10px; font-size:13px; cursor:pointer;"><input type="checkbox" id="notif-modulos" checked> Novos módulos</label>
+        <label style="display:flex; align-items:center; gap:10px; font-size:13px; cursor:pointer;"><input type="checkbox" id="notif-curso" checked> Atualizações do curso</label>
+        <label style="display:flex; align-items:center; gap:10px; font-size:13px; cursor:pointer;"><input type="checkbox" id="notif-exercicios" checked> Novos exercícios</label>
+        <label style="display:flex; align-items:center; gap:10px; font-size:13px; cursor:pointer;"><input type="checkbox" id="notif-certificados" checked> Certificados</label>
+        <label style="display:flex; align-items:center; gap:10px; font-size:13px; cursor:pointer;"><input type="checkbox" id="notif-conta" checked> Mudanças importantes na conta</label>
+      </div>
+    </div>
+
+    <div style="margin-top: 30px; display: flex; justify-content: flex-end;">
+      <button type="button" class="btn-outline" onclick="showMemberArea()"><i class="fa-solid fa-arrow-left"></i> Voltar às Aulas</button>
+    </div>
   </div>
 </div>
 
+<!-- PAINEL ADMINISTRATIVO EMPRESARIAL SEPARADO -->
 <div id="admin-area" class="wrap" style="display: none; padding-top: 36px;">
   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 26px; flex-wrap: wrap; gap: 14px;">
     <h2 style="margin: 0; font-size: 22px;"><i class="fa-solid fa-gear" style="color: var(--text-secondary);"></i> Painel de Administração Empresarial</h2>
     <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-      <button class="btn-outline" onclick="switchAdminTab('dashboard')"><i class="fa-solid fa-chart-pie"></i> Alunos & Vendas</button>
+      <button class="btn-outline" onclick="switchAdminTab('alunos')"><i class="fa-solid fa-users"></i> Gestão de Alunos</button>
+      <button class="btn-outline" onclick="switchAdminTab('vendas')"><i class="fa-solid fa-cash-register"></i> Vendas & Transações</button>
       <button class="btn-outline" onclick="switchAdminTab('cart')"><i class="fa-solid fa-cart-shopping"></i> Carrinho / Pendentes</button>
       <button class="btn-outline" onclick="switchAdminTab('modules')"><i class="fa-solid fa-pen-to-square"></i> Módulos & Aulas</button>
-      <button class="btn-outline" onclick="switchAdminTab('testcheckout')"><i class="fa-solid fa-credit-card"></i> Teste de Cartão</button>
+      <button class="btn-outline" onclick="switchAdminTab('testcheckout')"><i class="fa-solid fa-credit-card"></i> Teste de Pagamento</button>
     </div>
   </div>
   
   <div class="admin-grid animate-fade-up">
-    <!-- ABA 1: DASHBOARD & ALUNOS & VENDAS -->
-    <div class="glass-panel admin-card" id="admin-tab-dashboard">
-      <h3><i class="fa-solid fa-users"></i> Gestão Completa de Alunos, Vendas e Validação</h3>
-      
+    <!-- SEÇÃO 1: GESTÃO DE ALUNOS -->
+    <div class="glass-panel admin-card" id="admin-sec-alunos">
+      <h3><i class="fa-solid fa-users" style="color:var(--accent-cyan);"></i> Seção 1: Gestão de Alunos e Progresso Acadêmico</h3>
       <div class="gateway-metrics">
         <div class="metric-box">
           <span>Total de Alunos</span>
           <h4 id="admin-total-users">0 <i class="fa-solid fa-user-check" style="font-size: 15px; color: var(--text-muted);"></i></h4>
         </div>
         <div class="metric-box">
-          <span>Vendas Registradas</span>
-          <h4 id="admin-total-sales">0 <i class="fa-solid fa-cash-register" style="font-size: 15px; color: var(--text-muted);"></i></h4>
-        </div>
-        <div class="metric-box" style="border-left-color: var(--green);">
-          <span>Banco Cloud</span>
-          <h4 style="color: var(--green); font-size: 15px;"><i class="fa-solid fa-cloud"></i> Firebase Nuvem</h4>
+          <span>Módulos / Aulas</span>
+          <h4 id="admin-total-modules-lessons">0 / 0 <i class="fa-solid fa-layer-group" style="font-size: 15px; color: var(--text-muted);"></i></h4>
         </div>
       </div>
-
-      <div style="margin-bottom: 20px;">
-        <h4 style="font-size: 14.5px; margin-bottom: 12px; color: var(--accent-cyan);"><i class="fa-solid fa-receipt"></i> Histórico de Vendas e Transações (Aprovado, Recusado, Pendente)</h4>
-        <div class="table-responsive">
-          <table class="sales-table">
-            <thead>
-              <tr>
-                <th>ID / Aluno</th>
-                <th>Valor / Forma</th>
-                <th>Status Transação</th>
-                <th>Ações de Venda</th>
-              </tr>
-            </thead>
-            <tbody id="sales-list-body"></tbody>
-          </table>
-        </div>
-      </div>
-
-      <h4 style="font-size: 14.5px; margin-bottom: 12px; color: var(--accent-cyan);"><i class="fa-solid fa-user-gear"></i> Gestão de Contas de Alunos</h4>
       <div class="table-responsive">
         <table class="sales-table">
           <thead>
             <tr>
-              <th><i class="regular fa-user"></i> Aluno (Nome / E-mail)</th>
-              <th><i class="fa-solid fa-circle-half-stroke"></i> Status Pagto</th>
-              <th><i class="fa-solid fa-chart-line"></i> Progresso Aulas</th>
-              <th><i class="fa-solid fa-wand-magic-sparkles"></i> Validação & Exclusão</th>
+              <th>Aluno (Nome / E-mail / Verificação)</th>
+              <th>Status Pagamento</th>
+              <th>Progresso (Aulas e Quiz)</th>
+              <th>Ações & Validação de Progresso</th>
             </tr>
           </thead>
           <tbody id="users-list-body"></tbody>
@@ -665,19 +777,36 @@ footer {
       </div>
     </div>
 
-    <!-- ABA 2: CARRINHO ABANDONADO / PENDENTES -->
-    <div class="glass-panel admin-card" id="admin-tab-cart" style="display: none;">
-      <h3><i class="fa-solid fa-cart-shopping" style="color: var(--yellow);"></i> Carrinho Abandonado e Compras Pendentes</h3>
-      <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 22px;">Alunos que iniciaram a intenção de compra mas não finalizaram o pagamento.</p>
-      
+    <!-- SEÇÃO 2: VENDAS & TRANSAÇÕES -->
+    <div class="glass-panel admin-card" id="admin-sec-vendas" style="display: none;">
+      <h3><i class="fa-solid fa-cash-register" style="color:var(--green);"></i> Seção 2: Histórico de Vendas e Status Automáticos</h3>
+      <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">O status das transações é atualizado automaticamente pelo gateway de pagamento oficial.</p>
+      <div class="table-responsive">
+        <table class="sales-table">
+          <thead>
+            <tr>
+              <th>ID Transação / Aluno</th>
+              <th>Valor / Método</th>
+              <th>Status do Pagamento</th>
+              <th>Data</th>
+            </tr>
+          </thead>
+          <tbody id="sales-list-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SEÇÃO 3: CARRINHO ABANDONADO / PENDENTES -->
+    <div class="glass-panel admin-card" id="admin-sec-cart" style="display: none;">
+      <h3><i class="fa-solid fa-cart-shopping" style="color:var(--yellow);"></i> Seção 3: Carrinho Abandonado e Compras Pendentes</h3>
       <div class="table-responsive">
         <table class="sales-table">
           <thead>
             <tr>
               <th>Aluno / E-mail</th>
-              <th>Valor Carrinho</th>
-              <th>Status Atual</th>
-              <th>Ação de Recuperação</th>
+              <th>Valor</th>
+              <th>Status</th>
+              <th>Ações</th>
             </tr>
           </thead>
           <tbody id="cart-list-body"></tbody>
@@ -685,10 +814,10 @@ footer {
       </div>
     </div>
 
-    <!-- ABA 3: CHECKOUT DE TESTE -->
-    <div class="glass-panel admin-card" id="admin-tab-testcheckout" style="display: none;">
-      <h3><i class="fa-solid fa-cash-register"></i> Checkout de Teste (Pix / Cartão e Valor Personalizado)</h3>
-      <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 22px;">Selecione o aluno, defina o valor desejado e teste a transação com validação de saldo do cartão.</p>
+    <!-- SEÇÃO 4: TESTE DE PAGAMENTO -->
+    <div class="glass-panel admin-card" id="admin-sec-testcheckout" style="display: none;">
+      <h3><i class="fa-solid fa-credit-card"></i> Seção 4: Teste de Pagamento</h3>
+      <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 22px;">Selecione o aluno e teste a transação com valor personalizado.</p>
       
       <div class="input-group" style="max-width: 450px;">
         <label>Escolher Aluno</label>
@@ -700,66 +829,54 @@ footer {
         <input type="number" id="test-amount-input" step="0.50" min="1.00" value="1.00" placeholder="1.00">
       </div>
 
-      <button class="btn" style="margin-top: 10px;" onclick="openTestCheckoutCustom()"><i class="fa-solid fa-play"></i> Abrir Checkout de Teste</button>
+      <button class="btn" style="margin-top: 10px;" onclick="openTestCheckoutCustom()"><i class="fa-solid fa-play"></i> Abrir Teste de Pagamento</button>
     </div>
 
-    <!-- ABA 4: EDITOR DE MÓDULOS E AULAS COM ACORDEÃO RETRÁTIL -->
-    <div class="glass-panel admin-card" id="admin-tab-modules" style="display: none;">
-      <h3><i class="fa-solid fa-layer-group"></i> Editor de Módulos, Blocos e Aulas</h3>
-      <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 22px;">Organize a ordem dos módulos, edite com o lápis e utilize o acordeão para abrir/retrair as aulas de cada módulo.</p>
-      
+    <!-- SEÇÃO 5: MÓDULOS E AULAS (COM ACORDEÃO E LÁPIS) -->
+    <div class="glass-panel admin-card" id="admin-sec-modules" style="display: none;">
+      <h3><i class="fa-solid fa-layer-group"></i> Seção 5: Editor de Módulos, Aulas e Exercícios</h3>
       <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); padding: 20px; border-radius: 16px; margin-bottom: 22px;">
-        <h4 style="font-size: 15px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-folder-plus" style="color:var(--accent-cyan);"></i> Novo Módulo</h4>
+        <h4 style="font-size: 15px; margin-bottom: 14px;"><i class="fa-solid fa-folder-plus text-cyan"></i> Novo Módulo</h4>
         <div class="input-group"><label>Título do Módulo</label><input type="text" id="mod-title-input" placeholder="Ex: Módulo — Tópico Extra"></div>
-        <button type="button" class="btn" style="padding: 12px 18px; font-size: 12px;" onclick="saveModuleData()"><i class="fa-solid fa-floppy-disk"></i> Salvar Novo Módulo</button>
+        <button type="button" class="btn" style="padding: 12px 18px; font-size: 12px;" onclick="saveModuleData()"><i class="fa-solid fa-floppy-disk"></i> Salvar Módulo</button>
       </div>
 
       <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); padding: 20px; border-radius: 16px; margin-bottom: 26px;">
-        <h4 style="font-size: 15px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-video" style="color:var(--accent-purple);"></i> Adicionar Aula com os 3 Blocos & Mídia</h4>
-        
+        <h4 style="font-size: 15px; margin-bottom: 14px;"><i class="fa-solid fa-video text-purple"></i> Adicionar Aula com Blocos e Exercício</h4>
         <div class="input-group"><label>Selecionar Módulo</label><select id="lesson-mod-select"></select></div>
         <div class="input-group"><label>Título da Aula</label><input type="text" id="lesson-title-input" placeholder="Ex: Aula — Tópico Avançado"></div>
-        
-        <div class="input-group">
-          <label><i class="fa-solid fa-list-check" style="color:var(--accent-cyan);"></i> Bloco 1: O que vai ser aprendido</label>
-          <textarea id="lesson-bloco1-input" rows="2" placeholder="Descreva os tópicos centrais..."></textarea>
-        </div>
-
-        <div class="input-group">
-          <label><i class="fa-solid fa-align-left" style="color:var(--accent-cyan);"></i> Bloco 2: Descrição da Aula</label>
-          <textarea id="lesson-bloco2-input" rows="3" placeholder="Contextualização geral..."></textarea>
-        </div>
-
-        <div class="input-group">
-          <label><i class="fa-solid fa-bullseye" style="color:var(--accent-cyan);"></i> Bloco 3: Objetivos Pedagógicos</label>
-          <textarea id="lesson-bloco3-input" rows="2" placeholder="Quais os objetivos práticos..."></textarea>
-        </div>
-
+        <div class="input-group"><label>Bloco 1</label><textarea id="lesson-bloco1-input" rows="2"></textarea></div>
+        <div class="input-group"><label>Bloco 2</label><textarea id="lesson-bloco2-input" rows="3"></textarea></div>
+        <div class="input-group"><label>Bloco 3</label><textarea id="lesson-bloco3-input" rows="2"></textarea></div>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-          <div class="input-group">
-            <label><i class="fa-brands fa-youtube" style="color:#ef4444;"></i> Link do YouTube</label>
-            <input type="text" id="lesson-video-url" placeholder="https://www.youtube.com/watch?v=...">
-          </div>
-          <div class="input-group">
-            <label><i class="fa-solid fa-file-pdf" style="color:#f59e0b;"></i> Link de Anexo (PDF / Material)</label>
-            <input type="text" id="lesson-pdf-url" placeholder="https://exemplo.com/material.pdf">
-          </div>
+          <div class="input-group"><label>Link YouTube</label><input type="text" id="lesson-video-url"></div>
+          <div class="input-group"><label>Link PDF</label><input type="text" id="lesson-pdf-url"></div>
         </div>
-
+        <div class="input-group"><label>Link Imagem</label><input type="text" id="lesson-img-url"></div>
+        
+        <h4 style="font-size: 14px; color: var(--accent-cyan); margin: 15px 0 10px;"><i class="fa-solid fa-brain"></i> Exercício (Quiz) da Aula</h4>
+        <div class="input-group"><label>Pergunta do Quiz</label><input type="text" id="new-quiz-question"></div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="input-group"><label>Alternativa A</label><input type="text" id="new-quiz-opt0"></div>
+          <div class="input-group"><label>Alternativa B</label><input type="text" id="new-quiz-opt1"></div>
+          <div class="input-group"><label>Alternativa C</label><input type="text" id="new-quiz-opt2"></div>
+          <div class="input-group"><label>Alternativa D</label><input type="text" id="new-quiz-opt3"></div>
+        </div>
         <div class="input-group">
-          <label><i class="regular fa-image" style="color:#10b981;"></i> Link de Foto / Imagem Ilustrativa</label>
-          <input type="text" id="lesson-img-url" placeholder="https://exemplo.com/imagem.png">
+          <label>Alternativa Correta</label>
+          <select id="new-quiz-correct"><option value="0">A</option><option value="1">B</option><option value="2">C</option><option value="3">D</option></select>
         </div>
 
-        <button type="button" class="btn" style="padding: 12px 18px; font-size: 12px; margin-top: 10px;" onclick="saveLessonData()"><i class="fa-solid fa-cloud-arrow-up"></i> Publicar Aula</button>
+        <button type="button" class="btn" style="padding: 12px 18px; font-size: 12px; margin-top: 10px;" onclick="saveLessonData()"><i class="fa-solid fa-cloud-arrow-up"></i> Publicar Aula com Quiz</button>
       </div>
 
-      <h4 style="font-size: 17px; margin-bottom: 16px;"><i class="fa-solid fa-list-ol"></i> Módulos e Aulas (Abrir / Retrair com o Lápis de Edição)</h4>
+      <h4 style="font-size: 17px; margin-bottom: 16px;"><i class="fa-solid fa-list-ol"></i> Módulos Cadastrados (Clique para Expandir / Retrair)</h4>
       <div id="admin-modules-list-container"></div>
     </div>
   </div>
 </div>
 
+<!-- MODAL DE AUTENTICAÇÃO -->
 <div class="modal-overlay" id="modal-auth">
   <div class="modal-card">
     <button class="close-btn" onclick="closeModal('modal-auth')"><i class="fa-solid fa-xmark"></i></button>
@@ -773,12 +890,18 @@ footer {
       <button class="btn-outline" id="tab-btn-register" style="flex: 1; justify-content: center; border: none; background: transparent; color: var(--text-secondary);" onclick="switchAuthTab('register')">Criar Conta</button>
     </div>
 
+    <!-- BOTÃO LOGIN GOOGLE -->
+    <button type="button" class="btn-outline" style="width: 100%; justify-content: center; margin-bottom: 16px; border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.05);" onclick="loginWithGoogle()">
+      <i class="fa-brands fa-google" style="color: #ea4335;"></i> Continuar com Google
+    </button>
+    <div style="text-align: center; font-size: 12px; color: var(--text-muted); margin-bottom: 16px;">ou use seu e-mail</div>
+
     <form id="form-login" onsubmit="handleLogin(event)">
       <div class="input-group">
         <label>E-mail</label>
         <div class="password-wrapper">
           <i class="regular fa-envelope" style="position: absolute; left: 16px; top: 15px; color: var(--text-muted);"></i>
-          <input type="text" id="login-email" placeholder="seu@email.com ou digite o nome" style="padding-left: 44px;" onblur="autoCompleteEmail('login-email')" required>
+          <input type="text" id="login-email" placeholder="seu@email.com" style="padding-left: 44px;" onblur="autoCompleteEmail('login-email')" required>
         </div>
       </div>
       <div class="input-group">
@@ -797,7 +920,7 @@ footer {
         <a href="#" onclick="handleForgotPassword(event)" style="color: var(--accent-cyan); font-weight: 600; font-size: 11px;">Esqueci minha senha</a>
       </div>
 
-      <button type="submit" class="btn" style="width: 100%; margin-top: 4px;">Acessar Plataforma</button>
+      <button type="submit" class="btn" style="width: 100%;">Acessar Plataforma</button>
     </form>
 
     <form id="form-register" style="display: none;" onsubmit="handleRegister(event)">
@@ -812,7 +935,7 @@ footer {
         <label>E-mail</label>
         <div class="password-wrapper">
           <i class="regular fa-envelope" style="position: absolute; left: 16px; top: 15px; color: var(--text-muted);"></i>
-          <input type="text" id="reg-email" placeholder="seu@email.com ou digite o nome" style="padding-left: 44px;" onblur="autoCompleteEmail('reg-email')" required>
+          <input type="text" id="reg-email" placeholder="seu@email.com" style="padding-left: 44px;" onblur="autoCompleteEmail('reg-email')" required>
         </div>
       </div>
       <div class="input-group">
@@ -824,7 +947,7 @@ footer {
         </div>
       </div>
 
-      <button type="submit" class="btn" style="width: 100%; margin-top: 4px;">Criar minha conta</button>
+      <button type="submit" class="btn" style="width: 100%;">Criar minha conta</button>
     </form>
   </div>
 </div>
@@ -865,7 +988,7 @@ class Particle {
     if (this.y < 0) this.y = canvas.height; if (this.y > canvas.height) this.y = 0;
   }
   draw() {
-    ctx.save(); ctx.globalAlpha = this.opacity; ctx.fillStyle = '#00f0ff';
+    ctx.save(); ctx.globalAlpha = this.opacity; ctx.fillStyle = 'var(--accent-cyan)';
     ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); ctx.restore();
   }
 }
@@ -999,10 +1122,13 @@ let courseData = [];
 let registeredUsers = [];
 let salesTransactions = JSON.parse(localStorage.getItem('admin_sales_transactions')) || [
   { id: "TX-9841", email: "pedro de oliveira <112@gmail.com>", amount: 29.90, method: "Pix", status: "aprovado", date: "31/08/2026 21:10" },
-  { id: "TX-9842", email: "aluno pendente <pendente@gmail.com>", amount: 29.90, method: "Cartão", status: "pendente", date: "31/08/2026 21:15" },
-  { id: "TX-9843", email: "cliente recusado <recusado@gmail.com>", amount: 29.90, method: "Pix", status: "recusado", date: "31/08/2026 20:00" }
+  { id: "TX-9842", email: "aluno pendente <pendente@gmail.com>", amount: 29.90, method: "Cartão", status: "pendente", date: "31/08/2026 21:15" }
+];
+let notificationsList = JSON.parse(localStorage.getItem('user_notifications')) || [
+  { id: 1, text: "Bem-vindo à plataforma de Informática do Zero!", unread: true, date: "31/08/2026" }
 ];
 let completedLessons = JSON.parse(localStorage.getItem('user_completed_lessons')) || {};
+let completedQuizzes = JSON.parse(localStorage.getItem('user_completed_quizzes')) || {};
 let quizStatsStorage = JSON.parse(localStorage.getItem('user_quiz_stats')) || {};
 let currentUser = null;
 let isAdmin = false;
@@ -1018,7 +1144,6 @@ function showCustomAlert(title, message) {
   document.getElementById('custom-alert-text').innerText = message;
   document.getElementById('custom-alert-modal').classList.add('active');
 }
-
 function closeCustomAlert() {
   document.getElementById('custom-alert-modal').classList.remove('active');
 }
@@ -1043,6 +1168,9 @@ window.onload = function() {
     document.getElementById('login-pass').value = rememberedPass;
   }
 
+  const savedTheme = localStorage.getItem('app_theme') || 'azul';
+  changeTheme(savedTheme, false);
+
   const checkDbInterval = setInterval(() => {
     if (window.db && window.auth) {
       clearInterval(checkDbInterval);
@@ -1053,6 +1181,7 @@ window.onload = function() {
           currentUser = user.email;
           isAdmin = (currentUser === TARGET_EMAIL || (registeredUsers.find(u => u.email === currentUser)?.role === 'admin'));
           updateMobileMenuOptions();
+          updateNavAvatar();
           
           let uObj = registeredUsers.find(u => u.email === currentUser);
           if (isAdmin || currentUser === TARGET_EMAIL) {
@@ -1070,6 +1199,7 @@ window.onload = function() {
             currentUser = persistedUser;
             isAdmin = (currentUser === TARGET_EMAIL);
             updateMobileMenuOptions();
+            updateNavAvatar();
             if(isAdmin) showAdminArea();
             else showMemberArea();
           } else {
@@ -1100,7 +1230,6 @@ window.onload = function() {
           courseData.push(docSnap.data());
         });
         courseData.sort((a, b) => a.id - b.id);
-        
         updateCourseStatsUI();
 
         if (currentUser && document.getElementById('member-area').style.display === 'block') {
@@ -1121,6 +1250,7 @@ window.onload = function() {
           let uObj = registeredUsers.find(u => u.email === currentUser);
           isAdmin = (currentUser === TARGET_EMAIL || uObj?.role === 'admin');
           updateMobileMenuOptions();
+          updateNavAvatar();
         }
         if (isAdmin && document.getElementById('admin-area').style.display === 'block') {
           renderDashboard();
@@ -1131,7 +1261,13 @@ window.onload = function() {
   }, 100);
 
   updateMobileMenuOptions();
+  updateNotificationsBadge();
 };
+
+function changeTheme(themeName, save = true) {
+  document.body.className = `theme-${themeName}`;
+  if(save) localStorage.setItem('app_theme', themeName);
+}
 
 function updateCourseStatsUI() {
   let totalMod = courseData.length;
@@ -1148,7 +1284,7 @@ function updateCourseStatsUI() {
   if(sidebarHeader) sidebarHeader.innerHTML = `<i class="fa-solid fa-book-open"></i> As ${totalLes} Aulas (${totalMod} Módulos)`;
 
   const adminModulesLessonsElem = document.getElementById('admin-total-modules-lessons');
-  if(adminModulesLessonsElem) adminModulesLessonsElem.innerHTML = `${totalMod} Módulos / ${totalLes} Aulas <i class="fa-solid fa-layer-group" style="font-size: 15px; color: var(--text-muted);"></i>`;
+  if(adminModulesLessonsElem) adminModulesLessonsElem.innerHTML = `${totalMod} Módulos / ${totalLes} Aulas`;
 }
 
 async function saveCourseToCloud(successMsg = "Alterações salvas na nuvem com sucesso!") {
@@ -1226,6 +1362,56 @@ function togglePasswordVisibility(id, btn) {
   else { inp.type = 'password'; icon.className = 'regular fa-eye'; }
 }
 
+function updateNavAvatar() {
+  const avatarContainer = document.getElementById('nav-user-avatar');
+  if(!avatarContainer || !currentUser) return;
+  let uObj = registeredUsers.find(u => u.email === currentUser);
+  if(uObj && uObj.avatar) {
+    avatarContainer.innerHTML = `<img src="${uObj.avatar}" alt="Avatar" style="width:100%; height:100%; object-fit:cover;">`;
+  } else {
+    avatarContainer.innerHTML = `<i class="fa-solid fa-user" style="font-size: 12px; color: var(--accent-cyan);"></i>`;
+  }
+}
+
+function updateNotificationsBadge() {
+  const badge = document.getElementById('notif-badge');
+  if(!badge) return;
+  let unread = notificationsList.filter(n => n.unread).length;
+  if(unread > 0) {
+    badge.style.display = 'flex';
+    badge.innerText = unread;
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+function openNotificationsModal() {
+  const listContainer = document.getElementById('notifications-list-modal');
+  listContainer.innerHTML = '';
+  if(notificationsList.length === 0) {
+    listContainer.innerHTML = `<p style="text-align:center; color:var(--text-muted); padding:20px;">Nenhuma notificação no momento.</p>`;
+  } else {
+    notificationsList.forEach(n => {
+      listContainer.innerHTML += `
+        <div style="background:rgba(255,255,255,0.03); border:1px solid var(--glass-border); padding:12px; border-radius:12px; ${n.unread?'border-left:4px solid var(--accent-cyan);':''}">
+          <p style="font-size:13px; color:#fff; margin-bottom:4px;">${n.text}</p>
+          <span style="font-size:10.5px; color:var(--text-muted);">${n.date}</span>
+        </div>
+      `;
+    });
+    notificationsList.forEach(n => n.unread = false);
+    localStorage.setItem('user_notifications', JSON.stringify(notificationsList));
+    updateNotificationsBadge();
+  }
+  openModal('modal-notifications');
+}
+
+function addNotification(text) {
+  notificationsList.unshift({ id: Date.now(), text: text, unread: true, date: new Date().toLocaleString() });
+  localStorage.setItem('user_notifications', JSON.stringify(notificationsList));
+  updateNotificationsBadge();
+}
+
 function updateMobileMenuOptions() {
   const container = document.getElementById('mobile-menu-options');
   if(!container) return;
@@ -1294,6 +1480,27 @@ async function handleLogin(e) {
   }
 }
 
+async function loginWithGoogle() {
+  const { signInWithPopup, GoogleAuthProvider } = window.firebaseModules;
+  const provider = new GoogleAuthProvider();
+  try {
+    const result = await signInWithPopup(window.auth, provider);
+    const user = result.user;
+    let uObj = registeredUsers.find(u => u.email === user.email);
+    if (!uObj) {
+      uObj = { email: user.email, paid: false, role: 'student', fullname: user.displayName || 'Aluno Google', avatar: user.photoURL || '', certReleased: false };
+      await saveUserToCloud(uObj);
+      addNotification("Novo aluno cadastrado via Google: " + user.email);
+    }
+    setAuthSession(user.email, user.email === TARGET_EMAIL);
+    if(user.email === TARGET_EMAIL) showAdminArea();
+    else if(uObj.paid) showMemberArea();
+    else showPublicSite();
+  } catch(e) {
+    showCustomAlert("Erro no Google Login", e.message);
+  }
+}
+
 async function handleForgotPassword(e) {
   e.preventDefault();
   autoCompleteEmail('login-email');
@@ -1331,7 +1538,7 @@ async function handleRegister(e) {
   const { createUserWithEmailAndPassword, signInWithEmailAndPassword } = window.firebaseModules;
 
   if (!isValidFullName(fullname)) {
-    showCustomAlert("Nome Inválido", "Por favor, digite seu Nome Completo real (evite nomes falsos ou repetitivos).");
+    showCustomAlert("Nome Inválido", "Por favor, digite seu Nome Completo real.");
     document.getElementById('reg-fullname').focus();
     return;
   }
@@ -1347,6 +1554,7 @@ async function handleRegister(e) {
     await saveUserToCloud(newUser);
     salesTransactions.push({ id: "TX-"+Math.floor(1000+Math.random()*9000), email: `${fullname} <${em}>`, amount: 29.90, method: "Pix", status: "pendente", date: new Date().toLocaleString() });
     localStorage.setItem('admin_sales_transactions', JSON.stringify(salesTransactions));
+    addNotification("Novo aluno cadastrado: " + fullname);
     setAuthSession(em, false);
     showPublicSite();
   } catch (err) {
@@ -1362,7 +1570,7 @@ async function handleRegister(e) {
           else showPublicSite();
         }
       } catch (loginErr) {
-        showCustomAlert("Conta Existente", "Este e-mail já está cadastrado. Alterne para a aba 'Entrar' e faça login com sua senha.");
+        showCustomAlert("Conta Existente", "Este e-mail já está cadastrado. Faça login na aba 'Entrar'.");
         switchAuthTab('login');
         document.getElementById('login-email').value = em;
       }
@@ -1375,7 +1583,7 @@ async function handleRegister(e) {
 function setAuthSession(em, adminFlag) {
   currentUser = em; isAdmin = adminFlag; 
   localStorage.setItem('persisted_current_user', em);
-  closeModal('modal-auth'); updateMobileMenuOptions();
+  closeModal('modal-auth'); updateMobileMenuOptions(); updateNavAvatar();
 }
 
 async function logout() {
@@ -1424,58 +1632,106 @@ function showPublicSite() {
   }
 }
 
+function switchSettingsTab(tabName) {
+  document.querySelectorAll('.settings-tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.settings-panel').forEach(p => p.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  document.getElementById(`spanel-${tabName}`).classList.add('active');
+}
+
 function showSettingsArea() {
   document.getElementById('public-site').style.display = 'none'; 
   document.getElementById('member-area').style.display = 'none'; 
   document.getElementById('admin-area').style.display = 'none';
   document.getElementById('settings-area').style.display = 'block';
   let uObj = registeredUsers.find(u => u.email === currentUser);
-  document.getElementById('settings-email').value = currentUser || '';
-  document.getElementById('settings-fullname').value = uObj?.fullname || '';
+  document.getElementById('set-email').value = currentUser || '';
+  document.getElementById('set-fullname').value = uObj?.fullname || '';
+  document.getElementById('set-avatar').value = uObj?.avatar || '';
+
+  const badgeStatus = document.getElementById('verified-badge-status');
+  if(uObj && uObj.verifiedData) {
+    badgeStatus.innerHTML = `<span style="color:var(--green);"><i class="fa-solid fa-circle-check"></i> Status: Verificado (Dados salvos com sucesso)</span>`;
+    document.getElementById('v-name').value = uObj.verifiedData.name || '';
+    document.getElementById('v-nasc').value = uObj.verifiedData.nasc || '';
+    document.getElementById('v-cpf').value = uObj.verifiedData.cpf || '';
+    document.getElementById('v-end').value = uObj.verifiedData.end || '';
+    document.getElementById('v-cep').value = uObj.verifiedData.cep || '';
+    document.getElementById('v-num').value = uObj.verifiedData.num || '';
+    document.getElementById('v-comp').value = uObj.verifiedData.comp || '';
+    document.getElementById('v-bairro').value = uObj.verifiedData.bairro || '';
+    document.getElementById('v-cidade').value = uObj.verifiedData.cidade || '';
+    document.getElementById('v-uf').value = uObj.verifiedData.uf || '';
+  } else {
+    badgeStatus.innerHTML = `<span style="color:var(--yellow);"><i class="fa-solid fa-circle-exclamation"></i> Status: Não Verificado (Preencha a aba Verificação)</span>`;
+  }
 }
 
-async function handleUpdateAccount(e) {
+async function handleUpdateProfile(e) {
   e.preventDefault();
-  const newName = document.getElementById('settings-fullname').value.trim();
-  const newEmail = document.getElementById('settings-email').value.trim();
-  const newPass = document.getElementById('settings-new-pass').value.trim();
+  const newName = document.getElementById('set-fullname').value.trim();
+  const newEmail = document.getElementById('set-email').value.trim();
+  const newAvatar = document.getElementById('set-avatar').value.trim();
 
-  if (!isValidFullName(newName)) {
-    showCustomAlert("Nome Inválido", "Por favor, informe seu nome e sobrenome reais para validação.");
-    document.getElementById('settings-fullname').focus();
+  let uObj = registeredUsers.find(u => u.email === currentUser);
+  if (uObj) {
+    uObj.fullname = newName;
+    uObj.avatar = newAvatar;
+    if (newEmail !== currentUser) {
+      uObj.email = newEmail;
+      currentUser = newEmail;
+      localStorage.setItem('persisted_current_user', newEmail);
+    }
+    await saveUserToCloud(uObj);
+    addNotification("Dados de perfil atualizados com sucesso.");
+    showSuccessModal("Perfil atualizado com sucesso!");
+    updateNavAvatar();
+  }
+}
+
+async function handleSaveVerification(e) {
+  e.preventDefault();
+  let vData = {
+    name: document.getElementById('v-name').value.trim(),
+    nasc: document.getElementById('v-nasc').value.trim(),
+    cpf: document.getElementById('v-cpf').value.trim(),
+    end: document.getElementById('v-end').value.trim(),
+    cep: document.getElementById('v-cep').value.trim(),
+    num: document.getElementById('v-num').value.trim(),
+    comp: document.getElementById('v-comp').value.trim(),
+    bairro: document.getElementById('v-bairro').value.trim(),
+    cidade: document.getElementById('v-cidade').value.trim(),
+    uf: document.getElementById('v-uf').value.trim()
+  };
+
+  let uObj = registeredUsers.find(u => u.email === currentUser);
+  if (uObj) {
+    uObj.verifiedData = vData;
+    await saveUserToCloud(uObj);
+    showSuccessModal("Dados de verificação salvos e vinculados à conta!");
+    showSettingsArea();
+  }
+}
+
+async function handleUpdatePassword(e) {
+  e.preventDefault();
+  const newPass = document.getElementById('set-new-pass').value.trim();
+  if (newPass.length < 6) {
+    showCustomAlert("Senha Curta", "A senha deve ter no mínimo 6 caracteres.");
     return;
   }
-
   const user = window.auth.currentUser;
   if (!user) {
     showCustomAlert("Erro", "Usuário não autenticado.");
     return;
   }
-
-  const { updateEmail, updatePassword } = window.firebaseModules;
-
+  const { updatePassword } = window.firebaseModules;
   try {
-    if (newEmail !== user.email) {
-      await updateEmail(user, newEmail);
-    }
-    if (newPass.length >= 6) {
-      await updatePassword(user, newPass);
-    }
-
-    let uObj = registeredUsers.find(u => u.email === currentUser);
-    if (uObj) {
-      uObj.fullname = newName;
-      if (newEmail !== currentUser) {
-        uObj.email = newEmail;
-        currentUser = newEmail;
-        localStorage.setItem('persisted_current_user', newEmail);
-      }
-      await saveUserToCloud(uObj);
-    }
-
-    showSuccessModal("Dados e credenciais atualizados com sucesso!");
+    await updatePassword(user, newPass);
+    showSuccessModal("Senha atualizada com sucesso!");
+    addNotification("Sua senha de segurança foi alterada.");
   } catch (err) {
-    showCustomAlert("Erro", "Erro ao atualizar conta: " + err.message + " (Pode ser necessário relogar para alterar e-mail/senha).");
+    showCustomAlert("Erro", "Erro ao atualizar senha: " + err.message);
   }
 }
 
@@ -1501,6 +1757,7 @@ function showMemberArea() {
   document.getElementById('nav-guest').style.display = 'none'; 
   document.getElementById('nav-user').style.display = 'flex';
   document.getElementById('user-display').innerText = currentUser;
+  updateNavAvatar();
   
   renderMemberSidebar();
   if(courseData.length > 0 && courseData[0].lessons?.length > 0) {
@@ -1521,7 +1778,8 @@ function showAdminArea() {
   document.getElementById('nav-guest').style.display = 'none'; 
   document.getElementById('nav-user').style.display = 'flex';
   document.getElementById('user-display').innerText = currentUser;
-  switchAdminTab('dashboard'); populateLessonModuleSelect(); populateTestStudentSelect();
+  updateNavAvatar();
+  switchAdminTab('alunos'); populateLessonModuleSelect(); populateTestStudentSelect();
 }
 
 function renderMemberSidebar() {
@@ -1533,7 +1791,7 @@ function renderMemberSidebar() {
     let html = '';
     if (mod.lessons) {
       mod.lessons.forEach(l => {
-        let isDone = completedLessons[currentUser] && completedLessons[currentUser][l.id];
+        let isDone = (completedLessons[currentUser] && completedLessons[currentUser][l.id]) && (completedQuizzes[currentUser] && completedQuizzes[currentUser][l.id]);
         html += `<div class="lms-lesson-item" onclick="loadLessonContent(${mod.id}, ${l.id})">
           <span><i class="regular fa-circle-play" style="margin-right: 8px;"></i> ${l.title}</span>
           ${isDone ? '<i class="fa-solid fa-check-circle"></i>' : ''}
@@ -1633,25 +1891,24 @@ function loadLessonContent(modId, lessonId) {
 
   let next = null; let found = false;
   let totalLessonsCount = 0;
-  let completedCount = 0;
+  let completedLessonsCount = 0;
   let totalQuizCount = 0;
-  let answeredQuizCount = 0;
+  let completedQuizCount = 0;
   
   courseData.forEach(m => m.lessons?.forEach(l => {
     totalLessonsCount++;
-    if(completedLessons[currentUser] && completedLessons[currentUser][l.id]) completedCount++;
+    if(completedLessons[currentUser] && completedLessons[currentUser][l.id]) completedLessonsCount++;
     if(l.quiz && l.quiz.question) {
       totalQuizCount++;
-      if(quizStatsStorage[currentUser] && quizStatsStorage[currentUser][l.id]?.answered) answeredQuizCount++;
+      if(completedQuizzes[currentUser] && completedQuizzes[currentUser][l.id]) completedQuizCount++;
     }
     if(found && !next) next = {m:m.id, l:l.id};
     if(l.id === lesson.id) found=true;
   }));
   
-  const isDone = completedLessons[currentUser] && completedLessons[currentUser][lesson.id];
-  const allLessonsFinished = (totalLessonsCount > 0 && completedCount >= totalLessonsCount);
-  const allQuizFinished = (totalQuizCount === 0 || answeredQuizCount >= totalQuizCount);
-  const courseFullyCompleted = allLessonsFinished && allQuizFinished;
+  const lessonDone = completedLessons[currentUser] && completedLessons[currentUser][lesson.id];
+  const quizDone = (!lesson.quiz || !lesson.quiz.question) || (completedQuizzes[currentUser] && completedQuizzes[currentUser][lesson.id]);
+  const courseFullyCompleted = (completedLessonsCount >= totalLessonsCount) && (completedQuizCount >= totalQuizCount) && (totalLessonsCount > 0);
 
   let uObj = registeredUsers.find(u => u.email === currentUser);
   let certReleasedByAdmin = uObj?.certReleased || false;
@@ -1659,7 +1916,7 @@ function loadLessonContent(modId, lessonId) {
   let quizHtml = '';
   if (lesson.quiz && lesson.quiz.question) {
     let optionsHtml = '';
-    let isQuizAlreadyAnswered = quizStatsStorage[currentUser] && quizStatsStorage[currentUser][lesson.id]?.answered;
+    let isQuizAlreadyAnswered = completedQuizzes[currentUser] && completedQuizzes[currentUser][lesson.id];
 
     lesson.quiz.options.forEach((opt, idx) => {
       let extraClass = '';
@@ -1671,7 +1928,7 @@ function loadLessonContent(modId, lessonId) {
       </button>`;
     });
 
-    const isUnlocked = videoWatchedState[lesson.id] || isDone;
+    const isUnlocked = videoWatchedState[lesson.id] || lessonDone;
 
     quizHtml = `
       <div class="quiz-container" id="quiz-block-${lesson.id}" style="display: block;">
@@ -1734,12 +1991,7 @@ function loadLessonContent(modId, lessonId) {
     ${quizHtml}
 
     <div style="margin-top: 25px; text-align: center;" id="lesson-action-footer">
-      ${isDone ? `
-        <div style="padding: 20px; background: rgba(16,185,129,0.1); border-radius: 16px; border: 1px solid rgba(16,185,129,0.3);">
-          <h3 style="color: var(--green); margin-bottom: 8px; font-size: 16px;"><i class="fa-solid fa-medal"></i> Aula Concluída com Sucesso!</h3>
-          ${next ? `<button class="btn" style="margin-top: 8px;" onclick="loadLessonContent(${next.m}, ${next.l})">Próxima Aula <i class="fa-solid fa-arrow-right"></i></button>` : `<p style="color:var(--accent-cyan); font-weight:600; font-size:14px; margin-top:6px;">Você concluiu a última aula do curso! Revise abaixo ou resgate seu certificado.</p>`}
-        </div>
-      ` : ''}
+      ${!lessonDone ? `<button class="btn" onclick="markLessonAsDone(${mod.id}, ${lesson.id})"><i class="fa-solid fa-check"></i> Marcar Aula como Concluída</button>` : ''}
     </div>
     ${certificateSectionHtml}
   `;
@@ -1750,9 +2002,19 @@ function activateYouTubePlayer(lessonId, videoId) {
   if (!container) return;
   container.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="width: 100%; height: 100%;"></iframe>`;
   videoWatchedState[lessonId] = true;
-  document.getElementById(`quiz-locked-notice-${lessonId}`).style.display = 'none';
-  document.getElementById(`quiz-content-body-${lessonId}`).style.opacity = '1';
-  document.getElementById(`quiz-content-body-${lessonId}`).style.pointerEvents = 'auto';
+  let notice = document.getElementById(`quiz-locked-notice-${lessonId}`);
+  if(notice) notice.style.display = 'none';
+  let body = document.getElementById(`quiz-content-body-${lessonId}`);
+  if(body) { body.style.opacity = '1'; body.style.pointerEvents = 'auto'; }
+}
+
+function markLessonAsDone(modId, lessonId) {
+  if(!completedLessons[currentUser]) completedLessons[currentUser] = {};
+  completedLessons[currentUser][lessonId] = true;
+  localStorage.setItem('user_completed_lessons', JSON.stringify(completedLessons));
+  renderMemberSidebar();
+  loadLessonContent(modId, lessonId);
+  addNotification("Aula concluída com sucesso!");
 }
 
 function checkQuizAnswer(buttonElem, selectedIdx, correctIdx, modId, lessonId, nextMod, nextLesson) {
@@ -1762,38 +2024,33 @@ function checkQuizAnswer(buttonElem, selectedIdx, correctIdx, modId, lessonId, n
 
   allBtns.forEach(btn => btn.disabled = true);
 
-  if(!quizStatsStorage[currentUser]) quizStatsStorage[currentUser] = {};
-  if(!quizStatsStorage[currentUser][lessonId]) quizStatsStorage[currentUser][lessonId] = { answered: true, errors: 0, correct: 0 };
+  if(!completedQuizzes[currentUser]) completedQuizzes[currentUser] = {};
+  if(!completedLessons[currentUser]) completedLessons[currentUser] = {};
 
   if (selectedIdx === correctIdx) {
     buttonElem.classList.add('correct');
     feedbackDiv.innerHTML = `<i class="fa-solid fa-circle-check"></i> Resposta correta!`;
     feedbackDiv.className = 'quiz-feedback success';
-    quizStatsStorage[currentUser][lessonId].correct = 1;
-
-    if(!completedLessons[currentUser]) completedLessons[currentUser] = {};
+    
+    completedQuizzes[currentUser][lessonId] = true;
     completedLessons[currentUser][lessonId] = true;
     localStorage.setItem('user_completed_lessons', JSON.stringify(completedLessons));
-    localStorage.setItem('user_quiz_stats', JSON.stringify(quizStatsStorage));
+    localStorage.setItem('user_completed_quizzes', JSON.stringify(completedQuizzes));
     renderMemberSidebar();
+    addNotification("Exercício concluído com sucesso!");
 
-    const footerContainer = document.getElementById('lesson-action-footer');
-    if (footerContainer) {
-      let nextBtnHtml = nextMod ? `<button class="btn" style="margin-top: 8px;" onclick="loadLessonContent(${nextMod}, ${nextLesson})">Próxima Aula <i class="fa-solid fa-arrow-right"></i></button>` : `<p style="color:var(--accent-cyan); font-weight:600; font-size:14px; margin-top:6px;">Você concluiu a última aula do curso! Revise abaixo ou resgate seu certificado.</p>`;
-      footerContainer.innerHTML = `
-        <div style="padding: 20px; background: rgba(16,185,129,0.1); border-radius: 16px; border: 1px solid rgba(16,185,129,0.3);">
-          <h3 style="color: var(--green); margin-bottom: 8px; font-size: 16px;"><i class="fa-solid fa-medal"></i> Aula Concluída com Sucesso!</h3>
-          ${nextBtnHtml}
-        </div>
-      `;
-    }
+    setTimeout(() => {
+      if(nextMod && nextLesson) {
+        loadLessonContent(nextMod, nextLesson);
+      } else {
+        loadLessonContent(modId, lessonId);
+      }
+    }, 1200);
   } else {
     buttonElem.classList.add('incorrect');
     allBtns[correctIdx].classList.add('correct');
     feedbackDiv.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> Resposta incorreta.`;
     feedbackDiv.className = 'quiz-feedback error';
-    quizStatsStorage[currentUser][lessonId].errors = (quizStatsStorage[currentUser][lessonId].errors || 0) + 1;
-    localStorage.setItem('user_quiz_stats', JSON.stringify(quizStatsStorage));
   }
 }
 
@@ -1843,61 +2100,67 @@ function generateOfficialCertificatePDF(studentName) {
   doc.setTextColor(255, 255, 255);
   doc.text("INFORMÁTICA DO ZERO", 30, 108);
 
+  addNotification("Certificado oficial emitido e baixado!");
+  addNotification("Solicitação de envio de certificado físico registrada para o endereço cadastrado!");
   doc.save(`Certificado_Informatica_Do_Zero_${studentName.replace(/\s+/g, '_')}.pdf`);
 }
 
-function switchAdminTab(t) {
-  document.getElementById('admin-tab-dashboard').style.display = t==='dashboard'?'block':'none';
-  document.getElementById('admin-tab-cart').style.display = t==='cart'?'block':'none';
-  document.getElementById('admin-tab-modules').style.display = t==='modules'?'block':'none';
-  document.getElementById('admin-tab-testcheckout').style.display = t==='testcheckout'?'block':'none';
-  if(t==='dashboard') renderDashboard(); 
-  else if(t==='cart') renderCartTab();
-  else if(t==='modules') renderAdminModules();
-  else if(t==='testcheckout') populateTestStudentSelect();
+function switchAdminTab(secName) {
+  ['alunos', 'vendas', 'cart', 'modules', 'testcheckout'].forEach(s => {
+    let elem = document.getElementById(`admin-sec-${s}`);
+    if(elem) elem.style.display = (s === secName) ? 'block' : 'none';
+  });
+  if(secName === 'alunos') renderDashboard();
+  else if(secName === 'vendas') renderSalesTab();
+  else if(secName === 'cart') renderCartTab();
+  else if(secName === 'modules') renderAdminModules();
+  else if(secName === 'testcheckout') populateTestStudentSelect();
 }
 
 function renderDashboard() {
   document.getElementById('admin-total-users').innerHTML = `${registeredUsers.length}`;
-  document.getElementById('admin-total-sales').innerHTML = `${salesTransactions.length}`;
   updateCourseStatsUI();
   
-  const salesTbody = document.getElementById('sales-list-body'); 
-  salesTbody.innerHTML = '';
-  salesTransactions.forEach((tx, idx) => {
-    let badgeColor = tx.status==='aprovado'?'var(--green)':(tx.status==='pendente'?'var(--yellow)':'var(--red)');
-    salesTbody.innerHTML += `<tr>
-      <td><strong>${tx.id}</strong><br><span style="font-size:11px; color:var(--text-secondary);">${tx.email}</span></td>
-      <td>R$ ${tx.amount.toFixed(2)} (${tx.method})</td>
-      <td><span class="badge-status" style="background:${badgeColor}22; color:${badgeColor};">${tx.status}</span><br><span style="font-size:10px; color:var(--text-muted);">${tx.date}</span></td>
-      <td>
-        <button class="btn-outline" style="border-color:var(--green); color:var(--green); padding:4px 8px;" onclick="updateTransactionStatus(${idx}, 'aprovado')" title="Aprovar"><i class="fa-solid fa-check"></i></button>
-        <button class="btn-outline" style="border-color:var(--red); color:var(--red); padding:4px 8px;" onclick="updateTransactionStatus(${idx}, 'cancelado')" title="Cancelar"><i class="fa-solid fa-ban"></i></button>
-      </td>
-    </tr>`;
-  });
-
   const tbody = document.getElementById('users-list-body'); tbody.innerHTML = '';
   
   let totalLessonsInCourse = 0;
-  courseData.forEach(m => { if(m.lessons) totalLessonsInCourse += m.lessons.length; });
+  let totalQuizInCourse = 0;
+  courseData.forEach(m => {
+    if(m.lessons) {
+      totalLessonsInCourse += m.lessons.length;
+      m.lessons.forEach(l => { if(l.quiz && l.quiz.question) totalQuizInCourse++; });
+    }
+  });
 
   registeredUsers.forEach((u) => {
     let studentEmail = u.email;
     let userCompleted = completedLessons[studentEmail] || {};
+    let userQuizzes = completedQuizzes[studentEmail] || {};
     let lessonsDoneCount = Object.keys(userCompleted).length;
-    let lessonProgressPercent = totalLessonsInCourse > 0 ? Math.round((lessonsDoneCount / totalLessonsInCourse) * 100) : 0;
-    if(lessonProgressPercent > 100) lessonProgressPercent = 100;
+    let quizzesDoneCount = Object.keys(userQuizzes).length;
+    
+    let totalItems = totalLessonsInCourse + totalQuizInCourse;
+    let doneItems = lessonsDoneCount + quizzesDoneCount;
+    let percent = totalItems > 0 ? Math.round((doneItems / totalItems) * 100) : 0;
+    if(percent > 100) percent = 100;
 
-    let studentInfo = `<div style="font-weight:600; color:#fff;">${u.fullname || 'Nome não informado'}</div>`;
+    let isApto = (lessonsDoneCount >= totalLessonsInCourse) && (quizzesDoneCount >= totalQuizInCourse) && (totalLessonsInCourse > 0);
+
+    let verifiedLabel = u.verifiedData ? `<span style="color:var(--green); font-size:10px;"><i class="fa-solid fa-badge-check"></i> Verificado</span>` : `<span style="color:var(--yellow); font-size:10px;"><i class="fa-solid fa-circle-exclamation"></i> Não verificado</span>`;
+
+    let studentInfo = `<div style="font-weight:600; color:#fff;">${u.fullname || 'Nome não informado'} ${verifiedLabel}</div>`;
     studentInfo += `<div style="font-size:11px; color:var(--accent-cyan);">E-mail: ${studentEmail}</div>`;
+    if(u.verifiedData) {
+      studentInfo += `<div style="font-size:10.5px; color:var(--text-secondary);">Endereço: ${u.verifiedData.end}, ${u.verifiedData.num} - ${u.verifiedData.cidade}/${u.verifiedData.uf} (CEP: ${u.verifiedData.cep})</div>`;
+    }
 
-    let progressHtml = `<div style="font-size:12px; color:#fff; font-weight:600;">${lessonsDoneCount} / ${totalLessonsInCourse} aulas (${lessonProgressPercent}%)</div>`;
+    let progressHtml = `<div style="font-size:11.5px; color:#fff;">Aulas: ${lessonsDoneCount}/${totalLessonsInCourse} | Quiz: ${quizzesDoneCount}/${totalQuizInCourse}</div>`;
+    progressHtml += `<div style="font-size:11.5px; color:var(--accent-cyan); font-weight:700;">Progresso: ${percent}% | Apto Certificado: ${isApto ? 'SIM' : 'NÃO'}</div>`;
 
     let actionButtons = `
-      <button class="btn-outline" style="border-color:var(--green); color:var(--green); padding:6px 10px;" title="Validar / Aprovar Pagto" onclick="setStudentPaymentStatus('${studentEmail}', true)"><i class="fa-solid fa-check"></i></button>
-      <button class="btn-outline" style="border-color:var(--yellow); color:var(--yellow); padding:6px 10px;" title="Desvalidar Pagto" onclick="setStudentPaymentStatus('${studentEmail}', false)"><i class="fa-solid fa-xmark"></i></button>
-      <button class="btn-outline" style="border-color:var(--red); color:var(--red); padding:6px 10px;" title="Excluir Conta" onclick="deleteStudentAccount('${studentEmail}')"><i class="fa-solid fa-trash"></i></button>
+      <button class="btn-outline" style="border-color:var(--green); color:var(--green); padding:4px 8px;" title="Liberar Todo Progresso" onclick="setStudentProgress('${studentEmail}', true)"><i class="fa-solid fa-check-double"></i></button>
+      <button class="btn-outline" style="border-color:var(--red); color:var(--red); padding:4px 8px;" title="Resetar Progresso" onclick="setStudentProgress('${studentEmail}', false)"><i class="fa-solid fa-rotate-left"></i></button>
+      <button class="btn-outline" style="border-color:var(--accent-cyan); color:var(--accent-cyan); padding:4px 8px;" title="Validar Acesso Pagto" onclick="setStudentPaymentStatus('${studentEmail}', true)"><i class="fa-solid fa-check"></i></button>
     `;
 
     tbody.innerHTML += `<tr>
@@ -1909,46 +2172,44 @@ function renderDashboard() {
   });
 }
 
+function renderSalesTab() {
+  const salesTbody = document.getElementById('sales-list-body'); 
+  salesTbody.innerHTML = '';
+  salesTransactions.forEach((tx) => {
+    let badgeColor = tx.status==='aprovado'?'var(--green)':(tx.status==='pendente'?'var(--yellow)':(tx.status==='recusado'?'var(--red)':'var(--text-muted)'));
+    salesTbody.innerHTML += `<tr>
+      <td><strong>${tx.id}</strong><br><span style="font-size:11px; color:var(--text-secondary);">${tx.email}</span></td>
+      <td>R$ ${tx.amount.toFixed(2)} (${tx.method})</td>
+      <td><span class="badge-status" style="background:${badgeColor}22; color:${badgeColor};">${tx.status}</span></td>
+      <td><span style="font-size:11px; color:var(--text-muted);">${tx.date}</span></td>
+    </tr>`;
+  });
+}
+
 function renderCartTab() {
   const cBody = document.getElementById('cart-list-body');
   if(!cBody) return;
   cBody.innerHTML = '';
   
-  let pendingSales = salesTransactions.filter(s => s.status === 'pendente' || s.status === 'recusado');
+  let pendingSales = salesTransactions.filter(s => s.status === 'pendente' || s.status === 'recusado' || s.status === 'cancelado');
   if(pendingSales.length === 0) {
-    cBody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:20px;">Nenhum carrinho pendente ou abandonado no momento.</td></tr>`;
+    cBody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:20px;">Nenhum item no carrinho pendente ou recusado.</td></tr>`;
     return;
   }
 
-  pendingSales.forEach((tx, idx) => {
+  pendingSales.forEach((tx) => {
     cBody.innerHTML += `<tr>
       <td><strong>${tx.email}</strong><br><span style="font-size:11px; color:var(--text-secondary);">${tx.id}</span></td>
       <td>R$ ${tx.amount.toFixed(2)}</td>
       <td><span class="badge-status" style="background:rgba(245,158,11,0.2); color:var(--yellow);">${tx.status}</span></td>
       <td>
-        <button class="btn-outline" style="border-color:var(--green); color:var(--green); padding:6px 10px;" onclick="approvePendingCart('${tx.email}')"><i class="fa-solid fa-check-double"></i> Validar Acesso</button>
-        <button class="btn-outline" style="border-color:var(--red); color:var(--red); padding:6px 10px;" onclick="cancelCartTransaction('${tx.id}')"><i class="fa-solid fa-trash"></i> Cancelar</button>
+        <button class="btn-outline" style="border-color:var(--green); color:var(--green); padding:6px 10px;" onclick="approveCartItem('${tx.email}')"><i class="fa-solid fa-check"></i> Aprovar</button>
       </td>
     </tr>`;
   });
 }
 
-function updateTransactionStatus(index, newStatus) {
-  salesTransactions[index].status = newStatus;
-  localStorage.setItem('admin_sales_transactions', JSON.stringify(salesTransactions));
-  showSuccessModal(`Status da transação alterado para ${newStatus}!`);
-  renderDashboard();
-  renderCartTab();
-}
-
-function cancelCartTransaction(txId) {
-  salesTransactions = salesTransactions.filter(s => s.id !== txId);
-  localStorage.setItem('admin_sales_transactions', JSON.stringify(salesTransactions));
-  showSuccessModal("Transação de carrinho removida/cancelada.");
-  renderCartTab();
-}
-
-async function approvePendingCart(emailStr) {
+async function approveCartItem(emailStr) {
   let emailClean = emailStr.includes('<') ? emailStr.split('<')[1].replace('>', '').trim() : emailStr;
   let u = registeredUsers.find(x => x.email === emailClean);
   if (u) {
@@ -1958,9 +2219,32 @@ async function approvePendingCart(emailStr) {
   let tx = salesTransactions.find(s => s.email.includes(emailClean));
   if (tx) tx.status = 'aprovado';
   localStorage.setItem('admin_sales_transactions', JSON.stringify(salesTransactions));
-  showSuccessModal(`Acesso validado com sucesso para ${emailClean}!`);
+  showSuccessModal(`Compra aprovada e acesso liberado para ${emailClean}!`);
+  addNotification("Pagamento aprovado e acesso liberado!");
   renderDashboard();
+  renderSalesTab();
   renderCartTab();
+}
+
+async function setStudentProgress(email, complete) {
+  if(!completedLessons[email]) completedLessons[email] = {};
+  if(!completedQuizzes[email]) completedQuizzes[email] = {};
+
+  courseData.forEach(m => {
+    m.lessons?.forEach(l => {
+      if(complete) {
+        completedLessons[email][l.id] = true;
+        if(l.quiz && l.quiz.question) completedQuizzes[email][l.id] = true;
+      } else {
+        completedLessons[email][l.id] = false;
+        if(l.quiz) completedQuizzes[email][l.id] = false;
+      }
+    });
+  });
+  localStorage.setItem('user_completed_lessons', JSON.stringify(completedLessons));
+  localStorage.setItem('user_completed_quizzes', JSON.stringify(completedQuizzes));
+  showSuccessModal(complete ? "Progresso total liberado para o aluno!" : "Progresso resetado!");
+  renderDashboard();
 }
 
 async function setStudentPaymentStatus(email, status) {
@@ -1968,22 +2252,11 @@ async function setStudentPaymentStatus(email, status) {
   if(u) {
     u.paid = status;
     await saveUserToCloud(u);
-    showSuccessModal(status ? "Pagamento aprovado e validado com sucesso!" : "Status de pagamento desvalidado!");
+    let tx = salesTransactions.find(s => s.email.includes(email));
+    if(tx) tx.status = status ? 'aprovado' : 'pendente';
+    localStorage.setItem('admin_sales_transactions', JSON.stringify(salesTransactions));
+    showSuccessModal(status ? "Pagamento validado com sucesso!" : "Status alterado!");
     renderDashboard();
-  }
-}
-
-async function deleteStudentAccount(email) {
-  if(!confirm(`Deseja realmente excluir a conta do aluno ${email}?`)) return;
-  const { doc, deleteDoc } = window.firebaseModules;
-  try {
-    let safeId = email.replace(/[@.]/g, '_');
-    await deleteDoc(doc(window.db, "users", safeId));
-    registeredUsers = registeredUsers.filter(u => u.email !== email);
-    showSuccessModal("Conta de aluno excluída com sucesso da nuvem.");
-    renderDashboard();
-  } catch(e) {
-    showCustomAlert("Erro", "Erro ao excluir conta: " + e.message);
   }
 }
 
@@ -1999,20 +2272,25 @@ function populateTestStudentSelect() {
 function openTestCheckoutCustom() {
   const sel = document.getElementById('test-student-select');
   const amountInput = document.getElementById('test-amount-input');
+  
+  if(!isAdmin) {
+    showCustomAlert("Acesso Negado", "Somente o administrador pode iniciar testes.");
+    return;
+  }
   if(!sel || !sel.value) {
-    showCustomAlert("Atenção", "Selecione um aluno para o teste.");
+    showCustomAlert("Atenção", "Selecione um aluno para iniciar o teste.");
     return;
   }
   
   let val = parseFloat(amountInput.value);
   if(isNaN(val) || val <= 0) {
-    showCustomAlert("Valor Inválido", "Digite um valor válido maior que zero.");
+    showCustomAlert("Valor Inválido", "Digite um valor válido.");
     return;
   }
 
   checkoutTargetUser = sel.value;
   currentCheckoutAmount = val;
-  document.getElementById('checkout-modal-title').innerText = `Checkout Teste — R$ ${val.toFixed(2)}`;
+  document.getElementById('checkout-modal-title').innerText = `Teste de Pagamento — R$ ${val.toFixed(2)}`;
   openCheckoutModal();
 }
 
@@ -2034,6 +2312,7 @@ function saveModuleData() {
   renderAdminModules(); 
   populateLessonModuleSelect();
   updateCourseStatsUI();
+  addNotification("Novo módulo adicionado ao curso: " + t);
 }
 
 function saveLessonData() {
@@ -2046,6 +2325,21 @@ function saveLessonData() {
   const pdfUrl = document.getElementById('lesson-pdf-url').value.trim();
   const imgUrl = document.getElementById('lesson-img-url').value.trim();
   
+  const qText = document.getElementById('new-quiz-question').value.trim();
+  let quiz = null;
+  if(qText) {
+    quiz = {
+      question: qText,
+      options: [
+        document.getElementById('new-quiz-opt0').value,
+        document.getElementById('new-quiz-opt1').value,
+        document.getElementById('new-quiz-opt2').value,
+        document.getElementById('new-quiz-opt3').value
+      ],
+      correct: parseInt(document.getElementById('new-quiz-correct').value)
+    };
+  }
+
   if(!t) {
     showCustomAlert("Atenção", "Preencha o título da aula.");
     return;
@@ -2066,12 +2360,13 @@ function saveLessonData() {
     video: video, 
     pdfUrl: pdfUrl, 
     imgUrl: imgUrl, 
-    quiz: null 
+    quiz: quiz 
   });
 
-  saveCourseToCloud("Aula publicada e sincronizada na nuvem!"); 
+  saveCourseToCloud("Aula e quiz publicados com sucesso!"); 
   renderAdminModules();
   updateCourseStatsUI();
+  addNotification("Nova aula publicada: " + t);
 }
 
 function renderAdminModules() {
@@ -2081,11 +2376,11 @@ function renderAdminModules() {
   courseData.forEach((m, index) => {
     let lessonsHtml = '';
     if (m.lessons) {
-      m.lessons.forEach((l, lIndex) => {
+      m.lessons.forEach((l) => {
         lessonsHtml += `<div class="admin-lesson-item-box">
           <span><i class="fa-solid fa-file-video" style="color:var(--accent-cyan); margin-right:6px;"></i> ${l.title}</span>
           <div>
-            <button class="btn-outline" style="padding:4px 8px; font-size:11px;" onclick="openEditLessonModal(${m.id}, ${l.id})" title="Editar Aula"><i class="fa-solid fa-pen"></i></button>
+            <button class="btn-outline" style="padding:4px 8px; font-size:11px;" onclick="openEditLessonModal(${m.id}, ${l.id})" title="Editar Aula e Quiz"><i class="fa-solid fa-pen"></i></button>
             <button class="btn-outline" style="padding:4px 8px; font-size:11px; border-color:var(--red); color:var(--red);" onclick="deleteLesson(${m.id}, ${l.id})" title="Excluir Aula"><i class="fa-solid fa-trash"></i></button>
           </div>
         </div>`;
@@ -2093,19 +2388,12 @@ function renderAdminModules() {
     }
 
     c.innerHTML += `<div class="admin-mod-box">
-      <div class="admin-mod-header">
-        <span onclick="toggleAdminAccordion(this)" style="flex:1; display:flex; align-items:center; justify-content:space-between;">
-          <span><i class="regular fa-folder" style="color:var(--accent-cyan); margin-right:8px;"></i> ${m.title}</span>
-          <i class="fa-solid fa-chevron-down" style="font-size:10px;"></i>
-        </span>
-        <div style="display:flex; gap:6px; margin-left:10px;">
-          <button class="btn-outline" style="padding:4px 8px;" onclick="moveModule(${index}, -1)" title="Subir"><i class="fa-solid fa-arrow-up"></i></button>
-          <button class="btn-outline" style="padding:4px 8px;" onclick="moveModule(${index}, 1)" title="Descer"><i class="fa-solid fa-arrow-down"></i></button>
-          <button class="btn-outline" style="padding:4px 8px; border-color:var(--red); color:var(--red);" onclick="deleteModule(${m.id})" title="Excluir Módulo"><i class="fa-solid fa-trash"></i></button>
-        </div>
+      <div class="admin-mod-header" onclick="toggleAdminAccordion(this)">
+        <span><i class="regular fa-folder" style="color:var(--accent-cyan); margin-right:8px;"></i> ${m.title}</span>
+        <i class="fa-solid fa-chevron-down" style="font-size:10px;"></i>
       </div>
       <div class="admin-mod-body">
-        <h5 style="font-size:12px; color:var(--text-secondary); margin-bottom:8px;">Aulas deste Módulo (Clique no Lápis para Editar):</h5>
+        <h5 style="font-size:12px; color:var(--text-secondary); margin-bottom:8px;">Aulas do Módulo (Clique no Lápis para Editar):</h5>
         ${lessonsHtml || '<p style="font-size:12px; color:var(--text-muted);">Nenhuma aula cadastrada.</p>'}
       </div>
     </div>`;
@@ -2127,6 +2415,21 @@ function openEditLessonModal(modId, lessonId) {
   document.getElementById('edit-lesson-pdf').value = lesson.pdfUrl || '';
   document.getElementById('edit-lesson-img').value = lesson.imgUrl || '';
 
+  if(lesson.quiz) {
+    document.getElementById('edit-quiz-question').value = lesson.quiz.question || '';
+    document.getElementById('edit-quiz-opt0').value = lesson.quiz.options?.[0] || '';
+    document.getElementById('edit-quiz-opt1').value = lesson.quiz.options?.[1] || '';
+    document.getElementById('edit-quiz-opt2').value = lesson.quiz.options?.[2] || '';
+    document.getElementById('edit-quiz-opt3').value = lesson.quiz.options?.[3] || '';
+    document.getElementById('edit-quiz-correct').value = lesson.quiz.correct || 0;
+  } else {
+    document.getElementById('edit-quiz-question').value = '';
+    document.getElementById('edit-quiz-opt0').value = '';
+    document.getElementById('edit-quiz-opt1').value = '';
+    document.getElementById('edit-quiz-opt2').value = '';
+    document.getElementById('edit-quiz-opt3').value = '';
+  }
+
   openModal('modal-edit-lesson');
 }
 
@@ -2146,29 +2449,23 @@ function saveEditedLesson() {
   lesson.pdfUrl = document.getElementById('edit-lesson-pdf').value.trim();
   lesson.imgUrl = document.getElementById('edit-lesson-img').value.trim();
 
-  saveCourseToCloud("Aula editada com sucesso na nuvem!");
+  const qText = document.getElementById('edit-quiz-question').value.trim();
+  if(qText) {
+    lesson.quiz = {
+      question: qText,
+      options: [
+        document.getElementById('edit-quiz-opt0').value,
+        document.getElementById('edit-quiz-opt1').value,
+        document.getElementById('edit-quiz-opt2').value,
+        document.getElementById('edit-quiz-opt3').value
+      ],
+      correct: parseInt(document.getElementById('edit-quiz-correct').value)
+    };
+  }
+
+  saveCourseToCloud("Aula e quiz atualizados na nuvem!");
   closeModal('modal-edit-lesson');
   renderAdminModules();
-}
-
-function moveModule(index, direction) {
-  const newIndex = index + direction;
-  if (newIndex < 0 || newIndex >= courseData.length) return;
-  const temp = courseData[index];
-  courseData[index] = courseData[newIndex];
-  courseData[newIndex] = temp;
-  saveCourseToCloud("Ordem de módulos alterada!");
-  renderAdminModules();
-  populateLessonModuleSelect();
-}
-
-function deleteModule(modId) {
-  if(!confirm("Deseja realmente excluir este módulo?")) return;
-  courseData = courseData.filter(m => m.id !== modId);
-  saveCourseToCloud("Módulo excluído!");
-  renderAdminModules();
-  populateLessonModuleSelect();
-  updateCourseStatsUI();
 }
 
 function deleteLesson(modId, lessonId) {
@@ -2241,6 +2538,14 @@ async function openCheckoutModal() {
                   if (paymentStatus === 'approved') {
                     simulateApprovalForTarget(targetEmail);
                   } 
+                  else if (paymentStatus === 'rejected') {
+                    updateTxStatus(targetEmail, 'recusado');
+                    showCustomAlert("Pagamento Recusado", "Pagamento recusado pela operadora do cartão.");
+                  }
+                  else if (paymentStatus === 'cancelled') {
+                    updateTxStatus(targetEmail, 'cancelado');
+                    showCustomAlert("Compra Cancelada", "A compra foi cancelada.");
+                  }
                   else if (selectedPaymentMethod === 'bank_transfer' && response.point_of_interaction) {
                     const pixData = response.point_of_interaction.transaction_data;
                     const qrCodeBase64 = pixData.qr_code_base64;
@@ -2282,7 +2587,8 @@ async function openCheckoutModal() {
                       if(timeLeft <= 0) {
                         clearInterval(pixCountdownInterval);
                         if(activePaymentInterval) { clearInterval(activePaymentInterval); activePaymentInterval = null; }
-                        showCustomAlert("Pix Expirado", "O tempo limite de 5 minutos para pagamento via Pix expirou. Seu pedido foi enviado para a aba de carrinho pendente.");
+                        updateTxStatus(targetEmail, 'cancelado');
+                        showCustomAlert("Pix Expirado", "O tempo limite para pagamento via Pix expirou. Movido para carrinho pendente.");
                         closeCheckoutModalSafe();
                       }
                     }, 1000);
@@ -2297,13 +2603,16 @@ async function openCheckoutModal() {
                             clearInterval(activePaymentInterval);
                             activePaymentInterval = null;
                             simulateApprovalForTarget(targetEmail);
+                          } else if(checkData.status === 'rejected') {
+                            updateTxStatus(targetEmail, 'recusado');
                           }
                         } catch(e) {}
-                      }, 4000);
+                      }, 6000);
                     }
                   } 
                   else {
-                    showCustomAlert("Pagamento Recusado", `Pagamento não aprovado pela operadora. Status: ${paymentStatus}. Sua tentativa ficou registrada no carrinho pendente.`);
+                    updateTxStatus(targetEmail, 'recusado');
+                    showCustomAlert("Pagamento Recusado", "Transação recusada.");
                   }
                 } else {
                   showCustomAlert("Erro no Pagamento", response.error || "Tente novamente.");
@@ -2328,6 +2637,13 @@ async function openCheckoutModal() {
   }, 200);
 }
 
+function updateTxStatus(email, st) {
+  let tx = salesTransactions.find(s => s.email.includes(email));
+  if(tx) tx.status = st;
+  localStorage.setItem('admin_sales_transactions', JSON.stringify(salesTransactions));
+  addNotification("Status de pagamento atualizado para: " + st);
+}
+
 async function simulateApprovalForTarget(email) {
   if(activePaymentInterval) { clearInterval(activePaymentInterval); activePaymentInterval = null; }
   if(pixCountdownInterval) { clearInterval(pixCountdownInterval); pixCountdownInterval = null; }
@@ -2336,11 +2652,9 @@ async function simulateApprovalForTarget(email) {
     uObj.paid = true;
     await saveUserToCloud(uObj);
   }
-  let tx = salesTransactions.find(s => s.email.includes(email));
-  if(tx) tx.status = 'aprovado';
-  localStorage.setItem('admin_sales_transactions', JSON.stringify(salesTransactions));
-
-  showSuccessModal(`Pagamento aprovado com sucesso para ${email}! Suas aulas foram liberadas.`);
+  updateTxStatus(email, 'aprovado');
+  showSuccessModal(`Pagamento aprovado com sucesso para ${email}!`);
+  addNotification("Pagamento aprovado e aulas liberadas!");
   closeModal('modal-custom-checkout');
   currentCheckoutAmount = 29.90;
   checkoutTargetUser = null;
