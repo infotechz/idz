@@ -1,5 +1,5 @@
 /* Estrutura oficial do curso Informática do Zero. courseVersion 2. */
-export const COURSE_VERSION = 2;
+const COURSE_VERSION = 2;
 
 const lesson = (moduleId, id, title, description, minutes, practicalExample, exerciseTitles) => ({
   id, moduleId, title, description,
@@ -49,7 +49,7 @@ const examples = [
   "Resolver um pequeno desafio guiado."
 ];
 
-export const courseV2 = {
+const courseV2 = {
   courseVersion: COURSE_VERSION,
   title: "INFORMÁTICA DO ZERO",
   welcome: { id: "welcome", type: "welcome", title: "Boas-vindas", description: "Conheça a plataforma e comece sua jornada." },
