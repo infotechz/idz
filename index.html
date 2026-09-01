@@ -46,7 +46,7 @@
 <style>
 :root {
   --bg-main: #030712;
-  --bg-card: rgba(15, 23, 42, 0.9);
+  --bg-card: rgba(15, 23, 42, 0.92);
   --accent-cyan: #00f0ff;
   --accent-blue: #2563eb;
   --accent-purple: #7c3aed;
@@ -103,7 +103,7 @@ a { text-decoration: none; }
 
 nav {
   position: sticky; top: 0; z-index: 100;
-  background: rgba(3, 7, 18, 0.85);
+  background: rgba(3, 7, 18, 0.88);
   backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--glass-border); padding: 14px 0; transition: all 0.3s;
 }
@@ -235,11 +235,11 @@ section { padding: 70px 0; }
 .close-btn { position: absolute; top: 16px; right: 16px; background: none; border: none; color: var(--text-muted); font-size: 22px; cursor: pointer; transition: 0.2s; z-index: 10; }
 .close-btn:hover { color: #fff; }
 
-.input-group { margin-bottom: 14px; width: 100%; text-align: left; }
-.input-group label { display: block; font-size: 11.5px; color: var(--text-secondary); margin-bottom: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.input-group { margin-bottom: 16px; width: 100%; text-align: left; }
+.input-group label { display: block; font-size: 12px; color: var(--text-secondary); margin-bottom: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
 .input-group input, .input-group textarea, .input-group select {
-  width: 100%; padding: 12px 14px; border-radius: 12px; background: rgba(0,0,0,0.4);
-  border: 1px solid var(--glass-border); color: #fff; font-size: 13.5px; outline: none; transition: 0.3s; font-family: 'Inter', sans-serif;
+  width: 100%; padding: 14px 16px; border-radius: 12px; background: rgba(0,0,0,0.4);
+  border: 1px solid var(--glass-border); color: #fff; font-size: 14px; outline: none; transition: 0.3s; font-family: 'Inter', sans-serif;
 }
 .input-group input:focus, .input-group textarea:focus, .input-group select:focus {
   border-color: var(--accent-cyan); background: rgba(0,240,255,0.04); box-shadow: 0 0 15px rgba(0,240,255,0.2);
@@ -249,7 +249,7 @@ section { padding: 70px 0; }
   position: absolute; right: 14px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 15px;
 }
 
-.lms-layout { display: grid; grid-template-columns: 1fr 340px; gap: 24px; align-items: start; }
+.lms-layout { display: grid; grid-template-columns: 1fr 360px; gap: 24px; align-items: start; }
 @media(max-width: 950px){ .lms-layout { grid-template-columns: 1fr; } .lms-sidebar { order: 2; } .lms-content { order: 1; } }
 
 .lms-sidebar h3 { font-size: 15px; padding-bottom: 12px; border-bottom: 1px solid var(--glass-border); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; color: #fff; }
@@ -411,6 +411,7 @@ footer {
 
       <div id="nav-user" style="display: none; align-items: center; gap: 8px;">
         <span style="font-size: 11px; color: var(--accent-cyan); font-weight: 600; white-space: nowrap;" id="user-display">Aluno</span>
+        <button class="btn-outline" style="border-color: rgba(0, 240, 255, 0.4); color: var(--accent-cyan); padding: 6px 10px;" onclick="showSettingsArea()" title="Configurações da Conta"><i class="fa-solid fa-sliders"></i></button>
         <button class="btn-outline" style="border-color: rgba(239, 68, 68, 0.4); color: var(--red); padding: 6px 8px;" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i></button>
       </div>
 
@@ -516,32 +517,40 @@ footer {
   </div>
 </div>
 
-<div id="settings-area" class="wrap" style="display: none; padding-top: 36px; max-width: 600px;">
-  <div class="glass-panel animate-fade-up" style="padding: 30px;">
-    <h2 style="font-size: 20px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;"><i class="fa-solid fa-gear" style="color: var(--accent-cyan);"></i> Configurações da Conta</h2>
+<div id="settings-area" class="wrap" style="display: none; padding-top: 36px; max-width: 650px;">
+  <div class="glass-panel animate-fade-up" style="padding: 36px;">
+    <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 26px; border-bottom: 1px solid var(--glass-border); padding-bottom: 16px;">
+      <div style="width: 48px; height: 48px; border-radius: 14px; background: rgba(0,240,255,0.1); border: 1px solid var(--glass-border-hover); display: flex; align-items: center; justify-content: center; color: var(--accent-cyan); font-size: 20px;">
+        <i class="fa-solid fa-sliders"></i>
+      </div>
+      <div>
+        <h2 style="font-size: 20px; color: #fff;">Configurações Avançadas da Conta</h2>
+        <p style="font-size: 12.5px; color: var(--text-secondary);">Gerencie suas credenciais profissionais e dados de acesso.</p>
+      </div>
+    </div>
     
     <form onsubmit="handleUpdateAccount(event)">
       <div class="input-group">
-        <label>Nome Completo (Validação Real)</label>
+        <label><i class="regular fa-user" style="color:var(--accent-cyan); margin-right:6px;"></i> Nome Completo (Validação Real)</label>
         <input type="text" id="settings-fullname" placeholder="Seu nome e sobrenome" required>
       </div>
 
       <div class="input-group">
-        <label>E-mail de Acesso</label>
+        <label><i class="regular fa-envelope" style="color:var(--accent-cyan); margin-right:6px;"></i> E-mail de Acesso Profissional</label>
         <input type="email" id="settings-email" placeholder="seu@email.com" required>
       </div>
       
       <div class="input-group">
-        <label>Nova Senha (Opcional - Mínimo 6 caracteres)</label>
+        <label><i class="fa-solid fa-lock" style="color:var(--accent-cyan); margin-right:6px;"></i> Nova Senha (Opcional - Mínimo 6 caracteres)</label>
         <div class="password-wrapper">
-          <input type="password" id="settings-new-pass" placeholder="Deixe em branco para não alterar">
+          <input type="password" id="settings-new-pass" placeholder="Deixe em branco para manter a atual">
           <button type="button" class="toggle-password" onclick="togglePasswordVisibility('settings-new-pass', this)"><i class="regular fa-eye"></i></button>
         </div>
       </div>
 
-      <div style="margin-top: 25px; display: flex; justify-content: space-between; gap: 10px;">
-        <button type="button" class="btn-outline" onclick="showMemberArea()">Voltar às Aulas</button>
-        <button type="submit" class="btn" style="padding: 10px 20px;">Salvar Alterações</button>
+      <div style="margin-top: 30px; display: flex; justify-content: space-between; align-items: center; gap: 12px;">
+        <button type="button" class="btn-outline" onclick="showMemberArea()"><i class="fa-solid fa-arrow-left"></i> Voltar às Aulas</button>
+        <button type="submit" class="btn" style="padding: 12px 24px;"><i class="fa-solid fa-floppy-disk"></i> Salvar Alterações</button>
       </div>
     </form>
   </div>
@@ -1164,7 +1173,7 @@ function updateMobileMenuOptions() {
     let html = '';
     if(isAdmin) html += `<button onclick="toggleMobileMenu(); showAdminArea();"><i class="fa-solid fa-gear"></i> Painel Admin</button>`;
     if(isPaid) html += `<button onclick="toggleMobileMenu(); showMemberArea();"><i class="fa-solid fa-graduation-cap"></i> Acessar Aulas</button>`;
-    html += `<button onclick="toggleMobileMenu(); showSettingsArea();"><i class="fa-solid fa-sliders"></i> Configurações</button>`;
+    html += `<button onclick="toggleMobileMenu(); showSettingsArea();"><i class="fa-solid fa-sliders"></i> Configurações da Conta</button>`;
     html += `<button style="color:var(--red);" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> Sair</button>`;
     container.innerHTML = html;
     document.getElementById('hero-btn-text').innerText = isPaid ? "IR PARA AS AULAS" : "GARANTIR MEU ACESSO";
@@ -1608,10 +1617,12 @@ function loadLessonContent(modId, lessonId) {
   let certificateSectionHtml = '';
   if (courseFullyCompleted || certReleasedByAdmin) {
     certificateSectionHtml = `
-      <div style="margin-top: 30px; padding: 24px; background: rgba(16,185,129,0.1); border: 1px solid var(--green); border-radius: 16px; text-align: center;">
-        <h4 style="color: var(--green); margin-bottom: 8px;"><i class="fa-solid fa-award"></i> Parabéns! Curso Concluído com Sucesso!</h4>
-        <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">Todas as aulas e exercícios foram finalizados para: <strong>${uObj?.fullname || currentUser}</strong></p>
-        <button class="btn" style="background: linear-gradient(135deg, #10b981, #059669); color:#fff;" onclick="generateOfficialCertificatePDF('${uObj?.fullname || currentUser}')"><i class="fa-solid fa-download"></i> Baixar Certificado Oficial em PDF</button>
+      <div style="margin-top: 35px; padding: 32px; background: radial-gradient(circle at center, rgba(16, 185, 129, 0.15), rgba(15, 23, 42, 0.95)); border: 2px solid var(--green); border-radius: 24px; text-align: center; box-shadow: 0 0 30px rgba(16,185,129,0.25);">
+        <div style="font-size: 52px; margin-bottom: 12px; filter: drop-shadow(0 0 10px rgba(16,185,129,0.5));">🏆🎉</div>
+        <h3 style="color: #fff; font-size: 22px; font-weight: 800; margin-bottom: 6px;">PARABÉNS! CURSO CONCLUÍDO COM SUCESSO!</h3>
+        <p style="color: var(--accent-cyan); font-size: 14px; font-weight: 700; margin-bottom: 14px;">Sua Autonomia Digital começa agora!</p>
+        <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px; max-width: 600px; margin-left: auto; margin-right: auto;">Todas as aulas e exercícios foram finalizados para: <strong>${uObj?.fullname || currentUser}</strong></p>
+        <button class="btn" style="background: linear-gradient(135deg, #10b981, #059669); color:#fff; font-size: 14px; padding: 16px 28px; box-shadow: 0 10px 25px rgba(16,185,129,0.4);" onclick="generateOfficialCertificatePDF('${uObj?.fullname || currentUser}')"><i class="fa-solid fa-file-pdf" style="font-size: 16px;"></i> BAIXAR SEU CERTIFICADO OFICIAL EM PDF</button>
       </div>
     `;
   } else {
@@ -1648,9 +1659,9 @@ function loadLessonContent(modId, lessonId) {
 
     <div style="margin-top: 25px; text-align: center;" id="lesson-action-footer">
       ${isDone ? `
-        <div style="padding: 18px; background: rgba(16,185,129,0.1); border-radius: 14px; border: 1px solid rgba(16,185,129,0.3);">
-          <h3 style="color: var(--green); margin-bottom: 8px; font-size: 16px;"><i class="fa-solid fa-medal"></i> Aula Concluída!</h3>
-          ${next ? `<button class="btn" onclick="loadLessonContent(${next.m}, ${next.l})">Próxima Aula <i class="fa-solid fa-arrow-right"></i></button>` : `<span style="color:var(--accent-cyan); font-weight:bold;">Você concluiu todas as aulas!</span>`}
+        <div style="padding: 20px; background: rgba(16,185,129,0.1); border-radius: 16px; border: 1px solid rgba(16,185,129,0.3);">
+          <h3 style="color: var(--green); margin-bottom: 8px; font-size: 16px;"><i class="fa-solid fa-medal"></i> Aula Concluída com Sucesso!</h3>
+          ${next ? `<button class="btn" style="margin-top: 8px;" onclick="loadLessonContent(${next.m}, ${next.l})">Próxima Aula <i class="fa-solid fa-arrow-right"></i></button>` : `<p style="color:var(--accent-cyan); font-weight:600; font-size:14px; margin-top:6px;">Você concluiu a última aula do curso! Revise abaixo ou resgate seu certificado.</p>`}
         </div>
       ` : ''}
     </div>
@@ -1692,10 +1703,10 @@ function checkQuizAnswer(buttonElem, selectedIdx, correctIdx, modId, lessonId, n
 
     const footerContainer = document.getElementById('lesson-action-footer');
     if (footerContainer) {
-      let nextBtnHtml = nextMod ? `<button class="btn" onclick="loadLessonContent(${nextMod}, ${nextLesson})">Próxima Aula <i class="fa-solid fa-arrow-right"></i></button>` : `<span style="color:var(--accent-cyan); font-weight:bold;">Você concluiu todas as aulas!</span>`;
+      let nextBtnHtml = nextMod ? `<button class="btn" style="margin-top: 8px;" onclick="loadLessonContent(${nextMod}, ${nextLesson})">Próxima Aula <i class="fa-solid fa-arrow-right"></i></button>` : `<p style="color:var(--accent-cyan); font-weight:600; font-size:14px; margin-top:6px;">Você concluiu a última aula do curso! Revise abaixo ou resgate seu certificado.</p>`;
       footerContainer.innerHTML = `
-        <div style="padding: 18px; background: rgba(16,185,129,0.1); border-radius: 14px; border: 1px solid rgba(16,185,129,0.3);">
-          <h3 style="color: var(--green); margin-bottom: 8px; font-size: 16px;"><i class="fa-solid fa-medal"></i> Aula Concluída!</h3>
+        <div style="padding: 20px; background: rgba(16,185,129,0.1); border-radius: 16px; border: 1px solid rgba(16,185,129,0.3);">
+          <h3 style="color: var(--green); margin-bottom: 8px; font-size: 16px;"><i class="fa-solid fa-medal"></i> Aula Concluída com Sucesso!</h3>
           ${nextBtnHtml}
         </div>
       `;
