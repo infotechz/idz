@@ -66,7 +66,6 @@
   --glow-shadow: 0 0 25px rgba(0, 240, 255, 0.3);
 }
 
-/* TEMAS DINÂMICOS */
 body.theme-azul { --accent-cyan: #00f0ff; --accent-blue: #2563eb; }
 body.theme-roxo { --accent-cyan: #c084fc; --accent-blue: #7c3aed; }
 body.theme-vermelho { --accent-cyan: #f87171; --accent-blue: #dc2626; }
@@ -343,7 +342,6 @@ section { padding: 70px 0; }
 .admin-mod-body.expanded { display: block; }
 .admin-lesson-item-box { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: rgba(0,0,0,0.2); border-radius: 8px; margin-bottom: 6px; font-size: 12.5px; }
 
-/* CONFIGURAÇÕES ABAS */
 .settings-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; border-bottom: 1px solid var(--glass-border); padding-bottom: 14px; }
 .settings-tab-btn { background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); color: var(--text-secondary); padding: 8px 14px; border-radius: 10px; font-weight: 600; font-size: 12.5px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 6px; }
 .settings-tab-btn.active { background: rgba(0, 240, 255, 0.15); border-color: var(--accent-cyan); color: var(--accent-cyan); }
@@ -624,7 +622,6 @@ footer {
       </div>
     </div>
 
-    <!-- Abas de Configurações -->
     <div class="settings-tabs">
       <button class="settings-tab-btn active" onclick="switchSettingsTab('perfil')"><i class="fa-solid fa-user"></i> Perfil</button>
       <button class="settings-tab-btn" onclick="switchSettingsTab('verificacao')"><i class="fa-solid fa-id-card"></i> Verificação</button>
@@ -973,7 +970,6 @@ const PUBLIC_KEY_MP = "APP_USR-0af39126-fabc-4dd9-bbe2-90bbf9fe1521";
 const RAILWAY_BACKEND_URL = "https://backend-informatica-do-zero-production.up.railway.app/criar-pagamento";
 const TARGET_ADMIN_EMAIL = "olliveirazvz@gmail.com";
 
-/* FUNÇÕES UTILITÁRIAS SEGURAS PARA PREVENIR ERROS DE DOM NULL */
 function safeSetText(id, text) {
   const el = document.getElementById(id);
   if (el) el.innerText = text;
@@ -1103,7 +1099,6 @@ window.onload = function() {
     const remElem = document.getElementById('remember-me');
     if (remElem) remElem.checked = true;
   }
-  // Garantir a remoção de senhas em texto puro eventualmente salvas no passado
   localStorage.removeItem('remembered_pass');
 
   const savedTheme = localStorage.getItem('app_theme') || 'azul';
@@ -1114,13 +1109,11 @@ window.onload = function() {
       clearInterval(checkDbInterval);
       const { collection, onSnapshot, doc, setDoc, getDocs, onAuthStateChanged } = window.firebaseModules;
 
-      // FONTE PRINCIPAL E ÚNICA DA VERDADE DA SESSÃO
       onAuthStateChanged(window.auth, async (user) => {
         if (user) {
           currentUser = user.email;
           isAdmin = (currentUser === TARGET_ADMIN_EMAIL);
 
-          // Buscar perfis do Firestore
           try {
             const snap = await getDocs(collection(window.db, "users"));
             registeredUsers = [];
@@ -1128,7 +1121,6 @@ window.onload = function() {
 
             let uObj = registeredUsers.find(u => u.email === currentUser);
             
-            // Se usuário existe no Auth mas não no Firestore, cria documento do perfil automaticamente
             if (!uObj) {
               const safeId = currentUser.replace(/[@.]/g, '_');
               uObj = {
@@ -1153,7 +1145,6 @@ window.onload = function() {
               showPublicSite();
             }
 
-            // Continuar compra pendente se o usuário clicou em comprar deslogado
             if (pendingPurchaseIntent) {
               pendingPurchaseIntent = false;
               setTimeout(() => { openCheckoutModal(); }, 500);
@@ -1171,7 +1162,6 @@ window.onload = function() {
         }
       });
 
-      // Sincronização dos Módulos
       (async () => {
         try {
           const snap = await getDocs(collection(window.db, "modules"));
@@ -1200,7 +1190,6 @@ window.onload = function() {
         }
       });
 
-      // Sincronização em tempo real de Usuários
       onSnapshot(collection(window.db, "users"), (snapshot) => {
         registeredUsers = [];
         snapshot.forEach((docSnap) => registeredUsers.push(docSnap.data()));
@@ -1409,7 +1398,7 @@ async function handleLogin(e) {
   } else {
     localStorage.removeItem('remembered_email');
   }
-  localStorage.removeItem('remembered_pass'); // NUNCA SALVAR SENHA EM TEXTO PURO
+  localStorage.removeItem('remembered_pass');
 
   try {
     await signInWithEmailAndPassword(window.auth, em, pw);
@@ -1486,7 +1475,6 @@ async function handleRegister(e) {
     return;
   }
 
-  // ETAPA 1: FIREBASE AUTHENTICATION (Criação de Conta)
   let userCredential;
   try {
     userCredential = await createUserWithEmailAndPassword(window.auth, em, pw);
@@ -1501,7 +1489,6 @@ async function handleRegister(e) {
     return;
   }
 
-  // ETAPA 2: FIRESTORE (Salvar Documento do Perfil)
   const safeId = em.replace(/[@.]/g, '_');
   const newUserDoc = { 
     email: em, 
@@ -1517,7 +1504,6 @@ async function handleRegister(e) {
     console.warn("Aviso ao criar documento no Firestore:", fsErr);
   }
 
-  // ETAPA 3 & 4: INTERFACE E NAVEGAÇÃO
   closeModal('modal-auth');
   showSuccessModal("Conta criada com sucesso! Seja bem-vindo.");
 }
@@ -2006,7 +1992,6 @@ function renderAdminModules() {
   });
 }
 
-// PROTEÇÃO DO CHECKOUT E VALIDAÇÃO DE AUTENTICAÇÃO REAL
 function openCheckoutModal(isAdminTest = false) {
   const user = window.auth ? window.auth.currentUser : null;
   
