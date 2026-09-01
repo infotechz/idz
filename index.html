@@ -3039,7 +3039,7 @@ function openCheckoutModal() {
   host.innerHTML = `<div class="idz-checkout-form">
     <h3><i class="fa-solid fa-shield-halved" style="color:var(--accent-cyan);margin-right:8px"></i>Pagamento seguro IDZ</h3>
     <p>Escolha Pix ou cartão. Seus dados são processados pela API segura da plataforma.</p>
-    <div class="idz-checkout-field"><label for="idz-pay-method">Método de pagamento</label><select id="idz-pay-method"><option value="pix">Pix</option><option value="card">Cartão</option></select></div>
+    <div class="idz-checkout-field"><label for="idz-pay-method">Método de pagamento</label><select id="idz-pay-method"><option value="pix">Pix</option><option value="card" disabled>Cartão (em breve)</option></select></div>
     <div class="idz-checkout-field"><label for="idz-pay-cpf">CPF</label><input id="idz-pay-cpf" inputmode="numeric" maxlength="14" placeholder="000.000.000-00" oninput="this.value=this.value.replace(/\\D/g,'').slice(0,11).replace(/(\\d{3})(\\d)/,'$1.$2').replace(/(\\d{3})(\\d)/,'$1.$2').replace(/(\\d{3})(\\d{1,2})$/,'$1-$2')"></div>
     <button class="idz-checkout-submit" type="button" onclick="submitIdzCheckout()"><i class="fa-solid fa-lock" style="margin-right:8px"></i>Continuar pagamento</button>
   </div>`;
@@ -3050,8 +3050,9 @@ async function submitIdzCheckout() {
   if (!user) return;
   const method = document.getElementById('idz-pay-method')?.value || 'pix';
   const cpf = document.getElementById('idz-pay-cpf')?.value || '';
+  const cpfDigits = cpf.replace(/\D/g, '');
   try {
-    const response = await fetch(`${RAILWAY_BACKEND_URL}/api/checkout`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ uid:user.uid, email:user.email, amount:currentCheckoutAmount, paymentMethod:method, cpf }) });
+    const response = await fetch(`${RAILWAY_BACKEND_URL}/criar-pagamento`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ transaction_amount:currentCheckoutAmount, payment_method_id:method, payer:{ email:user.email, identification: cpfDigits ? { type:'CPF', number:cpfDigits } : undefined }, external_reference:user.uid }) });
     const payload = await response.json().catch(()=>({}));
     if (!response.ok) throw new Error(payload.message || 'Não foi possível iniciar o pagamento.');
     if (method === 'pix' || payload.pix || payload.qr_code) showPixPayment(payload);
