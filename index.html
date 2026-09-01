@@ -4,15 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="referrer" content="strict-origin-when-cross-origin">
-<title>Informática do Zero — Plataforma Profissional</title>
+<title>Informática do Zero — Plataforma Empresarial</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
-<!-- SDK Oficial do Mercado Pago para Checkout Bricks -->
 <script src="https://sdk.mercadopago.com/js/v2"></script>
 
 <script type="module">
@@ -46,7 +44,7 @@
 <style>
 :root {
   --bg-main: #030712;
-  --bg-card: rgba(15, 23, 42, 0.92);
+  --bg-card: rgba(15, 23, 42, 0.94);
   --accent-cyan: #00f0ff;
   --accent-blue: #2563eb;
   --accent-purple: #7c3aed;
@@ -55,6 +53,7 @@
   --text-muted: #64748b;
   --green: #10b981;
   --red: #ef4444;
+  --yellow: #f59e0b;
   --glass-border: rgba(255, 255, 255, 0.08);
   --glass-border-hover: rgba(0, 240, 255, 0.35);
   --glass-shadow: 0 12px 40px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1);
@@ -391,6 +390,41 @@ footer {
   </div>
 </div>
 
+<div class="modal-overlay" id="modal-edit-lesson">
+  <div class="modal-card" style="max-width: 650px;">
+    <button class="close-btn" onclick="closeModal('modal-edit-lesson')"><i class="fa-solid fa-xmark"></i></button>
+    <h3 style="margin-bottom: 16px; font-size: 18px; color: var(--accent-cyan); display: flex; align-items: center; gap: 8px;">
+      <i class="fa-solid fa-pen"></i> Editar Aula / Módulo
+    </h3>
+    <input type="hidden" id="edit-mod-id">
+    <input type="hidden" id="edit-lesson-id">
+
+    <div class="input-group">
+      <label>Título da Aula</label>
+      <input type="text" id="edit-lesson-title" placeholder="Título...">
+    </div>
+    <div class="input-group">
+      <label>Bloco 1 (Resumo)</label>
+      <textarea id="edit-lesson-bloco1" rows="2"></textarea>
+    </div>
+    <div class="input-group">
+      <label>Bloco 2 (Descrição)</label>
+      <textarea id="edit-lesson-bloco2" rows="3"></textarea>
+    </div>
+    <div class="input-group">
+      <label>Bloco 3 (Objetivos)</label>
+      <textarea id="edit-lesson-bloco3" rows="2"></textarea>
+    </div>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+      <div class="input-group"><label>Vídeo YouTube</label><input type="text" id="edit-lesson-video"></div>
+      <div class="input-group"><label>PDF Material</label><input type="text" id="edit-lesson-pdf"></div>
+    </div>
+    <div class="input-group"><label>Imagem URL</label><input type="text" id="edit-lesson-img"></div>
+
+    <button class="btn" style="width: 100%; margin-top: 10px;" onclick="saveEditedLesson()"><i class="fa-solid fa-floppy-disk"></i> Salvar Alterações na Aula</button>
+  </div>
+</div>
+
 <nav>
   <div class="wrap nav-wrap">
     <a href="#" class="logo-text-only" onclick="handleLogoClick()">
@@ -406,13 +440,13 @@ footer {
 
     <div class="nav-right-cluster">
       <div id="nav-guest">
-        <button class="btn-outline" onclick="openAuthModal('login')"><i class="regular fa-user"></i> Login</button>
+        <button class="btn-outline" onclick="openAuthModal('login')"><i class="fa-regular fa-user"></i> Login</button>
       </div>
 
       <div id="nav-user" style="display: none; align-items: center; gap: 8px;">
         <span style="font-size: 11px; color: var(--accent-cyan); font-weight: 600; white-space: nowrap;" id="user-display">Aluno</span>
-        <button class="btn-outline" style="border-color: rgba(0, 240, 255, 0.4); color: var(--accent-cyan); padding: 6px 10px;" onclick="showSettingsArea()" title="Configurações da Conta"><i class="fa-solid fa-sliders"></i></button>
-        <button class="btn-outline" style="border-color: rgba(239, 68, 68, 0.4); color: var(--red); padding: 6px 8px;" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i></button>
+        <button class="btn-outline" style="border-color: rgba(0, 240, 255, 0.4); color: var(--accent-cyan); padding: 6px 10px;" onclick="showSettingsArea()" title="Configurações da Conta"><i class="fa-solid fa-gear"></i></button>
+        <button class="btn-outline" style="border-color: rgba(239, 68, 68, 0.4); color: var(--red); padding: 6px 8px;" onclick="logout()" title="Sair"><i class="fa-solid fa-right-from-bracket"></i></button>
       </div>
 
       <button class="hamburger" onclick="toggleMobileMenu()"><i class="fa-solid fa-bars"></i></button>
@@ -517,18 +551,29 @@ footer {
   </div>
 </div>
 
-<div id="settings-area" class="wrap" style="display: none; padding-top: 36px; max-width: 650px;">
+<div id="settings-area" class="wrap" style="display: none; padding-top: 36px; max-width: 700px;">
   <div class="glass-panel animate-fade-up" style="padding: 36px;">
-    <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 26px; border-bottom: 1px solid var(--glass-border); padding-bottom: 16px;">
-      <div style="width: 48px; height: 48px; border-radius: 14px; background: rgba(0,240,255,0.1); border: 1px solid var(--glass-border-hover); display: flex; align-items: center; justify-content: center; color: var(--accent-cyan); font-size: 20px;">
-        <i class="fa-solid fa-sliders"></i>
+    <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 30px; border-bottom: 1px solid var(--glass-border); padding-bottom: 18px;">
+      <div style="width: 52px; height: 52px; border-radius: 16px; background: rgba(0,240,255,0.1); border: 1px solid var(--glass-border-hover); display: flex; align-items: center; justify-content: center; color: var(--accent-cyan); font-size: 22px;">
+        <i class="fa-solid fa-gear"></i>
       </div>
       <div>
-        <h2 style="font-size: 20px; color: #fff;">Configurações Avançadas da Conta</h2>
-        <p style="font-size: 12.5px; color: var(--text-secondary);">Gerencie suas credenciais profissionais e dados de acesso.</p>
+        <h2 style="font-size: 21px; color: #fff;">Configurações Avançadas da Conta</h2>
+        <p style="font-size: 13px; color: var(--text-secondary);">Gerencie suas credenciais profissionais, preferências e segurança do perfil.</p>
       </div>
     </div>
     
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 30px;">
+      <div style="background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); padding: 18px; border-radius: 16px;">
+        <span style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; font-weight: 700; display: block; margin-bottom: 6px;"><i class="fa-solid fa-shield-halved" style="color:var(--green);"></i> Status do Acesso</span>
+        <h4 style="font-size: 16px; color: var(--green);">Membro Ativo Premium</h4>
+      </div>
+      <div style="background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); padding: 18px; border-radius: 16px;">
+        <span style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; font-weight: 700; display: block; margin-bottom: 6px;"><i class="fa-solid fa-cloud" style="color:var(--accent-cyan);"></i> Sincronização</span>
+        <h4 style="font-size: 16px; color: #fff;">Cloud Firebase Ativa</h4>
+      </div>
+    </div>
+
     <form onsubmit="handleUpdateAccount(event)">
       <div class="input-group">
         <label><i class="regular fa-user" style="color:var(--accent-cyan); margin-right:6px;"></i> Nome Completo (Validação Real)</label>
@@ -548,7 +593,7 @@ footer {
         </div>
       </div>
 
-      <div style="margin-top: 30px; display: flex; justify-content: space-between; align-items: center; gap: 12px;">
+      <div style="margin-top: 30px; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;">
         <button type="button" class="btn-outline" onclick="showMemberArea()"><i class="fa-solid fa-arrow-left"></i> Voltar às Aulas</button>
         <button type="submit" class="btn" style="padding: 12px 24px;"><i class="fa-solid fa-floppy-disk"></i> Salvar Alterações</button>
       </div>
@@ -558,17 +603,19 @@ footer {
 
 <div id="admin-area" class="wrap" style="display: none; padding-top: 36px;">
   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 26px; flex-wrap: wrap; gap: 14px;">
-    <h2 style="margin: 0; font-size: 22px;"><i class="fa-solid fa-gear" style="color: var(--text-secondary);"></i> Painel de Administração</h2>
+    <h2 style="margin: 0; font-size: 22px;"><i class="fa-solid fa-gear" style="color: var(--text-secondary);"></i> Painel de Administração Empresarial</h2>
     <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-      <button class="btn-outline" onclick="switchAdminTab('dashboard')"><i class="fa-solid fa-chart-pie"></i> Dashboard & Alunos</button>
-      <button class="btn-outline" onclick="switchAdminTab('modules')"><i class="fa-solid fa-pen-to-square"></i> Editar Conteúdo & Aulas</button>
-      <button class="btn-outline" onclick="switchAdminTab('testcheckout')"><i class="fa-solid fa-credit-card"></i> Checkout de Teste & Cartão</button>
+      <button class="btn-outline" onclick="switchAdminTab('dashboard')"><i class="fa-solid fa-chart-pie"></i> Alunos & Vendas</button>
+      <button class="btn-outline" onclick="switchAdminTab('cart')"><i class="fa-solid fa-cart-shopping"></i> Carrinho / Pendentes</button>
+      <button class="btn-outline" onclick="switchAdminTab('modules')"><i class="fa-solid fa-pen-to-square"></i> Módulos & Aulas</button>
+      <button class="btn-outline" onclick="switchAdminTab('testcheckout')"><i class="fa-solid fa-credit-card"></i> Teste de Cartão</button>
     </div>
   </div>
   
   <div class="admin-grid animate-fade-up">
+    <!-- ABA 1: DASHBOARD & ALUNOS & VENDAS -->
     <div class="glass-panel admin-card" id="admin-tab-dashboard">
-      <h3><i class="fa-solid fa-users"></i> Gestão de Alunos, Pagamentos e Status</h3>
+      <h3><i class="fa-solid fa-users"></i> Gestão Completa de Alunos, Vendas e Validação</h3>
       
       <div class="gateway-metrics">
         <div class="metric-box">
@@ -576,8 +623,8 @@ footer {
           <h4 id="admin-total-users">0 <i class="fa-solid fa-user-check" style="font-size: 15px; color: var(--text-muted);"></i></h4>
         </div>
         <div class="metric-box">
-          <span>Total Cadastrado</span>
-          <h4 id="admin-total-modules-lessons">0 Módulos / 0 Aulas <i class="fa-solid fa-layer-group" style="font-size: 15px; color: var(--text-muted);"></i></h4>
+          <span>Vendas Registradas</span>
+          <h4 id="admin-total-sales">0 <i class="fa-solid fa-cash-register" style="font-size: 15px; color: var(--text-muted);"></i></h4>
         </div>
         <div class="metric-box" style="border-left-color: var(--green);">
           <span>Banco Cloud</span>
@@ -585,6 +632,24 @@ footer {
         </div>
       </div>
 
+      <div style="margin-bottom: 20px;">
+        <h4 style="font-size: 14.5px; margin-bottom: 12px; color: var(--accent-cyan);"><i class="fa-solid fa-receipt"></i> Histórico de Vendas e Transações (Aprovado, Recusado, Pendente)</h4>
+        <div class="table-responsive">
+          <table class="sales-table">
+            <thead>
+              <tr>
+                <th>ID / Aluno</th>
+                <th>Valor / Forma</th>
+                <th>Status Transação</th>
+                <th>Ações de Venda</th>
+              </tr>
+            </thead>
+            <tbody id="sales-list-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <h4 style="font-size: 14.5px; margin-bottom: 12px; color: var(--accent-cyan);"><i class="fa-solid fa-user-gear"></i> Gestão de Contas de Alunos</h4>
       <div class="table-responsive">
         <table class="sales-table">
           <thead>
@@ -592,7 +657,7 @@ footer {
               <th><i class="regular fa-user"></i> Aluno (Nome / E-mail)</th>
               <th><i class="fa-solid fa-circle-half-stroke"></i> Status Pagto</th>
               <th><i class="fa-solid fa-chart-line"></i> Progresso Aulas</th>
-              <th><i class="fa-solid fa-wand-magic-sparkles"></i> Ações & Aprovação</th>
+              <th><i class="fa-solid fa-wand-magic-sparkles"></i> Validação & Exclusão</th>
             </tr>
           </thead>
           <tbody id="users-list-body"></tbody>
@@ -600,6 +665,27 @@ footer {
       </div>
     </div>
 
+    <!-- ABA 2: CARRINHO ABANDONADO / PENDENTES -->
+    <div class="glass-panel admin-card" id="admin-tab-cart" style="display: none;">
+      <h3><i class="fa-solid fa-cart-shopping" style="color: var(--yellow);"></i> Carrinho Abandonado e Compras Pendentes</h3>
+      <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 22px;">Alunos que iniciaram a intenção de compra mas não finalizaram o pagamento.</p>
+      
+      <div class="table-responsive">
+        <table class="sales-table">
+          <thead>
+            <tr>
+              <th>Aluno / E-mail</th>
+              <th>Valor Carrinho</th>
+              <th>Status Atual</th>
+              <th>Ação de Recuperação</th>
+            </tr>
+          </thead>
+          <tbody id="cart-list-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ABA 3: CHECKOUT DE TESTE -->
     <div class="glass-panel admin-card" id="admin-tab-testcheckout" style="display: none;">
       <h3><i class="fa-solid fa-cash-register"></i> Checkout de Teste (Pix / Cartão e Valor Personalizado)</h3>
       <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 22px;">Selecione o aluno, defina o valor desejado e teste a transação com validação de saldo do cartão.</p>
@@ -617,18 +703,19 @@ footer {
       <button class="btn" style="margin-top: 10px;" onclick="openTestCheckoutCustom()"><i class="fa-solid fa-play"></i> Abrir Checkout de Teste</button>
     </div>
 
+    <!-- ABA 4: EDITOR DE MÓDULOS E AULAS COM ACORDEÃO RETRÁTIL -->
     <div class="glass-panel admin-card" id="admin-tab-modules" style="display: none;">
       <h3><i class="fa-solid fa-layer-group"></i> Editor de Módulos, Blocos e Aulas</h3>
-      <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 22px;">Organize a ordem dos módulos e utilize os blocos pedagógicos para detalhar o conteúdo.</p>
+      <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 22px;">Organize a ordem dos módulos, edite com o lápis e utilize o acordeão para abrir/retrair as aulas de cada módulo.</p>
       
       <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); padding: 20px; border-radius: 16px; margin-bottom: 22px;">
-        <h4 style="font-size: 15px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-folder-plus text-cyan"></i> Novo Módulo</h4>
+        <h4 style="font-size: 15px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-folder-plus" style="color:var(--accent-cyan);"></i> Novo Módulo</h4>
         <div class="input-group"><label>Título do Módulo</label><input type="text" id="mod-title-input" placeholder="Ex: Módulo — Tópico Extra"></div>
         <button type="button" class="btn" style="padding: 12px 18px; font-size: 12px;" onclick="saveModuleData()"><i class="fa-solid fa-floppy-disk"></i> Salvar Novo Módulo</button>
       </div>
 
       <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); padding: 20px; border-radius: 16px; margin-bottom: 26px;">
-        <h4 style="font-size: 15px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-video text-purple"></i> Adicionar Aula com os 3 Blocos & Mídia</h4>
+        <h4 style="font-size: 15px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-video" style="color:var(--accent-purple);"></i> Adicionar Aula com os 3 Blocos & Mídia</h4>
         
         <div class="input-group"><label>Selecionar Módulo</label><select id="lesson-mod-select"></select></div>
         <div class="input-group"><label>Título da Aula</label><input type="text" id="lesson-title-input" placeholder="Ex: Aula — Tópico Avançado"></div>
@@ -664,28 +751,10 @@ footer {
           <input type="text" id="lesson-img-url" placeholder="https://exemplo.com/imagem.png">
         </div>
 
-        <hr style="border: 0; border-top: 1px solid var(--glass-border); margin: 20px 0;">
-        <h4 style="font-size: 14px; color: var(--accent-cyan); margin-bottom: 14px;"><i class="fa-solid fa-brain"></i> Configurar Exercício (Quiz) da Aula</h4>
-        
-        <div class="input-group"><label>Pergunta do Exercício</label><input type="text" id="quiz-question-input" placeholder="Ex: Qual a função de...?"></div>
-        <div class="input-group"><label>Alternativa A</label><input type="text" id="quiz-opt0-input"></div>
-        <div class="input-group"><label>Alternativa B</label><input type="text" id="quiz-opt1-input"></div>
-        <div class="input-group"><label>Alternativa C</label><input type="text" id="quiz-opt2-input"></div>
-        <div class="input-group"><label>Alternativa D</label><input type="text" id="quiz-opt3-input"></div>
-        <div class="input-group">
-          <label>Alternativa Correta</label>
-          <select id="quiz-correct-select">
-            <option value="0">Alternativa A</option>
-            <option value="1">Alternativa B</option>
-            <option value="2">Alternativa C</option>
-            <option value="3">Alternativa D</option>
-          </select>
-        </div>
-
-        <button type="button" class="btn" style="padding: 12px 18px; font-size: 12px; margin-top: 10px;" onclick="saveLessonData()"><i class="fa-solid fa-cloud-arrow-up"></i> Publicar Aula com Exercício</button>
+        <button type="button" class="btn" style="padding: 12px 18px; font-size: 12px; margin-top: 10px;" onclick="saveLessonData()"><i class="fa-solid fa-cloud-arrow-up"></i> Publicar Aula</button>
       </div>
 
-      <h4 style="font-size: 17px; margin-bottom: 16px;"><i class="fa-solid fa-list-ol"></i> Organizar Ordem dos Módulos e Aulas</h4>
+      <h4 style="font-size: 17px; margin-bottom: 16px;"><i class="fa-solid fa-list-ol"></i> Módulos e Aulas (Abrir / Retrair com o Lápis de Edição)</h4>
       <div id="admin-modules-list-container"></div>
     </div>
   </div>
@@ -928,6 +997,11 @@ const defaultCourseData = [
 const TARGET_EMAIL = "olliveirazvz@gmail.com";
 let courseData = [];
 let registeredUsers = [];
+let salesTransactions = JSON.parse(localStorage.getItem('admin_sales_transactions')) || [
+  { id: "TX-9841", email: "pedro de oliveira <112@gmail.com>", amount: 29.90, method: "Pix", status: "aprovado", date: "31/08/2026 21:10" },
+  { id: "TX-9842", email: "aluno pendente <pendente@gmail.com>", amount: 29.90, method: "Cartão", status: "pendente", date: "31/08/2026 21:15" },
+  { id: "TX-9843", email: "cliente recusado <recusado@gmail.com>", amount: 29.90, method: "Pix", status: "recusado", date: "31/08/2026 20:00" }
+];
 let completedLessons = JSON.parse(localStorage.getItem('user_completed_lessons')) || {};
 let quizStatsStorage = JSON.parse(localStorage.getItem('user_quiz_stats')) || {};
 let currentUser = null;
@@ -1173,7 +1247,7 @@ function updateMobileMenuOptions() {
     let html = '';
     if(isAdmin) html += `<button onclick="toggleMobileMenu(); showAdminArea();"><i class="fa-solid fa-gear"></i> Painel Admin</button>`;
     if(isPaid) html += `<button onclick="toggleMobileMenu(); showMemberArea();"><i class="fa-solid fa-graduation-cap"></i> Acessar Aulas</button>`;
-    html += `<button onclick="toggleMobileMenu(); showSettingsArea();"><i class="fa-solid fa-sliders"></i> Configurações da Conta</button>`;
+    html += `<button onclick="toggleMobileMenu(); showSettingsArea();"><i class="fa-solid fa-gear"></i> Configurações da Conta</button>`;
     html += `<button style="color:var(--red);" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> Sair</button>`;
     container.innerHTML = html;
     document.getElementById('hero-btn-text').innerText = isPaid ? "IR PARA AS AULAS" : "GARANTIR MEU ACESSO";
@@ -1271,6 +1345,8 @@ async function handleRegister(e) {
     await createUserWithEmailAndPassword(window.auth, em, pw);
     let newUser = { email: em, paid: false, role: 'student', fullname: fullname, certReleased: false };
     await saveUserToCloud(newUser);
+    salesTransactions.push({ id: "TX-"+Math.floor(1000+Math.random()*9000), email: `${fullname} <${em}>`, amount: 29.90, method: "Pix", status: "pendente", date: new Date().toLocaleString() });
+    localStorage.setItem('admin_sales_transactions', JSON.stringify(salesTransactions));
     setAuthSession(em, false);
     showPublicSite();
   } catch (err) {
@@ -1772,16 +1848,35 @@ function generateOfficialCertificatePDF(studentName) {
 
 function switchAdminTab(t) {
   document.getElementById('admin-tab-dashboard').style.display = t==='dashboard'?'block':'none';
+  document.getElementById('admin-tab-cart').style.display = t==='cart'?'block':'none';
   document.getElementById('admin-tab-modules').style.display = t==='modules'?'block':'none';
   document.getElementById('admin-tab-testcheckout').style.display = t==='testcheckout'?'block':'none';
   if(t==='dashboard') renderDashboard(); 
+  else if(t==='cart') renderCartTab();
   else if(t==='modules') renderAdminModules();
   else if(t==='testcheckout') populateTestStudentSelect();
 }
 
 function renderDashboard() {
   document.getElementById('admin-total-users').innerHTML = `${registeredUsers.length}`;
+  document.getElementById('admin-total-sales').innerHTML = `${salesTransactions.length}`;
   updateCourseStatsUI();
+  
+  const salesTbody = document.getElementById('sales-list-body'); 
+  salesTbody.innerHTML = '';
+  salesTransactions.forEach((tx, idx) => {
+    let badgeColor = tx.status==='aprovado'?'var(--green)':(tx.status==='pendente'?'var(--yellow)':'var(--red)');
+    salesTbody.innerHTML += `<tr>
+      <td><strong>${tx.id}</strong><br><span style="font-size:11px; color:var(--text-secondary);">${tx.email}</span></td>
+      <td>R$ ${tx.amount.toFixed(2)} (${tx.method})</td>
+      <td><span class="badge-status" style="background:${badgeColor}22; color:${badgeColor};">${tx.status}</span><br><span style="font-size:10px; color:var(--text-muted);">${tx.date}</span></td>
+      <td>
+        <button class="btn-outline" style="border-color:var(--green); color:var(--green); padding:4px 8px;" onclick="updateTransactionStatus(${idx}, 'aprovado')" title="Aprovar"><i class="fa-solid fa-check"></i></button>
+        <button class="btn-outline" style="border-color:var(--red); color:var(--red); padding:4px 8px;" onclick="updateTransactionStatus(${idx}, 'cancelado')" title="Cancelar"><i class="fa-solid fa-ban"></i></button>
+      </td>
+    </tr>`;
+  });
+
   const tbody = document.getElementById('users-list-body'); tbody.innerHTML = '';
   
   let totalLessonsInCourse = 0;
@@ -1800,8 +1895,9 @@ function renderDashboard() {
     let progressHtml = `<div style="font-size:12px; color:#fff; font-weight:600;">${lessonsDoneCount} / ${totalLessonsInCourse} aulas (${lessonProgressPercent}%)</div>`;
 
     let actionButtons = `
-      <button class="btn-outline" style="border-color:var(--green); color:var(--green); padding:6px 10px;" title="Aprovar Pagamento" onclick="setStudentPaymentStatus('${studentEmail}', true)"><i class="fa-solid fa-check"></i></button>
-      <button class="btn-outline" style="border-color:var(--red); color:var(--red); padding:6px 10px;" title="Remover Pagamento" onclick="setStudentPaymentStatus('${studentEmail}', false)"><i class="fa-solid fa-xmark"></i></button>
+      <button class="btn-outline" style="border-color:var(--green); color:var(--green); padding:6px 10px;" title="Validar / Aprovar Pagto" onclick="setStudentPaymentStatus('${studentEmail}', true)"><i class="fa-solid fa-check"></i></button>
+      <button class="btn-outline" style="border-color:var(--yellow); color:var(--yellow); padding:6px 10px;" title="Desvalidar Pagto" onclick="setStudentPaymentStatus('${studentEmail}', false)"><i class="fa-solid fa-xmark"></i></button>
+      <button class="btn-outline" style="border-color:var(--red); color:var(--red); padding:6px 10px;" title="Excluir Conta" onclick="deleteStudentAccount('${studentEmail}')"><i class="fa-solid fa-trash"></i></button>
     `;
 
     tbody.innerHTML += `<tr>
@@ -1813,13 +1909,81 @@ function renderDashboard() {
   });
 }
 
+function renderCartTab() {
+  const cBody = document.getElementById('cart-list-body');
+  if(!cBody) return;
+  cBody.innerHTML = '';
+  
+  let pendingSales = salesTransactions.filter(s => s.status === 'pendente' || s.status === 'recusado');
+  if(pendingSales.length === 0) {
+    cBody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:20px;">Nenhum carrinho pendente ou abandonado no momento.</td></tr>`;
+    return;
+  }
+
+  pendingSales.forEach((tx, idx) => {
+    cBody.innerHTML += `<tr>
+      <td><strong>${tx.email}</strong><br><span style="font-size:11px; color:var(--text-secondary);">${tx.id}</span></td>
+      <td>R$ ${tx.amount.toFixed(2)}</td>
+      <td><span class="badge-status" style="background:rgba(245,158,11,0.2); color:var(--yellow);">${tx.status}</span></td>
+      <td>
+        <button class="btn-outline" style="border-color:var(--green); color:var(--green); padding:6px 10px;" onclick="approvePendingCart('${tx.email}')"><i class="fa-solid fa-check-double"></i> Validar Acesso</button>
+        <button class="btn-outline" style="border-color:var(--red); color:var(--red); padding:6px 10px;" onclick="cancelCartTransaction('${tx.id}')"><i class="fa-solid fa-trash"></i> Cancelar</button>
+      </td>
+    </tr>`;
+  });
+}
+
+function updateTransactionStatus(index, newStatus) {
+  salesTransactions[index].status = newStatus;
+  localStorage.setItem('admin_sales_transactions', JSON.stringify(salesTransactions));
+  showSuccessModal(`Status da transação alterado para ${newStatus}!`);
+  renderDashboard();
+  renderCartTab();
+}
+
+function cancelCartTransaction(txId) {
+  salesTransactions = salesTransactions.filter(s => s.id !== txId);
+  localStorage.setItem('admin_sales_transactions', JSON.stringify(salesTransactions));
+  showSuccessModal("Transação de carrinho removida/cancelada.");
+  renderCartTab();
+}
+
+async function approvePendingCart(emailStr) {
+  let emailClean = emailStr.includes('<') ? emailStr.split('<')[1].replace('>', '').trim() : emailStr;
+  let u = registeredUsers.find(x => x.email === emailClean);
+  if (u) {
+    u.paid = true;
+    await saveUserToCloud(u);
+  }
+  let tx = salesTransactions.find(s => s.email.includes(emailClean));
+  if (tx) tx.status = 'aprovado';
+  localStorage.setItem('admin_sales_transactions', JSON.stringify(salesTransactions));
+  showSuccessModal(`Acesso validado com sucesso para ${emailClean}!`);
+  renderDashboard();
+  renderCartTab();
+}
+
 async function setStudentPaymentStatus(email, status) {
   let u = registeredUsers.find(x => x.email === email);
   if(u) {
     u.paid = status;
     await saveUserToCloud(u);
-    showSuccessModal(status ? "Pagamento aprovado com sucesso!" : "Status de pagamento removido!");
+    showSuccessModal(status ? "Pagamento aprovado e validado com sucesso!" : "Status de pagamento desvalidado!");
     renderDashboard();
+  }
+}
+
+async function deleteStudentAccount(email) {
+  if(!confirm(`Deseja realmente excluir a conta do aluno ${email}?`)) return;
+  const { doc, deleteDoc } = window.firebaseModules;
+  try {
+    let safeId = email.replace(/[@.]/g, '_');
+    await deleteDoc(doc(window.db, "users", safeId));
+    registeredUsers = registeredUsers.filter(u => u.email !== email);
+    showSuccessModal("Conta de aluno excluída com sucesso da nuvem.");
+    renderDashboard();
+  } catch(e) {
+    showCustomAlert("Erro", "Erro ao excluir conta: " + e.message);
   }
 }
 
@@ -1881,7 +2045,6 @@ function saveLessonData() {
   const video = document.getElementById('lesson-video-url').value.trim();
   const pdfUrl = document.getElementById('lesson-pdf-url').value.trim();
   const imgUrl = document.getElementById('lesson-img-url').value.trim();
-  const qText = document.getElementById('quiz-question-input').value.trim();
   
   if(!t) {
     showCustomAlert("Atenção", "Preencha o título da aula.");
@@ -1894,20 +2057,6 @@ function saveLessonData() {
   }
   if(!m.lessons) m.lessons=[];
 
-  let quiz = null;
-  if (qText) {
-    quiz = {
-      question: qText,
-      options: [
-        document.getElementById('quiz-opt0-input').value,
-        document.getElementById('quiz-opt1-input').value,
-        document.getElementById('quiz-opt2-input').value,
-        document.getElementById('quiz-opt3-input').value
-      ],
-      correct: parseInt(document.getElementById('quiz-correct-select').value)
-    };
-  }
-
   m.lessons.push({ 
     id: Date.now(), 
     title: t, 
@@ -1917,7 +2066,7 @@ function saveLessonData() {
     video: video, 
     pdfUrl: pdfUrl, 
     imgUrl: imgUrl, 
-    quiz: quiz 
+    quiz: null 
   });
 
   saveCourseToCloud("Aula publicada e sincronizada na nuvem!"); 
@@ -1936,9 +2085,8 @@ function renderAdminModules() {
         lessonsHtml += `<div class="admin-lesson-item-box">
           <span><i class="fa-solid fa-file-video" style="color:var(--accent-cyan); margin-right:6px;"></i> ${l.title}</span>
           <div>
-            <button class="btn-outline" style="padding:2px 6px; font-size:11px;" onclick="moveLesson(${index}, ${lIndex}, -1)"><i class="fa-solid fa-arrow-up"></i></button>
-            <button class="btn-outline" style="padding:2px 6px; font-size:11px;" onclick="moveLesson(${index}, ${lIndex}, 1)"><i class="fa-solid fa-arrow-down"></i></button>
-            <button class="btn-outline" style="padding:2px 6px; font-size:11px; border-color:var(--red); color:var(--red);" onclick="deleteLesson(${m.id}, ${l.id})"><i class="fa-solid fa-trash"></i></button>
+            <button class="btn-outline" style="padding:4px 8px; font-size:11px;" onclick="openEditLessonModal(${m.id}, ${l.id})" title="Editar Aula"><i class="fa-solid fa-pen"></i></button>
+            <button class="btn-outline" style="padding:4px 8px; font-size:11px; border-color:var(--red); color:var(--red);" onclick="deleteLesson(${m.id}, ${l.id})" title="Excluir Aula"><i class="fa-solid fa-trash"></i></button>
           </div>
         </div>`;
       });
@@ -1946,19 +2094,61 @@ function renderAdminModules() {
 
     c.innerHTML += `<div class="admin-mod-box">
       <div class="admin-mod-header">
-        <span onclick="toggleAdminAccordion(this)" style="flex:1;"><i class="regular fa-folder" style="color:var(--accent-cyan); margin-right:8px;"></i> ${m.title}</span>
-        <div>
-          <button class="btn-outline" style="padding:4px 8px;" onclick="moveModule(${index}, -1)"><i class="fa-solid fa-arrow-up"></i></button>
-          <button class="btn-outline" style="padding:4px 8px;" onclick="moveModule(${index}, 1)"><i class="fa-solid fa-arrow-down"></i></button>
-          <button class="btn-outline" style="padding:4px 8px; border-color:var(--red); color:var(--red);" onclick="deleteModule(${m.id})"><i class="fa-solid fa-trash"></i></button>
+        <span onclick="toggleAdminAccordion(this)" style="flex:1; display:flex; align-items:center; justify-content:space-between;">
+          <span><i class="regular fa-folder" style="color:var(--accent-cyan); margin-right:8px;"></i> ${m.title}</span>
+          <i class="fa-solid fa-chevron-down" style="font-size:10px;"></i>
+        </span>
+        <div style="display:flex; gap:6px; margin-left:10px;">
+          <button class="btn-outline" style="padding:4px 8px;" onclick="moveModule(${index}, -1)" title="Subir"><i class="fa-solid fa-arrow-up"></i></button>
+          <button class="btn-outline" style="padding:4px 8px;" onclick="moveModule(${index}, 1)" title="Descer"><i class="fa-solid fa-arrow-down"></i></button>
+          <button class="btn-outline" style="padding:4px 8px; border-color:var(--red); color:var(--red);" onclick="deleteModule(${m.id})" title="Excluir Módulo"><i class="fa-solid fa-trash"></i></button>
         </div>
       </div>
       <div class="admin-mod-body">
-        <h5 style="font-size:12px; color:var(--text-secondary); margin-bottom:8px;">Aulas deste Módulo:</h5>
+        <h5 style="font-size:12px; color:var(--text-secondary); margin-bottom:8px;">Aulas deste Módulo (Clique no Lápis para Editar):</h5>
         ${lessonsHtml || '<p style="font-size:12px; color:var(--text-muted);">Nenhuma aula cadastrada.</p>'}
       </div>
     </div>`;
   });
+}
+
+function openEditLessonModal(modId, lessonId) {
+  const mod = courseData.find(m => m.id == modId);
+  const lesson = mod?.lessons?.find(l => l.id == lessonId);
+  if(!lesson) return;
+
+  document.getElementById('edit-mod-id').value = modId;
+  document.getElementById('edit-lesson-id').value = lessonId;
+  document.getElementById('edit-lesson-title').value = lesson.title || '';
+  document.getElementById('edit-lesson-bloco1').value = lesson.bloco1 || '';
+  document.getElementById('edit-lesson-bloco2').value = lesson.bloco2 || '';
+  document.getElementById('edit-lesson-bloco3').value = lesson.bloco3 || '';
+  document.getElementById('edit-lesson-video').value = lesson.video || '';
+  document.getElementById('edit-lesson-pdf').value = lesson.pdfUrl || '';
+  document.getElementById('edit-lesson-img').value = lesson.imgUrl || '';
+
+  openModal('modal-edit-lesson');
+}
+
+function saveEditedLesson() {
+  const modId = document.getElementById('edit-mod-id').value;
+  const lessonId = document.getElementById('edit-lesson-id').value;
+  const mod = courseData.find(m => m.id == modId);
+  if(!mod) return;
+  const lesson = mod.lessons.find(l => l.id == lessonId);
+  if(!lesson) return;
+
+  lesson.title = document.getElementById('edit-lesson-title').value.trim();
+  lesson.bloco1 = document.getElementById('edit-lesson-bloco1').value.trim();
+  lesson.bloco2 = document.getElementById('edit-lesson-bloco2').value.trim();
+  lesson.bloco3 = document.getElementById('edit-lesson-bloco3').value.trim();
+  lesson.video = document.getElementById('edit-lesson-video').value.trim();
+  lesson.pdfUrl = document.getElementById('edit-lesson-pdf').value.trim();
+  lesson.imgUrl = document.getElementById('edit-lesson-img').value.trim();
+
+  saveCourseToCloud("Aula editada com sucesso na nuvem!");
+  closeModal('modal-edit-lesson');
+  renderAdminModules();
 }
 
 function moveModule(index, direction) {
@@ -1970,17 +2160,6 @@ function moveModule(index, direction) {
   saveCourseToCloud("Ordem de módulos alterada!");
   renderAdminModules();
   populateLessonModuleSelect();
-}
-
-function moveLesson(modIndex, lessonIndex, direction) {
-  const lessons = courseData[modIndex].lessons;
-  const newIndex = lessonIndex + direction;
-  if (newIndex < 0 || newIndex >= lessons.length) return;
-  const temp = lessons[lessonIndex];
-  lessons[lessonIndex] = lessons[newIndex];
-  lessons[newIndex] = temp;
-  saveCourseToCloud("Ordem de aulas alterada!");
-  renderAdminModules();
 }
 
 function deleteModule(modId) {
@@ -2010,6 +2189,9 @@ async function openCheckoutModal() {
     openAuthModal('login');
     return;
   }
+
+  salesTransactions.push({ id: "TX-"+Math.floor(1000+Math.random()*9000), email: targetEmail, amount: currentCheckoutAmount, method: "Pix/Cartão", status: "pendente", date: new Date().toLocaleString() });
+  localStorage.setItem('admin_sales_transactions', JSON.stringify(salesTransactions));
 
   openModal('modal-custom-checkout');
 
@@ -2066,7 +2248,6 @@ async function openCheckoutModal() {
                     const paymentId = response.id;
 
                     const containerModal = document.getElementById('paymentBrick_container');
-                    
                     let timeLeft = 300;
                     
                     containerModal.innerHTML = `
@@ -2101,7 +2282,7 @@ async function openCheckoutModal() {
                       if(timeLeft <= 0) {
                         clearInterval(pixCountdownInterval);
                         if(activePaymentInterval) { clearInterval(activePaymentInterval); activePaymentInterval = null; }
-                        showCustomAlert("Pix Expirado", "O tempo limite de 5 minutos para pagamento via Pix expirou. Gere um novo pedido.");
+                        showCustomAlert("Pix Expirado", "O tempo limite de 5 minutos para pagamento via Pix expirou. Seu pedido foi enviado para a aba de carrinho pendente.");
                         closeCheckoutModalSafe();
                       }
                     }, 1000);
@@ -2122,7 +2303,7 @@ async function openCheckoutModal() {
                     }
                   } 
                   else {
-                    showCustomAlert("Pagamento Recusado", `Pagamento não aprovado pela operadora. Status: ${paymentStatus}. Verifique o saldo ou os dados do cartão.`);
+                    showCustomAlert("Pagamento Recusado", `Pagamento não aprovado pela operadora. Status: ${paymentStatus}. Sua tentativa ficou registrada no carrinho pendente.`);
                   }
                 } else {
                   showCustomAlert("Erro no Pagamento", response.error || "Tente novamente.");
@@ -2155,6 +2336,10 @@ async function simulateApprovalForTarget(email) {
     uObj.paid = true;
     await saveUserToCloud(uObj);
   }
+  let tx = salesTransactions.find(s => s.email.includes(email));
+  if(tx) tx.status = 'aprovado';
+  localStorage.setItem('admin_sales_transactions', JSON.stringify(salesTransactions));
+
   showSuccessModal(`Pagamento aprovado com sucesso para ${email}! Suas aulas foram liberadas.`);
   closeModal('modal-custom-checkout');
   currentCheckoutAmount = 29.90;
