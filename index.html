@@ -1518,6 +1518,8 @@ let completedLessons = JSON.parse(localStorage.getItem('user_completed_lessons')
 let completedQuizzes = JSON.parse(localStorage.getItem('user_completed_quizzes')) || {};
 
 let currentUser = null;
+let currentUserUid = null;
+let usersUnsubscribe = null;
 let isAdmin = false;
 let videoWatchedState = {};
 let paymentBrickController = null;
@@ -1538,6 +1540,10 @@ function showSuccessModal(msg) {
   openModal('success-modal');
 }
 function closeSuccessModal() { closeModal('success-modal'); }
+
+function currentProfile() {
+  return registeredUsers.find(u => u.uid === currentUserUid) || registeredUsers.find(u => u.email === currentUser) || null;
+}
 
 function autoCompleteEmail(inputId) {
   let val = safeGetValue(inputId);
@@ -1570,42 +1576,62 @@ window.onload = function() {
   const checkDbInterval = setInterval(() => {
     if (window.db && window.auth) {
       clearInterval(checkDbInterval);
-      const { collection, onSnapshot, doc, setDoc, getDocs, onAuthStateChanged } = window.firebaseModules;
+      const { collection, onSnapshot, doc, setDoc, getDoc, getDocs, onAuthStateChanged } = window.firebaseModules;
 
       onAuthStateChanged(window.auth, async (user) => {
         if (user) {
           currentUser = user.email;
+          currentUserUid = user.uid;
           isAdmin = (currentUser === TARGET_ADMIN_EMAIL);
 
           try {
-            const snap = await getDocs(collection(window.db, "users"));
-            registeredUsers = [];
-            snap.forEach((docSnap) => registeredUsers.push(docSnap.data()));
-
-            // UID é o identificador principal. O documento antigo por e-mail é
-            // lido apenas para a migração gradual, sem apagar dados existentes.
+            // Usuários comuns leem somente o próprio documento UID. A coleção
+            // completa só é carregada para o painel administrativo.
             const uidRef = doc(window.db, 'users', user.uid);
             const uidSnap = await getDoc(uidRef);
-            let uObj = uidSnap.exists() ? uidSnap.data() : registeredUsers.find(u => u.email === currentUser);
+            let uObj = uidSnap.exists() ? uidSnap.data() : null;
+            if (!uObj) {
+              const legacyId = currentUser.replace(/[^a-z0-9]/gi, '_');
+              const legacySnap = await getDoc(doc(window.db, 'users', legacyId));
+              if (legacySnap.exists()) {
+                uObj = { ...legacySnap.data(), uid: user.uid, email: currentUser };
+                await setDoc(uidRef, uObj, { merge: true });
+              }
+            }
+            if (!uObj && isAdmin) {
+              const snap = await getDocs(collection(window.db, 'users'));
+              const legacy = snap.docs.map(d => d.data()).find(u => u.email?.toLowerCase() === currentUser.toLowerCase());
+              if (legacy) {
+                uObj = { ...legacy, uid: user.uid, email: currentUser };
+                await setDoc(uidRef, uObj, { merge: true });
+              }
+            }
             
             if (!uObj) {
               uObj = {
                 uid: user.uid,
                 email: currentUser,
-                paid: currentUser === TARGET_ADMIN_EMAIL,
-                role: currentUser === TARGET_ADMIN_EMAIL ? 'admin' : 'student',
+                paid: isAdmin,
+                role: isAdmin ? 'admin' : 'student',
+                emailVerified: !!user.emailVerified,
                 fullname: user.displayName || currentUser.split('@')[0],
                 createdAt: new Date().toISOString()
               };
               await setDoc(uidRef, uObj);
-              registeredUsers.push(uObj);
-            } else if (!uObj.uid || !uidSnap.exists()) {
-              // Copia o perfil legado para users/{uid}; o legado permanece intacto.
-              uObj = { ...uObj, uid: user.uid, email: currentUser };
-              await setDoc(uidRef, uObj, { merge: true });
             }
+            uObj = { ...uObj, uid: user.uid, email: currentUser, emailVerified: !!user.emailVerified };
+            registeredUsers = isAdmin ? registeredUsers : [uObj];
 
             isAdmin = (currentUser === TARGET_ADMIN_EMAIL || uObj?.role === 'admin');
+            if (isAdmin && !usersUnsubscribe) {
+              usersUnsubscribe = onSnapshot(collection(window.db, 'users'), (snapshot) => {
+                registeredUsers = snapshot.docs.map(docSnap => docSnap.data());
+                if (document.getElementById('admin-area')?.style.display === 'block') {
+                  renderDashboard();
+                  populateTestStudentSelect();
+                }
+              });
+            }
             changeTheme(localStorage.getItem(`app_theme_${user.uid}`) || 'azul', false);
             loadNotificationsForCurrentAccount();
             updateNavState(true, currentUser);
@@ -1626,6 +1652,8 @@ window.onload = function() {
           }
         } else {
           currentUser = null;
+          currentUserUid = null;
+          if (usersUnsubscribe) { usersUnsubscribe(); usersUnsubscribe = null; }
           isAdmin = false;
           notificationsList = [];
           changeTheme('azul', false);
@@ -1664,18 +1692,6 @@ window.onload = function() {
         }
       });
 
-      onSnapshot(collection(window.db, "users"), (snapshot) => {
-        registeredUsers = [];
-        snapshot.forEach((docSnap) => registeredUsers.push(docSnap.data()));
-        if (currentUser) {
-          let uObj = registeredUsers.find(u => u.email === currentUser);
-          isAdmin = (currentUser === TARGET_ADMIN_EMAIL || uObj?.role === 'admin');
-        }
-        if (isAdmin && document.getElementById('admin-area')?.style.display === 'block') {
-          renderDashboard();
-          populateTestStudentSelect();
-        }
-      });
     }
   }, 100);
 
@@ -2128,8 +2144,6 @@ async function handleRegister(e) {
       createdAt: new Date().toISOString()
     };
     await setDoc(doc(window.db, "users", credential.user.uid), newUserDoc);
-    salesTransactions.push({ id: "TX-"+Math.floor(1000+Math.random()*9000), email: `${fullname} <${em}>`, amount: 29.90, method: "Pix", status: "pendente", date: new Date().toLocaleString() });
-    localStorage.setItem('admin_sales_transactions', JSON.stringify(salesTransactions));
     addNotification("Novo aluno cadastrado: " + fullname, 'admin', TARGET_ADMIN_EMAIL, 'novo_aluno');
     addNotification("Bem-vindo ao Informática do Zero! Sua conta foi criada com sucesso.", 'student', window.auth.currentUser?.uid || em, 'boas_vindas');
     closeModal('modal-auth');
@@ -2149,7 +2163,8 @@ async function handleRegister(e) {
 async function logout() {
   const { signOut } = window.firebaseModules;
   if(window.auth) await signOut(window.auth);
-  currentUser = null; isAdmin = false;
+  currentUser = null; currentUserUid = null; isAdmin = false;
+  if (usersUnsubscribe) { usersUnsubscribe(); usersUnsubscribe = null; }
   notificationsList = [];
   document.querySelectorAll('.modal-overlay.active').forEach(modal => modal.classList.remove('active'));
   document.getElementById('mobile-menu')?.classList.remove('active');
