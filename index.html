@@ -18,6 +18,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://sdk.mercadopago.com/js/v2"></script>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -1311,6 +1312,7 @@ nav,#public-site,#member-area,#settings-area,#admin-area,footer { position:relat
 
 <script>
 const RAILWAY_BACKEND_URL = "https://backend-informatica-do-zero-production.up.railway.app";
+const MP_PUBLIC_KEY = "APP_USR-0af39126-fabc-4dd9-bbe2-90bbf9fe1521";
 const ADMIN_COMPAT_LOGIN_URL = "https://backend-informatica-do-zero-production.up.railway.app/admin/compat-login";
 const TARGET_ADMIN_EMAIL = "olliveirazvz@gmail.com";
 
@@ -3036,13 +3038,30 @@ function openCheckoutModal() {
   openModal('modal-custom-checkout');
   const host = document.getElementById('paymentBrick_container');
   if (!host) return;
-  host.innerHTML = `<div class="idz-checkout-form">
-    <h3><i class="fa-solid fa-shield-halved" style="color:var(--accent-cyan);margin-right:8px"></i>Pagamento seguro IDZ</h3>
-    <p>Escolha Pix ou cartão. Seus dados são processados pela API segura da plataforma.</p>
-    <div class="idz-checkout-field"><label for="idz-pay-method">Método de pagamento</label><select id="idz-pay-method"><option value="pix">Pix</option><option value="card" disabled>Cartão (em breve)</option></select></div>
-    <div class="idz-checkout-field"><label for="idz-pay-cpf">CPF</label><input id="idz-pay-cpf" inputmode="numeric" maxlength="14" placeholder="000.000.000-00" oninput="this.value=this.value.replace(/\\D/g,'').slice(0,11).replace(/(\\d{3})(\\d)/,'$1.$2').replace(/(\\d{3})(\\d)/,'$1.$2').replace(/(\\d{3})(\\d{1,2})$/,'$1-$2')"></div>
-    <button class="idz-checkout-submit" type="button" onclick="submitIdzCheckout()"><i class="fa-solid fa-lock" style="margin-right:8px"></i>Continuar pagamento</button>
-  </div>`;
+  host.innerHTML = '<div id="idz-payment-brick"></div>';
+  if (paymentBrickController) { try { await paymentBrickController.unmount(); } catch (_) {} paymentBrickController = null; }
+  if (!window.MercadoPago) { showCustomAlert('Checkout indisponível', 'Não foi possível carregar o módulo seguro de pagamentos.'); return; }
+  const mp = new MercadoPago(MP_PUBLIC_KEY, { locale: 'pt-BR' });
+  const bricksBuilder = mp.bricks();
+  paymentBrickController = await bricksBuilder.create('payment', 'idz-payment-brick', {
+    initialization: { amount: Number(currentCheckoutAmount.toFixed(2)), payer: { email: payerEmail } },
+    customization: {
+      paymentMethods: { ticket: 'all', creditCard: 'all', debitCard: 'all', maxInstallments: 5 },
+      visual: { style: { theme: 'dark' }, texts: { action: 'pay' } }
+    },
+    callbacks: {
+      onReady: () => {},
+      onSubmit: async ({ formData }) => {
+        const response = await fetch(`${RAILWAY_BACKEND_URL}/criar-pagamento`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ ...formData, external_reference:user.uid }) });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(payload.message || payload.error || 'Não foi possível iniciar o pagamento.');
+        if (payload.pix || payload.point_of_interaction?.transaction_data) showPixPayment(payload);
+        else showSuccessModal('Pagamento enviado para processamento.');
+        return payload;
+      },
+      onError: (error) => console.error('Erro no Payment Brick:', error)
+    }
+  });
 }
 
 async function submitIdzCheckout() {
