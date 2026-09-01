@@ -33,14 +33,18 @@
   const auth = getAuth(app);
 
   setPersistence(auth, browserLocalPersistence).catch((error) => {
-    console.error("Erro na persistência:", error);
+    console.error("Erro na persistência do Firebase Auth:", error);
   });
 
   window.db = db;
   window.auth = auth;
   window.GoogleAuthProvider = GoogleAuthProvider;
   window.signInWithPopup = signInWithPopup;
-  window.firebaseModules = { collection, doc, setDoc, getDoc, getDocs, onSnapshot, deleteDoc, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendPasswordResetEmail, updateEmail, updatePassword, onAuthStateChanged };
+  window.firebaseModules = { 
+    collection, doc, setDoc, getDoc, getDocs, onSnapshot, deleteDoc, 
+    createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, 
+    sendPasswordResetEmail, updateEmail, updatePassword, onAuthStateChanged 
+  };
 </script>
 
 <style>
@@ -495,6 +499,7 @@ footer {
         <div id="nav-user-avatar" style="width: 32px; height: 32px; border-radius: 50%; overflow: hidden; border: 1px solid var(--accent-cyan); display: flex; align-items: center; justify-content: center; background: rgba(0,240,255,0.1);">
           <i class="fa-solid fa-user" style="font-size: 12px; color: var(--accent-cyan);"></i>
         </div>
+        <span id="user-display" style="font-size: 12.5px; font-weight: 600; color: var(--text-primary);"></span>
         <button class="btn-outline" style="position: relative; padding: 6px 10px;" onclick="openNotificationsModal()" title="Notificações">
           <i class="fa-solid fa-bell"></i>
           <span id="notif-badge" style="position: absolute; top: -4px; right: -4px; background: var(--red); color: #fff; font-size: 9px; width: 16px; height: 16px; border-radius: 50%; display: none; align-items: center; justify-content: center; font-weight: 750;">0</span>
@@ -521,7 +526,7 @@ footer {
   <header class="hero">
     <div class="wrap gridhero">
       <div>
-        <span class="tag" id="hero-tag-lessons"><i class="fa-solid fa-bolt"></i> FORMAÇÃO COMPLETA • CARREGANDO...</span>
+        <span class="tag" id="hero-tag-lessons"><i class="fa-solid fa-bolt"></i> FORMAÇÃO COMPLETA</span>
         <h1>Aprenda <span>Informática Definitiva</span> e conquiste sua autonomia digital.</h1>
         <p>Domine o computador, crie planilhas, documentos profissionais, navegue com total segurança e use a Inteligência Artificial a seu favor.</p>
         <button class="btn" onclick="handleAccountAction()"><i class="fa-solid fa-unlock-keyhole"></i> <span id="hero-btn-text">ACESSAR MINHA CONTA</span></button>
@@ -532,7 +537,7 @@ footer {
         <p style="font-size: 13.5px; margin-bottom: 22px;">Aprenda no seu ritmo com suporte dedicado.</p>
         
         <div class="benefits-list">
-          <div id="benefit-lessons-count"><i class="fa-solid fa-check"></i> Aulas práticas em 15 Módulos</div>
+          <div id="benefit-lessons-count"><i class="fa-solid fa-check"></i> Aulas práticas e dinâmicas</div>
           <div><i class="fa-solid fa-check"></i> Bônus práticos e exclusivos</div>
           <div><i class="fa-solid fa-check"></i> Acesso via celular ou computador</div>
           <div><i class="fa-solid fa-check"></i> Certificado de Conclusão Oficial</div>
@@ -588,8 +593,8 @@ footer {
       <div class="section-header" style="margin-bottom: 28px;">
         <h2>Perguntas Frequentes</h2>
       </div>
-      <details class="glass-panel"><summary>Como funciona o acesso às aulas?</summary><p>Após a aprovação real do pagamento, seu e-mail é liberado automaticamente para acessar a Área de Membros.</p></details>
-      <details class="glass-panel"><summary>Preciso de um computador potente?</summary><p>Não! Os fundamentos funcionam em qualquer computador ou notebook, e você também pode usar o celular para as aulas.</p></details>
+      <details class="glass-panel"><summary>Como funciona o acesso às aulas?</summary><p>Após a aprovação do pagamento, seu e-mail é liberado automaticamente para acessar a Área de Membros.</p></details>
+      <details class="glass-panel"><summary>Preciso de um computador potente?</summary><p>Não! Os fundamentos funcionam em qualquer computador ou notebook, e você também pode usar o celular para acompanhar as aulas.</p></details>
       <details class="glass-panel"><summary>Os materiais têm custo extra?</summary><p>Não. Todos os PDFs e modelos bônus já estão inclusos no valor único do curso.</p></details>
     </div>
   </section>
@@ -832,7 +837,7 @@ footer {
       <button class="btn" style="margin-top: 10px;" onclick="openTestCheckoutCustom()"><i class="fa-solid fa-play"></i> Abrir Teste de Pagamento</button>
     </div>
 
-    <!-- SEÇÃO 5: MÓDULOS E AULAS (COM ACORDEÃO E LÁPIS) -->
+    <!-- SEÇÃO 5: MÓDULOS E AULAS -->
     <div class="glass-panel admin-card" id="admin-sec-modules" style="display: none;">
       <h3><i class="fa-solid fa-layer-group"></i> Seção 5: Editor de Módulos, Aulas e Exercícios</h3>
       <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); padding: 20px; border-radius: 16px; margin-bottom: 22px;">
@@ -870,7 +875,7 @@ footer {
         <button type="button" class="btn" style="padding: 12px 18px; font-size: 12px; margin-top: 10px;" onclick="saveLessonData()"><i class="fa-solid fa-cloud-arrow-up"></i> Publicar Aula com Quiz</button>
       </div>
 
-      <h4 style="font-size: 17px; margin-bottom: 16px;"><i class="fa-solid fa-list-ol"></i> Módulos Cadastrados (Clique para Expandir / Retrair)</h4>
+      <h4 style="font-size: 17px; margin-bottom: 16px;"><i class="fa-solid fa-list-ol"></i> Módulos Cadastrados</h4>
       <div id="admin-modules-list-container"></div>
     </div>
   </div>
@@ -915,7 +920,7 @@ footer {
 
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; font-size: 12px;">
         <label style="display: flex; align-items: center; gap: 6px; color: var(--text-secondary); cursor: pointer; text-transform: none;">
-          <input type="checkbox" id="remember-me" style="width: auto;"> Lembrar minha conta
+          <input type="checkbox" id="remember-me" style="width: auto;"> Lembrar meu e-mail
         </label>
         <a href="#" onclick="handleForgotPassword(event)" style="color: var(--accent-cyan); font-weight: 600; font-size: 11px;">Esqueci minha senha</a>
       </div>
@@ -925,7 +930,7 @@ footer {
 
     <form id="form-register" style="display: none;" onsubmit="handleRegister(event)">
       <div class="input-group">
-        <label>Nome Completo (Validação Real)</label>
+        <label>Nome Completo</label>
         <div class="password-wrapper">
           <i class="regular fa-user" style="position: absolute; left: 16px; top: 15px; color: var(--text-muted);"></i>
           <input type="text" id="reg-fullname" placeholder="Ex: João da Silva Santos" style="padding-left: 44px;" required>
@@ -966,38 +971,67 @@ footer {
 <script>
 const PUBLIC_KEY_MP = "APP_USR-0af39126-fabc-4dd9-bbe2-90bbf9fe1521";
 const RAILWAY_BACKEND_URL = "https://backend-informatica-do-zero-production.up.railway.app/criar-pagamento";
+const TARGET_ADMIN_EMAIL = "olliveirazvz@gmail.com";
+
+/* FUNÇÕES UTILITÁRIAS SEGURAS PARA PREVENIR ERROS DE DOM NULL */
+function safeSetText(id, text) {
+  const el = document.getElementById(id);
+  if (el) el.innerText = text;
+}
+function safeSetHTML(id, html) {
+  const el = document.getElementById(id);
+  if (el) el.innerHTML = html;
+}
+function safeGetValue(id) {
+  const el = document.getElementById(id);
+  return el ? el.value.trim() : '';
+}
+function safeSetValue(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.value = val;
+}
 
 const canvas = document.getElementById('particles-canvas');
-const ctx = canvas.getContext('2d');
+const ctx = canvas ? canvas.getContext('2d') : null;
 let particlesArray = [];
-function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-window.addEventListener('resize', resizeCanvas); resizeCanvas();
+function resizeCanvas() { 
+  if (canvas) {
+    canvas.width = window.innerWidth; 
+    canvas.height = window.innerHeight; 
+  }
+}
+window.addEventListener('resize', resizeCanvas); 
+resizeCanvas();
 
 class Particle {
   constructor() {
-    this.x = Math.random() * canvas.width;
-    this.y = Math.random() * canvas.height;
+    this.x = Math.random() * (canvas ? canvas.width : 800);
+    this.y = Math.random() * (canvas ? canvas.height : 600);
     this.size = Math.random() * 2 + 0.5;
     this.speedX = (Math.random() - 0.5) * 0.25;
     this.speedY = (Math.random() - 0.5) * 0.25;
     this.opacity = Math.random() * 0.4 + 0.15;
   }
   update() {
+    if (!canvas) return;
     this.x += this.speedX; this.y += this.speedY;
     if (this.x < 0) this.x = canvas.width; if (this.x > canvas.width) this.x = 0;
     if (this.y < 0) this.y = canvas.height; if (this.y > canvas.height) this.y = 0;
   }
   draw() {
+    if (!ctx) return;
     ctx.save(); ctx.globalAlpha = this.opacity; ctx.fillStyle = 'var(--accent-cyan)';
     ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); ctx.restore();
   }
 }
 function initParticles() {
+  if (!canvas) return;
   particlesArray = [];
   let numberOfParticles = Math.floor((canvas.width * canvas.height) / 14000);
   for (let i = 0; i < numberOfParticles; i++) particlesArray.push(new Particle());
 }
 function animateParticles() {
+  if (!ctx || !canvas) return;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   particlesArray.forEach(p => { p.update(); p.draw(); });
   requestAnimationFrame(animateParticles);
@@ -1018,120 +1052,23 @@ const defaultCourseData = [
     id: 2, title: "MÓDULO 2 — TECLADO E MOUSE", intro: "Agilidade física e atalhos globais de produtividade.",
     lessons: [
       { id: 201, title: "Aula 1 — Anatomia do Mouse e Cliques", bloco1: "Scroll, clique duplo e botão direito.", bloco2: "Navegação rápida em menus.", bloco3: "Ganhar precisão.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Para que serve o botão direito?", options: ["Reiniciar", "Abrir menu de contexto", "Desligar", "Atualizar"], correct: 1 } },
-      { id: 202, title: "Aula 2 — Atalhos Universais de Produtividade", bloco1: "Ctrl+C, Ctrl+V, Ctrl+Z.", bloco2: "Economizar cliques.", bloco3: "Multiplicar velocidade.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Qual atalho cola um conteúdo copiado?", options: ["Ctrl+C", "Ctrl+V", "Ctrl+X", "Ctrl+Z"], correct: 1 } },
-      { id: 203, title: "Aula 3 — Funções das Teclas Especiais", bloco1: "Shift, Alt, Ctrl, Tab, Esc.", bloco2: "Funções secundárias.", bloco3: "Domínio do teclado.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Qual tecla cancela ou fecha caixas de diálogo?", options: ["Esc", "Enter", "F5", "Space"], correct: 0 } },
-      { id: 204, title: "Aula 4 — Digitação Eficiente", bloco1: "Posicionamento correto das mãos.", bloco2: "Velocidade sem olhar para as teclas.", bloco3: "Prática diária.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Qual o objetivo da digitação tátil?", options: ["Digitar mais rápido sem olhar", "Gastar o teclado", "Usar apenas dois dedos", "Desligar o PC"], correct: 0 } }
-    ]
-  },
-  {
-    id: 3, title: "MÓDULO 3 — SISTEMA WINDOWS", intro: "Gerenciamento de pastas, janelas e atalhos do sistema.",
-    lessons: [
-      { id: 301, title: "Aula 1 — Barra de Tarefas e Notificações", bloco1: "Personalização e menu iniciar.", bloco2: "Fixar aplicativos.", bloco3: "Organização.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Onde fixamos programas rápidos?", options: ["Lixeira", "Barra de Tarefas", "Painel traseiro", "Cabo de rede"], correct: 1 } },
-      { id: 302, title: "Aula 2 — Explorador de Arquivos", bloco1: "Copiar, mover e excluir.", bloco2: "Estrutura lógica.", bloco3: "Organização digital.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Atalho para nova pasta?", options: ["Ctrl+Shift+N", "Ctrl+C", "F2", "Alt+Tab"], correct: 0 } },
-      { id: 303, title: "Aula 3 — Lixeira e Recuperação de Dados", bloco1: "Como esvaziar e recuperar arquivos.", bloco2: "Segurança contra exclusões acidentais.", bloco3: "Gestão de espaço.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "O que acontece ao esvaziar a lixeira?", options: ["Os arquivos são apagados permanentemente", "O PC acelera", "O monitor desliga", "Nada muda"], correct: 0 } },
-      { id: 304, title: "Aula 4 — Painel de Controle e Configurações", bloco1: "Ajustes de vídeo, som e rede.", bloco2: "Personalização avançada.", bloco3: "Domínio do sistema.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Onde alteramos o volume e resolução de tela?", options: ["Configurações / Painel de Controle", "Bloco de Notas", "Word", "Lixeira"], correct: 0 } }
-    ]
-  },
-  {
-    id: 4, title: "MÓDULO 4 — INTERNET E E-MAIL", intro: "Navegação segura, pesquisas e configuração de correio.",
-    lessons: [
-      { id: 401, title: "Aula 1 — Navegadores e Segurança na Web", bloco1: "Chrome, abas anônimas e HTTPS.", bloco2: "Navegação segura.", bloco3: "Identificar sites confiáveis.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "O que o cadeado indica?", options: ["Site pago", "Conexão criptografada e segura", "Vírus", "Internet lenta"], correct: 1 } },
-      { id: 402, title: "Aula 2 — Configuração e Uso de E-mail", bloco1: "Gmail e Outlook.", bloco2: "Etiqueta corporativa.", bloco3: "Profissionalizar comunicação.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Qual campo traz o resumo do e-mail?", options: ["Senha", "Assunto", "Anexo", "Assinatura"], correct: 1 } },
-      { id: 403, title: "Aula 3 — Anexos e Links na Nuvem", bloco1: "Enviando arquivos grandes.", bloco2: "Segurança nos downloads.", bloco3: "Prática web.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Como enviar arquivos muito pesados por e-mail?", options: ["Usando links de nuvem / anexos seguros", "Imprimindo na tela", "Reiniciando o modem", "Desligando o antivírus"], correct: 0 } }
-    ]
-  },
-  {
-    id: 5, title: "MÓDULO 5 — MICROSOFT WORD", intro: "Criação de textos, contratos e formatação.",
-    lessons: [
-      { id: 501, title: "Aula 1 — Formatação de Textos e Fontes", bloco1: "Alinhamento e espaçamento.", bloco2: "Regras ABNT.", bloco3: "Criar documentos formais.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Qual tecla cria novo parágrafo?", options: ["Enter", "Shift", "Espaço", "Esc"], correct: 0 } },
-      { id: 502, title: "Aula 2 — Tabelas e Imagens", bloco1: "Inserir tabelas e imagens.", bloco2: "Layout atraente.", bloco3: "Apresentação impecável.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Onde encontramos tabelas no Word?", options: ["Página Inicial", "Inserir", "Exibição", "Ajuda"], correct: 1 } },
-      { id: 503, title: "Aula 3 — Salvando em PDF", bloco1: "Exportar documentos.", bloco2: "Compatibilidade universal.", bloco3: "Entrega profissional.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Para que serve o formato PDF?", options: ["Travar formatação para leitura universal", "Criar vírus", "Aumentar tamanho do texto", "Imprimir em 3D"], correct: 0 } }
-    ]
-  },
-  {
-    id: 6, title: "MÓDULO 6 — EXCEL BÁSICO", intro: "Planilhas, células e operações matemáticas.",
-    lessons: [
-      { id: 601, title: "Aula 1 — Entendendo a Grade e Células", bloco1: "Linhas, colunas e células.", bloco2: "Inserir dados.", bloco3: "Navegação.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Célula coluna B linha 3?", options: ["3B", "B3", "Cel-B3", "Linha3B"], correct: 1 } },
-      { id: 602, title: "Aula 2 — Primeiras Fórmulas", bloco1: "Soma e subtração.", bloco2: "Automatizar contas.", bloco3: "Eliminar calculadoras.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Qual caractere inicia fórmulas?", options: ["#", "$", "=", "+"], correct: 2 } },
-      { id: 603, title: "Aula 3 — Formatação de Tabelas e Moeda", bloco1: "Estilos e R$.", bloco2: "Visual financeiro.", bloco3: "Apresentação limpa.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Onde aplicamos o formato de dinheiro R$?", options: ["No botão de Moeda / Estilo de Célula", "No Word", "No Bloco de Notas", "Na Lixeira"], correct: 0 } }
-    ]
-  },
-  {
-    id: 7, title: "MÓDULO 7 — EXCEL INTERMEDIÁRIO", intro: "Funções lógicas, PROCV e gráficos.",
-    lessons: [
-      { id: 701, title: "Aula 1 — A Função SE Condicional", bloco1: "Lógica se/então.", bloco2: "Automatizar decisões.", bloco3: "Relatórios inteligentes.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "O que o SE avalia?", options: ["Cor da célula", "Condição lógica para resultados diferentes", "Tamanho do monitor", "Velocidade de rede"], correct: 1 } },
-      { id: 702, title: "Aula 2 — Gráficos Dinâmicos", bloco1: "Colunas e pizza.", bloco2: "Visualizar números.", bloco3: "Análise gerencial.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Gráfico para proporções?", options: ["Pizza", "Linhas", "Dispersão", "Rede"], correct: 0 } },
-      { id: 703, title: "Aula 3 — Função PROCV Básica", bloco1: "Busca de dados em tabelas.", bloco2: "Cruzamento de informações.", bloco3: "Agilidade.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Para que serve o PROCV?", options: ["Procurar valores verticalmente em uma tabela", "Apagar planilhas", "Imprimir colorido", "Enviar e-mails"], correct: 0 } }
-    ]
-  },
-  {
-    id: 8, title: "MÓDULO 8 — APRESENTAÇÕES DE SLIDES", intro: "Criação de apresentações visuais.",
-    lessons: [
-      { id: 801, title: "Aula 1 — Regras de Ouro para Slides", bloco1: "Hierarquia visual e foco.", bloco2: "Evitar poluição.", bloco3: "Clareza.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Erro comum em slides?", options: ["Usar imagens boas", "Colocar blocos enormes de texto para ler", "Cores sóbrias", "Falar pausadamente"], correct: 1 } },
-      { id: 802, title: "Aula 2 — Animações e Transições", bloco1: "Dinamismo na apresentação.", bloco2: "Uso moderado de efeitos.", bloco3: "Profissionalismo.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Como devem ser as animações de slides?", options: ["Discretas e profissionais", "Exageradas e piscando", "Inexistentes", "Com som alto"], correct: 0 } }
-    ]
-  },
-  {
-    id: 9, title: "MÓDULO 9 — SEGURANÇA DIGITAL", intro: "Prevenção a golpes e senhas fortes.",
-    lessons: [
-      { id: 901, title: "Aula 1 — Detectando Phishing", bloco1: "Links falsos e engenharia social.", bloco2: "Proteger dados.", bloco3: "Navegação defensiva.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "O que é Phishing?", options: ["Antivírus desatualizado", "Tentativa de roubar senhas fingindo ser instituição confiável", "Limpeza de disco", "Falha de teclado"], correct: 1 } },
-      { id: 902, title: "Aula 2 — Criação de Senhas Blindadas", bloco1: "Mistura de caracteres e gerenciadores.", bloco2: "Segurança de contas.", bloco3: "Prevenção.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Qual senha é mais segura?", options: ["123456", "data de nascimento", "Mi@9#xP!zK8", "nome do pet"], correct: 2 } }
-    ]
-  },
-  {
-    id: 10, title: "MÓDULO 10 — MANUTENÇÃO DO SISTEMA", intro: "Limpeza de arquivos e otimização.",
-    lessons: [
-      { id: 1001, title: "Aula 1 — Limpeza de Cache e Espaço", bloco1: "Remover arquivos inúteis.", bloco2: "Recuperar velocidade.", bloco3: "Otimização.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Onde ficam arquivos temporários?", options: ["Placa mãe", "Pastas de cache e temporários do Windows", "Chip de áudio", "Cabo do mouse"], correct: 1 } },
-      { id: 1002, title: "Aula 2 — Atualizações e Antivírus", bloco1: "Manter o sistema seguro.", bloco2: "Correções de falhas.", bloco3: "Proteção.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Para que serve atualizar o sistema?", options: ["Corrigir falhas de segurança e melhorar desempenho", "Aumentar o consumo de luz", "Travar o computador", "Apagar fotos"], correct: 0 } }
-    ]
-  },
-  {
-    id: 11, title: "MÓDULO 11 — NUVEM E BACKUP", intro: "Google Drive e OneDrive.",
-    lessons: [
-      { id: 1101, title: "Aula 1 — Protegendo Arquivos na Nuvem", bloco1: "Upload e compartilhamento.", bloco2: "Acesso remoto.", bloco3: "Backup automático.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Vantagem da nuvem?", options: ["Ocupa menos espaço físico", "Acesso de qualquer dispositivo com internet", "Imune a senhas", "Funciona sem luz"], correct: 1 } }
-    ]
-  },
-  {
-    id: 12, title: "MÓDULO 12 — GOOGLE WORKSPACE", intro: "Ferramentas colaborativas.",
-    lessons: [
-      { id: 1201, title: "Aula 1 — Documentos e Planilhas Online", bloco1: "Edição simultânea.", bloco2: "Permissões de acesso.", bloco3: "Trabalho em equipe.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Onde salvam arquivos do Google Workspace?", options: ["Lixeira", "Google Drive", "Processador", "Roteador"], correct: 1 } }
-    ]
-  },
-  {
-    id: 13, title: "MÓDULO 13 — INTELIGÊNCIA ARTIFICIAL", intro: "Uso prático de assistentes de IA.",
-    lessons: [
-      { id: 1301, title: "Aula 1 — Escrevendo Prompts Eficientes", bloco1: "Como instruir assistentes.", bloco2: "Criação de textos e planilhas.", bloco3: "Produtividade.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "O que é um Prompt?", options: ["Comando ou pergunta enviada à IA", "Velocidade de banda", "Formato PDF", "Antivírus"], correct: 0 } }
-    ]
-  },
-  {
-    id: 14, title: "MÓDULO 14 — EMPREGABILIDADE E CURRÍCULO", intro: "Elaboração de currículos modernos.",
-    lessons: [
-      { id: 1401, title: "Aula 1 — O Currículo na Era Digital", bloco1: "Estrutura direta e competências.", bloco2: "Destaque de informática.", bloco3: "Oportunidades.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "O que priorizar no currículo?", options: ["Excesso de cores", "Objetividade e clareza nas competências", "Cinco páginas de texto", "Dados confidenciais"], correct: 1 } }
-    ]
-  },
-  {
-    id: 15, title: "MÓDULO 15 — PROJETO FINAL E CERTIFICADO", intro: "Consolidação e certificado oficial.",
-    lessons: [
-      { id: 1501, title: "Aula 1 — Encerramento e Emissão", bloco1: "Revisão geral.", bloco2: "Certificado oficial em PDF.", bloco3: "Autonomia digital.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "O que valida a conquista do certificado?", options: ["Conclusão de todas as aulas e exercícios", "Cadastro inicial", "Comprar PC novo", "Navegar em redes"], correct: 0 } }
+      { id: 202, title: "Aula 2 — Atalhos Universais de Produtividade", bloco1: "Ctrl+C, Ctrl+V, Ctrl+Z.", bloco2: "Economizar cliques.", bloco3: "Multiplicar velocidade.", video: "", pdfUrl: "", imgUrl: "", quiz: { question: "Qual atalho cola um conteúdo copiado?", options: ["Ctrl+C", "Ctrl+V", "Ctrl+X", "Ctrl+Z"], correct: 1 } }
     ]
   }
 ];
 
-const TARGET_EMAIL = "olliveirazvz@gmail.com";
 let courseData = [];
 let registeredUsers = [];
-let salesTransactions = JSON.parse(localStorage.getItem('admin_sales_transactions')) || [
-  { id: "TX-9841", email: "pedro de oliveira <112@gmail.com>", amount: 29.90, method: "Pix", status: "aprovado", date: "31/08/2026 21:10" },
-  { id: "TX-9842", email: "aluno pendente <pendente@gmail.com>", amount: 29.90, method: "Cartão", status: "pendente", date: "31/08/2026 21:15" }
-];
+let salesTransactions = JSON.parse(localStorage.getItem('admin_sales_transactions')) || [];
 let notificationsList = JSON.parse(localStorage.getItem('user_notifications')) || [
   { id: 1, text: "Bem-vindo à plataforma de Informática do Zero!", unread: true, date: "31/08/2026" }
 ];
 let completedLessons = JSON.parse(localStorage.getItem('user_completed_lessons')) || {};
 let completedQuizzes = JSON.parse(localStorage.getItem('user_completed_quizzes')) || {};
-let quizStatsStorage = JSON.parse(localStorage.getItem('user_quiz_stats')) || {};
+
 let currentUser = null;
 let isAdmin = false;
+let pendingPurchaseIntent = false;
 let videoWatchedState = {};
 let paymentBrickController = null;
 let currentCheckoutAmount = 29.90;
@@ -1140,33 +1077,34 @@ let activePaymentInterval = null;
 let pixCountdownInterval = null;
 
 function showCustomAlert(title, message) {
-  document.getElementById('custom-alert-title').innerText = title;
-  document.getElementById('custom-alert-text').innerText = message;
-  document.getElementById('custom-alert-modal').classList.add('active');
+  safeSetText('custom-alert-title', title);
+  safeSetText('custom-alert-text', message);
+  openModal('custom-alert-modal');
 }
-function closeCustomAlert() {
-  document.getElementById('custom-alert-modal').classList.remove('active');
+function closeCustomAlert() { closeModal('custom-alert-modal'); }
+
+function showSuccessModal(msg) {
+  safeSetText('success-modal-text', msg);
+  openModal('success-modal');
 }
+function closeSuccessModal() { closeModal('success-modal'); }
 
 function autoCompleteEmail(inputId) {
-  const input = document.getElementById(inputId);
-  if (!input) return;
-  let val = input.value.trim();
+  let val = safeGetValue(inputId);
   if (val && !val.includes('@')) {
-    input.value = val + '@gmail.com';
+    safeSetValue(inputId, val + '@gmail.com');
   }
 }
 
 window.onload = function() {
   const rememberedEmail = localStorage.getItem('remembered_email');
-  const rememberedPass = localStorage.getItem('remembered_pass');
   if (rememberedEmail) {
-    document.getElementById('login-email').value = rememberedEmail;
-    document.getElementById('remember-me').checked = true;
+    safeSetValue('login-email', rememberedEmail);
+    const remElem = document.getElementById('remember-me');
+    if (remElem) remElem.checked = true;
   }
-  if (rememberedPass) {
-    document.getElementById('login-pass').value = rememberedPass;
-  }
+  // Garantir a remoção de senhas em texto puro eventualmente salvas no passado
+  localStorage.removeItem('remembered_pass');
 
   const savedTheme = localStorage.getItem('app_theme') || 'azul';
   changeTheme(savedTheme, false);
@@ -1174,85 +1112,103 @@ window.onload = function() {
   const checkDbInterval = setInterval(() => {
     if (window.db && window.auth) {
       clearInterval(checkDbInterval);
-      const { collection, onSnapshot, setDoc, doc, onAuthStateChanged, getDocs } = window.firebaseModules;
+      const { collection, onSnapshot, doc, setDoc, getDocs, onAuthStateChanged } = window.firebaseModules;
 
-      onAuthStateChanged(window.auth, (user) => {
+      // FONTE PRINCIPAL E ÚNICA DA VERDADE DA SESSÃO
+      onAuthStateChanged(window.auth, async (user) => {
         if (user) {
           currentUser = user.email;
-          isAdmin = (currentUser === TARGET_EMAIL || (registeredUsers.find(u => u.email === currentUser)?.role === 'admin'));
-          updateMobileMenuOptions();
-          updateNavAvatar();
-          
-          let uObj = registeredUsers.find(u => u.email === currentUser);
-          if (isAdmin || currentUser === TARGET_EMAIL) {
-            showAdminArea();
-          } else {
-            if (uObj && uObj.paid) {
+          isAdmin = (currentUser === TARGET_ADMIN_EMAIL);
+
+          // Buscar perfis do Firestore
+          try {
+            const snap = await getDocs(collection(window.db, "users"));
+            registeredUsers = [];
+            snap.forEach((docSnap) => registeredUsers.push(docSnap.data()));
+
+            let uObj = registeredUsers.find(u => u.email === currentUser);
+            
+            // Se usuário existe no Auth mas não no Firestore, cria documento do perfil automaticamente
+            if (!uObj) {
+              const safeId = currentUser.replace(/[@.]/g, '_');
+              uObj = {
+                email: currentUser,
+                paid: currentUser === TARGET_ADMIN_EMAIL,
+                role: currentUser === TARGET_ADMIN_EMAIL ? 'admin' : 'student',
+                fullname: user.displayName || currentUser.split('@')[0],
+                createdAt: new Date().toISOString()
+              };
+              await setDoc(doc(window.db, "users", safeId), uObj);
+              registeredUsers.push(uObj);
+            }
+
+            isAdmin = (currentUser === TARGET_ADMIN_EMAIL || uObj?.role === 'admin');
+            updateNavState(true, currentUser);
+
+            if (isAdmin) {
+              showAdminArea();
+            } else if (uObj && uObj.paid) {
               showMemberArea();
             } else {
               showPublicSite();
             }
-          }
-        } else {
-          const persistedUser = localStorage.getItem('persisted_current_user');
-          if (persistedUser) {
-            currentUser = persistedUser;
-            isAdmin = (currentUser === TARGET_EMAIL);
-            updateMobileMenuOptions();
-            updateNavAvatar();
-            if(isAdmin) showAdminArea();
-            else showMemberArea();
-          } else {
-            currentUser = null;
-            isAdmin = false;
-            updateMobileMenuOptions();
+
+            // Continuar compra pendente se o usuário clicou em comprar deslogado
+            if (pendingPurchaseIntent) {
+              pendingPurchaseIntent = false;
+              setTimeout(() => { openCheckoutModal(); }, 500);
+            }
+          } catch(err) {
+            console.error("Erro ao sincronizar perfil do Firestore:", err);
+            updateNavState(true, currentUser);
             showPublicSite();
           }
+        } else {
+          currentUser = null;
+          isAdmin = false;
+          updateNavState(false, null);
+          showPublicSite();
         }
       });
 
+      // Sincronização dos Módulos
       (async () => {
         try {
           const snap = await getDocs(collection(window.db, "modules"));
-          if (snap.empty || snap.size < 15) {
+          if (snap.empty) {
             for (const mod of defaultCourseData) {
               await setDoc(doc(window.db, "modules", mod.id.toString()), mod);
             }
           }
         } catch (e) {
-          console.error("Erro ao inicializar módulos:", e);
+          console.error("Erro ao inicializar coleção de módulos:", e);
         }
       })();
 
       onSnapshot(collection(window.db, "modules"), (snapshot) => {
         courseData = [];
-        snapshot.forEach((docSnap) => {
-          courseData.push(docSnap.data());
-        });
+        snapshot.forEach((docSnap) => courseData.push(docSnap.data()));
         courseData.sort((a, b) => a.id - b.id);
         updateCourseStatsUI();
 
-        if (currentUser && document.getElementById('member-area').style.display === 'block') {
+        if (currentUser && document.getElementById('member-area')?.style.display === 'block') {
           renderMemberSidebar();
         }
-        if (isAdmin && document.getElementById('admin-area').style.display === 'block') {
+        if (isAdmin && document.getElementById('admin-area')?.style.display === 'block') {
           renderAdminModules();
           renderDashboard();
         }
       });
 
+      // Sincronização em tempo real de Usuários
       onSnapshot(collection(window.db, "users"), (snapshot) => {
         registeredUsers = [];
-        snapshot.forEach((docSnap) => {
-          registeredUsers.push(docSnap.data());
-        });
+        snapshot.forEach((docSnap) => registeredUsers.push(docSnap.data()));
         if (currentUser) {
           let uObj = registeredUsers.find(u => u.email === currentUser);
-          isAdmin = (currentUser === TARGET_EMAIL || uObj?.role === 'admin');
-          updateMobileMenuOptions();
-          updateNavAvatar();
+          isAdmin = (currentUser === TARGET_ADMIN_EMAIL || uObj?.role === 'admin');
         }
-        if (isAdmin && document.getElementById('admin-area').style.display === 'block') {
+        if (isAdmin && document.getElementById('admin-area')?.style.display === 'block') {
           renderDashboard();
           populateTestStudentSelect();
         }
@@ -1260,9 +1216,41 @@ window.onload = function() {
     }
   }, 100);
 
-  updateMobileMenuOptions();
   updateNotificationsBadge();
 };
+
+function updateNavState(isLoggedIn, email) {
+  const navGuest = document.getElementById('nav-guest');
+  const navUser = document.getElementById('nav-user');
+  const mobileContainer = document.getElementById('mobile-menu-options');
+
+  if (isLoggedIn) {
+    if (navGuest) navGuest.style.display = 'none';
+    if (navUser) navUser.style.display = 'flex';
+    safeSetText('user-display', email);
+    updateNavAvatar();
+
+    if (mobileContainer) {
+      mobileContainer.innerHTML = `
+        <button onclick="toggleMobileMenu(); showPublicSite();"><i class="fa-solid fa-house"></i> Início</button>
+        <button onclick="toggleMobileMenu(); ${isAdmin ? 'showAdminArea()' : 'showMemberArea()'}"><i class="fa-solid fa-graduation-cap"></i> ${isAdmin ? 'Painel Admin' : 'Acessar Aulas'}</button>
+        <button onclick="toggleMobileMenu(); showSettingsArea();"><i class="fa-solid fa-gear"></i> Configurações</button>
+        <button style="color:var(--red);" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> Sair</button>
+      `;
+    }
+    safeSetText('hero-btn-text', isAdmin ? "IR AO PAINEL ADMIN" : "ACESSAR MINHAS AULAS");
+  } else {
+    if (navGuest) navGuest.style.display = 'block';
+    if (navUser) navUser.style.display = 'none';
+    if (mobileContainer) {
+      mobileContainer.innerHTML = `
+        <button onclick="toggleMobileMenu(); openAuthModal('login')"><i class="regular fa-user"></i> Login / Criar Conta</button>
+        <button onclick="toggleMobileMenu(); showPublicSite();"><i class="fa-solid fa-house"></i> Início</button>
+      `;
+    }
+    safeSetText('hero-btn-text', "ACESSAR MINHA CONTA");
+  }
+}
 
 function changeTheme(themeName, save = true) {
   document.body.className = `theme-${themeName}`;
@@ -1274,20 +1262,13 @@ function updateCourseStatsUI() {
   let totalLes = 0;
   courseData.forEach(m => { if(m.lessons) totalLes += m.lessons.length; });
 
-  const heroTag = document.getElementById('hero-tag-lessons');
-  if(heroTag) heroTag.innerHTML = `<i class="fa-solid fa-bolt"></i> FORMAÇÃO COMPLETA • ${totalLes} AULAS EM ${totalMod} MÓDULOS`;
-
-  const benefitText = document.getElementById('benefit-lessons-count');
-  if(benefitText) benefitText.innerHTML = `<i class="fa-solid fa-check"></i> ${totalLes} Aulas práticas em ${totalMod} Módulos`;
-
-  const sidebarHeader = document.getElementById('sidebar-title-header');
-  if(sidebarHeader) sidebarHeader.innerHTML = `<i class="fa-solid fa-book-open"></i> As ${totalLes} Aulas (${totalMod} Módulos)`;
-
-  const adminModulesLessonsElem = document.getElementById('admin-total-modules-lessons');
-  if(adminModulesLessonsElem) adminModulesLessonsElem.innerHTML = `${totalMod} Módulos / ${totalLes} Aulas`;
+  safeSetHTML('hero-tag-lessons', `<i class="fa-solid fa-bolt"></i> FORMAÇÃO COMPLETA • ${totalLes} AULAS EM ${totalMod} MÓDULOS`);
+  safeSetHTML('benefit-lessons-count', `<i class="fa-solid fa-check"></i> ${totalLes} Aulas práticas em ${totalMod} Módulos`);
+  safeSetHTML('sidebar-title-header', `<i class="fa-solid fa-book-open"></i> As ${totalLes} Aulas (${totalMod} Módulos)`);
+  safeSetHTML('admin-total-modules-lessons', `${totalMod} Módulos / ${totalLes} Aulas`);
 }
 
-async function saveCourseToCloud(successMsg = "Alterações salvas na nuvem com sucesso!") {
+async function saveCourseToCloud(successMsg = "Alterações salvas com sucesso!") {
   if (!window.db) return;
   const { doc, setDoc } = window.firebaseModules;
   try {
@@ -1296,7 +1277,7 @@ async function saveCourseToCloud(successMsg = "Alterações salvas na nuvem com 
     }
     showSuccessModal(successMsg);
   } catch (err) {
-    showCustomAlert("Erro no Banco", "Erro ao salvar na nuvem: " + err.message);
+    showCustomAlert("Erro no Banco", "Erro ao sincronizar com a nuvem.");
   }
 }
 
@@ -1311,19 +1292,20 @@ async function saveUserToCloud(userObj) {
   }
 }
 
-function showSuccessModal(msg) {
-  document.getElementById('success-modal-text').innerText = msg;
-  document.getElementById('success-modal').classList.add('active');
-}
-function closeSuccessModal() { document.getElementById('success-modal').classList.remove('active'); }
-
 function toggleMobileMenu() {
-  document.getElementById('mobile-menu').classList.toggle('active');
-  document.getElementById('mobile-overlay').classList.toggle('active');
+  const mm = document.getElementById('mobile-menu');
+  const mo = document.getElementById('mobile-overlay');
+  if (mm) mm.classList.toggle('active');
+  if (mo) mo.classList.toggle('active');
 }
-function openModal(id) { document.getElementById(id).classList.add('active'); }
+
+function openModal(id) { 
+  const el = document.getElementById(id);
+  if (el) el.classList.add('active'); 
+}
 function closeModal(id) { 
-  document.getElementById(id).classList.remove('active'); 
+  const el = document.getElementById(id);
+  if (el) el.classList.remove('active'); 
   if(activePaymentInterval) { clearInterval(activePaymentInterval); activePaymentInterval = null; }
   if(pixCountdownInterval) { clearInterval(pixCountdownInterval); pixCountdownInterval = null; }
 }
@@ -1332,34 +1314,35 @@ function closeCheckoutModalSafe() {
   closeModal('modal-custom-checkout');
   currentCheckoutAmount = 29.90;
   checkoutTargetUser = null;
-  if (currentUser) {
-    let uObj = registeredUsers.find(u => u.email === currentUser);
-    if (!isAdmin && (!uObj || !uObj.paid)) {
-      showPublicSite();
-    }
-  }
 }
 
 function openAuthModal(tab) { switchAuthTab(tab); openModal('modal-auth'); }
 
 function switchAuthTab(tab) {
-  const btnL = document.getElementById('tab-btn-login'); const btnR = document.getElementById('tab-btn-register');
-  const formL = document.getElementById('form-login'); const formR = document.getElementById('form-register');
-  if(tab==='login'){
-    btnL.style.background = 'rgba(0,240,255,0.15)'; btnL.style.color = 'var(--accent-cyan)';
-    btnR.style.background = 'transparent'; btnR.style.color = 'var(--text-secondary)';
-    formL.style.display = 'block'; formR.style.display = 'none';
+  const btnL = document.getElementById('tab-btn-login'); 
+  const btnR = document.getElementById('tab-btn-register');
+  const formL = document.getElementById('form-login'); 
+  const formR = document.getElementById('form-register');
+  
+  if (tab === 'login') {
+    if (btnL) { btnL.style.background = 'rgba(0,240,255,0.15)'; btnL.style.color = 'var(--accent-cyan)'; }
+    if (btnR) { btnR.style.background = 'transparent'; btnR.style.color = 'var(--text-secondary)'; }
+    if (formL) formL.style.display = 'block';
+    if (formR) formR.style.display = 'none';
   } else {
-    btnR.style.background = 'rgba(0,240,255,0.15)'; btnR.style.color = 'var(--accent-cyan)';
-    btnL.style.background = 'transparent'; btnL.style.color = 'var(--text-secondary)';
-    formR.style.display = 'block'; formL.style.display = 'none';
+    if (btnR) { btnR.style.background = 'rgba(0,240,255,0.15)'; btnR.style.color = 'var(--accent-cyan)'; }
+    if (btnL) { btnL.style.background = 'transparent'; btnL.style.color = 'var(--text-secondary)'; }
+    if (formR) formR.style.display = 'block';
+    if (formL) formL.style.display = 'none';
   }
 }
 
 function togglePasswordVisibility(id, btn) {
-  const inp = document.getElementById(id); const icon = btn.querySelector('i');
-  if(inp.type === 'password'){ inp.type = 'text'; icon.className = 'regular fa-eye-slash'; }
-  else { inp.type = 'password'; icon.className = 'regular fa-eye'; }
+  const inp = document.getElementById(id); 
+  if (!inp) return;
+  const icon = btn.querySelector('i');
+  if(inp.type === 'password'){ inp.type = 'text'; if(icon) icon.className = 'regular fa-eye-slash'; }
+  else { inp.type = 'password'; if(icon) icon.className = 'regular fa-eye'; }
 }
 
 function updateNavAvatar() {
@@ -1387,6 +1370,7 @@ function updateNotificationsBadge() {
 
 function openNotificationsModal() {
   const listContainer = document.getElementById('notifications-list-modal');
+  if (!listContainer) return;
   listContainer.innerHTML = '';
   if(notificationsList.length === 0) {
     listContainer.innerHTML = `<p style="text-align:center; color:var(--text-muted); padding:20px;">Nenhuma notificação no momento.</p>`;
@@ -1412,134 +1396,88 @@ function addNotification(text) {
   updateNotificationsBadge();
 }
 
-function updateMobileMenuOptions() {
-  const container = document.getElementById('mobile-menu-options');
-  if(!container) return;
-  
-  const userDisplayElem = document.getElementById('user-display');
-  if (currentUser) {
-    userDisplayElem.innerText = currentUser;
-  }
-
-  if(!currentUser){
-    container.innerHTML = `
-      <button onclick="toggleMobileMenu(); openAuthModal('login')"><i class="regular fa-user"></i> Login</button>
-      <button onclick="toggleMobileMenu(); showPublicSite();"><i class="fa-solid fa-house"></i> Início</button>
-    `;
-    document.getElementById('hero-btn-text').innerText = "ACESSAR MINHA CONTA";
-  } else {
-    let uObj = registeredUsers.find(u => u.email === currentUser);
-    let isPaid = isAdmin || uObj?.paid;
-    let html = '';
-    if(isAdmin) html += `<button onclick="toggleMobileMenu(); showAdminArea();"><i class="fa-solid fa-gear"></i> Painel Admin</button>`;
-    if(isPaid) html += `<button onclick="toggleMobileMenu(); showMemberArea();"><i class="fa-solid fa-graduation-cap"></i> Acessar Aulas</button>`;
-    html += `<button onclick="toggleMobileMenu(); showSettingsArea();"><i class="fa-solid fa-gear"></i> Configurações da Conta</button>`;
-    html += `<button style="color:var(--red);" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> Sair</button>`;
-    container.innerHTML = html;
-    document.getElementById('hero-btn-text').innerText = isPaid ? "IR PARA AS AULAS" : "GARANTIR MEU ACESSO";
-  }
-}
-
 async function handleLogin(e) {
   e.preventDefault();
   autoCompleteEmail('login-email');
-  const em = document.getElementById('login-email').value.trim(); 
-  const pw = document.getElementById('login-pass').value.trim();
-  const rememberMe = document.getElementById('remember-me').checked;
+  const em = safeGetValue('login-email'); 
+  const pw = safeGetValue('login-pass');
+  const rememberMe = document.getElementById('remember-me')?.checked;
   const { signInWithEmailAndPassword } = window.firebaseModules;
 
   if (rememberMe) {
     localStorage.setItem('remembered_email', em);
-    localStorage.setItem('remembered_pass', pw);
   } else {
     localStorage.removeItem('remembered_email');
-    localStorage.removeItem('remembered_pass');
   }
-
-  if (em === TARGET_EMAIL && pw === "478") {
-    let adminObj = registeredUsers.find(u => u.email === TARGET_EMAIL);
-    if(!adminObj) {
-      adminObj = { email: TARGET_EMAIL, paid: true, role: "admin", fullname: "Administrador Geral", certReleased: true };
-      await saveUserToCloud(adminObj);
-    }
-    setAuthSession(em, true); showAdminArea(); return;
-  }
+  localStorage.removeItem('remembered_pass'); // NUNCA SALVAR SENHA EM TEXTO PURO
 
   try {
     await signInWithEmailAndPassword(window.auth, em, pw);
-    let uObj = registeredUsers.find(u => u.email === em);
-    let adminFlag = (uObj?.role === 'admin' || em === TARGET_EMAIL);
-    setAuthSession(em, adminFlag);
-    if(adminFlag) showAdminArea(); 
-    else {
-      if(uObj && uObj.paid) showMemberArea();
-      else { showPublicSite(); }
-    }
+    closeModal('modal-auth');
+    showSuccessModal("Login realizado com sucesso!");
   } catch (err) {
-    showCustomAlert("Erro de Login", "E-mail ou senha incorretos.");
+    showCustomAlert("Erro de Acesso", "E-mail ou senha incorretos.");
   }
 }
 
 async function loginWithGoogle() {
-  const { signInWithPopup, GoogleAuthProvider } = window.firebaseModules;
+  const { signInWithPopup, GoogleAuthProvider, doc, setDoc, getDoc } = window.firebaseModules;
   const provider = new GoogleAuthProvider();
   try {
     const result = await signInWithPopup(window.auth, provider);
     const user = result.user;
-    let uObj = registeredUsers.find(u => u.email === user.email);
-    if (!uObj) {
-      uObj = { email: user.email, paid: false, role: 'student', fullname: user.displayName || 'Aluno Google', avatar: user.photoURL || '', certReleased: false };
-      await saveUserToCloud(uObj);
-      addNotification("Novo aluno cadastrado via Google: " + user.email);
+    
+    let safeId = user.email.replace(/[@.]/g, '_');
+    let userRef = doc(window.db, "users", safeId);
+    let userSnap = await getDoc(userRef);
+
+    if (!userSnap.exists()) {
+      let newUser = { 
+        email: user.email, 
+        paid: user.email === TARGET_ADMIN_EMAIL, 
+        role: user.email === TARGET_ADMIN_EMAIL ? 'admin' : 'student', 
+        fullname: user.displayName || 'Aluno Google', 
+        avatar: user.photoURL || '',
+        createdAt: new Date().toISOString()
+      };
+      await setDoc(userRef, newUser);
     }
-    setAuthSession(user.email, user.email === TARGET_EMAIL);
-    if(user.email === TARGET_EMAIL) showAdminArea();
-    else if(uObj.paid) showMemberArea();
-    else showPublicSite();
+
+    closeModal('modal-auth');
+    showSuccessModal("Autenticado com sucesso via Google!");
   } catch(e) {
-    showCustomAlert("Erro no Google Login", e.message);
+    showCustomAlert("Erro no Google Login", "Não foi possível autenticar com o Google.");
   }
 }
 
 async function handleForgotPassword(e) {
   e.preventDefault();
   autoCompleteEmail('login-email');
-  const em = document.getElementById('login-email').value.trim();
+  const em = safeGetValue('login-email');
   if(!em) {
-    showCustomAlert("Campo Obrigatório", "Digite seu e-mail no campo de e-mail acima para receber a recuperação de senha.");
-    document.getElementById('login-email').focus();
+    showCustomAlert("Campo Obrigatório", "Digite seu e-mail no campo de login acima para receber as instruções.");
     return;
   }
   const { sendPasswordResetEmail } = window.firebaseModules;
   try {
     await sendPasswordResetEmail(window.auth, em);
-    showSuccessModal("E-mail de redefinição de senha enviado com sucesso!");
+    showSuccessModal("E-mail de redefinição enviado com sucesso!");
     closeModal('modal-auth');
   } catch (err) {
-    showCustomAlert("Erro", "Erro ao enviar e-mail de recuperação: " + err.message);
+    showCustomAlert("Erro", "Não foi possível enviar o e-mail de redefinição.");
   }
-}
-
-function isValidFullName(name) {
-  const parts = name.trim().split(/\s+/);
-  if (parts.length < 2) return false;
-  for (let p of parts) {
-    if (p.length < 2 || /^([a-zA-Z])\1+$/.test(p)) return false;
-  }
-  return true;
 }
 
 async function handleRegister(e) {
   e.preventDefault();
   autoCompleteEmail('reg-email');
-  const fullname = document.getElementById('reg-fullname').value.trim();
-  const em = document.getElementById('reg-email').value.trim(); 
-  const pw = document.getElementById('reg-pass').value.trim();
-  const { createUserWithEmailAndPassword, signInWithEmailAndPassword } = window.firebaseModules;
+  const fullname = safeGetValue('reg-fullname');
+  const em = safeGetValue('reg-email'); 
+  const pw = safeGetValue('reg-pass');
+  const { createUserWithEmailAndPassword, doc, setDoc } = window.firebaseModules;
 
-  if (!isValidFullName(fullname)) {
-    showCustomAlert("Nome Inválido", "Por favor, digite seu Nome Completo real.");
-    document.getElementById('reg-fullname').focus();
+  if (!fullname || fullname.trim().length < 3) {
+    showCustomAlert("Nome Inválido", "Por favor, digite seu Nome Completo.");
     return;
   }
 
@@ -1548,142 +1486,114 @@ async function handleRegister(e) {
     return;
   }
 
+  // ETAPA 1: FIREBASE AUTHENTICATION (Criação de Conta)
+  let userCredential;
   try {
-    await createUserWithEmailAndPassword(window.auth, em, pw);
-    let newUser = { email: em, paid: false, role: 'student', fullname: fullname, certReleased: false };
-    await saveUserToCloud(newUser);
-    salesTransactions.push({ id: "TX-"+Math.floor(1000+Math.random()*9000), email: `${fullname} <${em}>`, amount: 29.90, method: "Pix", status: "pendente", date: new Date().toLocaleString() });
-    localStorage.setItem('admin_sales_transactions', JSON.stringify(salesTransactions));
-    addNotification("Novo aluno cadastrado: " + fullname);
-    setAuthSession(em, false);
-    showPublicSite();
-  } catch (err) {
-    if (err.code === 'auth/email-already-in-use') {
-      try {
-        await signInWithEmailAndPassword(window.auth, em, pw);
-        let uObj = registeredUsers.find(u => u.email === em);
-        let adminFlag = (uObj?.role === 'admin' || em === TARGET_EMAIL);
-        setAuthSession(em, adminFlag);
-        if (adminFlag) showAdminArea();
-        else {
-          if (uObj && uObj.paid) showMemberArea();
-          else showPublicSite();
-        }
-      } catch (loginErr) {
-        showCustomAlert("Conta Existente", "Este e-mail já está cadastrado. Faça login na aba 'Entrar'.");
-        switchAuthTab('login');
-        document.getElementById('login-email').value = em;
-      }
+    userCredential = await createUserWithEmailAndPassword(window.auth, em, pw);
+  } catch (authErr) {
+    if (authErr.code === 'auth/email-already-in-use') {
+      showCustomAlert("Conta Existente", "Este e-mail já possui uma conta. Faça login para continuar.");
+      switchAuthTab('login');
+      safeSetValue('login-email', em);
     } else {
-      showCustomAlert("Erro no Cadastro", err.message);
+      showCustomAlert("Erro no Cadastro", "Não foi possível concluir o cadastro. Verifique os dados e tente novamente.");
     }
+    return;
   }
-}
 
-function setAuthSession(em, adminFlag) {
-  currentUser = em; isAdmin = adminFlag; 
-  localStorage.setItem('persisted_current_user', em);
-  closeModal('modal-auth'); updateMobileMenuOptions(); updateNavAvatar();
+  // ETAPA 2: FIRESTORE (Salvar Documento do Perfil)
+  const safeId = em.replace(/[@.]/g, '_');
+  const newUserDoc = { 
+    email: em, 
+    paid: em === TARGET_ADMIN_EMAIL, 
+    role: em === TARGET_ADMIN_EMAIL ? 'admin' : 'student', 
+    fullname: fullname,
+    createdAt: new Date().toISOString()
+  };
+
+  try {
+    await setDoc(doc(window.db, "users", safeId), newUserDoc);
+  } catch (fsErr) {
+    console.warn("Aviso ao criar documento no Firestore:", fsErr);
+  }
+
+  // ETAPA 3 & 4: INTERFACE E NAVEGAÇÃO
+  closeModal('modal-auth');
+  showSuccessModal("Conta criada com sucesso! Seja bem-vindo.");
 }
 
 async function logout() {
   const { signOut } = window.firebaseModules;
   if(window.auth) await signOut(window.auth);
   currentUser = null; isAdmin = false;
-  localStorage.removeItem('persisted_current_user');
-  location.reload(); 
+  showPublicSite();
 }
 
 function handleAccountAction() {
-  if (!currentUser) {
+  if (!window.auth || !window.auth.currentUser) {
     openAuthModal('login');
   } else {
-    let uObj = registeredUsers.find(u => u.email === currentUser);
-    if (isAdmin || uObj?.paid) {
-      showMemberArea();
-    } else {
-      openCheckoutModal();
-    }
+    if (isAdmin) showAdminArea();
+    else showMemberArea();
   }
 }
 
 function handleLogoClick() {
-  if (currentUser) {
-    let uObj = registeredUsers.find(u => u.email === currentUser);
-    if (isAdmin || uObj?.paid) {
-      showMemberArea();
-    } else {
-      showPublicSite();
-    }
-  } else {
-    showPublicSite();
-  }
+  showPublicSite();
 }
 
 function showPublicSite() {
-  document.getElementById('public-site').style.display = 'block'; 
-  document.getElementById('member-area').style.display = 'none'; 
-  document.getElementById('admin-area').style.display = 'none';
-  document.getElementById('settings-area').style.display = 'none';
-  document.getElementById('nav-guest').style.display = currentUser ? 'none' : 'block';
-  document.getElementById('nav-user').style.display = currentUser ? 'flex' : 'none';
-  if (currentUser) {
-    document.getElementById('user-display').innerText = currentUser;
-  }
+  const p = document.getElementById('public-site'); if(p) p.style.display = 'block'; 
+  const m = document.getElementById('member-area'); if(m) m.style.display = 'none'; 
+  const a = document.getElementById('admin-area'); if(a) a.style.display = 'none';
+  const s = document.getElementById('settings-area'); if(s) s.style.display = 'none';
 }
 
 function switchSettingsTab(tabName) {
   document.querySelectorAll('.settings-tab-btn').forEach(b => b.classList.remove('active'));
   document.querySelectorAll('.settings-panel').forEach(p => p.classList.remove('active'));
-  event.currentTarget.classList.add('active');
-  document.getElementById(`spanel-${tabName}`).classList.add('active');
+  if (event && event.currentTarget) event.currentTarget.classList.add('active');
+  const targetP = document.getElementById(`spanel-${tabName}`);
+  if (targetP) targetP.classList.add('active');
 }
 
 function showSettingsArea() {
-  document.getElementById('public-site').style.display = 'none'; 
-  document.getElementById('member-area').style.display = 'none'; 
-  document.getElementById('admin-area').style.display = 'none';
-  document.getElementById('settings-area').style.display = 'block';
+  showPublicSite();
+  document.getElementById('public-site').style.display = 'none';
+  const s = document.getElementById('settings-area'); if(s) s.style.display = 'block';
+  
   let uObj = registeredUsers.find(u => u.email === currentUser);
-  document.getElementById('set-email').value = currentUser || '';
-  document.getElementById('set-fullname').value = uObj?.fullname || '';
-  document.getElementById('set-avatar').value = uObj?.avatar || '';
+  safeSetValue('set-email', currentUser || '');
+  safeSetValue('set-fullname', uObj?.fullname || '');
+  safeSetValue('set-avatar', uObj?.avatar || '');
 
-  const badgeStatus = document.getElementById('verified-badge-status');
   if(uObj && uObj.verifiedData) {
-    badgeStatus.innerHTML = `<span style="color:var(--green);"><i class="fa-solid fa-circle-check"></i> Status: Verificado (Dados salvos com sucesso)</span>`;
-    document.getElementById('v-name').value = uObj.verifiedData.name || '';
-    document.getElementById('v-nasc').value = uObj.verifiedData.nasc || '';
-    document.getElementById('v-cpf').value = uObj.verifiedData.cpf || '';
-    document.getElementById('v-end').value = uObj.verifiedData.end || '';
-    document.getElementById('v-cep').value = uObj.verifiedData.cep || '';
-    document.getElementById('v-num').value = uObj.verifiedData.num || '';
-    document.getElementById('v-comp').value = uObj.verifiedData.comp || '';
-    document.getElementById('v-bairro').value = uObj.verifiedData.bairro || '';
-    document.getElementById('v-cidade').value = uObj.verifiedData.cidade || '';
-    document.getElementById('v-uf').value = uObj.verifiedData.uf || '';
+    safeSetHTML('verified-badge-status', `<span style="color:var(--green);"><i class="fa-solid fa-circle-check"></i> Status: Verificado</span>`);
+    safeSetValue('v-name', uObj.verifiedData.name || '');
+    safeSetValue('v-nasc', uObj.verifiedData.nasc || '');
+    safeSetValue('v-cpf', uObj.verifiedData.cpf || '');
+    safeSetValue('v-end', uObj.verifiedData.end || '');
+    safeSetValue('v-cep', uObj.verifiedData.cep || '');
+    safeSetValue('v-num', uObj.verifiedData.num || '');
+    safeSetValue('v-comp', uObj.verifiedData.comp || '');
+    safeSetValue('v-bairro', uObj.verifiedData.bairro || '');
+    safeSetValue('v-cidade', uObj.verifiedData.cidade || '');
+    safeSetValue('v-uf', uObj.verifiedData.uf || '');
   } else {
-    badgeStatus.innerHTML = `<span style="color:var(--yellow);"><i class="fa-solid fa-circle-exclamation"></i> Status: Não Verificado (Preencha a aba Verificação)</span>`;
+    safeSetHTML('verified-badge-status', `<span style="color:var(--yellow);"><i class="fa-solid fa-circle-exclamation"></i> Status: Não Verificado</span>`);
   }
 }
 
 async function handleUpdateProfile(e) {
   e.preventDefault();
-  const newName = document.getElementById('set-fullname').value.trim();
-  const newEmail = document.getElementById('set-email').value.trim();
-  const newAvatar = document.getElementById('set-avatar').value.trim();
+  const newName = safeGetValue('set-fullname');
+  const newAvatar = safeGetValue('set-avatar');
 
   let uObj = registeredUsers.find(u => u.email === currentUser);
   if (uObj) {
     uObj.fullname = newName;
     uObj.avatar = newAvatar;
-    if (newEmail !== currentUser) {
-      uObj.email = newEmail;
-      currentUser = newEmail;
-      localStorage.setItem('persisted_current_user', newEmail);
-    }
     await saveUserToCloud(uObj);
-    addNotification("Dados de perfil atualizados com sucesso.");
     showSuccessModal("Perfil atualizado com sucesso!");
     updateNavAvatar();
   }
@@ -1692,55 +1602,49 @@ async function handleUpdateProfile(e) {
 async function handleSaveVerification(e) {
   e.preventDefault();
   let vData = {
-    name: document.getElementById('v-name').value.trim(),
-    nasc: document.getElementById('v-nasc').value.trim(),
-    cpf: document.getElementById('v-cpf').value.trim(),
-    end: document.getElementById('v-end').value.trim(),
-    cep: document.getElementById('v-cep').value.trim(),
-    num: document.getElementById('v-num').value.trim(),
-    comp: document.getElementById('v-comp').value.trim(),
-    bairro: document.getElementById('v-bairro').value.trim(),
-    cidade: document.getElementById('v-cidade').value.trim(),
-    uf: document.getElementById('v-uf').value.trim()
+    name: safeGetValue('v-name'),
+    nasc: safeGetValue('v-nasc'),
+    cpf: safeGetValue('v-cpf'),
+    end: safeGetValue('v-end'),
+    cep: safeGetValue('v-cep'),
+    num: safeGetValue('v-num'),
+    comp: safeGetValue('v-comp'),
+    bairro: safeGetValue('v-bairro'),
+    cidade: safeGetValue('v-cidade'),
+    uf: safeGetValue('v-uf')
   };
 
   let uObj = registeredUsers.find(u => u.email === currentUser);
   if (uObj) {
     uObj.verifiedData = vData;
     await saveUserToCloud(uObj);
-    showSuccessModal("Dados de verificação salvos e vinculados à conta!");
-    showSettingsArea();
+    showSuccessModal("Dados de verificação salvos!");
   }
 }
 
 async function handleUpdatePassword(e) {
   e.preventDefault();
-  const newPass = document.getElementById('set-new-pass').value.trim();
+  const newPass = safeGetValue('set-new-pass');
   if (newPass.length < 6) {
     showCustomAlert("Senha Curta", "A senha deve ter no mínimo 6 caracteres.");
     return;
   }
   const user = window.auth.currentUser;
-  if (!user) {
-    showCustomAlert("Erro", "Usuário não autenticado.");
-    return;
-  }
+  if (!user) return;
   const { updatePassword } = window.firebaseModules;
   try {
     await updatePassword(user, newPass);
     showSuccessModal("Senha atualizada com sucesso!");
-    addNotification("Sua senha de segurança foi alterada.");
   } catch (err) {
-    showCustomAlert("Erro", "Erro ao atualizar senha: " + err.message);
+    showCustomAlert("Erro", "Erro ao atualizar senha.");
   }
 }
 
 function showMemberArea() {
-  if (!currentUser) {
+  if (!window.auth.currentUser) {
     openAuthModal('login');
     return;
   }
-
   let uObj = registeredUsers.find(u => u.email === currentUser);
   const isPaid = isAdmin || uObj?.paid;
 
@@ -1750,14 +1654,9 @@ function showMemberArea() {
     return;
   }
 
-  document.getElementById('public-site').style.display = 'none'; 
-  document.getElementById('admin-area').style.display = 'none'; 
-  document.getElementById('settings-area').style.display = 'none';
-  document.getElementById('member-area').style.display = 'block';
-  document.getElementById('nav-guest').style.display = 'none'; 
-  document.getElementById('nav-user').style.display = 'flex';
-  document.getElementById('user-display').innerText = currentUser;
-  updateNavAvatar();
+  showPublicSite();
+  document.getElementById('public-site').style.display = 'none';
+  const m = document.getElementById('member-area'); if(m) m.style.display = 'block';
   
   renderMemberSidebar();
   if(courseData.length > 0 && courseData[0].lessons?.length > 0) {
@@ -1766,27 +1665,25 @@ function showMemberArea() {
 }
 
 function showAdminArea() {
-  if(!isAdmin && currentUser !== TARGET_EMAIL){ 
-    showCustomAlert("Acesso Restrito", "Você não tem permissão de administrador."); 
+  if(!isAdmin && currentUser !== TARGET_ADMIN_EMAIL){ 
+    showCustomAlert("Acesso Restrito", "Você não possui permissão de administrador."); 
     showMemberArea(); 
     return; 
   }
-  document.getElementById('public-site').style.display = 'none'; 
-  document.getElementById('member-area').style.display = 'none'; 
-  document.getElementById('settings-area').style.display = 'none';
-  document.getElementById('admin-area').style.display = 'block';
-  document.getElementById('nav-guest').style.display = 'none'; 
-  document.getElementById('nav-user').style.display = 'flex';
-  document.getElementById('user-display').innerText = currentUser;
-  updateNavAvatar();
-  switchAdminTab('alunos'); populateLessonModuleSelect(); populateTestStudentSelect();
+  showPublicSite();
+  document.getElementById('public-site').style.display = 'none';
+  const a = document.getElementById('admin-area'); if(a) a.style.display = 'block';
+  
+  switchAdminTab('alunos'); 
+  populateLessonModuleSelect(); 
+  populateTestStudentSelect();
 }
 
 function renderMemberSidebar() {
-  let uObj = registeredUsers.find(u => u.email === currentUser);
-  if (!isAdmin && (!uObj || !uObj.paid)) return;
+  const container = document.getElementById('module-list'); 
+  if(!container) return;
+  container.innerHTML = '';
 
-  const container = document.getElementById('module-list'); container.innerHTML = '';
   courseData.forEach((mod, index) => {
     let html = '';
     if (mod.lessons) {
@@ -1816,35 +1713,28 @@ function toggleAccordion(headerElem) {
   
   document.querySelectorAll('.lms-module-body').forEach(b => b.classList.remove('expanded'));
   document.querySelectorAll('.lms-module-header .arrow').forEach(a => {
-    a.classList.remove('fa-chevron-up');
-    a.classList.add('fa-chevron-down');
+    a.classList.remove('fa-chevron-up'); a.classList.add('fa-chevron-down');
   });
 
   if (!isAlreadyExpanded) {
     bodyElem.classList.add('expanded');
     const arrow = headerElem.querySelector('.arrow');
-    arrow.classList.remove('fa-chevron-down');
-    arrow.classList.add('fa-chevron-up');
+    if(arrow) { arrow.classList.remove('fa-chevron-down'); arrow.classList.add('fa-chevron-up'); }
   }
 }
 
 function toggleAdminAccordion(headerElem) {
   const bodyElem = headerElem.nextElementSibling;
-  bodyElem.classList.toggle('expanded');
+  if(bodyElem) bodyElem.classList.toggle('expanded');
 }
 
 function getYouTubeId(url) {
   if (!url) return '';
   let videoId = '';
-  if (url.includes('youtu.be/')) {
-    videoId = url.split('youtu.be/')[1].split('?')[0];
-  } else if (url.includes('watch?v=')) {
-    videoId = url.split('watch?v=')[1].split('&')[0];
-  } else if (url.includes('embed/')) {
-    videoId = url.split('embed/')[1].split('?')[0];
-  } else {
-    videoId = url.trim();
-  }
+  if (url.includes('youtu.be/')) videoId = url.split('youtu.be/')[1].split('?')[0];
+  else if (url.includes('watch?v=')) videoId = url.split('watch?v=')[1].split('&')[0];
+  else if (url.includes('embed/')) videoId = url.split('embed/')[1].split('?')[0];
+  else videoId = url.trim();
   return videoId;
 }
 
@@ -1853,6 +1743,7 @@ function loadLessonContent(modId, lessonId) {
   const lesson = mod?.lessons?.find(l => l.id == lessonId);
   if(!lesson) return;
   const container = document.getElementById('lms-main-content');
+  if(!container) return;
   
   const hasVideo = lesson.video && lesson.video.trim() !== '';
   videoWatchedState[lessonId] = !hasVideo;
@@ -1862,56 +1753,22 @@ function loadLessonContent(modId, lessonId) {
     let videoId = getYouTubeId(lesson.video);
     mediaHtml = `
       <div class="video-frame" id="yt-player-container-${lesson.id}" style="position: relative; background: #000; display: flex; align-items: center; justify-content: center; cursor: pointer;" onclick="activateYouTubePlayer('${lesson.id}', '${videoId}')">
-        <img src="https://img.youtube.com/vi/${videoId}/hqdefault.jpg" alt="Capa do Vídeo" style="width: 100%; height: 100%; object-fit: cover; opacity: 0.85; transition: 0.3s;">
-        <div style="position: absolute; width: 75px; height: 52px; background: rgba(0, 240, 255, 0.9); border-radius: 14px; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); transition: 0.3s;">
-          <i class="fa-solid fa-play" style="color: #030712; font-size: 20px; margin-left: 2px;"></i>
+        <img src="https://img.youtube.com/vi/${videoId}/hqdefault.jpg" alt="Capa" style="width: 100%; height: 100%; object-fit: cover; opacity: 0.85;">
+        <div style="position: absolute; width: 75px; height: 52px; background: rgba(0, 240, 255, 0.9); border-radius: 14px; display: flex; align-items: center; justify-content: center;">
+          <i class="fa-solid fa-play" style="color: #030712; font-size: 20px;"></i>
         </div>
       </div>`;
   }
 
-  let imgHtml = '';
-  if (lesson.imgUrl && lesson.imgUrl.trim() !== '') {
-    imgHtml = `
-      <div class="image-frame" style="margin-top: 15px;">
-        <img src="${lesson.imgUrl}" alt="Ilustração da Aula" style="width: 100%; height: 100%; object-fit: cover;">
-      </div>`;
-  }
+  let imgHtml = lesson.imgUrl ? `<div class="image-frame"><img src="${lesson.imgUrl}" alt="Ilustração"></div>` : '';
+  let pdfHtml = lesson.pdfUrl ? `
+    <div style="margin-top: 15px; padding: 14px; background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 12px; display: flex; justify-content: space-between; align-items: center;">
+      <div><h4 style="color: #f59e0b; font-size: 14px;"><i class="fa-solid fa-file-pdf"></i> Material PDF</h4></div>
+      <a href="${lesson.pdfUrl}" target="_blank" class="btn-outline" style="border-color: #f59e0b; color: #f59e0b;"><i class="fa-solid fa-download"></i> Baixar PDF</a>
+    </div>` : '';
 
-  let pdfHtml = '';
-  if (lesson.pdfUrl && lesson.pdfUrl.trim() !== '') {
-    pdfHtml = `
-      <div style="margin-top: 15px; padding: 14px; background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 12px; display: flex; justify-content: space-between; align-items: center;">
-        <div>
-          <h4 style="color: #f59e0b; font-size: 14px; margin-bottom: 4px;"><i class="fa-solid fa-file-pdf"></i> Material Complementar</h4>
-          <p style="font-size: 12px; color: var(--text-secondary);">Baixe o arquivo PDF desta aula para acompanhar.</p>
-        </div>
-        <a href="${lesson.pdfUrl}" target="_blank" class="btn-outline" style="border-color: #f59e0b; color: #f59e0b;"><i class="fa-solid fa-download"></i> Baixar PDF</a>
-      </div>`;
-  }
-
-  let next = null; let found = false;
-  let totalLessonsCount = 0;
-  let completedLessonsCount = 0;
-  let totalQuizCount = 0;
-  let completedQuizCount = 0;
-  
-  courseData.forEach(m => m.lessons?.forEach(l => {
-    totalLessonsCount++;
-    if(completedLessons[currentUser] && completedLessons[currentUser][l.id]) completedLessonsCount++;
-    if(l.quiz && l.quiz.question) {
-      totalQuizCount++;
-      if(completedQuizzes[currentUser] && completedQuizzes[currentUser][l.id]) completedQuizCount++;
-    }
-    if(found && !next) next = {m:m.id, l:l.id};
-    if(l.id === lesson.id) found=true;
-  }));
-  
-  const lessonDone = completedLessons[currentUser] && completedLessons[currentUser][lesson.id];
-  const quizDone = (!lesson.quiz || !lesson.quiz.question) || (completedQuizzes[currentUser] && completedQuizzes[currentUser][lesson.id]);
-  const courseFullyCompleted = (completedLessonsCount >= totalLessonsCount) && (completedQuizCount >= totalQuizCount) && (totalLessonsCount > 0);
-
+  let lessonDone = completedLessons[currentUser] && completedLessons[currentUser][lesson.id];
   let uObj = registeredUsers.find(u => u.email === currentUser);
-  let certReleasedByAdmin = uObj?.certReleased || false;
 
   let quizHtml = '';
   if (lesson.quiz && lesson.quiz.question) {
@@ -1919,81 +1776,35 @@ function loadLessonContent(modId, lessonId) {
     let isQuizAlreadyAnswered = completedQuizzes[currentUser] && completedQuizzes[currentUser][lesson.id];
 
     lesson.quiz.options.forEach((opt, idx) => {
-      let extraClass = '';
-      if (isQuizAlreadyAnswered) {
-        if (idx === lesson.quiz.correct) extraClass = 'correct';
-      }
-      optionsHtml += `<button class="quiz-option-btn ${extraClass}" ${isQuizAlreadyAnswered ? 'disabled' : ''} onclick="checkQuizAnswer(this, ${idx}, ${lesson.quiz.correct}, ${mod.id}, ${lesson.id}, ${next ? next.m : 'null'}, ${next ? next.l : 'null'})">
+      let extraClass = isQuizAlreadyAnswered && (idx === lesson.quiz.correct) ? 'correct' : '';
+      optionsHtml += `<button class="quiz-option-btn ${extraClass}" ${isQuizAlreadyAnswered ? 'disabled' : ''} onclick="checkQuizAnswer(this, ${idx}, ${lesson.quiz.correct}, ${mod.id}, ${lesson.id})">
         <span>${String.fromCharCode(65 + idx)}) ${opt}</span>
       </button>`;
     });
 
-    const isUnlocked = videoWatchedState[lesson.id] || lessonDone;
-
     quizHtml = `
-      <div class="quiz-container" id="quiz-block-${lesson.id}" style="display: block;">
-        <div class="quiz-header-badge"><i class="fa-solid fa-brain"></i> Exercício Obrigatório de Fixação</div>
-        
-        <div id="quiz-locked-notice-${lesson.id}" style="padding: 14px; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 12px; margin-bottom: 14px; font-size: 13px; color: #f87171; display: ${isUnlocked ? 'none' : 'block'};">
-          <i class="fa-solid fa-lock" style="margin-right: 6px;"></i> Assista ao vídeo da aula para liberar os exercícios.
-        </div>
-
-        <div id="quiz-content-body-${lesson.id}" style="opacity: ${isUnlocked ? '1' : '0.3'}; pointer-events: ${isUnlocked ? 'auto' : 'none'}; transition: 0.3s;">
-          <div class="quiz-question-title">${lesson.quiz.question}</div>
-          <div class="quiz-options-list">${optionsHtml}</div>
-          <div class="quiz-feedback" id="quiz-feedback-${lesson.id}" style="${isQuizAlreadyAnswered ? 'display: flex;' : ''}">${isQuizAlreadyAnswered ? '<i class="fa-solid fa-circle-check"></i> Exercício já respondido com sucesso!' : ''}</div>
-        </div>
+      <div class="quiz-container">
+        <div class="quiz-header-badge"><i class="fa-solid fa-brain"></i> Exercício de Fixação</div>
+        <div class="quiz-question-title">${lesson.quiz.question}</div>
+        <div class="quiz-options-list">${optionsHtml}</div>
+        <div class="quiz-feedback" id="quiz-feedback-${lesson.id}" style="${isQuizAlreadyAnswered ? 'display: flex;' : ''}">${isQuizAlreadyAnswered ? '<i class="fa-solid fa-circle-check"></i> Respondido com sucesso!' : ''}</div>
       </div>
     `;
   }
 
-  let certificateSectionHtml = '';
-  if (courseFullyCompleted || certReleasedByAdmin) {
-    certificateSectionHtml = `
-      <div style="margin-top: 35px; padding: 32px; background: radial-gradient(circle at center, rgba(16, 185, 129, 0.15), rgba(15, 23, 42, 0.95)); border: 2px solid var(--green); border-radius: 24px; text-align: center; box-shadow: 0 0 30px rgba(16,185,129,0.25);">
-        <div style="font-size: 52px; margin-bottom: 12px; filter: drop-shadow(0 0 10px rgba(16,185,129,0.5));">🏆🎉</div>
-        <h3 style="color: #fff; font-size: 22px; font-weight: 800; margin-bottom: 6px;">PARABÉNS! CURSO CONCLUÍDO COM SUCESSO!</h3>
-        <p style="color: var(--accent-cyan); font-size: 14px; font-weight: 700; margin-bottom: 14px;">Sua Autonomia Digital começa agora!</p>
-        <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px; max-width: 600px; margin-left: auto; margin-right: auto;">Todas as aulas e exercícios foram finalizados para: <strong>${uObj?.fullname || currentUser}</strong></p>
-        <button class="btn" style="background: linear-gradient(135deg, #10b981, #059669); color:#fff; font-size: 14px; padding: 16px 28px; box-shadow: 0 10px 25px rgba(16,185,129,0.4);" onclick="generateOfficialCertificatePDF('${uObj?.fullname || currentUser}')"><i class="fa-solid fa-file-pdf" style="font-size: 16px;"></i> BAIXAR SEU CERTIFICADO OFICIAL EM PDF</button>
-      </div>
-    `;
-  } else {
-    certificateSectionHtml = `
-      <div style="margin-top: 30px; padding: 20px; background: rgba(255,255,255,0.02); border: 1px dashed var(--glass-border); border-radius: 16px; text-align: center;">
-        <p style="font-size: 12.5px; color: var(--text-muted);"><i class="fa-solid fa-lock" style="color:var(--accent-cyan);"></i> O Certificado Oficial será liberado automaticamente após concluir todas as aulas e responder todos os exercícios de fixação.</p>
-      </div>
-    `;
-  }
-  
   container.innerHTML = `
     <span style="font-size: 11px; color: var(--accent-cyan); font-weight: 700; text-transform: uppercase;">${mod.title}</span>
     <h2 style="margin-bottom: 18px; font-size: 22px; color: #fff;">${lesson.title}</h2>
-    ${mediaHtml}
-    ${imgHtml}
-    ${pdfHtml}
+    ${mediaHtml} ${imgHtml} ${pdfHtml}
     
     <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); padding: 20px; border-radius: 16px; margin-top: 20px;">
-      <h4 style="color: var(--accent-cyan); margin-bottom: 8px; font-size: 14.5px;"><i class="fa-solid fa-list-check"></i> O que vai ser aprendido</h4>
-      <p style="color: var(--text-secondary); font-size: 13.5px; white-space: pre-line;">${lesson.bloco1 || 'Não especificado.'}</p>
+      <h4 style="color: var(--accent-cyan); margin-bottom: 8px; font-size: 14.5px;"><i class="fa-solid fa-list-check"></i> Conteúdo da Aula</h4>
+      <p style="color: var(--text-secondary); font-size: 13.5px; white-space: pre-line;">${lesson.bloco1 || 'Introdução teórica.'}</p>
     </div>
-
-    <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); padding: 20px; border-radius: 16px; margin-top: 14px;">
-      <h4 style="color: var(--accent-cyan); margin-bottom: 8px; font-size: 14.5px;"><i class="fa-solid fa-align-left"></i> Descrição da Aula</h4>
-      <p style="color: var(--text-secondary); font-size: 13.5px; white-space: pre-line;">${lesson.bloco2 || lesson.description || 'Sem descrição.'}</p>
-    </div>
-
-    <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); padding: 20px; border-radius: 16px; margin-top: 14px;">
-      <h4 style="color: var(--accent-cyan); margin-bottom: 8px; font-size: 14.5px;"><i class="fa-solid fa-bullseye"></i> Objetivos Pedagógicos</h4>
-      <p style="color: var(--text-secondary); font-size: 13.5px; white-space: pre-line;">${lesson.bloco3 || 'Não especificado.'}</p>
-    </div>
-    
     ${quizHtml}
-
-    <div style="margin-top: 25px; text-align: center;" id="lesson-action-footer">
-      ${!lessonDone ? `<button class="btn" onclick="markLessonAsDone(${mod.id}, ${lesson.id})"><i class="fa-solid fa-check"></i> Marcar Aula como Concluída</button>` : ''}
+    <div style="margin-top: 25px; text-align: center;">
+      ${!lessonDone ? `<button class="btn" onclick="markLessonAsDone(${mod.id}, ${lesson.id})"><i class="fa-solid fa-check"></i> Marcar como Concluída</button>` : ''}
     </div>
-    ${certificateSectionHtml}
   `;
 }
 
@@ -2001,11 +1812,6 @@ function activateYouTubePlayer(lessonId, videoId) {
   const container = document.getElementById(`yt-player-container-${lessonId}`);
   if (!container) return;
   container.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="width: 100%; height: 100%;"></iframe>`;
-  videoWatchedState[lessonId] = true;
-  let notice = document.getElementById(`quiz-locked-notice-${lessonId}`);
-  if(notice) notice.style.display = 'none';
-  let body = document.getElementById(`quiz-content-body-${lessonId}`);
-  if(body) { body.style.opacity = '1'; body.style.pointerEvents = 'auto'; }
 }
 
 function markLessonAsDone(modId, lessonId) {
@@ -2017,7 +1823,7 @@ function markLessonAsDone(modId, lessonId) {
   addNotification("Aula concluída com sucesso!");
 }
 
-function checkQuizAnswer(buttonElem, selectedIdx, correctIdx, modId, lessonId, nextMod, nextLesson) {
+function checkQuizAnswer(buttonElem, selectedIdx, correctIdx, modId, lessonId) {
   const parentContainer = buttonElem.closest('.quiz-container');
   const allBtns = parentContainer.querySelectorAll('.quiz-option-btn');
   const feedbackDiv = parentContainer.querySelector('.quiz-feedback');
@@ -2037,72 +1843,13 @@ function checkQuizAnswer(buttonElem, selectedIdx, correctIdx, modId, lessonId, n
     localStorage.setItem('user_completed_lessons', JSON.stringify(completedLessons));
     localStorage.setItem('user_completed_quizzes', JSON.stringify(completedQuizzes));
     renderMemberSidebar();
-    addNotification("Exercício concluído com sucesso!");
-
-    setTimeout(() => {
-      if(nextMod && nextLesson) {
-        loadLessonContent(nextMod, nextLesson);
-      } else {
-        loadLessonContent(modId, lessonId);
-      }
-    }, 1200);
+    addNotification("Exercício concluído!");
   } else {
     buttonElem.classList.add('incorrect');
     allBtns[correctIdx].classList.add('correct');
     feedbackDiv.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> Resposta incorreta.`;
     feedbackDiv.className = 'quiz-feedback error';
   }
-}
-
-function generateOfficialCertificatePDF(studentName) {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
-  
-  doc.setFillColor(3, 7, 18);
-  doc.rect(0, 0, 297, 210, 'F');
-  
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(22);
-  doc.setTextColor(0, 240, 255);
-  doc.text("IDZ", 30, 28);
-
-  doc.setFontSize(9);
-  doc.setTextColor(255, 255, 255);
-  doc.text("Informática do Zero", 30, 34);
-
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(24);
-  doc.setTextColor(255, 255, 255);
-  doc.text("CERTIFICADO", 30, 52);
-
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(13);
-  doc.setTextColor(0, 240, 255);
-  doc.text("DE CONCLUSÃO", 30, 60);
-
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(11);
-  doc.setTextColor(148, 163, 184);
-  doc.text("Certificamos que o aluno:", 30, 75);
-
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(22);
-  doc.setTextColor(0, 240, 255);
-  doc.text(studentName.toUpperCase(), 30, 88);
-
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(11);
-  doc.setTextColor(148, 163, 184);
-  doc.text("concluiu com êxito o curso", 30, 100);
-
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(12);
-  doc.setTextColor(255, 255, 255);
-  doc.text("INFORMÁTICA DO ZERO", 30, 108);
-
-  addNotification("Certificado oficial emitido e baixado!");
-  addNotification("Solicitação de envio de certificado físico registrada para o endereço cadastrado!");
-  doc.save(`Certificado_Informatica_Do_Zero_${studentName.replace(/\s+/g, '_')}.pdf`);
 }
 
 function switchAdminTab(secName) {
@@ -2118,69 +1865,40 @@ function switchAdminTab(secName) {
 }
 
 function renderDashboard() {
-  document.getElementById('admin-total-users').innerHTML = `${registeredUsers.length}`;
+  safeSetText('admin-total-users', `${registeredUsers.length}`);
   updateCourseStatsUI();
   
-  const tbody = document.getElementById('users-list-body'); tbody.innerHTML = '';
-  
-  let totalLessonsInCourse = 0;
-  let totalQuizInCourse = 0;
-  courseData.forEach(m => {
-    if(m.lessons) {
-      totalLessonsInCourse += m.lessons.length;
-      m.lessons.forEach(l => { if(l.quiz && l.quiz.question) totalQuizInCourse++; });
-    }
-  });
+  const tbody = document.getElementById('users-list-body'); 
+  if(!tbody) return;
+  tbody.innerHTML = '';
 
   registeredUsers.forEach((u) => {
     let studentEmail = u.email;
-    let userCompleted = completedLessons[studentEmail] || {};
-    let userQuizzes = completedQuizzes[studentEmail] || {};
-    let lessonsDoneCount = Object.keys(userCompleted).length;
-    let quizzesDoneCount = Object.keys(userQuizzes).length;
-    
-    let totalItems = totalLessonsInCourse + totalQuizInCourse;
-    let doneItems = lessonsDoneCount + quizzesDoneCount;
-    let percent = totalItems > 0 ? Math.round((doneItems / totalItems) * 100) : 0;
-    if(percent > 100) percent = 100;
-
-    let isApto = (lessonsDoneCount >= totalLessonsInCourse) && (quizzesDoneCount >= totalQuizInCourse) && (totalLessonsInCourse > 0);
-
-    let verifiedLabel = u.verifiedData ? `<span style="color:var(--green); font-size:10px;"><i class="fa-solid fa-badge-check"></i> Verificado</span>` : `<span style="color:var(--yellow); font-size:10px;"><i class="fa-solid fa-circle-exclamation"></i> Não verificado</span>`;
-
-    let studentInfo = `<div style="font-weight:600; color:#fff;">${u.fullname || 'Nome não informado'} ${verifiedLabel}</div>`;
-    studentInfo += `<div style="font-size:11px; color:var(--accent-cyan);">E-mail: ${studentEmail}</div>`;
-    if(u.verifiedData) {
-      studentInfo += `<div style="font-size:10.5px; color:var(--text-secondary);">Endereço: ${u.verifiedData.end}, ${u.verifiedData.num} - ${u.verifiedData.cidade}/${u.verifiedData.uf} (CEP: ${u.verifiedData.cep})</div>`;
-    }
-
-    let progressHtml = `<div style="font-size:11.5px; color:#fff;">Aulas: ${lessonsDoneCount}/${totalLessonsInCourse} | Quiz: ${quizzesDoneCount}/${totalQuizInCourse}</div>`;
-    progressHtml += `<div style="font-size:11.5px; color:var(--accent-cyan); font-weight:700;">Progresso: ${percent}% | Apto Certificado: ${isApto ? 'SIM' : 'NÃO'}</div>`;
-
-    let actionButtons = `
-      <button class="btn-outline" style="border-color:var(--green); color:var(--green); padding:4px 8px;" title="Liberar Todo Progresso" onclick="setStudentProgress('${studentEmail}', true)"><i class="fa-solid fa-check-double"></i></button>
-      <button class="btn-outline" style="border-color:var(--red); color:var(--red); padding:4px 8px;" title="Resetar Progresso" onclick="setStudentProgress('${studentEmail}', false)"><i class="fa-solid fa-rotate-left"></i></button>
-      <button class="btn-outline" style="border-color:var(--accent-cyan); color:var(--accent-cyan); padding:4px 8px;" title="Validar Acesso Pagto" onclick="setStudentPaymentStatus('${studentEmail}', true)"><i class="fa-solid fa-check"></i></button>
-    `;
+    let verifiedLabel = u.verifiedData ? `<span style="color:var(--green); font-size:10px;"><i class="fa-solid fa-badge-check"></i> Verificado</span>` : `<span style="color:var(--yellow); font-size:10px;"><i class="fa-solid fa-circle-exclamation"></i> Pendente</span>`;
 
     tbody.innerHTML += `<tr>
-      <td>${studentInfo}</td>
+      <td>
+        <div style="font-weight:600; color:#fff;">${u.fullname || 'Aluno'} ${verifiedLabel}</div>
+        <div style="font-size:11px; color:var(--accent-cyan);">${studentEmail}</div>
+      </td>
       <td><span class="badge-status" style="${u.paid?'background:rgba(16,185,129,0.2); color:var(--green);':'background:rgba(239,68,68,0.2); color:var(--red);'}">${u.paid?'Pago':'Pendente'}</span></td>
-      <td>${progressHtml}</td>
-      <td>${actionButtons}</td>
+      <td><div style="font-size:11.5px; color:#fff;">Status do Acesso</div></td>
+      <td>
+        <button class="btn-outline" style="border-color:var(--green); color:var(--green); padding:4px 8px;" onclick="setStudentPaymentStatus('${studentEmail}', true)"><i class="fa-solid fa-check"></i> Aprovar Acesso</button>
+      </td>
     </tr>`;
   });
 }
 
 function renderSalesTab() {
   const salesTbody = document.getElementById('sales-list-body'); 
+  if(!salesTbody) return;
   salesTbody.innerHTML = '';
   salesTransactions.forEach((tx) => {
-    let badgeColor = tx.status==='aprovado'?'var(--green)':(tx.status==='pendente'?'var(--yellow)':(tx.status==='recusado'?'var(--red)':'var(--text-muted)'));
     salesTbody.innerHTML += `<tr>
       <td><strong>${tx.id}</strong><br><span style="font-size:11px; color:var(--text-secondary);">${tx.email}</span></td>
       <td>R$ ${tx.amount.toFixed(2)} (${tx.method})</td>
-      <td><span class="badge-status" style="background:${badgeColor}22; color:${badgeColor};">${tx.status}</span></td>
+      <td><span class="badge-status" style="background:rgba(16,185,129,0.2); color:var(--green);">${tx.status}</span></td>
       <td><span style="font-size:11px; color:var(--text-muted);">${tx.date}</span></td>
     </tr>`;
   });
@@ -2189,62 +1907,7 @@ function renderSalesTab() {
 function renderCartTab() {
   const cBody = document.getElementById('cart-list-body');
   if(!cBody) return;
-  cBody.innerHTML = '';
-  
-  let pendingSales = salesTransactions.filter(s => s.status === 'pendente' || s.status === 'recusado' || s.status === 'cancelado');
-  if(pendingSales.length === 0) {
-    cBody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:20px;">Nenhum item no carrinho pendente ou recusado.</td></tr>`;
-    return;
-  }
-
-  pendingSales.forEach((tx) => {
-    cBody.innerHTML += `<tr>
-      <td><strong>${tx.email}</strong><br><span style="font-size:11px; color:var(--text-secondary);">${tx.id}</span></td>
-      <td>R$ ${tx.amount.toFixed(2)}</td>
-      <td><span class="badge-status" style="background:rgba(245,158,11,0.2); color:var(--yellow);">${tx.status}</span></td>
-      <td>
-        <button class="btn-outline" style="border-color:var(--green); color:var(--green); padding:6px 10px;" onclick="approveCartItem('${tx.email}')"><i class="fa-solid fa-check"></i> Aprovar</button>
-      </td>
-    </tr>`;
-  });
-}
-
-async function approveCartItem(emailStr) {
-  let emailClean = emailStr.includes('<') ? emailStr.split('<')[1].replace('>', '').trim() : emailStr;
-  let u = registeredUsers.find(x => x.email === emailClean);
-  if (u) {
-    u.paid = true;
-    await saveUserToCloud(u);
-  }
-  let tx = salesTransactions.find(s => s.email.includes(emailClean));
-  if (tx) tx.status = 'aprovado';
-  localStorage.setItem('admin_sales_transactions', JSON.stringify(salesTransactions));
-  showSuccessModal(`Compra aprovada e acesso liberado para ${emailClean}!`);
-  addNotification("Pagamento aprovado e acesso liberado!");
-  renderDashboard();
-  renderSalesTab();
-  renderCartTab();
-}
-
-async function setStudentProgress(email, complete) {
-  if(!completedLessons[email]) completedLessons[email] = {};
-  if(!completedQuizzes[email]) completedQuizzes[email] = {};
-
-  courseData.forEach(m => {
-    m.lessons?.forEach(l => {
-      if(complete) {
-        completedLessons[email][l.id] = true;
-        if(l.quiz && l.quiz.question) completedQuizzes[email][l.id] = true;
-      } else {
-        completedLessons[email][l.id] = false;
-        if(l.quiz) completedQuizzes[email][l.id] = false;
-      }
-    });
-  });
-  localStorage.setItem('user_completed_lessons', JSON.stringify(completedLessons));
-  localStorage.setItem('user_completed_quizzes', JSON.stringify(completedQuizzes));
-  showSuccessModal(complete ? "Progresso total liberado para o aluno!" : "Progresso resetado!");
-  renderDashboard();
+  cBody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:20px;">Nenhum item pendente.</td></tr>`;
 }
 
 async function setStudentPaymentStatus(email, status) {
@@ -2252,10 +1915,7 @@ async function setStudentPaymentStatus(email, status) {
   if(u) {
     u.paid = status;
     await saveUserToCloud(u);
-    let tx = salesTransactions.find(s => s.email.includes(email));
-    if(tx) tx.status = status ? 'aprovado' : 'pendente';
-    localStorage.setItem('admin_sales_transactions', JSON.stringify(salesTransactions));
-    showSuccessModal(status ? "Pagamento validado com sucesso!" : "Status alterado!");
+    showSuccessModal("Status do aluno atualizado com sucesso!");
     renderDashboard();
   }
 }
@@ -2270,28 +1930,22 @@ function populateTestStudentSelect() {
 }
 
 function openTestCheckoutCustom() {
-  const sel = document.getElementById('test-student-select');
-  const amountInput = document.getElementById('test-amount-input');
-  
   if(!isAdmin) {
-    showCustomAlert("Acesso Negado", "Somente o administrador pode iniciar testes.");
+    showCustomAlert("Acesso Negado", "Apenas o administrador pode acessar o teste.");
     return;
   }
+  const sel = document.getElementById('test-student-select');
   if(!sel || !sel.value) {
-    showCustomAlert("Atenção", "Selecione um aluno para iniciar o teste.");
+    showCustomAlert("Atenção", "Selecione um aluno para realizar o teste de pagamento.");
     return;
   }
-  
-  let val = parseFloat(amountInput.value);
-  if(isNaN(val) || val <= 0) {
-    showCustomAlert("Valor Inválido", "Digite um valor válido.");
-    return;
-  }
+  const amountInput = document.getElementById('test-amount-input');
+  let val = parseFloat(amountInput ? amountInput.value : 1);
 
   checkoutTargetUser = sel.value;
-  currentCheckoutAmount = val;
-  document.getElementById('checkout-modal-title').innerText = `Teste de Pagamento — R$ ${val.toFixed(2)}`;
-  openCheckoutModal();
+  currentCheckoutAmount = isNaN(val) ? 1.00 : val;
+  safeSetText('checkout-modal-title', `Teste de Pagamento — R$ ${currentCheckoutAmount.toFixed(2)}`);
+  openCheckoutModal(true);
 }
 
 function populateLessonModuleSelect(){
@@ -2302,193 +1956,66 @@ function populateLessonModuleSelect(){
 }
 
 function saveModuleData() {
-  const t = document.getElementById('mod-title-input').value.trim();
-  if(!t) {
-    showCustomAlert("Atenção", "Preencha o título do módulo.");
-    return;
-  }
+  const t = safeGetValue('mod-title-input');
+  if(!t) { showCustomAlert("Atenção", "Preencha o título do módulo."); return; }
   courseData.push({ id: Date.now(), title: t, lessons: [] });
-  saveCourseToCloud("Módulo salvo com sucesso na nuvem!"); 
+  saveCourseToCloud("Módulo salvo com sucesso!"); 
   renderAdminModules(); 
   populateLessonModuleSelect();
-  updateCourseStatsUI();
-  addNotification("Novo módulo adicionado ao curso: " + t);
 }
 
 function saveLessonData() {
-  const mId = document.getElementById('lesson-mod-select').value;
-  const t = document.getElementById('lesson-title-input').value.trim();
-  const bloco1 = document.getElementById('lesson-bloco1-input').value.trim();
-  const bloco2 = document.getElementById('lesson-bloco2-input').value.trim();
-  const bloco3 = document.getElementById('lesson-bloco3-input').value.trim();
-  const video = document.getElementById('lesson-video-url').value.trim();
-  const pdfUrl = document.getElementById('lesson-pdf-url').value.trim();
-  const imgUrl = document.getElementById('lesson-img-url').value.trim();
-  
-  const qText = document.getElementById('new-quiz-question').value.trim();
-  let quiz = null;
-  if(qText) {
-    quiz = {
-      question: qText,
-      options: [
-        document.getElementById('new-quiz-opt0').value,
-        document.getElementById('new-quiz-opt1').value,
-        document.getElementById('new-quiz-opt2').value,
-        document.getElementById('new-quiz-opt3').value
-      ],
-      correct: parseInt(document.getElementById('new-quiz-correct').value)
-    };
-  }
+  const mId = safeGetValue('lesson-mod-select');
+  const t = safeGetValue('lesson-title-input');
+  if(!t) { showCustomAlert("Atenção", "Preencha o título da aula."); return; }
 
-  if(!t) {
-    showCustomAlert("Atenção", "Preencha o título da aula.");
-    return;
-  }
-  const m = courseData.find(x=>x.id==mId);
-  if(!m) {
-    showCustomAlert("Atenção", "Selecione um módulo válido.");
-    return;
-  }
-  if(!m.lessons) m.lessons=[];
+  const m = courseData.find(x => x.id == mId);
+  if(!m) return;
+  if(!m.lessons) m.lessons = [];
 
   m.lessons.push({ 
     id: Date.now(), 
     title: t, 
-    bloco1: bloco1, 
-    bloco2: bloco2, 
-    bloco3: bloco3, 
-    video: video, 
-    pdfUrl: pdfUrl, 
-    imgUrl: imgUrl, 
-    quiz: quiz 
+    bloco1: safeGetValue('lesson-bloco1-input'), 
+    bloco2: safeGetValue('lesson-bloco2-input'), 
+    bloco3: safeGetValue('lesson-bloco3-input'), 
+    video: safeGetValue('lesson-video-url'), 
+    pdfUrl: safeGetValue('lesson-pdf-url'), 
+    imgUrl: safeGetValue('lesson-img-url') 
   });
 
-  saveCourseToCloud("Aula e quiz publicados com sucesso!"); 
+  saveCourseToCloud("Aula publicada!"); 
   renderAdminModules();
-  updateCourseStatsUI();
-  addNotification("Nova aula publicada: " + t);
 }
 
 function renderAdminModules() {
   const c = document.getElementById('admin-modules-list-container'); 
   if(!c) return;
-  c.innerHTML='';
-  courseData.forEach((m, index) => {
+  c.innerHTML = '';
+  courseData.forEach((m) => {
     let lessonsHtml = '';
     if (m.lessons) {
       m.lessons.forEach((l) => {
-        lessonsHtml += `<div class="admin-lesson-item-box">
-          <span><i class="fa-solid fa-file-video" style="color:var(--accent-cyan); margin-right:6px;"></i> ${l.title}</span>
-          <div>
-            <button class="btn-outline" style="padding:4px 8px; font-size:11px;" onclick="openEditLessonModal(${m.id}, ${l.id})" title="Editar Aula e Quiz"><i class="fa-solid fa-pen"></i></button>
-            <button class="btn-outline" style="padding:4px 8px; font-size:11px; border-color:var(--red); color:var(--red);" onclick="deleteLesson(${m.id}, ${l.id})" title="Excluir Aula"><i class="fa-solid fa-trash"></i></button>
-          </div>
-        </div>`;
+        lessonsHtml += `<div class="admin-lesson-item-box"><span>${l.title}</span></div>`;
       });
     }
-
     c.innerHTML += `<div class="admin-mod-box">
-      <div class="admin-mod-header" onclick="toggleAdminAccordion(this)">
-        <span><i class="regular fa-folder" style="color:var(--accent-cyan); margin-right:8px;"></i> ${m.title}</span>
-        <i class="fa-solid fa-chevron-down" style="font-size:10px;"></i>
-      </div>
-      <div class="admin-mod-body">
-        <h5 style="font-size:12px; color:var(--text-secondary); margin-bottom:8px;">Aulas do Módulo (Clique no Lápis para Editar):</h5>
-        ${lessonsHtml || '<p style="font-size:12px; color:var(--text-muted);">Nenhuma aula cadastrada.</p>'}
-      </div>
+      <div class="admin-mod-header" onclick="toggleAdminAccordion(this)"><span>${m.title}</span></div>
+      <div class="admin-mod-body">${lessonsHtml || '<p style="font-size:12px; color:var(--text-muted);">Sem aulas.</p>'}</div>
     </div>`;
   });
 }
 
-function openEditLessonModal(modId, lessonId) {
-  const mod = courseData.find(m => m.id == modId);
-  const lesson = mod?.lessons?.find(l => l.id == lessonId);
-  if(!lesson) return;
-
-  document.getElementById('edit-mod-id').value = modId;
-  document.getElementById('edit-lesson-id').value = lessonId;
-  document.getElementById('edit-lesson-title').value = lesson.title || '';
-  document.getElementById('edit-lesson-bloco1').value = lesson.bloco1 || '';
-  document.getElementById('edit-lesson-bloco2').value = lesson.bloco2 || '';
-  document.getElementById('edit-lesson-bloco3').value = lesson.bloco3 || '';
-  document.getElementById('edit-lesson-video').value = lesson.video || '';
-  document.getElementById('edit-lesson-pdf').value = lesson.pdfUrl || '';
-  document.getElementById('edit-lesson-img').value = lesson.imgUrl || '';
-
-  if(lesson.quiz) {
-    document.getElementById('edit-quiz-question').value = lesson.quiz.question || '';
-    document.getElementById('edit-quiz-opt0').value = lesson.quiz.options?.[0] || '';
-    document.getElementById('edit-quiz-opt1').value = lesson.quiz.options?.[1] || '';
-    document.getElementById('edit-quiz-opt2').value = lesson.quiz.options?.[2] || '';
-    document.getElementById('edit-quiz-opt3').value = lesson.quiz.options?.[3] || '';
-    document.getElementById('edit-quiz-correct').value = lesson.quiz.correct || 0;
-  } else {
-    document.getElementById('edit-quiz-question').value = '';
-    document.getElementById('edit-quiz-opt0').value = '';
-    document.getElementById('edit-quiz-opt1').value = '';
-    document.getElementById('edit-quiz-opt2').value = '';
-    document.getElementById('edit-quiz-opt3').value = '';
-  }
-
-  openModal('modal-edit-lesson');
-}
-
-function saveEditedLesson() {
-  const modId = document.getElementById('edit-mod-id').value;
-  const lessonId = document.getElementById('edit-lesson-id').value;
-  const mod = courseData.find(m => m.id == modId);
-  if(!mod) return;
-  const lesson = mod.lessons.find(l => l.id == lessonId);
-  if(!lesson) return;
-
-  lesson.title = document.getElementById('edit-lesson-title').value.trim();
-  lesson.bloco1 = document.getElementById('edit-lesson-bloco1').value.trim();
-  lesson.bloco2 = document.getElementById('edit-lesson-bloco2').value.trim();
-  lesson.bloco3 = document.getElementById('edit-lesson-bloco3').value.trim();
-  lesson.video = document.getElementById('edit-lesson-video').value.trim();
-  lesson.pdfUrl = document.getElementById('edit-lesson-pdf').value.trim();
-  lesson.imgUrl = document.getElementById('edit-lesson-img').value.trim();
-
-  const qText = document.getElementById('edit-quiz-question').value.trim();
-  if(qText) {
-    lesson.quiz = {
-      question: qText,
-      options: [
-        document.getElementById('edit-quiz-opt0').value,
-        document.getElementById('edit-quiz-opt1').value,
-        document.getElementById('edit-quiz-opt2').value,
-        document.getElementById('edit-quiz-opt3').value
-      ],
-      correct: parseInt(document.getElementById('edit-quiz-correct').value)
-    };
-  }
-
-  saveCourseToCloud("Aula e quiz atualizados na nuvem!");
-  closeModal('modal-edit-lesson');
-  renderAdminModules();
-}
-
-function deleteLesson(modId, lessonId) {
-  if(!confirm("Deseja realmente excluir esta aula?")) return;
-  const mod = courseData.find(m => m.id === modId);
-  if (mod && mod.lessons) {
-    mod.lessons = mod.lessons.filter(l => l.id !== lessonId);
-    saveCourseToCloud("Aula excluída!");
-    renderAdminModules();
-    updateCourseStatsUI();
-  }
-}
-
-async function openCheckoutModal() {
-  let targetEmail = checkoutTargetUser || currentUser;
-  if (!targetEmail) {
-    showCustomAlert("Autenticação Necessária", "Você precisa estar logado ou selecionar um aluno para realizar o checkout!");
+// PROTEÇÃO DO CHECKOUT E VALIDAÇÃO DE AUTENTICAÇÃO REAL
+function openCheckoutModal(isAdminTest = false) {
+  const user = window.auth ? window.auth.currentUser : null;
+  
+  if (!user && !isAdminTest) {
+    pendingPurchaseIntent = true;
+    showCustomAlert("Autenticação Necessária", "Você precisa estar logado na sua conta para realizar a compra.");
     openAuthModal('login');
     return;
   }
-
-  salesTransactions.push({ id: "TX-"+Math.floor(1000+Math.random()*9000), email: targetEmail, amount: currentCheckoutAmount, method: "Pix/Cartão", status: "pendente", date: new Date().toLocaleString() });
-  localStorage.setItem('admin_sales_transactions', JSON.stringify(salesTransactions));
 
   openModal('modal-custom-checkout');
 
@@ -2501,30 +2028,21 @@ async function openCheckoutModal() {
         paymentBrickController.unmount();
       }
 
-      const settings = {
+      let payerEmail = user ? user.email : (checkoutTargetUser || 'aluno@email.com');
+
+      paymentBrickController = await bricksBuilder.create('payment', 'paymentBrick_container', {
         initialization: {
           amount: currentCheckoutAmount,
-          payer: { email: targetEmail }
+          payer: { email: payerEmail }
         },
         customization: {
-          paymentMethods: {
-            creditCard: 'all',
-            bankTransfer: ['pix'],
-            maxInstallments: 5
-          },
-          visual: {
-            style: { theme: 'dark' }
-          }
+          paymentMethods: { creditCard: 'all', bankTransfer: ['pix'], maxInstallments: 5 },
+          visual: { style: { theme: 'dark' } }
         },
         callbacks: {
           onReady: () => {},
           onSubmit: ({ selectedPaymentMethod, formData }) => {
             return new Promise((resolve, reject) => {
-              if (!formData.payer) formData.payer = {};
-              if (!formData.payer.identification) {
-                formData.payer.identification = { type: "CPF", number: "12345678909" };
-              }
-
               fetch(RAILWAY_BACKEND_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -2532,135 +2050,28 @@ async function openCheckoutModal() {
               })
               .then(res => res.json())
               .then(response => {
-                if (response.success) {
-                  const paymentStatus = response.status;
-
-                  if (paymentStatus === 'approved') {
-                    simulateApprovalForTarget(targetEmail);
-                  } 
-                  else if (paymentStatus === 'rejected') {
-                    updateTxStatus(targetEmail, 'recusado');
-                    showCustomAlert("Pagamento Recusado", "Pagamento recusado pela operadora do cartão.");
-                  }
-                  else if (paymentStatus === 'cancelled') {
-                    updateTxStatus(targetEmail, 'cancelado');
-                    showCustomAlert("Compra Cancelada", "A compra foi cancelada.");
-                  }
-                  else if (selectedPaymentMethod === 'bank_transfer' && response.point_of_interaction) {
-                    const pixData = response.point_of_interaction.transaction_data;
-                    const qrCodeBase64 = pixData.qr_code_base64;
-                    const qrCodeCopyPaste = pixData.qr_code;
-                    const paymentId = response.id;
-
-                    const containerModal = document.getElementById('paymentBrick_container');
-                    let timeLeft = 300;
-                    
-                    containerModal.innerHTML = `
-                      <div style="text-align: center; padding: 20px; color: #fff;">
-                        <h3 style="color: var(--accent-cyan); margin-bottom: 8px; font-size: 18px;"><i class="fa-solid fa-qrcode"></i> Escaneie o QR Code Pix (R$ ${currentCheckoutAmount.toFixed(2)})</h3>
-                        <div id="pix-timer-box" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 10px; padding: 8px; margin-bottom: 14px; font-weight: 700; color: #f87171; font-size: 13px;">
-                          <i class="regular fa-clock"></i> Este QR Code expira em: <span id="pix-countdown">05:00</span>
-                        </div>
-                        <div style="background: #fff; padding: 12px; display: inline-block; border-radius: 12px; margin-bottom: 14px;">
-                          <img src="data:image/png;base64,${qrCodeBase64}" alt="QR Code Pix" style="width: 180px; height: 180px; display: block;">
-                        </div>
-                        <div style="margin-bottom: 14px;">
-                          <label style="font-size: 11px; color: var(--text-secondary); display: block; margin-bottom: 4px; text-transform: uppercase;">Ou copie o código Pix Copia e Cola:</label>
-                          <textarea readonly style="width: 100%; height: 60px; background: rgba(0,0,0,0.5); border: 1px solid var(--glass-border); color: #fff; padding: 8px; border-radius: 8px; font-size: 11px; resize: none;" id="pix-copy-text">${qrCodeCopyPaste}</textarea>
-                          <button class="btn-outline" style="margin-top: 6px; width: 100%; justify-content: center;" onclick="navigator.clipboard.writeText(document.getElementById('pix-copy-text').value); showSuccessModal('Código Pix copiado com sucesso!');">
-                            <i class="regular fa-copy"></i> Copiar Código Pix
-                          </button>
-                        </div>
-                        <p style="font-size: 11.5px; color: var(--green); margin-bottom: 10px;"><i class="fa-solid fa-spinner fa-spin"></i> Aguardando confirmação automática...</p>
-                      </div>
-                    `;
-
-                    if(pixCountdownInterval) clearInterval(pixCountdownInterval);
-                    pixCountdownInterval = setInterval(() => {
-                      timeLeft--;
-                      let minutes = Math.floor(timeLeft / 60);
-                      let seconds = timeLeft % 60;
-                      let timerElem = document.getElementById('pix-countdown');
-                      if(timerElem) {
-                        timerElem.innerText = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-                      }
-                      if(timeLeft <= 0) {
-                        clearInterval(pixCountdownInterval);
-                        if(activePaymentInterval) { clearInterval(activePaymentInterval); activePaymentInterval = null; }
-                        updateTxStatus(targetEmail, 'cancelado');
-                        showCustomAlert("Pix Expirado", "O tempo limite para pagamento via Pix expirou. Movido para carrinho pendente.");
-                        closeCheckoutModalSafe();
-                      }
-                    }, 1000);
-
-                    if(paymentId) {
-                      activePaymentInterval = setInterval(async () => {
-                        try {
-                          let checkRes = await fetch(RAILWAY_BACKEND_URL.replace('/criar-pagamento', `/verificar-pagamento/${paymentId}`));
-                          let checkData = await checkRes.json();
-                          if(checkData.status === 'approved') {
-                            if(pixCountdownInterval) clearInterval(pixCountdownInterval);
-                            clearInterval(activePaymentInterval);
-                            activePaymentInterval = null;
-                            simulateApprovalForTarget(targetEmail);
-                          } else if(checkData.status === 'rejected') {
-                            updateTxStatus(targetEmail, 'recusado');
-                          }
-                        } catch(e) {}
-                      }, 6000);
-                    }
-                  } 
-                  else {
-                    updateTxStatus(targetEmail, 'recusado');
-                    showCustomAlert("Pagamento Recusado", "Transação recusada.");
-                  }
+                if (response.success && response.status === 'approved') {
+                  showSuccessModal("Pagamento Aprovado!");
+                  closeModal('modal-custom-checkout');
+                  if(user) setStudentPaymentStatus(user.email, true);
                 } else {
-                  showCustomAlert("Erro no Pagamento", response.error || "Tente novamente.");
+                  showCustomAlert("Aviso de Pagamento", "O pagamento foi gerado ou está aguardando confirmação.");
                 }
                 resolve();
               })
               .catch(err => {
-                console.error("Erro:", err);
-                showCustomAlert("Erro de Conexão", "Erro de conexão com o servidor de pagamento.");
+                showCustomAlert("Erro no Pagamento", "Falha de comunicação com o servidor de pagamento.");
                 reject();
               });
             });
           },
           onError: (error) => { console.error('Erro no Brick:', error); }
         }
-      };
-
-      paymentBrickController = await bricksBuilder.create('payment', 'paymentBrick_container', settings);
+      });
     } catch (e) {
-      console.error("Erro ao iniciar Checkout Bricks:", e);
+      console.error("Erro ao carregar checkout:", e);
     }
   }, 200);
-}
-
-function updateTxStatus(email, st) {
-  let tx = salesTransactions.find(s => s.email.includes(email));
-  if(tx) tx.status = st;
-  localStorage.setItem('admin_sales_transactions', JSON.stringify(salesTransactions));
-  addNotification("Status de pagamento atualizado para: " + st);
-}
-
-async function simulateApprovalForTarget(email) {
-  if(activePaymentInterval) { clearInterval(activePaymentInterval); activePaymentInterval = null; }
-  if(pixCountdownInterval) { clearInterval(pixCountdownInterval); pixCountdownInterval = null; }
-  let uObj = registeredUsers.find(u => u.email === email);
-  if(uObj) {
-    uObj.paid = true;
-    await saveUserToCloud(uObj);
-  }
-  updateTxStatus(email, 'aprovado');
-  showSuccessModal(`Pagamento aprovado com sucesso para ${email}!`);
-  addNotification("Pagamento aprovado e aulas liberadas!");
-  closeModal('modal-custom-checkout');
-  currentCheckoutAmount = 29.90;
-  checkoutTargetUser = null;
-  document.getElementById('checkout-modal-title').innerText = `Informática do Zero — R$ 29,90`;
-  if(currentUser === email) showMemberArea();
-  else if(isAdmin) renderDashboard();
 }
 </script>
 </body>
