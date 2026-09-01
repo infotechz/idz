@@ -3072,7 +3072,7 @@ function deleteLesson(modId, lessonId) {
   }
 }
 
-function openCheckoutModal() {
+async function openCheckoutModal() {
   const user = window.auth ? window.auth.currentUser : null;
   if (!user) {
     sessionStorage.setItem('pending_checkout', JSON.stringify({ amount: currentCheckoutAmount, createdAt: Date.now() }));
