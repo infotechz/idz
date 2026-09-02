@@ -2758,6 +2758,26 @@ function ensureCertificateRecord(userObj) {
   return userObj;
 }
 
+function splitCertificateName(fullName) {
+  const normalized = String(fullName || '').trim().replace(/\s+/g, ' ').toUpperCase();
+  const words = normalized.split(' ').filter(Boolean);
+  if (words.length < 2 || normalized.length <= 27) return [normalized];
+  let best = [normalized];
+  let smallestDifference = Infinity;
+  const particles = new Set(['DA', 'DE', 'DO', 'DAS', 'DOS', 'E']);
+  for (let index = 1; index < words.length; index += 1) {
+    const first = words.slice(0, index).join(' ');
+    const second = words.slice(index).join(' ');
+    if (particles.has(words[index - 1]) && index < words.length - 1) continue;
+    const difference = Math.abs(first.length - second.length);
+    if (difference < smallestDifference) {
+      best = [first, second];
+      smallestDifference = difference;
+    }
+  }
+  return best;
+}
+
 async function requestPhysicalCertificate() {
   const uObj = currentProfile();
   if (!uObj) return;
@@ -2799,10 +2819,22 @@ function generateOfficialCertificatePDF(targetEmail = currentUser) {
     const imageFormat = img.src.toLowerCase().includes('.png') ? 'PNG' : 'JPEG';
     doc.addImage(img, imageFormat, 0, 0, 1080, 720);
     const date = new Date(uObj.courseCompletedAt || Date.now()).toLocaleDateString('pt-BR');
-    const nameSize = Math.max(18, Math.min(34, 520 / Math.max(studentName.length, 16)));
-    doc.setTextColor(8,27,56); doc.setFont('times','bold'); doc.setFontSize(nameSize); doc.text(studentName.toUpperCase(), 585, 250, {align:'center', maxWidth:520});
-    doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(20,65,105); doc.text(date, 368, 687, {align:'center'});
-    doc.setFontSize(10); doc.text(uObj.certificateNumber, 553, 687, {align:'center'});
+    const nameLines = splitCertificateName(studentName);
+    doc.setTextColor(8,27,56); doc.setFont('times','bold');
+    let nameSize = nameLines.length === 1 ? 34 : 30;
+    doc.setFontSize(nameSize);
+    const widestLine = Math.max(...nameLines.map(line => doc.getTextWidth(line)));
+    if (widestLine > 520) nameSize = Math.max(26, Math.floor(nameSize * 520 / widestLine));
+    doc.setFontSize(nameSize);
+    if (nameLines.length === 1) {
+      doc.text(nameLines[0], 585, 250, {align:'center'});
+    } else {
+      doc.text(nameLines[0], 585, 238, {align:'center'});
+      doc.text(nameLines[1], 585, 270, {align:'center'});
+    }
+    // O rótulo "IDZ:" já pertence à arte; desenhamos somente o código.
+    doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(20,65,105); doc.text(date, 368, 672, {align:'center'});
+    doc.setFontSize(10); doc.text(uObj.certificateNumber, 553, 672, {align:'center'});
     const output = doc.output('blob'); const url = URL.createObjectURL(output); const link = document.createElement('a');
     link.href = url; link.download = `Certificado_IDZ_${studentName.replace(/\s+/g,'_')}.pdf`; link.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000); addNotification('Certificado oficial baixado em PDF!');
