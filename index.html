@@ -1777,10 +1777,24 @@ function notificationOwnerKey(audience = isAdmin ? 'admin' : 'student', userId =
   return `notifications_student_${owner}`;
 }
 
-function loadNotificationsForCurrentAccount() {
+async function loadNotificationsForCurrentAccount() {
   if (!currentUser) { notificationsList = []; updateNotificationsBadge(); return; }
   const key = notificationOwnerKey(isAdmin ? 'admin' : 'student');
   notificationsList = JSON.parse(localStorage.getItem(key) || '[]');
+  if (window.db && window.firebaseModules) {
+    try {
+      const { collection, getDocs, query, where, limit } = window.firebaseModules;
+      const uid = window.auth?.currentUser?.uid;
+      const filter = isAdmin ? where('audience', '==', 'admin') : where('uid', '==', uid);
+      const snap = await getDocs(query(collection(window.db, 'notifications'), filter, limit(100)));
+      const cloudItems = snap.docs.map(item => ({ firestoreId:item.id, ...item.data() }));
+      notificationsList = [...cloudItems, ...notificationsList]
+        .filter((item, index, all) => all.findIndex(other => String(other.id) === String(item.id)) === index)
+        .sort((a,b) => Number(b.createdAt || b.id || 0) - Number(a.createdAt || a.id || 0))
+        .slice(0,100);
+      localStorage.setItem(key, JSON.stringify(notificationsList));
+    } catch (error) { console.warn('Notificações em nuvem indisponíveis.', error); }
+  }
   updateNotificationsBadge();
 }
 
@@ -2019,7 +2033,8 @@ function updateNotificationsBadge() {
   }
 }
 
-function openNotificationsModal() {
+async function openNotificationsModal() {
+  await loadNotificationsForCurrentAccount();
   const listContainer = document.getElementById('notifications-list-modal');
   if (!listContainer) return;
   listContainer.innerHTML = '';
@@ -2036,6 +2051,10 @@ function openNotificationsModal() {
     });
     notificationsList.forEach(n => n.unread = false);
     localStorage.setItem(notificationOwnerKey(isAdmin ? 'admin' : 'student'), JSON.stringify(notificationsList));
+    if (window.db && window.firebaseModules) {
+      const { doc, setDoc } = window.firebaseModules;
+      notificationsList.filter(n => n.firestoreId).forEach(n => setDoc(doc(window.db, 'notifications', n.firestoreId), { unread:false }, { merge:true }).catch(() => {}));
+    }
     updateNotificationsBadge();
   }
   openModal('modal-notifications');
@@ -2044,8 +2063,16 @@ function openNotificationsModal() {
 function addNotification(text, audience = 'student', userId = null, type = 'info') {
   const key = notificationOwnerKey(audience, userId);
   const list = JSON.parse(localStorage.getItem(key) || '[]');
-  list.unshift({ id: Date.now(), type, audience, userId: userId || null, text, unread: true, date: new Date().toLocaleString('pt-BR') });
+  const now = Date.now();
+  const notification = { id: now, type, audience, userId: userId || null, text, unread: true, date: new Date(now).toLocaleString('pt-BR'), createdAt:now };
+  list.unshift(notification);
   localStorage.setItem(key, JSON.stringify(list.slice(0, 100)));
+  const uid = window.auth?.currentUser?.uid;
+  const canPersist = uid && window.db && window.firebaseModules && ((audience === 'student' && !userId) || (audience === 'admin' && isAdmin));
+  if (canPersist) {
+    const { doc, setDoc } = window.firebaseModules;
+    setDoc(doc(window.db, 'notifications', `${uid}_${now}`), { ...notification, uid }).catch(error => console.warn('Aviso salvo apenas neste dispositivo.', error));
+  }
   if ((audience === 'admin' && isAdmin) || (audience === 'student' && !isAdmin && currentUser)) loadNotificationsForCurrentAccount();
 }
 
