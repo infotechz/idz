@@ -1587,7 +1587,7 @@ window.onload = function() {
             uObj = { ...uObj, uid: user.uid, email: currentUser, emailVerified: !!user.emailVerified };
             registeredUsers = isAdmin ? registeredUsers : [uObj];
 
-            isAdmin = (currentUser === TARGET_ADMIN_EMAIL) || tokenClaims.admin === true;
+            isAdmin = tokenClaims.admin === true;
             if (isAdmin && !usersUnsubscribe) {
               usersUnsubscribe = onSnapshot(collection(window.db, 'users'), (snapshot) => {
                 registeredUsers = snapshot.docs.map(docSnap => docSnap.data());
@@ -1786,6 +1786,7 @@ async function saveUserToCloud(userObj) {
   const { doc, setDoc } = window.firebaseModules;
   try {
     const uid = userObj.uid || window.auth?.currentUser?.uid;
+    userObj.updatedAt = new Date().toISOString();
     if (!uid) throw new Error('UID ausente');
     await setDoc(doc(window.db, "users", uid), { ...userObj, uid }, { merge: true });
   } catch (err) {
@@ -2292,6 +2293,7 @@ async function handleUpdateProfile(e) {
   let uObj = currentProfile();
   if (uObj) {
     uObj.fullname = newName;
+    uObj.nome = newName;
     if (file) uObj.avatar = await uploadProfileAvatar(file, currentUserUid);
     await saveUserToCloud(uObj);
     showSuccessModal("Perfil atualizado com sucesso!");
@@ -2324,6 +2326,10 @@ async function handleSaveVerification(e) {
       return;
     }
     uObj.verifiedData = vData;
+    uObj.nome = vData.name;
+    uObj.dataNascimento = vData.nasc;
+    uObj.cpf = vData.cpf.replace(/\D/g, '');
+    uObj.endereco = { cep: vData.cep.replace(/\D/g, ''), logradouro: vData.end, numero: vData.num, complemento: vData.comp, bairro: vData.bairro, cidade: vData.cidade, estado: vData.uf };
     await saveUserToCloud(uObj);
     showSuccessModal("Dados de verificação vinculados ao perfil!");
   }
@@ -3148,6 +3154,7 @@ async function submitIdzCheckout() {
 </footer>
 </body>
 </html>
+
 
 
   
