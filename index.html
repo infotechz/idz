@@ -1434,10 +1434,7 @@ function selectCourseData(snapshotData) {
 
 let courseData = [];
 let registeredUsers = [];
-let salesTransactions = JSON.parse(localStorage.getItem('admin_sales_transactions')) || [
-  { id: "TX-9841", email: "aluno1@gmail.com", amount: 29.90, method: "Pix", status: "aprovado", date: "31/08/2026 21:10" },
-  { id: "TX-9842", email: "aluno2@gmail.com", amount: 29.90, method: "Cartão", status: "pendente", date: "31/08/2026 21:15" }
-];
+let salesTransactions = JSON.parse(localStorage.getItem('admin_sales_transactions')) || [];
 let notificationsList = [];
 let completedLessons = JSON.parse(localStorage.getItem('user_completed_lessons')) || {};
 let completedQuizzes = JSON.parse(localStorage.getItem('user_completed_quizzes')) || {};
@@ -1452,6 +1449,7 @@ let currentCheckoutAmount = 29.90;
 let checkoutTargetUser = null;
 let activePaymentInterval = null;
 let pixCountdownInterval = null;
+let verificationResendAvailableAt = 0;
 
 function normalizeLessonContent(lesson) {
   if (!lesson) return lesson;
@@ -1549,7 +1547,7 @@ window.onload = function() {
           localStorage.setItem('user_completed_quizzes', JSON.stringify(completedQuizzes));
           let tokenClaims = {};
           try { tokenClaims = (await user.getIdTokenResult()).claims || {}; } catch (_) {}
-          isAdmin = (currentUser === TARGET_ADMIN_EMAIL) || tokenClaims.admin === true;
+          isAdmin = tokenClaims.admin === true;
 
           try {
             // Usuários comuns leem somente o próprio documento UID. A coleção
@@ -1736,8 +1734,19 @@ function showEmailVerificationGate(user) {
 }
 
 async function resendVerificationEmail() {
-  try { await window.firebaseModules.sendEmailVerification(window.auth.currentUser); showSuccessModal('E-mail reenviado. Verifique também a pasta de spam.'); }
-  catch (_) { showCustomAlert('Aguarde um pouco', 'Por segurança, espere alguns segundos antes de solicitar outro e-mail.'); }
+  const now = Date.now();
+  if (now < verificationResendAvailableAt) {
+    const seconds = Math.ceil((verificationResendAvailableAt - now) / 1000);
+    showCustomAlert('Aguarde um pouco', 'Você poderá reenviar o e-mail em ' + seconds + 's.');
+    return;
+  }
+  try {
+    await window.firebaseModules.sendEmailVerification(window.auth.currentUser);
+    verificationResendAvailableAt = Date.now() + 60000;
+    showSuccessModal('E-mail reenviado. Verifique também a pasta de spam.');
+  } catch (_) {
+    showCustomAlert('Não foi possível reenviar agora', 'Verifique sua conexão e tente novamente em instantes.');
+  }
 }
 
 async function refreshVerificationStatus() {
@@ -2045,7 +2054,10 @@ async function loginWithGoogle() {
         role: 'student',
         fullname: user.displayName || 'Aluno Google', 
         avatar: user.photoURL || '',
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        emailVerified: !!user.emailVerified,
+        courseVersion: 2
       };
       await setDoc(userRef, newUser);
     } else {
@@ -2106,7 +2118,10 @@ async function handleRegister(e) {
       paid: false,
       role: 'student',
       fullname: fullname,
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      emailVerified: !!credential.user.emailVerified,
+      courseVersion: 2
     };
     await setDoc(doc(window.db, "users", credential.user.uid), newUserDoc);
     addNotification("Novo aluno cadastrado: " + fullname, 'admin', TARGET_ADMIN_EMAIL, 'novo_aluno');
@@ -3133,5 +3148,6 @@ async function submitIdzCheckout() {
 </footer>
 </body>
 </html>
+
 
   
