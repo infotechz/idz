@@ -26,6 +26,7 @@
   import { getFirestore, collection, doc, setDoc, getDoc, getDocs, onSnapshot, deleteDoc, query, where, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
   import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
   import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithCustomToken, signOut, sendPasswordResetEmail, sendEmailVerification, updateEmail, updatePassword, updateProfile, onAuthStateChanged, setPersistence, browserLocalPersistence, browserSessionPersistence, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+  import { getMessaging, getToken, onMessage, isSupported as isMessagingSupported } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyBAQ1HRInFDHnOERD3iD9lifBcJAhRWI1c",
@@ -41,6 +42,7 @@
   const db = getFirestore(app);
   const storage = getStorage(app);
   const auth = getAuth(app);
+  const messaging = await isMessagingSupported().then(ok => ok ? getMessaging(app) : null).catch(() => null);
 
   window.db = db;
   window.storage = storage;
@@ -55,6 +57,8 @@
     setPersistence, browserLocalPersistence, browserSessionPersistence,
     GoogleAuthProvider, signInWithPopup
   };
+  window.firebaseMessaging = { messaging, getToken, onMessage };
+  if (messaging) onMessage(messaging, payload => window.addNotification?.(payload.notification?.body || 'Nova notificação recebida.'));
 </script>
 
 <style>
@@ -739,6 +743,11 @@ nav,#public-site,#member-area,#settings-area,#admin-area,footer { position:relat
       <textarea id="pix-copy-code" readonly aria-label="Código Pix copia e cola"></textarea>
       <button type="button" class="btn-outline" style="width:100%;justify-content:center;margin-top:10px" onclick="copyPixCode()"><i class="fa-regular fa-copy"></i> Copiar código Pix</button>
     </section>
+    <div class="idz-checkout-field" style="margin-bottom:14px">
+      <label for="checkout-coupon">Cupom de desconto</label>
+      <div style="display:flex;gap:8px"><input id="checkout-coupon" maxlength="40" placeholder="Digite o código"><button type="button" class="btn-outline" onclick="applyCheckoutCoupon()">Aplicar</button></div>
+      <small id="checkout-coupon-result" style="color:var(--text-secondary)"></small>
+    </div>
     <div id="paymentBrick_container"></div>
   </div>
 </div>
@@ -1077,6 +1086,7 @@ nav,#public-site,#member-area,#settings-area,#admin-area,footer { position:relat
         <label style="display:flex; align-items:center; gap:10px; font-size:13px; cursor:pointer;"><input type="checkbox" id="notif-modulos" checked> Novos módulos</label>
         <label style="display:flex; align-items:center; gap:10px; font-size:13px; cursor:pointer;"><input type="checkbox" id="notif-exercicios" checked> Novos exercícios</label>
         <label style="display:flex; align-items:center; gap:10px; font-size:13px; cursor:pointer;"><input type="checkbox" id="notif-certificados" checked> Liberação de Certificados</label>
+        <button type="button" class="btn-outline" onclick="enablePushNotifications()"><i class="fa-solid fa-bell"></i> Ativar notificações no dispositivo</button>
       </div>
     </div>
 
@@ -1462,6 +1472,7 @@ let isAdmin = false;
 let videoWatchedState = {};
 let paymentBrickController = null;
 let currentCheckoutAmount = 29.90;
+let appliedCouponCode = '';
 let checkoutTargetUser = null;
 let activePaymentInterval = null;
 let pixCountdownInterval = null;
@@ -1936,7 +1947,49 @@ function closeCheckoutModalSafe() {
   closeModal('modal-custom-checkout');
   resetPixPanel();
   currentCheckoutAmount = 29.90;
+  appliedCouponCode = '';
   checkoutTargetUser = null;
+}
+
+async function backendRequest(path, options = {}) {
+  const user = window.auth?.currentUser;
+  if (!user) throw new Error('Faça login para continuar.');
+  const token = await user.getIdToken();
+  const headers = { 'Content-Type':'application/json', 'Authorization':`Bearer ${token}`, ...(options.headers || {}) };
+  const response = await fetch(`${RAILWAY_BACKEND_URL}${path}`, { ...options, headers });
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(payload.error || payload.message || 'Operação não concluída.');
+  return payload;
+}
+
+async function enablePushNotifications() {
+  try {
+    const permission=await Notification.requestPermission();if(permission!=='granted')throw new Error('Permissão de notificações não concedida.');
+    const configResponse=await fetch(`${RAILWAY_BACKEND_URL}/api/config`),config=await configResponse.json();
+    if(!config.webPushVapidPublicKey)throw new Error('Web Push ainda não foi configurado pelo administrador.');
+    const registration=await navigator.serviceWorker.register('./firebase-messaging-sw.js');
+    if(!window.firebaseMessaging?.messaging)throw new Error('Push não é compatível com este navegador.');
+    const token=await window.firebaseMessaging.getToken(window.firebaseMessaging.messaging,{vapidKey:config.webPushVapidPublicKey,serviceWorkerRegistration:registration});
+    if(!token)throw new Error('O dispositivo não forneceu um token de notificação.');
+    const uid=window.auth.currentUser.uid;
+    await window.firebaseModules.setDoc(window.firebaseModules.doc(window.db,'users',uid),{fcmTokens:{[token]:true}},{merge:true});
+    showSuccessModal('Notificações ativadas neste dispositivo.');
+  } catch(e) { showCustomAlert('Notificações',e.message); }
+}
+
+async function applyCheckoutCoupon() {
+  const code = safeGetValue('checkout-coupon').toUpperCase();
+  const result = document.getElementById('checkout-coupon-result');
+  if (!code) { if(result) result.textContent='Digite um cupom.'; return; }
+  try {
+    const data = await backendRequest('/api/coupons/validate',{method:'POST',body:JSON.stringify({code})});
+    appliedCouponCode = code; currentCheckoutAmount = Number(data.finalAmount);
+    if(result) result.textContent = `Cupom aplicado: desconto de R$ ${Number(data.discountAmount).toFixed(2).replace('.',',')}. Total R$ ${currentCheckoutAmount.toFixed(2).replace('.',',')}.`;
+    safeSetText('checkout-modal-title', `Informática do Zero — R$ ${currentCheckoutAmount.toFixed(2).replace('.',',')}`);
+    await openCheckoutModal();
+    safeSetValue('checkout-coupon', code);
+    const nextResult=document.getElementById('checkout-coupon-result');if(nextResult)nextResult.textContent=`Cupom aplicado. Total R$ ${currentCheckoutAmount.toFixed(2).replace('.',',')}.`;
+  } catch(e) { appliedCouponCode='';currentCheckoutAmount=29.90;if(result)result.textContent=e.message; }
 }
 
 function resetPixPanel() {
@@ -2842,7 +2895,7 @@ async function requestPhysicalCertificate() {
   localStorage.setItem('physical_certificate_requests', JSON.stringify(requests));
   if (window.db && window.firebaseModules) {
     const { doc, setDoc } = window.firebaseModules;
-    setDoc(doc(window.db, 'certificate_requests', uObj.uid), { uid:uObj.uid, email:uObj.email, fullname:uObj.fullname || uObj.email, address, requestedAt:uObj.physicalCertificateRequestedAt, status:'pendente' }).catch(() => {});
+    setDoc(doc(window.db, 'certificate_requests', uObj.uid), { uid:uObj.uid, email:uObj.email, fullname:uObj.fullname || uObj.email, address, requestedAt:uObj.physicalCertificateRequestedAt, physicalAddressEditUntil:uObj.physicalAddressEditUntil, status:'pendente' }).catch(() => {});
   }
   ensureCertificateRecord(uObj);
   addNotification(`Solicitação de certificado físico: ${uObj.fullname || uObj.email}`, 'admin', TARGET_ADMIN_EMAIL, 'certificado_fisico');
@@ -2915,32 +2968,35 @@ async function submitSupportTicket(event) {
 async function submitRefundRequest(event) {
   event.preventDefault();const user=window.auth?.currentUser;if(!user)return;const reason=safeGetValue('refund-reason');if(!reason)return;
   const {doc,setDoc}=window.firebaseModules,id=`${user.uid}_${Date.now()}`;
-  await setDoc(doc(window.db,'refundRequests',id),{uid:user.uid,email:user.email,reason,status:'em_analise',createdAt:new Date().toISOString()});
+  await setDoc(doc(window.db,'refundRequests',id),{uid:user.uid,email:user.email,reason,status:'solicitado',createdAt:new Date().toISOString()});
   event.target.reset();addNotification('Pedido de reembolso enviado para análise.');showSuccessModal('Pedido enviado para análise.');loadAccountRequests();
 }
 async function loadAccountRequests() {
   const user=window.auth?.currentUser;if(!user||!window.db)return;const {collection,getDocs,query,where}=window.firebaseModules;
   for(const [name,target] of [['supportTickets','support-history'],['refundRequests','refund-history']]){const host=document.getElementById(target);if(!host)continue;try{const snap=await getDocs(query(collection(window.db,name),where('uid','==',user.uid)));host.innerHTML=snap.empty?'':snap.docs.map(d=>{const x=d.data();return `<div class="glass-panel" style="padding:12px;margin-top:8px"><strong>${escapeHTML(x.subject||'Reembolso')}</strong><br><small>Status: ${escapeHTML(x.status||'aberto')}</small></div>`}).join('')}catch(_){host.innerHTML='<small>Não foi possível carregar o histórico agora.</small>'}}
 }
-async function renderAdminCollection(name,targetId){if(!isAdmin)return;const host=document.getElementById(targetId);if(!host)return;try{const {collection,getDocs}=window.firebaseModules,snap=await getDocs(collection(window.db,name));host.innerHTML=snap.empty?'<p>Nenhum registro.</p>':snap.docs.map(d=>{const x=d.data();return `<div class="glass-panel" style="padding:14px;margin:8px 0"><strong>${escapeHTML(x.code||x.subject||x.email||d.id)}</strong><p style="color:var(--text-secondary)">${escapeHTML(x.message||x.reason||((x.percent||'')+'%'))}</p><small>Status: ${escapeHTML(x.status||'ativo')}</small></div>`}).join('')}catch(e){host.innerHTML='<p>Não foi possível carregar.</p>'}}
-async function saveCoupon(event){event.preventDefault();if(!isAdmin)return;const code=safeGetValue('coupon-code-admin').toUpperCase().replace(/[^A-Z0-9_-]/g,''),percent=Number(safeGetValue('coupon-percent-admin'));if(!code||percent<1||percent>90)return;const {doc,setDoc}=window.firebaseModules;await setDoc(doc(window.db,'coupons',code),{code,percent,active:true,updatedAt:new Date().toISOString()},{merge:true});event.target.reset();renderAdminCollection('coupons','admin-coupons-list');showSuccessModal('Cupom salvo com segurança.')}
+async function adminApi(path,options={}){return backendRequest(path,options)}
+async function renderAdminCollection(name,targetId){if(!isAdmin)return;const host=document.getElementById(targetId);if(!host)return;try{const {collection,getDocs}=window.firebaseModules,snap=await getDocs(collection(window.db,name));host.innerHTML=snap.empty?'<p>Nenhum registro.</p>':snap.docs.map(d=>{const x=d.data(),id=encodeURIComponent(d.id);let actions='';if(name==='supportTickets')actions=`<button class="btn-outline" onclick="adminReplySupport('${id}')">Responder</button> <button class="btn-outline" onclick="adminReplySupport('${id}','resolvido')">Resolvido</button>`;if(name==='refundRequests')actions=`<button class="btn-outline" onclick="adminRefundStatus('${id}','em_analise')">Analisar</button> <button class="btn-outline" onclick="adminRefundStatus('${id}','aprovado')">Aprovar</button> <button class="btn-outline" onclick="adminRefundStatus('${id}','recusado')">Recusar</button>${x.paymentId?` <button class="btn-outline" onclick="adminExecuteRefund('${id}','${escapeHTML(String(x.paymentId))}')">Reembolsar</button>`:''}`;if(name==='coupons')actions=`<button class="btn-outline" onclick="adminToggleCoupon('${id}',${x.active===false?'true':'false'})">${x.active===false?'Ativar':'Desativar'}</button>`;const detail=x.message||x.reason||(x.type?`${x.type}: ${x.value} · usos: ${x.usageCount||0}`:'');return `<div class="glass-panel" style="padding:14px;margin:8px 0"><strong>${escapeHTML(x.code||x.subject||x.email||d.id)}</strong><p style="color:var(--text-secondary)">${escapeHTML(detail)}</p><small>Status: ${escapeHTML(x.status||(x.active===false?'inativo':'ativo'))}</small><div style="margin-top:10px">${actions}</div></div>`}).join('')}catch(e){host.innerHTML='<p>Não foi possível carregar.</p>'}}
+async function saveCoupon(event){event.preventDefault();if(!isAdmin)return;const code=safeGetValue('coupon-code-admin').toUpperCase().replace(/[^A-Z0-9_-]/g,''),percent=Number(safeGetValue('coupon-percent-admin'));if(!code||percent<1||percent>90)return;try{await adminApi('/api/admin/coupons',{method:'POST',body:JSON.stringify({code,type:'percent',value:percent,active:true,eligibleProducts:['idz-course-v2']})});event.target.reset();renderAdminCollection('coupons','admin-coupons-list');showSuccessModal('Cupom salvo com segurança.')}catch(e){showCustomAlert('Cupom',e.message)}}
+async function adminReplySupport(encodedId,status='em_atendimento'){const reply=status==='resolvido'?'':(prompt('Resposta ao aluno:')||'').trim();if(status!=='resolvido'&&!reply)return;await adminApi(`/api/admin/support/${encodedId}`,{method:'PATCH',body:JSON.stringify({status,reply})});renderAdminCollection('supportTickets','admin-support-list')}
+async function adminRefundStatus(encodedId,status){await adminApi(`/api/admin/refunds/${encodedId}`,{method:'PATCH',body:JSON.stringify({status})});renderAdminCollection('refundRequests','admin-refunds-list')}
+async function adminExecuteRefund(encodedId,paymentId){await adminApi('/api/refunds',{method:'POST',headers:{'Idempotency-Key':`refund-${decodeURIComponent(encodedId)}`},body:JSON.stringify({requestId:decodeURIComponent(encodedId),paymentId})});renderAdminCollection('refundRequests','admin-refunds-list')}
+async function adminToggleCoupon(encodedCode,active){await adminApi(`/api/admin/coupons/${encodedCode}`,{method:'PATCH',body:JSON.stringify({active})});renderAdminCollection('coupons','admin-coupons-list')}
 
 async function renderCertificateRequests() {
   const body = document.getElementById('certificate-requests-body');
   if (!body) return;
   let rows = JSON.parse(localStorage.getItem('physical_certificate_requests') || '[]');
   if (window.db && window.firebaseModules) {
-    try { const { collection, getDocs } = window.firebaseModules; const snap = await getDocs(collection(window.db, 'certificate_requests')); rows = snap.docs.map(d => d.data()); } catch (_) {}
+    try { const { collection, getDocs } = window.firebaseModules; const snap = await getDocs(collection(window.db, 'certificate_requests')); rows = snap.docs.map(d => ({uid:d.id,...d.data()})); } catch (_) {}
   }
-  body.innerHTML = rows.length ? rows.map(r => `<tr><td><strong>${r.fullname}</strong><br><small>${r.email}</small></td><td>${r.address.end || ''}, ${r.address.num || ''} - ${r.address.bairro || ''}<br>${r.address.cidade || ''}/${r.address.uf || ''} - CEP ${r.address.cep || ''}</td><td>${new Date(r.requestedAt).toLocaleDateString('pt-BR')}</td><td><span class="status-badge pending">${r.status || 'pendente'}</span><br><button class="btn-outline" style="font-size:11px;padding:6px 9px;margin-top:6px" onclick="generateOfficialCertificatePDF('${encodeURIComponent(r.email)}')">Baixar PDF</button><button class="btn-outline" style="font-size:11px;padding:6px 9px;margin:6px 0 0 4px" onclick="updatePhysicalCertificateStatus('${encodeURIComponent(r.email)}','a_caminho')">Marcar a caminho</button><button class="btn-outline" style="font-size:11px;padding:6px 9px;margin:6px 0 0 4px" onclick="updatePhysicalCertificateStatus('${encodeURIComponent(r.email)}','entregue')">Marcar entregue</button></td></tr>`).join('') : '<tr><td colspan="4" style="text-align:center;color:var(--text-secondary)">Nenhuma solicitação recebida.</td></tr>';
+  body.innerHTML = rows.length ? rows.map(r => `<tr><td><strong>${r.fullname}</strong><br><small>${r.email}</small></td><td>${r.address.end || ''}, ${r.address.num || ''} - ${r.address.bairro || ''}<br>${r.address.cidade || ''}/${r.address.uf || ''} - CEP ${r.address.cep || ''}</td><td>${new Date(r.requestedAt).toLocaleDateString('pt-BR')}</td><td><span class="status-badge pending">${r.status || 'pendente'}</span>${r.trackingCode?`<br><small>Rastreio: ${escapeHTML(r.trackingCode)}</small>`:''}<br><button class="btn-outline" style="font-size:11px;padding:6px 9px;margin-top:6px" onclick="generateOfficialCertificatePDF('${encodeURIComponent(r.email)}')">Baixar PDF</button><button class="btn-outline" style="font-size:11px;padding:6px 9px;margin:6px 0 0 4px" onclick="updatePhysicalCertificateStatus('${encodeURIComponent(r.uid||'')}','a_caminho')">Marcar a caminho</button><button class="btn-outline" style="font-size:11px;padding:6px 9px;margin:6px 0 0 4px" onclick="updatePhysicalCertificateStatus('${encodeURIComponent(r.uid||'')}','entregue')">Marcar entregue</button></td></tr>`).join('') : '<tr><td colspan="4" style="text-align:center;color:var(--text-secondary)">Nenhuma solicitação recebida.</td></tr>';
 }
 
-async function updatePhysicalCertificateStatus(encodedEmail, status) {
-  if (!isAdmin) return;
-  const email = decodeURIComponent(encodedEmail); const u = registeredUsers.find(x => x.email === email); if (!u) return;
-  u.physicalCertificateStatus = status; await saveUserToCloud(u);
-  const rows = JSON.parse(localStorage.getItem('physical_certificate_requests') || '[]'); const row = rows.find(x => x.email === email); if (row) row.status = status; localStorage.setItem('physical_certificate_requests', JSON.stringify(rows));
-  addNotification(`Certificado físico de ${u.fullname || email}: ${status}`, 'student', email, 'certificado_status');
+async function updatePhysicalCertificateStatus(encodedUid, status) {
+  if (!isAdmin) return; const uid=decodeURIComponent(encodedUid); if(!uid)return;
+  const trackingCode=status==='a_caminho'?(prompt('Código de rastreio:')||'').trim():'';if(status==='a_caminho'&&!trackingCode)return;
+  await adminApi(`/api/admin/certificates/${encodeURIComponent(uid)}`,{method:'PATCH',body:JSON.stringify({status,trackingCode})});
   renderCertificateRequests(); showSuccessModal('Status atualizado', `O certificado foi marcado como ${status === 'a_caminho' ? 'a caminho' : 'entregue'}.`);
 }
 
@@ -3314,7 +3370,7 @@ async function openCheckoutModal() {
       onReady: () => {},
       onSubmit: async ({ formData }) => {
         const token=await user.getIdToken();
-        const response = await fetch(`${RAILWAY_BACKEND_URL}/criar-pagamento`, { method:'POST', headers:{'Content-Type':'application/json','Authorization':`Bearer ${token}`,'Idempotency-Key':`${user.uid}-${Date.now()}`}, body:JSON.stringify({ ...formData, external_reference:user.uid }) });
+        const response = await fetch(`${RAILWAY_BACKEND_URL}/api/checkout`, { method:'POST', headers:{'Content-Type':'application/json','Authorization':`Bearer ${token}`,'Idempotency-Key':crypto.randomUUID()}, body:JSON.stringify({ ...formData, couponCode:appliedCouponCode || undefined }) });
         const payload = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(payload.message || payload.error || 'Não foi possível iniciar o pagamento.');
         if (payload.pix || payload.point_of_interaction?.transaction_data) showPixPayment(payload);
@@ -3334,7 +3390,7 @@ async function submitIdzCheckout() {
   const cpfDigits = cpf.replace(/\D/g, '');
   try {
     const token=await user.getIdToken();
-    const response = await fetch(`${RAILWAY_BACKEND_URL}/criar-pagamento`, { method:'POST', headers:{'Content-Type':'application/json','Authorization':`Bearer ${token}`,'Idempotency-Key':`${user.uid}-${Date.now()}`}, body:JSON.stringify({ transaction_amount:currentCheckoutAmount, payment_method_id:method, payer:{ email:user.email, identification: cpfDigits ? { type:'CPF', number:cpfDigits } : undefined }, external_reference:user.uid }) });
+    const response = await fetch(`${RAILWAY_BACKEND_URL}/api/checkout`, { method:'POST', headers:{'Content-Type':'application/json','Authorization':`Bearer ${token}`,'Idempotency-Key':crypto.randomUUID()}, body:JSON.stringify({ payment_method_id:method, payer:{ email:user.email, identification: cpfDigits ? { type:'CPF', number:cpfDigits } : undefined }, couponCode:appliedCouponCode || undefined }) });
     const payload = await response.json().catch(()=>({}));
     if (!response.ok) throw new Error(payload.message || 'Não foi possível iniciar o pagamento.');
     if (method === 'pix' || payload.pix || payload.qr_code) showPixPayment(payload);
