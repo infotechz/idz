@@ -2523,7 +2523,7 @@ function updateStudentDashboard() {
 }
 
 function showAdminArea() {
-  if(!isAdmin && currentUser !== TARGET_ADMIN_EMAIL){ 
+  if(!isAdmin){
     showCustomAlert("Acesso Restrito", "Você não possui permissão de administrador."); 
     showMemberArea(); 
     return; 
@@ -3128,6 +3128,7 @@ function populateLessonModuleSelect(){
 function saveModuleData() {
   const t = safeGetValue('mod-title-input');
   if(!t) { showCustomAlert("Atenção", "Preencha o título do módulo."); return; }
+  if (courseData.length >= 12) { showCustomAlert("Currículo oficial protegido", "O Course V2 possui exatamente 12 módulos. Edite os módulos existentes sem criar um currículo paralelo."); return; }
   courseData.push({ id: Date.now(), title: t, lessons: [] });
   saveCourseToCloud("Módulo criado na nuvem!"); 
   renderAdminModules(); 
