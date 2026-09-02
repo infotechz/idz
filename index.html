@@ -1504,6 +1504,45 @@ function currentProfile() {
 }
 function progressKey() { return currentUserUid || currentUser || 'anonymous'; }
 
+function lessonExercises(lesson) {
+  return Array.isArray(lesson?.exercises) ? lesson.exercises : [];
+}
+
+function isExerciseCompleted(lesson, exercise) {
+  const saved = completedQuizzes[progressKey()] || {};
+  // Compatibilidade com o progresso antigo, que gravava somente o ID da aula.
+  return saved[exercise.id] === true || saved[lesson.id] === true;
+}
+
+function isLessonCompleted(lesson) {
+  const lessonDone = completedLessons[progressKey()]?.[lesson.id] === true;
+  const mandatory = lessonExercises(lesson).filter(exercise => exercise.mandatory !== false);
+  return lessonDone && mandatory.every(exercise => isExerciseCompleted(lesson, exercise));
+}
+
+function getCourseProgressStats() {
+  let totalLessons = 0;
+  let completedLessonCount = 0;
+  let totalExercises = 0;
+  let completedExerciseCount = 0;
+  courseData.forEach(module => module.lessons?.forEach(lesson => {
+    totalLessons += 1;
+    if (isLessonCompleted(lesson)) completedLessonCount += 1;
+    lessonExercises(lesson).filter(exercise => exercise.mandatory !== false).forEach(exercise => {
+      totalExercises += 1;
+      if (isExerciseCompleted(lesson, exercise)) completedExerciseCount += 1;
+    });
+  }));
+  const totalRequired = totalLessons + totalExercises;
+  const completedRequired = completedLessonCount + completedExerciseCount;
+  return {
+    totalLessons, completedLessonCount, totalExercises, completedExerciseCount,
+    totalRequired, completedRequired,
+    percent: totalRequired ? Math.round((completedRequired / totalRequired) * 100) : 0,
+    complete: totalRequired > 0 && completedRequired === totalRequired
+  };
+}
+
 function autoCompleteEmail(inputId) {
   let val = safeGetValue(inputId);
   if (val && !val.includes('@')) {
@@ -1586,6 +1625,19 @@ window.onload = function() {
             }
             uObj = { ...uObj, uid: user.uid, email: currentUser, emailVerified: !!user.emailVerified };
             registeredUsers = isAdmin ? registeredUsers : [uObj];
+
+            // /progress/{uid} é a fonte principal; o campo legado do usuário
+            // continua sendo aceito para preservar conclusões anteriores.
+            try {
+              const progressSnap = await getDoc(doc(window.db, 'progress', user.uid));
+              const cloudProgress = progressSnap.exists() ? progressSnap.data() : (uObj.progress || {});
+              completedLessons[user.uid] = { ...(completedLessons[user.uid] || {}), ...(cloudProgress.lessons || {}) };
+              completedQuizzes[user.uid] = { ...(completedQuizzes[user.uid] || {}), ...(cloudProgress.exercises || {}) };
+              localStorage.setItem('user_completed_lessons', JSON.stringify(completedLessons));
+              localStorage.setItem('user_completed_quizzes', JSON.stringify(completedQuizzes));
+            } catch (progressError) {
+              console.warn('Não foi possível carregar o progresso da nuvem.', progressError);
+            }
 
             isAdmin = tokenClaims.admin === true;
             if (isAdmin && !usersUnsubscribe) {
@@ -1799,7 +1851,15 @@ async function saveProgressToCloud() {
   if (!uid || !window.db) return;
   try {
     const { doc, setDoc } = window.firebaseModules;
-    await setDoc(doc(window.db, 'users', uid), { progress: { lessons: completedLessons[progressKey()] || {}, exercises: completedQuizzes[progressKey()] || {} } }, { merge:true });
+    const progress = {
+      uid,
+      courseVersion: 2,
+      lessons: completedLessons[progressKey()] || {},
+      exercises: completedQuizzes[progressKey()] || {},
+      updatedAt: new Date().toISOString()
+    };
+    await setDoc(doc(window.db, 'progress', uid), progress, { merge:true });
+    await setDoc(doc(window.db, 'users', uid), { progress }, { merge:true });
   } catch (e) { console.warn('Progresso será mantido localmente até a próxima sincronização.', e); }
 }
 
@@ -2395,17 +2455,10 @@ function updateStudentDashboard() {
   let uObj = currentProfile();
   safeSetText('student-welcome-title', `Olá, ${uObj?.fullname || currentUser} 👋`);
 
-  let totalLessonsCount = 0;
-  let completedLessonsCount = 0;
-  courseData.forEach(m => m.lessons?.forEach(l => {
-    totalLessonsCount++;
-    if (completedLessons[progressKey()] && completedLessons[progressKey()][l.id]) completedLessonsCount++;
-  }));
-
-  let pct = totalLessonsCount > 0 ? Math.round((completedLessonsCount / totalLessonsCount) * 100) : 0;
-  safeSetText('dash-stat-progress', `Progresso: ${pct}%`);
-  safeSetText('dash-stat-lessons', `Aulas: ${completedLessonsCount}/${totalLessonsCount}`);
-  safeSetText('dash-stat-cert', pct >= 100 ? "Certificado: Liberado 🏆" : "Certificado: Bloqueado 🔒");
+  const stats = getCourseProgressStats();
+  safeSetText('dash-stat-progress', `Progresso: ${stats.percent}%`);
+  safeSetText('dash-stat-lessons', `Aulas: ${stats.completedLessonCount}/${stats.totalLessons} · Exercícios: ${stats.completedExerciseCount}/${stats.totalExercises}`);
+  safeSetText('dash-stat-cert', stats.complete ? "Certificado: Liberado 🏆" : "Certificado: Bloqueado 🔒");
 }
 
 function showAdminArea() {
@@ -2432,7 +2485,7 @@ function renderMemberSidebar() {
     let html = '';
     if (mod.lessons) {
       mod.lessons.forEach(l => {
-        let isDone = (completedLessons[progressKey()] && completedLessons[progressKey()][l.id]) && (completedQuizzes[progressKey()] && completedQuizzes[progressKey()][l.id]);
+        let isDone = isLessonCompleted(l);
         html += `<div class="lms-lesson-item" onclick="loadLessonContent(${mod.id}, ${l.id})">
           <span><i class="fa-regular fa-circle-play" style="margin-right: 8px;"></i> ${l.title}</span>
           ${isDone ? '<i class="fa-solid fa-check-circle"></i>' : ''}
@@ -2514,36 +2567,30 @@ function loadLessonContent(modId, lessonId) {
   let lessonDone = completedLessons[progressKey()] && completedLessons[progressKey()][lesson.id];
   let uObj = currentProfile();
 
-  let totalLessonsCount = 0;
-  let completedLessonsCount = 0;
-  courseData.forEach(m => m.lessons?.forEach(l => {
-    totalLessonsCount++;
-    if(completedLessons[progressKey()] && completedLessons[progressKey()][l.id]) completedLessonsCount++;
-  }));
-  let courseFullyCompleted = (completedLessonsCount >= totalLessonsCount) && (totalLessonsCount > 0);
+  const progressStats = getCourseProgressStats();
+  let courseFullyCompleted = progressStats.complete;
   let certReleasedByAdmin = uObj?.certReleased || false;
   if (courseFullyCompleted && uObj) ensureCertificateRecord(uObj);
 
   let quizHtml = '';
-  if (lesson.quiz && lesson.quiz.question) {
-    let optionsHtml = '';
-  let isQuizAlreadyAnswered = completedQuizzes[progressKey()] && completedQuizzes[progressKey()][lesson.id];
-
-    lesson.quiz.options.forEach((opt, idx) => {
-      let extraClass = isQuizAlreadyAnswered && (idx === lesson.quiz.correct) ? 'correct' : '';
-      optionsHtml += `<button class="quiz-option-btn ${extraClass}" ${isQuizAlreadyAnswered ? 'disabled' : ''} onclick="checkQuizAnswer(this, ${idx}, ${lesson.quiz.correct}, ${mod.id}, ${lesson.id})">
-        <span>${String.fromCharCode(65 + idx)}) ${opt}</span>
-      </button>`;
-    });
-
+  const exercises = lessonExercises(lesson);
+  if (exercises.length) {
+    const exerciseCards = exercises.map((exercise, exerciseIndex) => {
+      const completed = isExerciseCompleted(lesson, exercise);
+      const optionsHtml = (exercise.options || []).map((option, optionIndex) => {
+        const extraClass = completed && optionIndex === exercise.correctAnswer ? 'correct' : '';
+        return `<button class="quiz-option-btn ${extraClass}" ${completed ? 'disabled' : ''} onclick="checkExerciseAnswer(this, ${optionIndex}, ${exercise.correctAnswer}, '${exercise.id}', ${mod.id}, ${lesson.id})"><span>${String.fromCharCode(65 + optionIndex)}) ${escapeHTML(option)}</span></button>`;
+      }).join('');
+      return `<section class="quiz-container" data-exercise-id="${escapeHTML(exercise.id)}">
+        <div class="quiz-header-badge"><i class="fa-solid fa-brain"></i> Exercício ${exerciseIndex + 1} de ${exercises.length}${exercise.mandatory === false ? ' · opcional' : ' · obrigatório'}</div>
+        <div class="quiz-question-title">${escapeHTML(exercise.question)}</div>
+        <div class="quiz-options-list">${optionsHtml}</div>
+        <div class="quiz-feedback ${completed ? 'success' : ''}" style="${completed ? 'display:flex' : ''}">${completed ? '<i class="fa-solid fa-circle-check"></i> Respondido com sucesso!' : ''}</div>
+      </section>`;
+    }).join('');
     quizHtml = `
       <button type="button" class="btn-outline exercise-toggle" onclick="document.getElementById('activity-${lesson.id}').classList.toggle('is-open'); this.classList.toggle('is-open')"><i class="fa-solid fa-list-check"></i> Abrir atividade desta aula <i class="fa-solid fa-chevron-down"></i></button>
-      <div class="quiz-container activity-panel" id="activity-${lesson.id}">
-        <div class="quiz-header-badge"><i class="fa-solid fa-brain"></i> Exercício de Fixação</div>
-        <div class="quiz-question-title">${lesson.quiz.question}</div>
-        <div class="quiz-options-list">${optionsHtml}</div>
-        <div class="quiz-feedback" id="quiz-feedback-${lesson.id}" style="${isQuizAlreadyAnswered ? 'display: flex;' : ''}">${isQuizAlreadyAnswered ? '<i class="fa-solid fa-circle-check"></i> Respondido com sucesso!' : ''}</div>
-      </div>
+      <div class="activity-panel" id="activity-${lesson.id}">${exerciseCards}</div>
     `;
   }
 
@@ -2604,6 +2651,7 @@ function markLessonAsDone(modId, lessonId) {
   if(!completedLessons[progressKey()]) completedLessons[progressKey()] = {};
   completedLessons[progressKey()][lessonId] = true;
   localStorage.setItem('user_completed_lessons', JSON.stringify(completedLessons));
+  saveProgressToCloud();
   renderMemberSidebar();
   updateStudentDashboard();
   checkAndIssueCertificate();
@@ -2611,7 +2659,7 @@ function markLessonAsDone(modId, lessonId) {
   addNotification("Aula concluída com sucesso!");
 }
 
-function checkQuizAnswer(buttonElem, selectedIdx, correctIdx, modId, lessonId) {
+function checkExerciseAnswer(buttonElem, selectedIdx, correctIdx, exerciseId, modId, lessonId) {
   const parentContainer = buttonElem.closest('.quiz-container');
   const allBtns = parentContainer.querySelectorAll('.quiz-option-btn');
   const feedbackDiv = parentContainer.querySelector('.quiz-feedback');
@@ -2626,31 +2674,28 @@ function checkQuizAnswer(buttonElem, selectedIdx, correctIdx, modId, lessonId) {
     feedbackDiv.innerHTML = `<i class="fa-solid fa-circle-check"></i> Resposta correta!`;
     feedbackDiv.className = 'quiz-feedback success';
     
-    completedQuizzes[progressKey()][lessonId] = true;
-    completedLessons[progressKey()][lessonId] = true;
+    completedQuizzes[progressKey()][exerciseId] = true;
     localStorage.setItem('user_completed_lessons', JSON.stringify(completedLessons));
     localStorage.setItem('user_completed_quizzes', JSON.stringify(completedQuizzes));
+    saveProgressToCloud();
     renderMemberSidebar();
     updateStudentDashboard();
     checkAndIssueCertificate();
     addNotification("Exercício concluído com sucesso!");
+    loadLessonContent(modId, lessonId);
   } else {
     buttonElem.classList.add('incorrect');
     allBtns[correctIdx].classList.add('correct');
     feedbackDiv.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> Resposta incorreta. Revise a aula.`;
     feedbackDiv.className = 'quiz-feedback error';
+    allBtns.forEach((btn, index) => { btn.disabled = index === selectedIdx; });
   }
 }
 
 function checkAndIssueCertificate() {
   const uObj = currentProfile();
   if (!uObj || isAdmin) return;
-  let total = 0, done = 0;
-  courseData.forEach(m => m.lessons?.forEach(l => {
-    total += 1;
-    if (completedLessons[progressKey()]?.[l.id] && (!l.quiz?.question || completedQuizzes[progressKey()]?.[l.id])) done += 1;
-  }));
-  if (total > 0 && done >= total) ensureCertificateRecord(uObj);
+  if (getCourseProgressStats().complete) ensureCertificateRecord(uObj);
 }
 
 function ensureCertificateRecord(userObj) {
