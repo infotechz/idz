@@ -202,6 +202,10 @@ body.theme-rgb .card:hover, body.theme-rgb .admin-card:hover, body.theme-rgb .le
 .btn:focus-visible,.btn-outline:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible { outline:3px solid color-mix(in srgb,var(--accent-cyan) 55%,transparent); outline-offset:3px; }
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
 @media(max-width:760px){.official-brand-logo{width:72px;height:58px;background-size:cover}.wrap{padding-inline:14px}.dashboard-grid,.admin-grid{grid-template-columns:1fr!important}.member-layout{display:block!important}.member-sidebar{position:relative!important;width:100%!important;max-height:none!important;margin-bottom:16px}.modal-box{max-height:92vh;overflow:auto}}
+button,a,input,select,textarea{transition:box-shadow .2s ease,border-color .2s ease,transform .2s ease}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid color-mix(in srgb,var(--accent-cyan) 65%,white);outline-offset:3px}
+@media(max-width:700px){#admin-sec-coupons form{grid-template-columns:1fr!important}.settings-panel textarea{min-height:130px}.public-legal-links{padding-bottom:34px!important}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
 .brand-symbol-hexagon {
   width: 42px; height: 42px; position: relative; display: flex; align-items: center; justify-content: center;
   background: linear-gradient(135deg, #0a1f44, #001026); border-radius: 10px;
