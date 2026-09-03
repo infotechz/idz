@@ -285,7 +285,10 @@ function isValidFullName(name) {
   return true;
 }
 
-window.onload = function() {
+let authBootstrapStarted = false;
+function startAuthBootstrap() {
+  if (authBootstrapStarted) return;
+  authBootstrapStarted = true;
   const rememberedEmail = localStorage.getItem('remembered_email');
   if (rememberedEmail) {
     safeSetValue('login-email', rememberedEmail);
@@ -441,7 +444,17 @@ window.onload = function() {
   }, 100);
 
   updateNotificationsBadge();
-};
+}
+
+// Não aguarde o evento load: recursos opcionais (Messaging/fontes) podem atrasá-lo.
+// Assim que o módulo Auth estiver disponível, a sessão é restaurada e o menu atualizado.
+window.addEventListener('load', startAuthBootstrap, { once: true });
+const authReadyPoll = setInterval(() => {
+  if (window.auth && window.firebaseModules && window.db) {
+    clearInterval(authReadyPoll);
+    startAuthBootstrap();
+  }
+}, 50);
 
 function updateNavState(isLoggedIn, email) {
   const navGuest = document.getElementById('nav-guest');
