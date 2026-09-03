@@ -11,9 +11,9 @@ const premium = read('fase20a-premium.css');
 const css = read('fase20a-redesign.css');
 
 test('visual assets load directly and without duplicate import', () => {
-  assert.match(html, /fase20a-redesign\.css\?v=20a2-premium/);
-  assert.match(html, /fase20a-premium\.css\?v=20a2-premium/);
-  assert.match(html, /fase20a-redesign\.js\?v=20a2-premium/);
+  assert.match(html, /fase20a-redesign\.css\?v=20a3-critical/);
+  assert.match(html, /fase20a-premium\.css\?v=20a3-critical/);
+  assert.match(html, /fase20a-redesign\.js\?v=20a3-critical/);
   assert.doesNotMatch(css, /@import\s+url\(['"]idz-design-system\.css/);
   assert.doesNotMatch(redesign, /createElement\(['"]link['"]\)/);
 });
@@ -51,6 +51,14 @@ test('render path avoids a whole-document mutation observer', () => {
   assert.match(redesign, /performance\.mark\?\.\('idz-shell-visible'\)/);
   assert.match(redesign, /window\.IDZ_PERFORMANCE/);
   assert.match(redesign, /img\.loading='lazy'/);
+});
+
+test('critical overlays stay out of document flow and initialization is isolated', () => {
+  assert.doesNotMatch(premium, /body\.idz-20a\s*>\s*:not\(/);
+  assert.match(premium, /body\.idz-20a > \.modal-overlay[\s\S]*position: fixed/);
+  assert.match(redesign, /function safely\(name,task\)/);
+  assert.match(redesign, /publicSite\.style\.display='block'/);
+  assert.match(redesign, /Falha isolada/);
 });
 
 test('Course V2 remains the only visible course structure', () => {
