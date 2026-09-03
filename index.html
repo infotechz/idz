@@ -18,7 +18,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://sdk.mercadopago.com/js/v2"></script>
+<script defer src="https://sdk.mercadopago.com/js/v2"></script>
 
 <script src="course-v2.js?v=631f47a"></script>
 <script type="module">
@@ -685,6 +685,8 @@ nav,#public-site,#member-area,#settings-area,#admin-area,footer { position:relat
 #pix-copy-code { width:100%;min-height:72px;resize:vertical;font-size:12px;line-height:1.35; }
 #pix-status { color:var(--text-secondary);font-size:.86rem; }
 #pix-expiry { display:inline-flex;align-items:center;gap:6px;margin:8px auto 2px;padding:6px 12px;border-radius:999px;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.35);color:#fecaca;font-size:.82rem;font-weight:800; }
+.checkout-methods{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 18px}.checkout-method{min-height:54px;border:1px solid var(--line-strong);border-radius:14px;background:var(--surface-2);color:var(--text-primary);font-weight:800;cursor:pointer}.checkout-method.active{border-color:var(--accent-cyan);box-shadow:0 0 0 2px rgba(73,217,239,.12)}.checkout-panel{display:none}.checkout-panel.active{display:block}.checkout-status{min-height:22px;color:var(--text-secondary);font-size:.86rem;margin-top:10px}.lesson-meta-compact details{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:8px 0;background:rgba(8,20,40,.4)}.lesson-meta-compact summary{cursor:pointer;font-weight:750}.student-admin-card{display:grid;gap:14px}.student-admin-actions{display:flex;gap:8px;flex-wrap:wrap}.student-admin-actions .btn-outline{min-height:40px}.danger-action{border-color:var(--red)!important;color:var(--red)!important}
+@media(max-width:700px){body::before{display:none}.glass-panel,.modal-card,.admin-card,.card,.hero-card{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}.checkout-methods{grid-template-columns:1fr}.table-responsive{overflow:visible}.sales-table,.sales-table tbody,.sales-table tr,.sales-table td{display:block;width:100%}.sales-table thead{display:none}.sales-table tr{margin-bottom:14px;border:1px solid var(--line);border-radius:14px;padding:10px}.sales-table td{border:0;padding:7px}.modal-card{max-height:92svh}}
 
 @media (max-width:820px) { .official-brand-logo{width:176px!important;max-width:43vw!important}.nav-right-cluster .btn-outline,.nav-icon-only,.hamburger{width:36px!important;height:36px!important;min-height:36px!important} }
 @media (max-width:420px) { .official-brand-logo{width:136px!important;max-width:38vw!important}.nav-right-cluster{gap:2px}.nav-right-cluster .btn-outline,.nav-icon-only,.hamburger{width:34px!important;height:34px!important;min-height:34px!important;font-size:13px} }
@@ -743,12 +745,26 @@ nav,#public-site,#member-area,#settings-area,#admin-area,footer { position:relat
       <textarea id="pix-copy-code" readonly aria-label="Código Pix copia e cola"></textarea>
       <button type="button" class="btn-outline" style="width:100%;justify-content:center;margin-top:10px" onclick="copyPixCode()"><i class="fa-regular fa-copy"></i> Copiar código Pix</button>
     </section>
+    <div class="checkout-methods" role="tablist" aria-label="Forma de pagamento">
+      <button type="button" class="checkout-method active" id="checkout-method-pix" onclick="selectCheckoutMethod('pix')"><i class="fa-brands fa-pix"></i> PIX</button>
+      <button type="button" class="checkout-method" id="checkout-method-card" onclick="selectCheckoutMethod('card')"><i class="fa-regular fa-credit-card"></i> CARTÃO</button>
+    </div>
+    <section class="checkout-panel active" id="checkout-panel-pix">
+      <p style="color:var(--text-secondary);font-size:13px;margin-bottom:12px">O QR Code será gerado pelo Mercado Pago. O acesso só será liberado depois da confirmação do pagamento.</p>
+      <div class="input-group"><label for="pix-payer-cpf">CPF do pagador</label><input id="pix-payer-cpf" inputmode="numeric" maxlength="14" placeholder="000.000.000-00" oninput="maskCpf(this)"></div>
+      <button type="button" class="btn" style="width:100%;justify-content:center" onclick="submitIdzPix()"><i class="fa-brands fa-pix"></i> Gerar PIX</button>
+      <div class="checkout-status" id="pix-submit-status" aria-live="polite"></div>
+    </section>
     <div class="idz-checkout-field" style="margin-bottom:14px">
       <label for="checkout-coupon">Cupom de desconto</label>
       <div style="display:flex;gap:8px"><input id="checkout-coupon" maxlength="40" placeholder="Digite o código"><button type="button" class="btn-outline" onclick="applyCheckoutCoupon()">Aplicar</button></div>
       <small id="checkout-coupon-result" style="color:var(--text-secondary)"></small>
     </div>
-    <div id="paymentBrick_container"></div>
+    <section class="checkout-panel" id="checkout-panel-card">
+      <p style="color:var(--text-secondary);font-size:13px;margin-bottom:12px">Cartão de crédito tokenizado com segurança pelo Mercado Pago. O IDZ não recebe número completo nem CVV.</p>
+      <div id="paymentBrick_container"></div>
+      <div class="checkout-status" id="card-submit-status" aria-live="polite"></div>
+    </section>
   </div>
 </div>
 
@@ -1193,20 +1209,9 @@ nav,#public-site,#member-area,#settings-area,#admin-area,footer { position:relat
 
     <!-- SEÇÃO 4: TESTE DE PAGAMENTO -->
     <div class="glass-panel admin-card" id="admin-sec-testcheckout" style="display: none;">
-      <h3><i class="fa-solid fa-credit-card"></i> Seção 4: Teste de Pagamento Customizado</h3>
-      <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 22px;">Selecione o aluno e simule a transação com valor personalizado.</p>
-      
-      <div class="input-group" style="max-width: 450px;">
-        <label>Escolher Aluno Alvo</label>
-        <select id="test-student-select"></select>
-      </div>
-
-      <div class="input-group" style="max-width: 450px;">
-        <label>Definir Valor do Teste (R$)</label>
-        <input type="number" id="test-amount-input" step="0.50" min="1.00" value="1.00" placeholder="1.00">
-      </div>
-
-      <button class="btn" style="margin-top: 10px;" onclick="openTestCheckoutCustom()"><i class="fa-solid fa-play"></i> Abrir Teste de Pagamento</button>
+      <h3><i class="fa-solid fa-credit-card"></i> Checkout de homologação</h3>
+      <p style="font-size:13px;color:var(--text-secondary);margin-bottom:22px">O pagamento pertence sempre ao UID autenticado. O preço oficial de R$ 29,90 é calculado novamente pelo backend.</p>
+      <button class="btn" onclick="openTestCheckoutCustom()"><i class="fa-solid fa-play"></i> Abrir checkout sandbox</button>
     </div>
 
     <!-- SEÇÃO 5: MÓDULOS E AULAS (COM ACORDEÃO E LÁPIS) -->
@@ -1249,6 +1254,29 @@ nav,#public-site,#member-area,#settings-area,#admin-area,footer { position:relat
 
       <h4 style="font-size: 17px; margin-bottom: 16px;"><i class="fa-solid fa-list-ol"></i> Módulos e Aulas Cadastrados (Clique para Expandir / Editar)</h4>
       <div id="admin-modules-list-container"></div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-manage-student">
+  <div class="modal-card" style="width:min(100%,900px)">
+    <button class="close-btn" onclick="closeModal('modal-manage-student')"><i class="fa-solid fa-xmark"></i></button>
+    <h3><i class="fa-solid fa-user-gear"></i> Gerenciar aluno</h3>
+    <div id="manage-student-summary" class="student-admin-card"></div>
+    <div class="student-admin-card" style="margin-top:16px">
+      <label>Módulo<select id="manage-module-select"></select></label>
+      <div class="student-admin-actions"><button class="btn-outline" onclick="adminSetModule(true)">Aprovar módulo</button><button class="btn-outline" onclick="adminSetModule(false)">Remover módulo</button></div>
+      <label>Aula<select id="manage-lesson-select"></select></label>
+      <div class="student-admin-actions"><button class="btn-outline" onclick="adminSetItem('lesson',true)">Aprovar aula</button><button class="btn-outline" onclick="adminSetItem('lesson',false)">Remover aula</button></div>
+      <label>Exercício<select id="manage-exercise-select"></select></label>
+      <div class="student-admin-actions"><button class="btn-outline" onclick="adminSetItem('exercise',true)">Aprovar exercício</button><button class="btn-outline" onclick="adminSetItem('exercise',false)">Remover exercício</button></div>
+      <label>Projeto Final<select id="manage-project-select"></select></label>
+      <div class="student-admin-actions"><button class="btn-outline" onclick="adminSetItem('projectStep',true)">Aprovar etapa</button><button class="btn-outline" onclick="adminSetItem('projectStep',false)">Remover etapa</button><button class="btn-outline" onclick="adminStudentAction('projectReset')">Resetar Projeto Final</button></div>
+      <label>Bônus<select id="manage-bonus-select"></select></label>
+      <div class="student-admin-actions"><button class="btn-outline" onclick="adminSetItem('bonus',true)">Liberar bônus</button><button class="btn-outline" onclick="adminSetItem('bonus',false)">Remover bônus</button></div>
+      <div class="student-admin-actions"><button class="btn-outline" onclick="adminCompleteCourse()">Liberar todas as aulas</button><button class="btn-outline" onclick="adminStudentAction('courseReset')">Resetar progresso</button></div>
+      <div class="student-admin-actions"><button class="btn-outline" onclick="adminStudentAction('certificate',true)">Liberar certificado</button><button class="btn-outline" onclick="adminStudentAction('certificate',false)">Bloquear certificado</button></div>
+      <div class="student-admin-actions"><button class="btn-outline" onclick="adminSetAccess(false)">Remover acesso</button><button class="btn-outline" onclick="adminSetAccess(true)">Restaurar acesso</button><button class="btn-outline danger-action" onclick="adminDeleteStudent()">Excluir conta</button></div>
     </div>
   </div>
 </div>
@@ -1344,7 +1372,6 @@ nav,#public-site,#member-area,#settings-area,#admin-area,footer { position:relat
 <script>
 const courseV2 = window.IDZ_COURSE_V2 || { modules: [] };
 const RAILWAY_BACKEND_URL = "https://backend-informatica-do-zero-production.up.railway.app";
-const MP_PUBLIC_KEY = "APP_USR-0af39126-fabc-4dd9-bbe2-90bbf9fe1521";
 const ADMIN_COMPAT_LOGIN_URL = "https://backend-informatica-do-zero-production.up.railway.app/admin/compat-login";
 const TARGET_ADMIN_EMAIL = "olliveirazvz@gmail.com";
 
@@ -1419,6 +1446,7 @@ function initParticles() {
 }
 function animateParticles() {
   if (!ctx || !canvas) return;
+  if (document.hidden || window.matchMedia('(prefers-reduced-motion: reduce)').matches) { requestAnimationFrame(animateParticles); return; }
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   particlesArray.forEach(p => { p.update(); p.draw(); });
   requestAnimationFrame(animateParticles);
@@ -1442,7 +1470,8 @@ const courseV2Runtime = courseV2.modules.map((mod, moduleIndex) => Object.assign
 
 
 function selectCourseData(snapshotData) {
-  const hasV2 = snapshotData.some(mod => mod && (mod.courseVersion === 2 || mod.type === 'project'));
+  const v2Modules = (snapshotData || []).filter(mod => mod && mod.type !== 'bonus' && !String(mod.id || '').startsWith('bonus-'));
+  const hasV2 = v2Modules.length === 12 && v2Modules.every(mod => mod.courseVersion === 2 || mod.type === 'lesson' || mod.type === 'project');
   if (!hasV2 && snapshotData.length) {
     try {
       localStorage.setItem('course_migration_v1_history', JSON.stringify({
@@ -1452,7 +1481,7 @@ function selectCourseData(snapshotData) {
     } catch (_) {}
   }
   return hasV2
-    ? normalizeCourseData(snapshotData)
+    ? normalizeCourseData(v2Modules)
     : normalizeCourseData(courseV2Runtime);
 }
 
@@ -1464,6 +1493,7 @@ let notificationsList = [];
 let completedLessons = JSON.parse(localStorage.getItem('user_completed_lessons')) || {};
 let completedQuizzes = JSON.parse(localStorage.getItem('user_completed_quizzes')) || {};
 let completedProjects = JSON.parse(localStorage.getItem('user_completed_projects')) || {};
+let completedBonuses = JSON.parse(localStorage.getItem('user_completed_bonuses')) || {};
 
 let currentUser = null;
 let currentUserUid = null;
@@ -1477,6 +1507,7 @@ let checkoutTargetUser = null;
 let activePaymentInterval = null;
 let pixCountdownInterval = null;
 let verificationResendAvailableAt = 0;
+let activeManagedStudentUid = '';
 
 function normalizeLessonContent(lesson) {
   if (!lesson) return lesson;
@@ -1575,9 +1606,12 @@ function getCourseProgressStats() {
   });
   const totalRequired = totalLessons + totalExercises + totalProjectSteps;
   const completedRequired = completedLessonCount + completedExerciseCount + completedProjectStepCount;
+  const completedModuleCount = courseData.filter(module => (module.lessons || []).length > 0 && module.lessons.every(isLessonCompleted)).length;
+  const totalBonuses = Array.isArray(courseV2.bonuses) ? courseV2.bonuses.length : 0;
+  const completedBonusCount = (courseV2.bonuses || []).filter(bonus => completedBonuses[progressKey()]?.[bonus.id] === true).length;
   return {
     totalLessons, completedLessonCount, totalExercises, completedExerciseCount,
-    totalProjectSteps, completedProjectStepCount,
+    totalProjectSteps, completedProjectStepCount, completedModuleCount, totalModules:12, totalBonuses, completedBonusCount,
     totalRequired, completedRequired,
     percent: totalRequired ? Math.round((completedRequired / totalRequired) * 100) : 0,
     complete: totalRequired > 0 && completedRequired === totalRequired
@@ -1672,12 +1706,14 @@ window.onload = function() {
             try {
               const progressSnap = await getDoc(doc(window.db, 'progress', user.uid));
               const cloudProgress = progressSnap.exists() ? progressSnap.data() : (uObj.progress || {});
-              completedLessons[user.uid] = { ...(completedLessons[user.uid] || {}), ...(cloudProgress.lessons || {}) };
+              completedLessons[user.uid] = { ...(completedLessons[user.uid] || {}), ...(cloudProgress.courseProgress?.lessons || {}), ...(cloudProgress.lessons || {}) };
               completedQuizzes[user.uid] = { ...(completedQuizzes[user.uid] || {}), ...(cloudProgress.exercises || {}) };
-              completedProjects[user.uid] = { ...(completedProjects[user.uid] || {}), ...(cloudProgress.projects || {}) };
+              completedProjects[user.uid] = { ...(completedProjects[user.uid] || {}), ...(cloudProgress.finalProjectProgress || {}), ...(cloudProgress.projects || {}) };
+              completedBonuses[user.uid] = { ...(completedBonuses[user.uid] || {}), ...(cloudProgress.bonusProgress || {}), ...(cloudProgress.bonuses || {}) };
               localStorage.setItem('user_completed_lessons', JSON.stringify(completedLessons));
               localStorage.setItem('user_completed_quizzes', JSON.stringify(completedQuizzes));
               localStorage.setItem('user_completed_projects', JSON.stringify(completedProjects));
+              localStorage.setItem('user_completed_bonuses', JSON.stringify(completedBonuses));
             } catch (progressError) {
               console.warn('Não foi possível carregar o progresso da nuvem.', progressError);
             }
@@ -1722,17 +1758,6 @@ window.onload = function() {
           showPublicSite();
         }
       });
-
-      (async () => {
-        try {
-          const snap = await getDocs(collection(window.db, "modules"));
-          const snapshotData = snap.docs.map(d => d.data());
-          courseData = selectCourseData(snapshotData);
-          updateCourseStatsUI();
-        } catch (e) {
-          console.error("Erro ao inicializar coleção de módulos:", e);
-        }
-      })();
 
       onSnapshot(collection(window.db, "modules"), (snapshot) => {
         const snapshotData = snapshot.docs.map(docSnap => docSnap.data());
@@ -1867,14 +1892,14 @@ async function refreshVerificationStatus() {
 }
 
 function updateCourseStatsUI() {
-  let totalMod = courseData.length;
+  const totalMod = 12;
   let totalLes = 0;
   courseData.forEach(m => { if(m.lessons) totalLes += m.lessons.length; });
 
   safeSetHTML('hero-tag-lessons', `<i class="fa-solid fa-bolt"></i> FORMAÇÃO COMPLETA • ${totalLes} AULAS EM ${totalMod} MÓDULOS`);
   safeSetHTML('benefit-lessons-count', `<i class="fa-solid fa-check"></i> ${totalLes} Aulas práticas em ${totalMod} Módulos`);
-  safeSetHTML('sidebar-title-header', `<i class="fa-solid fa-book-open"></i> As ${totalLes} Aulas (${totalMod} Módulos)`);
-  safeSetHTML('admin-total-modules-lessons', `${totalMod} Módulos / ${totalLes} Aulas`);
+  safeSetHTML('sidebar-title-header', `<i class="fa-solid fa-book-open"></i> Conteúdo do Curso`);
+  safeSetHTML('admin-total-modules-lessons', `${totalMod} Módulos • Projeto Final 7 etapas • 3 Bônus`);
 }
 
 async function saveCourseToCloud(successMsg = "Alterações salvas com sucesso!") {
@@ -1908,12 +1933,17 @@ async function saveProgressToCloud() {
   if (!uid || !window.db) return;
   try {
     const { doc, setDoc } = window.firebaseModules;
+    const lessons = completedLessons[progressKey()] || {};
+    const exercises = completedQuizzes[progressKey()] || {};
+    const projects = completedProjects[progressKey()] || {};
+    const bonuses = completedBonuses[progressKey()] || {};
     const progress = {
       uid,
       courseVersion: 2,
-      lessons: completedLessons[progressKey()] || {},
-      exercises: completedQuizzes[progressKey()] || {},
-      projects: completedProjects[progressKey()] || {},
+      lessons, exercises, projects, bonuses,
+      courseProgress: { lessons, exercises },
+      finalProjectProgress: projects,
+      bonusProgress: bonuses,
       updatedAt: new Date().toISOString()
     };
     await setDoc(doc(window.db, 'progress', uid), progress, { merge:true });
@@ -1943,8 +1973,19 @@ function closeModal(id) {
   if(pixCountdownInterval) { clearInterval(pixCountdownInterval); pixCountdownInterval = null; }
 }
 
-function closeCheckoutModalSafe() {
+async function destroyPaymentBrick() {
+  const controller = paymentBrickController;
+  paymentBrickController = null;
+  if (controller?.unmount) {
+    try { await controller.unmount(); } catch (_) {}
+  }
+  const host = document.getElementById('paymentBrick_container');
+  if (host) host.innerHTML = '';
+}
+
+async function closeCheckoutModalSafe() {
   closeModal('modal-custom-checkout');
+  await destroyPaymentBrick();
   resetPixPanel();
   currentCheckoutAmount = 29.90;
   appliedCouponCode = '';
@@ -1964,6 +2005,8 @@ async function backendRequest(path, options = {}) {
 
 async function enablePushNotifications() {
   try {
+    if (!('Notification' in window)) throw new Error('Este navegador não oferece notificações web.');
+    if (Notification.permission === 'denied') throw new Error('As notificações estão bloqueadas neste navegador. Ative a permissão nas configurações do site para receber avisos.');
     const permission=await Notification.requestPermission();if(permission!=='granted')throw new Error('Permissão de notificações não concedida.');
     const configResponse=await fetch(`${RAILWAY_BACKEND_URL}/api/config`),config=await configResponse.json();
     if(!config.webPushVapidPublicKey)throw new Error('Web Push ainda não foi configurado pelo administrador.');
@@ -2537,7 +2580,7 @@ function showMemberArea() {
     return;
   }
   let uObj = currentProfile();
-  const isPaid = isAdmin || uObj?.paid;
+  const isPaid = isAdmin || (uObj?.adminAccessRevoked !== true && (uObj?.courseAccess === true || uObj?.paid === true));
 
   if (!isPaid) {
     showPublicSite();
@@ -2557,7 +2600,8 @@ function showMemberArea() {
 }
 
 function handlePurchaseAction() {
-  if (isAdmin || currentProfile()?.paid) {
+  const profile=currentProfile();
+  if (isAdmin || (profile?.adminAccessRevoked !== true && (profile?.courseAccess === true || profile?.paid === true))) {
     showSuccessModal('Acesso já liberado', 'Sua compra já foi confirmada. Abrindo suas aulas.');
     setTimeout(() => showMemberArea(), 500);
     return;
@@ -2571,7 +2615,7 @@ function updateStudentDashboard() {
 
   const stats = getCourseProgressStats();
   safeSetText('dash-stat-progress', `Progresso: ${stats.percent}%`);
-  safeSetText('dash-stat-lessons', `Aulas: ${stats.completedLessonCount}/${stats.totalLessons} · Exercícios: ${stats.completedExerciseCount}/${stats.totalExercises} · Projeto: ${stats.completedProjectStepCount}/${stats.totalProjectSteps}`);
+  safeSetText('dash-stat-lessons', `Curso: ${stats.completedModuleCount}/12 módulos · Projeto Final: ${stats.completedProjectStepCount}/7 etapas · Bônus: ${stats.completedBonusCount}/3`);
   safeSetText('dash-stat-cert', stats.complete ? "Certificado: Liberado 🏆" : "Certificado: Bloqueado 🔒");
 }
 
@@ -2616,6 +2660,35 @@ function renderMemberSidebar() {
     `;
     container.appendChild(box);
   });
+
+  const bonusHeading = document.createElement('div');
+  bonusHeading.className = 'lms-module-header';
+  bonusHeading.style.marginTop = '12px';
+  bonusHeading.innerHTML = '<span><i class="fa-solid fa-gift" style="margin-right:8px;color:var(--yellow)"></i>3 Bônus</span>';
+  container.appendChild(bonusHeading);
+  (courseV2.bonuses || []).forEach(bonus => {
+    const done = completedBonuses[progressKey()]?.[bonus.id] === true;
+    const item = document.createElement('button');
+    item.type = 'button';
+    item.className = 'lms-lesson-item';
+    item.style.width = '100%';
+    item.style.border = '0';
+    item.style.textAlign = 'left';
+    item.innerHTML = `<span><i class="fa-regular fa-star" style="margin-right:8px"></i>${escapeHTML(bonus.title)}</span>${done ? '<i class="fa-solid fa-check-circle"></i>' : ''}`;
+    item.addEventListener('click', () => toggleStudentBonus(bonus.id));
+    container.appendChild(item);
+  });
+}
+
+async function toggleStudentBonus(bonusId) {
+  const uid = progressKey();
+  if (!uid) return;
+  completedBonuses[uid] = completedBonuses[uid] || {};
+  completedBonuses[uid][bonusId] = completedBonuses[uid][bonusId] !== true;
+  localStorage.setItem('user_completed_bonuses', JSON.stringify(completedBonuses));
+  await saveProgressToCloud();
+  renderMemberSidebar();
+  updateCourseStatsUI();
 }
 
 function toggleAccordion(headerElem) {
@@ -2649,6 +2722,12 @@ function getYouTubeId(url) {
   return videoId;
 }
 
+function adjacentLesson(modId,lessonId,offset){
+  const flat=courseData.flatMap(mod=>mod.lessons.map(lesson=>({modId:mod.id,lessonId:lesson.id})));
+  const index=flat.findIndex(item=>String(item.modId)===String(modId)&&String(item.lessonId)===String(lessonId));
+  return flat[index+offset]||null;
+}
+
 function loadLessonContent(modId, lessonId) {
   const mod = courseData.find(m => m.id == modId); 
   const lesson = mod?.lessons?.find(l => l.id == lessonId);
@@ -2680,10 +2759,11 @@ function loadLessonContent(modId, lessonId) {
 
   let lessonDone = completedLessons[progressKey()] && completedLessons[progressKey()][lesson.id];
   let uObj = currentProfile();
+  const previousLesson=adjacentLesson(mod.id,lesson.id,-1),nextLesson=adjacentLesson(mod.id,lesson.id,1);
 
   const progressStats = getCourseProgressStats();
   let courseFullyCompleted = progressStats.complete;
-  let certReleasedByAdmin = uObj?.certReleased || false;
+  const certificateAllowed = uObj?.certificateOverride === true || (uObj?.certificateOverride !== false && courseFullyCompleted);
   if (courseFullyCompleted && uObj) ensureCertificateRecord(uObj);
 
   let quizHtml = '';
@@ -2709,7 +2789,7 @@ function loadLessonContent(modId, lessonId) {
   }
 
   let certificateSectionHtml = '';
-  if (courseFullyCompleted || certReleasedByAdmin) {
+  if (certificateAllowed) {
     certificateSectionHtml = `
       <div style="margin-top: 35px; padding: 32px; background: radial-gradient(circle at center, rgba(16, 185, 129, 0.15), rgba(15, 23, 42, 0.95)); border: 2px solid var(--green); border-radius: 24px; text-align: center; box-shadow: 0 0 30px rgba(16,185,129,0.25);">
         <div style="font-size: 52px; margin-bottom: 12px; filter: drop-shadow(0 0 10px rgba(16,185,129,0.5));">🏆🎉</div>
@@ -2746,20 +2826,14 @@ function loadLessonContent(modId, lessonId) {
     <span style="font-size: 11px; color: var(--accent-cyan); font-weight: 700; text-transform: uppercase;">${mod.title}</span>
     <h2 style="margin-bottom: 18px; font-size: 22px; color: #fff;">${lesson.title}</h2>
     ${mediaHtml} ${imgHtml} ${pdfHtml}
-    
-    <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); padding: 20px; border-radius: 16px; margin-top: 20px;">
-      <h4 style="color: var(--accent-cyan); margin-bottom: 8px; font-size: 14.5px;"><i class="fa-solid fa-list-check"></i> O que vai aprender nesta aula</h4>
-      <p style="color: var(--text-secondary); font-size: 13.5px; white-space: pre-line;">${lesson.bloco1 || 'Introdução pedagógica aos conceitos principais.'}</p>
+    <div class="student-admin-actions" style="justify-content:space-between;margin:16px 0">
+      ${previousLesson?`<button class="btn-outline" onclick="loadLessonContent('${previousLesson.modId}','${previousLesson.lessonId}')"><i class="fa-solid fa-arrow-left"></i> Anterior</button>`:'<span></span>'}
+      ${nextLesson?`<button class="btn-outline" onclick="loadLessonContent('${nextLesson.modId}','${nextLesson.lessonId}')">Próxima <i class="fa-solid fa-arrow-right"></i></button>`:''}
     </div>
-
-    <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); padding: 20px; border-radius: 16px; margin-top: 14px;">
-      <h4 style="color: var(--accent-cyan); margin-bottom: 8px; font-size: 14.5px;"><i class="fa-solid fa-align-left"></i> Descrição Detalhada</h4>
-      <p style="color: var(--text-secondary); font-size: 13.5px; white-space: pre-line;">${lesson.bloco2 || 'Acompanhe com atenção todos os passos recomendados.'}</p>
-    </div>
-
-    <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); padding: 20px; border-radius: 16px; margin-top: 14px;">
-      <h4 style="color: var(--accent-cyan); margin-bottom: 8px; font-size: 14.5px;"><i class="fa-solid fa-bullseye"></i> Objetivos Pedagógicos</h4>
-      <p style="color: var(--text-secondary); font-size: 13.5px; white-space: pre-line;">${lesson.bloco3 || 'Dominar a prática do tópico abordado.'}</p>
+    <div class="lesson-meta-compact">
+      <details><summary><i class="fa-solid fa-list-check"></i> O que vai aprender</summary><p>${escapeHTML(lesson.bloco1 || 'Introdução pedagógica aos conceitos principais.')}</p></details>
+      <details><summary><i class="fa-solid fa-align-left"></i> Descrição detalhada</summary><p>${escapeHTML(lesson.bloco2 || 'Acompanhe com atenção todos os passos recomendados.')}</p></details>
+      <details><summary><i class="fa-solid fa-bullseye"></i> Objetivos pedagógicos</summary><p>${escapeHTML(lesson.bloco3 || 'Dominar a prática do tópico abordado.')}</p></details>
     </div>
     
     ${quizHtml}
@@ -3025,16 +3099,9 @@ function renderDashboard() {
   registeredUsers.forEach((u) => {
     let studentEmail = u.email;
     const safeStudentEmail = escapeHTML(studentEmail);
-    const actionStudentEmail = encodeURIComponent(studentEmail);
-    let userCompleted = completedLessons[studentEmail] || {};
-    let userQuizzes = completedQuizzes[studentEmail] || {};
-    let lessonsDoneCount = Object.keys(userCompleted).length;
-    let quizzesDoneCount = Object.keys(userQuizzes).length;
-    
-    let totalItems = totalLessonsInCourse + totalQuizInCourse;
-    let doneItems = lessonsDoneCount + quizzesDoneCount;
-    let percent = totalItems > 0 ? Math.round((doneItems / totalItems) * 100) : 0;
-    if(percent > 100) percent = 100;
+    const actionUid = encodeURIComponent(u.uid || '');
+    const progress=u.progress||{},lessonsDoneCount=Object.values(progress.lessons||{}).filter(Boolean).length;
+    const projectsDone=Object.values(progress.projects||{}).filter(Boolean).length,bonusesDone=Object.values(progress.bonuses||{}).filter(Boolean).length;
 
     let verifiedLabel = u.verifiedData ? `<span style="color:var(--green); font-size:10px;"><i class="fa-solid fa-circle-check"></i> Verificado</span>` : `<span style="color:var(--yellow); font-size:10px;"><i class="fa-solid fa-triangle-exclamation"></i> Pendente</span>`;
 
@@ -3044,11 +3111,9 @@ function renderDashboard() {
     tbody.innerHTML += `<tr>
       <td>${studentInfo}</td>
       <td><span class="badge-status" style="${u.paid?'background:rgba(16,185,129,0.2); color:var(--green);':'background:rgba(239,68,68,0.2); color:var(--red);'}">${u.paid?'Pago':'Pendente'}</span></td>
-      <td><div style="font-size:11.5px; color:#fff;">Progresso: ${percent}% (${lessonsDoneCount}/${totalLessonsInCourse} Aulas)</div></td>
+      <td><div style="font-size:11.5px; color:#fff;">Curso: ${lessonsDoneCount}/${totalLessonsInCourse} aulas<br>Projeto Final: ${projectsDone}/7 etapas<br>Bônus: ${bonusesDone}/3</div></td>
       <td>
-        <button class="btn-outline" style="border-color:var(--green); color:var(--green); padding:4px 8px;" title="Liberar Progresso Total" onclick="setStudentProgress(decodeURIComponent('${actionStudentEmail}'), true)"><i class="fa-solid fa-check-double"></i></button>
-        <button class="btn-outline" style="border-color:var(--red); color:var(--red); padding:4px 8px;" title="Resetar Progresso" onclick="setStudentProgress(decodeURIComponent('${actionStudentEmail}'), false)"><i class="fa-solid fa-rotate-left"></i></button>
-        <button class="btn-outline" style="border-color:var(--accent-cyan); color:var(--accent-cyan); padding:4px 8px;" title="Aprovar Pagamento Acesso" onclick="setStudentPaymentStatus(decodeURIComponent('${actionStudentEmail}'), true)"><i class="fa-solid fa-check"></i></button>
+        <button class="btn-outline" onclick="openManageStudent(decodeURIComponent('${actionUid}'))"><i class="fa-solid fa-user-gear"></i> Gerenciar aluno</button>
       </td>
     </tr>`;
   });
@@ -3069,6 +3134,32 @@ function renderSalesTab() {
   });
 }
 
+async function openManageStudent(uid){
+  if(!isAdmin||!uid)return;
+  activeManagedStudentUid=uid;
+  try{
+    const data=await adminApi(`/api/admin/students/${encodeURIComponent(uid)}`);
+    const profile=data.profile||{},progress=data.progress||{};
+    safeSetHTML('manage-student-summary',`<strong>${escapeHTML(profile.fullname||'Aluno')}</strong><span>${escapeHTML(profile.email||'')}</span><span>Pagamento: ${escapeHTML(profile.paymentStatus||'none')} · Acesso: ${profile.courseAccess?'liberado':'bloqueado'} · Certificado manual: ${profile.certificateOverride===true?'liberado':profile.certificateOverride===false?'bloqueado':'automático'}</span>`);
+    const moduleSelect=document.getElementById('manage-module-select'),lessonSelect=document.getElementById('manage-lesson-select'),exerciseSelect=document.getElementById('manage-exercise-select');
+    moduleSelect.innerHTML=courseData.map(mod=>`<option value="${escapeHTML(String(mod.id))}">${escapeHTML(mod.title)}</option>`).join('');
+    lessonSelect.innerHTML=courseData.flatMap(mod=>(mod.lessons||[]).map(lesson=>`<option value="${escapeHTML(String(lesson.id))}">${escapeHTML(mod.title)} — ${escapeHTML(lesson.title)}</option>`)).join('');
+    exerciseSelect.innerHTML=courseData.flatMap(mod=>(mod.lessons||[]).flatMap(lesson=>lessonExercises(lesson).map(exercise=>`<option value="${escapeHTML(String(exercise.id))}">${escapeHTML(lesson.title)} — ${escapeHTML(exercise.title)}</option>`))).join('');
+    document.getElementById('manage-project-select').innerHTML=finalProjectSteps().map(step=>`<option value="${escapeHTML(step.id)}">${escapeHTML(step.title)}</option>`).join('');
+    document.getElementById('manage-bonus-select').innerHTML=(courseV2.bonuses||[]).map(bonus=>`<option value="${escapeHTML(bonus.id)}">${escapeHTML(bonus.title)}</option>`).join('');
+    openModal('modal-manage-student');
+  }catch(e){showCustomAlert('Gerenciar aluno',e.message);}
+}
+async function adminStudentAction(action,value=false,extra={}){
+  if(!activeManagedStudentUid)return;
+  try{await adminApi(`/api/admin/students/${encodeURIComponent(activeManagedStudentUid)}/progress`,{method:'PATCH',body:JSON.stringify({action,value,...extra})});showSuccessModal('Ação administrativa registrada com segurança.');await openManageStudent(activeManagedStudentUid);}catch(e){showCustomAlert('Ação administrativa',e.message);}
+}
+function adminSetItem(action,value){const ids={lesson:'manage-lesson-select',exercise:'manage-exercise-select',projectStep:'manage-project-select',bonus:'manage-bonus-select'};return adminStudentAction(action,value,{id:safeGetValue(ids[action])});}
+function adminSetModule(value){const mod=courseData.find(item=>String(item.id)===safeGetValue('manage-module-select'));if(!mod)return;const lessons={},exercises={};(mod.lessons||[]).forEach(lesson=>{lessons[lesson.id]=value;lessonExercises(lesson).forEach(exercise=>exercises[exercise.id]=value)});return adminStudentAction('module',value,{lessons,exercises});}
+function adminCompleteCourse(){const lessons={},exercises={};courseData.forEach(mod=>(mod.lessons||[]).forEach(lesson=>{lessons[lesson.id]=true;lessonExercises(lesson).forEach(exercise=>exercises[exercise.id]=true)}));return adminStudentAction('courseAll',true,{lessons,exercises});}
+async function adminSetAccess(enabled){try{await adminApi(`/api/admin/students/${encodeURIComponent(activeManagedStudentUid)}/access`,{method:'PATCH',body:JSON.stringify({enabled})});showSuccessModal(enabled?'Acesso restaurado.':'Acesso revogado sem alterar o pagamento.');await openManageStudent(activeManagedStudentUid);}catch(e){showCustomAlert('Acesso',e.message)}}
+async function adminDeleteStudent(){if(!activeManagedStudentUid||!confirm('Excluir esta conta do Firebase Authentication? O histórico financeiro será preservado.'))return;try{await adminApi(`/api/admin/students/${encodeURIComponent(activeManagedStudentUid)}/delete`,{method:'POST'});closeModal('modal-manage-student');showSuccessModal('Conta excluída. O histórico financeiro foi preservado.')}catch(e){showCustomAlert('Excluir conta',e.message)}}
+
 function renderCartTab() {
   const cBody = document.getElementById('cart-list-body');
   if(!cBody) return;
@@ -3079,71 +3170,23 @@ function renderCartTab() {
     return;
   }
   pendingSales.forEach((tx) => {
+    const student = registeredUsers.find(user => user.email === tx.email);
+    const actionUid = encodeURIComponent(student?.uid || '');
     cBody.innerHTML += `<tr>
       <td><strong>${tx.email}</strong><br><span style="font-size:11px; color:var(--text-secondary);">${tx.id}</span></td>
       <td>R$ ${tx.amount.toFixed(2)}</td>
       <td><span class="badge-status" style="background:rgba(245,158,11,0.2); color:var(--yellow);">${tx.status}</span></td>
       <td>
-        <button class="btn-outline" style="border-color:var(--green); color:var(--green); padding:6px 10px;" onclick="approveCartItem('${tx.email}')"><i class="fa-solid fa-check"></i> Aprovar Acesso</button>
+        ${actionUid ? `<button class="btn-outline" style="border-color:var(--green); color:var(--green); padding:6px 10px;" onclick="openManageStudent(decodeURIComponent('${actionUid}'))"><i class="fa-solid fa-user-gear"></i> Gerenciar aluno</button>` : '<small>UID não localizado</small>'}
       </td>
     </tr>`;
   });
-}
-
-async function approveCartItem(emailStr) {
-  let emailClean = emailStr.includes('<') ? emailStr.split('<')[1].replace('>', '').trim() : emailStr;
-  let u = registeredUsers.find(x => x.email === emailClean);
-  if (u) {
-    u.paid = true;
-    await saveUserToCloud(u);
-  }
-  updateTxStatus(emailClean, 'aprovado');
-  showSuccessModal(`Acesso aprovado para ${emailClean}!`);
-  renderDashboard();
-  renderSalesTab();
-  renderCartTab();
-}
-
-async function setStudentProgress(email, complete) {
-  if(!completedLessons[email]) completedLessons[email] = {};
-  if(!completedQuizzes[email]) completedQuizzes[email] = {};
-
-  courseData.forEach(m => {
-    m.lessons?.forEach(l => {
-      if(complete) {
-        completedLessons[email][l.id] = true;
-        if(l.quiz && l.quiz.question) completedQuizzes[email][l.id] = true;
-      } else {
-        completedLessons[email][l.id] = false;
-        if(l.quiz) completedQuizzes[email][l.id] = false;
-      }
-    });
-  });
-  localStorage.setItem('user_completed_lessons', JSON.stringify(completedLessons));
-  localStorage.setItem('user_completed_quizzes', JSON.stringify(completedQuizzes));
-  showSuccessModal(complete ? "Progresso total liberado para o aluno!" : "Progresso resetado!");
-  renderDashboard();
-}
-
-async function setStudentPaymentStatus(email, status) {
-  let u = registeredUsers.find(x => x.email === email);
-  if(u) {
-    u.paid = status;
-    await saveUserToCloud(u);
-    updateTxStatus(email, status ? 'aprovado' : 'pendente');
-    showSuccessModal(status ? "Acesso liberado!" : "Status alterado!");
-    renderDashboard();
-  }
 }
 
 function updateTxStatus(email, st) {
   let tx = salesTransactions.find(s => s.email.includes(email));
   if(tx) tx.status = st;
   localStorage.setItem('admin_sales_transactions', JSON.stringify(salesTransactions));
-}
-
-function simulateApprovalForTarget(email) {
-  setStudentPaymentStatus(email, true);
 }
 
 function populateTestStudentSelect() {
@@ -3160,17 +3203,9 @@ function openTestCheckoutCustom() {
     showCustomAlert("Acesso Negado", "Apenas administradores podem testar pagamentos.");
     return;
   }
-  const sel = document.getElementById('test-student-select');
-  if(!sel || !sel.value) {
-    showCustomAlert("Atenção", "Selecione um aluno.");
-    return;
-  }
-  const amountInput = document.getElementById('test-amount-input');
-  let val = parseFloat(amountInput ? amountInput.value : 1);
-
-  checkoutTargetUser = sel.value;
-  currentCheckoutAmount = isNaN(val) ? 1.00 : val;
-  safeSetText('checkout-modal-title', `Teste de Pagamento — R$ ${currentCheckoutAmount.toFixed(2)}`);
+  checkoutTargetUser = window.auth?.currentUser?.uid || null;
+  currentCheckoutAmount = 29.90;
+  safeSetText('checkout-modal-title', 'Teste Sandbox — R$ 29,90');
   openCheckoutModal();
 }
 
@@ -3350,53 +3385,63 @@ async function openCheckoutModal() {
     showCustomAlert('Entre para continuar', 'Faça login ou crie sua conta antes de abrir o checkout. Sua intenção de compra foi preservada.');
     return;
   }
-  const payerEmail = user.email;
+  await destroyPaymentBrick();
   resetPixPanel();
   openModal('modal-custom-checkout');
-  const host = document.getElementById('paymentBrick_container');
-  if (!host) return;
-  host.innerHTML = '<div id="idz-payment-brick"></div>';
-  if (paymentBrickController) { try { await paymentBrickController.unmount(); } catch (_) {} paymentBrickController = null; }
-  if (!window.MercadoPago) { showCustomAlert('Checkout indisponível', 'Não foi possível carregar o módulo seguro de pagamentos.'); return; }
-  const mp = new MercadoPago(MP_PUBLIC_KEY, { locale: 'pt-BR' });
-  const bricksBuilder = mp.bricks();
-  paymentBrickController = await bricksBuilder.create('payment', 'idz-payment-brick', {
-    initialization: { amount: Number(currentCheckoutAmount.toFixed(2)), payer: { email: payerEmail } },
-    customization: {
-      paymentMethods: { ticket: 'all', creditCard: 'all', debitCard: 'all', maxInstallments: 5 },
-      visual: { style: { theme: 'dark' }, texts: { action: 'pay' } }
-    },
-    callbacks: {
-      onReady: () => {},
-      onSubmit: async ({ formData }) => {
-        const token=await user.getIdToken();
-        const response = await fetch(`${RAILWAY_BACKEND_URL}/api/checkout`, { method:'POST', headers:{'Content-Type':'application/json','Authorization':`Bearer ${token}`,'Idempotency-Key':crypto.randomUUID()}, body:JSON.stringify({ ...formData, couponCode:appliedCouponCode || undefined }) });
-        const payload = await response.json().catch(() => ({}));
-        if (!response.ok) throw new Error(payload.message || payload.error || 'Não foi possível iniciar o pagamento.');
-        if (payload.pix || payload.point_of_interaction?.transaction_data) showPixPayment(payload);
-        else showSuccessModal('Pagamento enviado para processamento.');
-        return payload;
-      },
-      onError: (error) => console.error('Erro no Payment Brick:', error)
-    }
-  });
+  selectCheckoutMethod('pix');
 }
 
-async function submitIdzCheckout() {
-  const user = window.auth?.currentUser;
-  if (!user) return;
-  const method = document.getElementById('idz-pay-method')?.value || 'pix';
-  const cpf = document.getElementById('idz-pay-cpf')?.value || '';
-  const cpfDigits = cpf.replace(/\D/g, '');
-  try {
-    const token=await user.getIdToken();
-    const response = await fetch(`${RAILWAY_BACKEND_URL}/api/checkout`, { method:'POST', headers:{'Content-Type':'application/json','Authorization':`Bearer ${token}`,'Idempotency-Key':crypto.randomUUID()}, body:JSON.stringify({ payment_method_id:method, payer:{ email:user.email, identification: cpfDigits ? { type:'CPF', number:cpfDigits } : undefined }, couponCode:appliedCouponCode || undefined }) });
-    const payload = await response.json().catch(()=>({}));
-    if (!response.ok) throw new Error(payload.message || 'Não foi possível iniciar o pagamento.');
-    if (method === 'pix' || payload.pix || payload.qr_code) showPixPayment(payload);
-    else showSuccessModal('Pagamento enviado para processamento.');
-  } catch (e) { showCustomAlert('Erro no pagamento', e.message); }
+async function selectCheckoutMethod(method) {
+  const selected=method==='card'?'card':'pix';
+  document.querySelectorAll('.checkout-method').forEach(button=>button.classList.toggle('active',button.id===`checkout-method-${selected}`));
+  document.querySelectorAll('.checkout-panel').forEach(panel=>panel.classList.toggle('active',panel.id===`checkout-panel-${selected}`));
+  if(selected==='card')await initializeCardBrick();
 }
+
+async function mercadoPagoBrowserConfig(){
+  const response=await fetch(`${RAILWAY_BACKEND_URL}/api/config`),config=await response.json().catch(()=>({}));
+  if(!response.ok||!config.mercadoPagoPublicKey)throw new Error('A Public Key do Mercado Pago não está configurada no backend.');
+  if(config.mercadoPagoCredentialsCompatible!==true)throw new Error('As credenciais pública e privada do Mercado Pago não pertencem ao mesmo ambiente.');
+  return config;
+}
+
+async function initializeCardBrick(){
+  const host = document.getElementById('paymentBrick_container');
+  if (!host) return;
+  if(paymentBrickController)return;
+  host.innerHTML = '<div id="idz-payment-brick"></div>';
+  const status=document.getElementById('card-submit-status');if(status)status.textContent='Carregando cartão seguro…';
+  try{
+    const user=window.auth?.currentUser;if(!user)throw new Error('Faça login para continuar.');
+    const config=await mercadoPagoBrowserConfig();
+    if (!window.MercadoPago) throw new Error('O SDK seguro do Mercado Pago não carregou.');
+    const mp = new MercadoPago(config.mercadoPagoPublicKey, { locale: 'pt-BR' });
+    paymentBrickController = await mp.bricks().create('payment', 'idz-payment-brick', {
+      initialization: { amount: Number(currentCheckoutAmount.toFixed(2)), payer: { email: user.email } },
+      customization: { paymentMethods: { creditCard:'all', maxInstallments:5 }, visual:{style:{theme:'dark'},texts:{action:'pay'}} },
+      callbacks: {
+        onReady:()=>{if(status)status.textContent='';},
+        onSubmit:async({formData})=>{
+          if(!formData?.token)throw new Error('A tokenização segura do cartão não foi concluída.');
+          const payload=await backendRequest('/api/payments/card',{method:'POST',headers:{'Idempotency-Key':crypto.randomUUID()},body:JSON.stringify({...formData,couponCode:appliedCouponCode||undefined})});
+          showSuccessModal('Pagamento enviado para processamento.');return payload;
+        },
+        onError:(error)=>{console.error('Erro no Payment Brick:',error);if(status)status.textContent='Não foi possível carregar o cartão seguro.';}
+      }
+    });
+  }catch(e){paymentBrickController=null;host.innerHTML='';if(status)status.textContent=e.message;showCustomAlert('Checkout indisponível',e.message);}
+}
+
+async function submitIdzPix(){
+  const status=document.getElementById('pix-submit-status');if(status)status.textContent='Gerando PIX seguro…';
+  try{
+    const user=window.auth?.currentUser;if(!user)throw new Error('Faça login para continuar.');
+    const cpf=safeGetValue('pix-payer-cpf').replace(/\D/g,'');
+    const payload=await backendRequest('/api/payments/pix',{method:'POST',headers:{'Idempotency-Key':crypto.randomUUID()},body:JSON.stringify({payment_method_id:'pix',payer:{email:user.email,identification:cpf?{type:'CPF',number:cpf}:undefined},couponCode:appliedCouponCode||undefined})});
+    showPixPayment(payload);if(status)status.textContent=`Status: ${payload.status||'pending'}. O acesso continua bloqueado até aprovação.`;
+  }catch(e){if(status)status.textContent=e.message;showCustomAlert('Erro no PIX',e.message);}
+}
+
 </script>
 <div id="cookie-consent" role="dialog" aria-label="Preferências de cookies" style="display:none;position:fixed;left:16px;right:16px;bottom:16px;z-index:9000;max-width:720px;margin:auto;padding:18px;background:#0b1d38;border:1px solid rgba(73,217,239,.35);border-radius:18px;box-shadow:0 20px 60px #0008"><strong>Privacidade e cookies</strong><p style="margin:7px 0 12px;color:#b7c8df;font-size:14px">Usamos armazenamento necessário para login, segurança e progresso. Recursos opcionais só serão ativados com sua escolha.</p><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn-outline" onclick="saveCookieConsent('necessary')">Somente necessários</button><button class="btn" onclick="saveCookieConsent('all')">Aceitar opcionais</button><a href="privacidade.html" class="btn-outline">Ler política</a></div></div>
 <script>function saveCookieConsent(choice){localStorage.setItem('idz_cookie_consent',JSON.stringify({choice,updatedAt:new Date().toISOString()}));document.getElementById('cookie-consent').style.display='none'}if(!localStorage.getItem('idz_cookie_consent'))document.getElementById('cookie-consent').style.display='block';</script>
