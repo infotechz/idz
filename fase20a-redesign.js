@@ -33,13 +33,13 @@ function coreInteractions(){
   const openDrawer=()=>{document.getElementById('idz20a-drawer')?.classList.add('open');document.getElementById('idz20a-backdrop')?.classList.add('open');document.querySelector('.mobile-dropdown')?.classList.add('active');document.getElementById('mobile-overlay')?.classList.add('active')};
   document.addEventListener('click',event=>{
     const target=event.target.closest('button,a,summary'); if(!target)return;
-    if(target.matches('.nav-icon-only,[data-login],.idz20a-login')){event.preventDefault();authTab('login');return}
-    if(target.matches('.hamburger,[data-menu-toggle]')){event.preventDefault();const d=document.getElementById('idz20a-drawer');(d?.classList.contains('open')||document.querySelector('.mobile-dropdown.active'))?closeDrawer():openDrawer();return}
-    if(target.matches('.idz20a-close,#mobile-overlay,.mobile-overlay')){event.preventDefault();closeDrawer();return}
-    if(target.matches('.idz20a-hero-cta button,.hero .btn,[data-purchase],.purchase-btn')){event.preventDefault();authTab('login');return}
-    if(target.matches('#modal-auth .close-btn,.modal-overlay .close-btn')){event.preventDefault();const modal=target.closest('.modal-overlay');if(modal)modalClose(modal.id);return}
-    if(target.matches('#tab-btn-login')){event.preventDefault();authTab('login');return}
-    if(target.matches('#tab-btn-register')){event.preventDefault();authTab('register');return}
+    if(target.matches('.nav-icon-only,[data-login],.idz20a-login')){event.preventDefault();event.stopImmediatePropagation();authTab('login');return}
+    if(target.matches('.hamburger,[data-menu-toggle]')){event.preventDefault();event.stopImmediatePropagation();const d=document.getElementById('idz20a-drawer');(d?.classList.contains('open')||document.querySelector('.mobile-dropdown.active'))?closeDrawer():openDrawer();return}
+    if(target.matches('.idz20a-close,#mobile-overlay,.mobile-overlay')){event.preventDefault();event.stopImmediatePropagation();closeDrawer();return}
+    if(target.matches('.idz20a-hero-cta button,.hero .btn,[data-purchase],.purchase-btn')){event.preventDefault();event.stopImmediatePropagation();authTab('login');return}
+    if(target.matches('#modal-auth .close-btn,.modal-overlay .close-btn')){event.preventDefault();event.stopImmediatePropagation();const modal=target.closest('.modal-overlay');if(modal)modalClose(modal.id);return}
+    if(target.matches('#tab-btn-login')){event.preventDefault();event.stopImmediatePropagation();authTab('login');return}
+    if(target.matches('#tab-btn-register')){event.preventDefault();event.stopImmediatePropagation();authTab('register');return}
     const inline=target.getAttribute('onclick');
     if(inline){
       const calls=[...inline.matchAll(/(?:^|;)\s*([A-Za-z_$][\w$]*)\s*\(([^)]*)\)/g)];
