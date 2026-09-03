@@ -1,0 +1,199 @@
+/* FASE 20A.2 — acabamento premium e camadas de vidro */
+:root {
+  --20a-glass-primary: linear-gradient(145deg, rgba(12, 39, 72, .55), rgba(4, 18, 37, .34));
+  --20a-glass-secondary: linear-gradient(145deg, rgba(14, 43, 79, .68), rgba(5, 21, 42, .48));
+  --20a-glass-elevated: linear-gradient(145deg, rgba(18, 51, 91, .78), rgba(5, 20, 41, .62));
+  --20a-glass-modal: linear-gradient(145deg, rgba(9, 31, 58, .94), rgba(3, 15, 30, .90));
+  --20a-premium-line: rgba(128, 216, 255, .24);
+  --20a-premium-shadow: 0 22px 60px rgba(0, 4, 14, .30), inset 0 1px 0 rgba(255, 255, 255, .10), inset 0 -1px 0 rgba(16, 116, 190, .08);
+}
+
+#particles-canvas {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  opacity: .92 !important;
+  pointer-events: none !important;
+  filter: drop-shadow(0 0 7px rgba(57, 195, 255, .22));
+}
+
+.bg-orbs {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 0 !important;
+  overflow: hidden;
+  pointer-events: none !important;
+  opacity: 1 !important;
+}
+
+.bg-orbs .orb {
+  position: absolute;
+  border-radius: 999px;
+  filter: blur(86px);
+  opacity: .20;
+  will-change: transform, opacity;
+  animation: idzOrbFloat 30s ease-in-out infinite alternate !important;
+}
+
+.bg-orbs .orb-1 { width: 42vw; height: 42vw; left: -17vw; top: 4vh; background: #087cff; animation-duration: 31s !important; }
+.bg-orbs .orb-2 { width: 34vw; height: 34vw; right: -12vw; top: 42vh; background: #712dff; animation-duration: 37s !important; animation-direction: alternate-reverse !important; }
+.bg-orbs .orb-3 { width: 28vw; height: 28vw; left: 42vw; bottom: -16vw; background: #00d8ef; opacity: .13; animation-duration: 34s !important; }
+.bg-orbs .orb-4 { width: 22vw; height: 22vw; right: 16vw; top: -13vw; background: #305cff; opacity: .14; animation-duration: 41s !important; animation-direction: alternate-reverse !important; }
+
+@keyframes idzOrbFloat {
+  0% { transform: translate3d(-2vw, -1vh, 0) scale(.96); opacity: .13; }
+  50% { opacity: .22; }
+  100% { transform: translate3d(5vw, 6vh, 0) scale(1.08); opacity: .17; }
+}
+
+body.idz-20a > :not(#particles-canvas):not(.bg-orbs) { position: relative; z-index: 1; }
+
+body.idz-20a .glass-card,
+body.idz-20a .card,
+body.idz-20a .module-card,
+body.idz-20a .lesson-card,
+body.idz-20a .idz20a-module,
+body.idz-20a .idz20a-bonus,
+body.idz-20a .idz-stage-zero,
+body.idz-20a .idz20a-current,
+body.idz-20a .idz20a-form,
+body.idz-20a .idz20a-support-card,
+body.idz-20a .idz20a-ticket,
+body.idz-20a .idz20a-metric {
+  position: relative;
+  overflow: hidden;
+  background: var(--20a-glass-primary) !important;
+  border: 1px solid var(--20a-premium-line) !important;
+  box-shadow: var(--20a-premium-shadow) !important;
+  backdrop-filter: blur(15px) saturate(142%) !important;
+  -webkit-backdrop-filter: blur(15px) saturate(142%) !important;
+}
+
+body.idz-20a .hero-card,
+body.idz-20a .price-card,
+body.idz-20a .idz20a-course-card,
+body.idz-20a .admin-panel,
+body.idz-20a .admin-section { background: var(--20a-glass-secondary) !important; }
+
+body.idz-20a .modal-card,
+body.idz-20a .toast,
+body.idz-20a .idz20a-drawer { background: var(--20a-glass-modal) !important; }
+
+body.idz-20a .glass-card::after,
+body.idz-20a .idz20a-course-card::after,
+body.idz-20a .idz-stage-zero::after,
+body.idz-20a .idz20a-module::after,
+body.idz-20a .idz20a-bonus::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  left: 5%;
+  right: 5%;
+  top: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(190, 239, 255, .65), transparent);
+  pointer-events: none;
+}
+
+body.idz-20a .idz-stage-zero {
+  border-color: rgba(70, 220, 242, .44) !important;
+  box-shadow: 0 22px 70px rgba(0, 116, 190, .18), inset 0 1px rgba(255, 255, 255, .12), inset 3px 0 rgba(233, 187, 85, .72) !important;
+}
+
+body.idz-20a .idz20a-course-card,
+body.idz-20a .idz20a-module,
+body.idz-20a .idz20a-bonus { transition: transform .2s ease, border-color .2s ease; }
+
+body.idz-20a .btn-primary,
+body.idz-20a .btn-accent,
+body.idz-20a .cta-button,
+body.idz-20a button.primary,
+body.idz-20a .idz20a-primary,
+body.idz-20a .btn:not(.btn-outline) {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border: 1px solid rgba(132, 230, 255, .62) !important;
+  background: linear-gradient(110deg, #087cef 0%, #12bfe3 38%, #5549f5 72%, #792ee6 100%) !important;
+  box-shadow: 0 9px 26px rgba(9, 126, 237, .28), inset 0 1px rgba(255, 255, 255, .34) !important;
+  transition: transform .18s ease, border-color .18s ease, filter .18s ease !important;
+}
+
+body.idz-20a .btn-primary::after,
+body.idz-20a .btn-accent::after,
+body.idz-20a .cta-button::after,
+body.idz-20a button.primary::after,
+body.idz-20a .idz20a-primary::after,
+body.idz-20a .btn:not(.btn-outline)::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: -40% auto -40% -45%;
+  width: 30%;
+  transform: skewX(-18deg) translateX(-230%);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .28), transparent);
+  animation: idzButtonSheen 9s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes idzButtonSheen {
+  0%, 72% { transform: skewX(-18deg) translateX(-230%); }
+  88%, 100% { transform: skewX(-18deg) translateX(620%); }
+}
+
+body.idz-20a nav {
+  background: linear-gradient(180deg, rgba(3, 16, 32, .78), rgba(3, 16, 32, .55)) !important;
+  box-shadow: 0 12px 40px rgba(0, 5, 15, .18), inset 0 -1px rgba(90, 203, 255, .12) !important;
+}
+
+body.idz-20a footer {
+  background: linear-gradient(180deg, rgba(4, 17, 34, .18), rgba(5, 22, 42, .46)) !important;
+  backdrop-filter: blur(10px);
+}
+
+.idz20a-hero-emblem { display: grid; place-items: center; min-height: 250px; }
+.idz20a-hero-emblem img { width: min(270px, 72%); height: auto; object-fit: contain; filter: drop-shadow(0 20px 34px rgba(0, 116, 255, .33)); }
+.idz20a-course-icon { width: 46px; height: 46px; display: grid; place-items: center; border-radius: 14px; color: var(--20a-cyan); background: linear-gradient(145deg, rgba(22, 137, 255, .22), rgba(72, 221, 242, .08)); border: 1px solid rgba(84, 205, 255, .25); font-size: 1.1rem; }
+.idz20a-skeleton { position: relative; overflow: hidden; background: rgba(92, 163, 218, .09) !important; color: transparent !important; }
+.idz20a-skeleton::before { content: ""; position: absolute; inset: 0; transform: translateX(-110%); background: linear-gradient(90deg, transparent, rgba(116, 214, 255, .13), transparent); animation: idzSkeleton 1.7s ease-in-out infinite; }
+@keyframes idzSkeleton { to { transform: translateX(110%); } }
+
+@media (hover: hover) {
+  body.idz-20a .idz20a-course-card:hover,
+  body.idz-20a .idz20a-module:hover,
+  body.idz-20a .idz20a-bonus:hover { transform: translateY(-2px); border-color: rgba(69, 217, 250, .46) !important; }
+  body.idz-20a .btn-primary:hover,
+  body.idz-20a .btn-accent:hover,
+  body.idz-20a .cta-button:hover,
+  body.idz-20a button.primary:hover { transform: translateY(-1px) scale(1.01); filter: brightness(1.06); }
+  body.idz-20a .btn:not(.btn-outline):hover { transform: translateY(-1px) scale(1.01); filter: brightness(1.06); }
+}
+
+body.idz-20a .btn-primary:active,
+body.idz-20a .btn-accent:active,
+body.idz-20a .cta-button:active,
+body.idz-20a button.primary:active,
+body.idz-20a .btn:not(.btn-outline):active { transform: scale(.98) !important; }
+
+@media (max-width: 768px) {
+  .bg-orbs .orb { filter: blur(64px); opacity: .14; }
+  body.idz-20a .glass-card,
+  body.idz-20a .card,
+  body.idz-20a .idz20a-course-card,
+  body.idz-20a .idz-stage-zero { backdrop-filter: blur(10px) saturate(130%) !important; -webkit-backdrop-filter: blur(10px) saturate(130%) !important; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bg-orbs .orb { animation: none !important; opacity: .08 !important; }
+  body.idz-20a .btn-primary::after,
+  body.idz-20a .btn-accent::after,
+  body.idz-20a .cta-button::after,
+  body.idz-20a button.primary::after,
+  body.idz-20a .btn:not(.btn-outline)::after,
+  .idz20a-skeleton::before { animation: none !important; }
+  body.idz-20a .idz20a-course-card,
+  body.idz-20a .idz20a-module,
+  body.idz-20a .idz20a-bonus { transition: none !important; }
+}
