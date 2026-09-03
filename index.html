@@ -1232,7 +1232,7 @@ nav,#public-site,#member-area,#settings-area,#admin-area,footer { position:relat
       <div class="admin-filter-bar" aria-label="Filtros de certificados">
         <label class="input-group"><span>Busca</span><input id="certificate-search" type="search" placeholder="Nome ou e-mail" oninput="filterCertificateRequests()"></label>
         <label class="input-group"><span>Status</span><select id="certificate-status-filter" onchange="filterCertificateRequests()"><option value="">Todos</option><option value="pendente">Pendente</option><option value="a_caminho">A caminho</option><option value="entregue">Entregue</option><option value="cancelado">Cancelado</option></select></label>
-        <label class="input-group"><span>Data</span><input id="certificate-date-filter" type="date" onchange="filterCertificateReq…10187 tokens truncated…CourseStatsUI() {
+        <label class="input-group"><span>Data</span><input id="certificate-date-filter" type="date" onchange="filterCertificateReqCourseStatsUI() {
   const totalMod = 12;
   let totalLes = 0;
   courseData.forEach(m => { if(m.lessons) totalLes += m.lessons.length; });
