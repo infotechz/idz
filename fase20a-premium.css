@@ -48,7 +48,24 @@
   100% { transform: translate3d(5vw, 6vh, 0) scale(1.08); opacity: .17; }
 }
 
-body.idz-20a > :not(#particles-canvas):not(.bg-orbs) { position: relative; z-index: 1; }
+body.idz-20a > nav,
+body.idz-20a > #public-site,
+body.idz-20a > #member-area,
+body.idz-20a > #settings-area,
+body.idz-20a > #admin-area,
+body.idz-20a > #idz-support-20a,
+body.idz-20a > #idz-refund-20a,
+body.idz-20a > footer {
+  position: relative;
+  z-index: 1;
+}
+
+/* Modais jamais entram no fluxo da página: a Home precisa começar no topo. */
+body.idz-20a > .modal-overlay,
+body.idz-20a > .idz20a-backdrop,
+body.idz-20a > .idz20a-drawer {
+  position: fixed;
+}
 
 body.idz-20a .glass-card,
 body.idz-20a .card,
