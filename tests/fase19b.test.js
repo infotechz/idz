@@ -16,12 +16,35 @@ test('scripts inline clássicos possuem sintaxe válida', () => {
 test('checkout usa configuração pública segura e separa PIX de cartão', () => {
   assert.match(html, /\/api\/config/);
   assert.match(html, /mercadoPagoCredentialsCompatible/);
-  assert.match(html, /id="checkout-method-pix"[\s\S]*?PIX<\/button>/);
-  assert.match(html, /id="checkout-method-card"[\s\S]*?CARTÃO<\/button>/);
+  assert.match(html, /id="checkout-method-pix"[\s\S]*?<span>PIX<\/span>[\s\S]*?<\/button>/);
+  assert.match(html, /id="checkout-method-card"[\s\S]*?<span>CARTÃO<\/span>[\s\S]*?<\/button>/);
   assert.match(html, /\/api\/payments\/pix/);
   assert.match(html, /\/api\/payments\/card/);
   assert.doesNotMatch(html, /const\s+MP_PUBLIC_KEY|APP_USR-|TEST-/);
   assert.doesNotMatch(html, /Débito Virtual CAIXA/);
+  assert.doesNotMatch(html, /Meios de pagamento|Parcelamento disponível|paymentBrick_container|bricks\(\)\.create/);
+  assert.match(html, /mp\.cardForm\(\{/);
+  assert.match(html, /iframe:true/);
+  assert.match(html, /id="form-checkout__cardNumber"/);
+  assert.match(html, /id="form-checkout__securityCode"/);
+  assert.match(html, /token:data\.token/);
+  assert.doesNotMatch(html, /cardNumber:data|securityCode:data/);
+});
+
+test('helper autenticado protege PIX e cartão com Firebase ID Token', () => {
+  assert.match(html, /async function requireFirebaseSession\(\)/);
+  assert.match(html, /await user\.getIdToken\(\)/);
+  assert.match(html, /headers\.set\(['"]Authorization['"],`Bearer \$\{token\}`\)/);
+  assert.match(html, /async function backendRequest\(path, options = \{\}\)/);
+  assert.match(html, /backendRequest\(['"]\/api\/payments\/pix['"]/);
+  assert.match(html, /backendRequest\(['"]\/api\/payments\/card['"]/);
+  assert.match(html, /Entre na sua conta para continuar o pagamento/);
+});
+
+test('checkout IDZ é responsivo nos celulares alvo', () => {
+  assert.match(html, /@media\(max-width:460px\)/);
+  assert.match(html, /min-height:100svh/);
+  assert.match(html, /\.idz-card-grid\{grid-template-columns:1fr\}/);
 });
 
 test('Course V2 mantém 12 módulos e bônus fora da contagem', () => {
