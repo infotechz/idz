@@ -302,6 +302,11 @@ window.onload = function() {
       const { collection, onSnapshot, doc, setDoc, getDoc, getDocs, onAuthStateChanged } = window.firebaseModules;
 
       onAuthStateChanged(window.auth, async (user) => {
+        // O menu deve refletir o Auth imediatamente, sem esperar Firestore.
+        // Dados privados continuam sendo carregados abaixo, depois desta atualização.
+        window.IDZ_AUTH_STATE = user ? 'STUDENT' : 'VISITOR';
+        updateNavState(!!user, user?.email || null);
+        window.IDZ_PHASE_20A?.refreshMenu?.();
         if (user) {
           currentUser = user.email;
           currentUserUid = user.uid;
@@ -312,6 +317,9 @@ window.onload = function() {
           let tokenClaims = {};
           try { tokenClaims = (await user.getIdTokenResult()).claims || {}; } catch (_) {}
           isAdmin = tokenClaims.admin === true;
+          window.IDZ_AUTH_STATE = isAdmin ? 'ADMIN' : 'STUDENT';
+          updateNavState(true, currentUser);
+          window.IDZ_PHASE_20A?.refreshMenu?.();
 
           try {
             // Usuários comuns leem somente o próprio documento UID. A coleção
@@ -393,10 +401,13 @@ window.onload = function() {
             }
           } catch(err) {
             console.error("Erro ao sincronizar Firestore:", err);
+            window.IDZ_AUTH_STATE = isAdmin ? 'ADMIN' : 'STUDENT';
             updateNavState(true, currentUser);
+            window.IDZ_PHASE_20A?.refreshMenu?.();
             showPublicSite();
           }
         } else {
+          window.IDZ_AUTH_STATE = 'VISITOR';
           currentUser = null;
           currentUserUid = null;
           if (usersUnsubscribe) { usersUnsubscribe(); usersUnsubscribe = null; }
@@ -404,6 +415,7 @@ window.onload = function() {
           notificationsList = [];
           changeTheme('azul', false);
           updateNavState(false, null);
+          window.IDZ_PHASE_20A?.refreshMenu?.();
           updateNotificationsBadge();
           showPublicSite();
         }
@@ -436,6 +448,9 @@ function updateNavState(isLoggedIn, email) {
   const navUser = document.getElementById('nav-user');
   const mobileContainer = document.getElementById('mobile-menu-options');
 
+  document.querySelectorAll('[data-auth-only],#logout-btn,[onclick*="logout()"]')
+    .forEach(el => { el.style.display = isLoggedIn ? '' : 'none'; });
+
   if (isLoggedIn) {
     if (navGuest) navGuest.style.display = 'none';
     if (navUser) navUser.style.display = 'flex';
@@ -455,8 +470,6 @@ function updateNavState(isLoggedIn, email) {
     if (navGuest) navGuest.style.display = 'block';
     if (navUser) navUser.style.display = 'none';
     /* Visitante: nunca exibir ações privadas ou logout. */
-    document.querySelectorAll('[data-auth-only],#logout-btn,[onclick*="logout()"]')
-      .forEach(el => { el.style.display = 'none'; });
     if (mobileContainer) {
       mobileContainer.innerHTML = `
         <button onclick="toggleMobileMenu(); openAuthModal('login')"><i class="fa-regular fa-user"></i> Login / Criar Conta</button>
@@ -2237,4 +2250,3 @@ async function submitIdzPix(){
     showPixPayment(payload);if(status)status.textContent=`Status: ${payload.status||'pending'}. O acesso continua bloqueado até aprovação.`;
   }catch(e){if(status)status.textContent=e.message;showCustomAlert('Não foi possível gerar o PIX',e.message);}
 }
-
