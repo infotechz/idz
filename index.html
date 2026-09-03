@@ -15,12 +15,13 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script defer src="https://sdk.mercadopago.com/js/v2"></script>
-
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
 <script src="course-v2.js?v=631f47a"></script>
+    <link rel="stylesheet" href="fase20a-redesign.css?v=20a2-premium">
+    <link rel="stylesheet" href="fase20a-premium.css?v=20a2-premium">
+<script defer src="fase20a-redesign.js?v=20a2-premium"></script>
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
   import { getFirestore, collection, doc, setDoc, getDoc, getDocs, onSnapshot, deleteDoc, query, where, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -712,6 +713,8 @@ nav,#public-site,#member-area,#settings-area,#admin-area,footer { position:relat
 <div class="bg-orbs">
   <div class="orb orb-1"></div>
   <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <div class="orb orb-4"></div>
 </div>
 
 <!-- MODAL DE ALERTA PROFISSIONAL -->
@@ -1447,31 +1450,41 @@ function isSafeHttpUrl(value = '') {
 const canvas = document.getElementById('particles-canvas');
 const ctx = canvas ? canvas.getContext('2d') : null;
 let particlesArray = [];
+let particlesFrame = 0;
+let particlesRunning = false;
+let particlesResizeTimer = 0;
 function resizeCanvas() { 
   if (canvas) {
-    canvas.width = window.innerWidth; 
-    canvas.height = window.innerHeight; 
+    const ratio = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.floor(window.innerWidth * ratio);
+    canvas.height = Math.floor(window.innerHeight * ratio);
+    canvas.style.width = window.innerWidth + 'px';
+    canvas.style.height = window.innerHeight + 'px';
+    ctx?.setTransform(ratio, 0, 0, ratio, 0, 0);
   }
 }
-window.addEventListener('resize', resizeCanvas); 
+window.addEventListener('resize', () => {
+  clearTimeout(particlesResizeTimer);
+  particlesResizeTimer = setTimeout(() => { resizeCanvas(); initParticles(); }, 140);
+}, { passive: true });
 resizeCanvas();
 
 class Particle {
   constructor() {
-    this.x = Math.random() * (canvas ? canvas.width : 800);
-    this.y = Math.random() * (canvas ? canvas.height : 600);
+    this.x = Math.random() * window.innerWidth;
+    this.y = Math.random() * window.innerHeight;
     this.depth = Math.random() * .8 + .2;
-    this.size = (Math.random() * 1.45 + 0.3) * this.depth;
-    this.speedX = (Math.random() - 0.5) * 0.18 * this.depth;
-    this.speedY = (Math.random() - 0.5) * 0.18 * this.depth;
-    this.opacity = Math.random() * 0.26 + 0.05;
+    this.size = (Math.random() * 1.8 + 0.55) * this.depth;
+    this.speedX = (Math.random() - 0.42) * 0.52 * this.depth;
+    this.speedY = (Math.random() - 0.5) * 0.38 * this.depth;
+    this.opacity = Math.random() * 0.42 + 0.16;
     this.phase = Math.random() * Math.PI * 2;
   }
   update() {
     if (!canvas) return;
     this.x += this.speedX; this.y += this.speedY; this.phase += .006 + this.depth * .004;
-    if (this.x < 0) this.x = canvas.width; if (this.x > canvas.width) this.x = 0;
-    if (this.y < 0) this.y = canvas.height; if (this.y > canvas.height) this.y = 0;
+    if (this.x < -8) this.x = window.innerWidth + 8; if (this.x > window.innerWidth + 8) this.x = -8;
+    if (this.y < -8) this.y = window.innerHeight + 8; if (this.y > window.innerHeight + 8) this.y = -8;
   }
   draw() {
     if (!ctx) return;
@@ -1483,17 +1496,21 @@ class Particle {
 function initParticles() {
   if (!canvas) return;
   particlesArray = [];
-  let numberOfParticles = Math.min(window.innerWidth<600?42:92, Math.max(20, Math.floor((canvas.width * canvas.height) / 18500)));
+  const area = window.innerWidth * window.innerHeight;
+  let numberOfParticles = window.innerWidth < 600 ? Math.min(36, Math.max(24, Math.floor(area / 16000))) : Math.min(72, Math.max(46, Math.floor(area / 23000)));
   for (let i = 0; i < numberOfParticles; i++) particlesArray.push(new Particle());
 }
 function animateParticles() {
   if (!ctx || !canvas) return;
-  if (document.hidden || window.matchMedia('(prefers-reduced-motion: reduce)').matches) { requestAnimationFrame(animateParticles); return; }
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  if (!particlesRunning || document.hidden || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
   particlesArray.forEach(p => { p.update(); p.draw(); });
-  requestAnimationFrame(animateParticles);
+  particlesFrame = requestAnimationFrame(animateParticles);
 }
-initParticles(); animateParticles();
+function startParticles(){ if (particlesRunning || document.hidden) return; particlesRunning = true; particlesFrame = requestAnimationFrame(animateParticles); }
+function stopParticles(){ particlesRunning = false; if (particlesFrame) cancelAnimationFrame(particlesFrame); }
+document.addEventListener('visibilitychange', () => document.hidden ? stopParticles() : startParticles());
+initParticles(); startParticles();
 
 // ESTRUTURA CURRICULAR V2
 const courseV2Runtime = courseV2.modules.map((mod, moduleIndex) => Object.assign({}, mod, {
@@ -3061,12 +3078,29 @@ async function requestPhysicalCertificate() {
   showSuccessModal('Solicitação enviada', 'O administrador recebeu sua solicitação de certificado físico.');
 }
 
-function generateOfficialCertificatePDF(targetEmail = currentUser) {
+let jsPdfLoaderPromise = null;
+function loadJsPdf() {
+  if (window.jspdf?.jsPDF) return Promise.resolve();
+  if (jsPdfLoaderPromise) return jsPdfLoaderPromise;
+  jsPdfLoaderPromise = new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+    script.async = true;
+    script.dataset.jspdfSdk = 'true';
+    script.onload = resolve;
+    script.onerror = () => reject(new Error('Falha ao carregar o gerador de PDF.'));
+    document.head.appendChild(script);
+  });
+  return jsPdfLoaderPromise;
+}
+
+async function generateOfficialCertificatePDF(targetEmail = currentUser) {
   if (String(targetEmail).includes('%')) targetEmail = decodeURIComponent(targetEmail);
   const uObj = ensureCertificateRecord(registeredUsers.find(u => u.email === targetEmail));
   if (!uObj) return;
   const studentName = uObj.fullname || targetEmail;
-  if (!window.jspdf?.jsPDF) { showCustomAlert('Certificado indisponível', 'A biblioteca de PDF ainda não carregou. Atualize a página e tente novamente.'); return; }
+  try { await loadJsPdf(); } catch { showCustomAlert('Certificado indisponível', 'Não foi possível carregar o gerador de PDF. Tente novamente.'); return; }
+  if (!window.jspdf?.jsPDF) { showCustomAlert('Certificado indisponível', 'O gerador de PDF não está disponível. Tente novamente.'); return; }
   const { jsPDF } = window.jspdf;
   const img = new Image();
   img.onload = () => {
@@ -3536,6 +3570,24 @@ async function mercadoPagoBrowserConfig(){
   return config;
 }
 
+let mercadoPagoSdkPromise = null;
+function loadMercadoPagoSdk(){
+  if(window.MercadoPago)return Promise.resolve();
+  if(mercadoPagoSdkPromise)return mercadoPagoSdkPromise;
+  mercadoPagoSdkPromise=new Promise((resolve,reject)=>{
+    const existing=document.querySelector('script[data-mercado-pago-sdk]');
+    if(existing){existing.addEventListener('load',resolve,{once:true});existing.addEventListener('error',()=>reject(new Error('Não foi possível carregar o pagamento seguro.')),{once:true});return;}
+    const script=document.createElement('script');
+    script.src='https://sdk.mercadopago.com/js/v2';
+    script.async=true;
+    script.dataset.mercadoPagoSdk='true';
+    script.onload=resolve;
+    script.onerror=()=>reject(new Error('Não foi possível carregar o pagamento seguro.'));
+    document.head.appendChild(script);
+  });
+  return mercadoPagoSdkPromise;
+}
+
 async function initializeCardForm(){
   const form=document.getElementById('form-checkout');
   if(!form||cardFormController)return;
@@ -3543,6 +3595,7 @@ async function initializeCardForm(){
   try{
     const {user}=await requireFirebaseSession();
     const config=await mercadoPagoBrowserConfig();
+    await loadMercadoPagoSdk();
     if (!window.MercadoPago) throw new Error('O SDK seguro do Mercado Pago não carregou.');
     const mp = new MercadoPago(config.mercadoPagoPublicKey, { locale: 'pt-BR' });
     document.getElementById('form-checkout__cardholderEmail').value=user.email||'';
