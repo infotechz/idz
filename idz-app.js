@@ -2095,4 +2095,146 @@ function saveEditedLesson() {
 
   const qText = safeGetValue('edit-quiz-question');
   if(qText) {
-  
+    lesson.quiz = {
+      question: qText,
+      options: [
+        safeGetValue('edit-quiz-opt0'),
+        safeGetValue('edit-quiz-opt1'),
+        safeGetValue('edit-quiz-opt2'),
+        safeGetValue('edit-quiz-opt3')
+      ],
+      correct: parseInt(safeGetValue('edit-quiz-correct') || '0')
+    };
+  }
+
+  saveCourseToCloud("Aula e quiz atualizados na nuvem!");
+  closeModal('modal-edit-lesson');
+  renderAdminModules();
+}
+
+function deleteLesson(modId, lessonId) {
+  if(!confirm("Deseja realmente excluir esta aula?")) return;
+  const mod = courseData.find(m => m.id === modId);
+  if (mod && mod.lessons) {
+    mod.lessons = mod.lessons.filter(l => l.id !== lessonId);
+    saveCourseToCloud("Aula removida!");
+    renderAdminModules();
+    updateCourseStatsUI();
+  }
+}
+
+async function openCheckoutModal() {
+  try {
+    const {user}=await requireFirebaseSession();
+    checkoutTargetUser=user;
+  } catch (_) {
+    sessionStorage.setItem('pending_checkout', JSON.stringify({ amount: currentCheckoutAmount, createdAt: Date.now() }));
+    openAuthModal('login');
+    showCustomAlert('Entre para continuar', 'Entre na sua conta para continuar o pagamento.');
+    return;
+  }
+  await destroyCardForm();
+  resetPixPanel();
+  updateCheckoutPrice();
+  openModal('modal-custom-checkout');
+  selectCheckoutMethod('pix');
+}
+
+function updateCheckoutPrice(){
+  const label=`R$ ${Number(currentCheckoutAmount).toFixed(2).replace('.',',')}`;
+  safeSetText('checkout-modal-title',label);
+  document.querySelectorAll('[data-checkout-price]').forEach(element=>element.textContent=label);
+  const submit=document.getElementById('form-checkout__submit');if(submit)submit.textContent=`PAGAR ${label}`;
+}
+
+async function selectCheckoutMethod(method) {
+  const selected=method==='card'?'card':'pix';
+  document.querySelectorAll('.checkout-method').forEach(button=>button.classList.toggle('active',button.id===`checkout-method-${selected}`));
+  document.querySelectorAll('.checkout-panel').forEach(panel=>panel.classList.toggle('active',panel.id===`checkout-panel-${selected}`));
+  if(selected==='card')await initializeCardForm();
+}
+
+async function mercadoPagoBrowserConfig(){
+  const response=await fetch(`${RAILWAY_BACKEND_URL}/api/config`),config=await response.json().catch(()=>({}));
+  if(!response.ok||!config.mercadoPagoPublicKey)throw new Error('A Public Key do Mercado Pago não está configurada no backend.');
+  if(config.mercadoPagoCredentialsCompatible!==true)throw new Error('As credenciais pública e privada do Mercado Pago não pertencem ao mesmo ambiente.');
+  return config;
+}
+
+let mercadoPagoSdkPromise = null;
+function loadMercadoPagoSdk(){
+  if(window.MercadoPago)return Promise.resolve();
+  if(mercadoPagoSdkPromise)return mercadoPagoSdkPromise;
+  mercadoPagoSdkPromise=new Promise((resolve,reject)=>{
+    const existing=document.querySelector('script[data-mercado-pago-sdk]');
+    if(existing){existing.addEventListener('load',resolve,{once:true});existing.addEventListener('error',()=>reject(new Error('Não foi possível carregar o pagamento seguro.')),{once:true});return;}
+    const script=document.createElement('script');
+    script.src='https://sdk.mercadopago.com/js/v2';
+    script.async=true;
+    script.dataset.mercadoPagoSdk='true';
+    script.onload=resolve;
+    script.onerror=()=>reject(new Error('Não foi possível carregar o pagamento seguro.'));
+    document.head.appendChild(script);
+  });
+  return mercadoPagoSdkPromise;
+}
+
+async function initializeCardForm(){
+  const form=document.getElementById('form-checkout');
+  if(!form||cardFormController)return;
+  const status=document.getElementById('card-submit-status');if(status)status.textContent='Carregando cartão seguro…';
+  try{
+    const {user}=await requireFirebaseSession();
+    const config=await mercadoPagoBrowserConfig();
+    await loadMercadoPagoSdk();
+    if (!window.MercadoPago) throw new Error('O SDK seguro do Mercado Pago não carregou.');
+    const mp = new MercadoPago(config.mercadoPagoPublicKey, { locale: 'pt-BR' });
+    document.getElementById('form-checkout__cardholderEmail').value=user.email||'';
+    cardFormController=mp.cardForm({
+      amount:Number(currentCheckoutAmount).toFixed(2),
+      iframe:true,
+      form:{
+        id:'form-checkout',
+        cardNumber:{id:'form-checkout__cardNumber',placeholder:'0000 0000 0000 0000'},
+        expirationDate:{id:'form-checkout__expirationDate',placeholder:'MM/AA'},
+        securityCode:{id:'form-checkout__securityCode',placeholder:'CVV'},
+        cardholderName:{id:'form-checkout__cardholderName',placeholder:'Como está no cartão'},
+        issuer:{id:'form-checkout__issuer',placeholder:'Banco emissor'},
+        installments:{id:'form-checkout__installments',placeholder:'Parcelas'},
+        identificationType:{id:'form-checkout__identificationType',placeholder:'Tipo'},
+        identificationNumber:{id:'form-checkout__identificationNumber',placeholder:'Somente números'},
+        cardholderEmail:{id:'form-checkout__cardholderEmail',placeholder:'seu@email.com'}
+      },
+      callbacks: {
+        onFormMounted:error=>{
+          if(error){const message=getFriendlyCheckoutError(error);if(status)status.textContent=message;console.warn('card_form_mount_failed',{type:String(error?.type||error?.name||'unknown')});return;}
+          if(status)status.textContent='Cartão seguro carregado.';
+        },
+        onSubmit:async event=>{
+          event.preventDefault();
+          const submit=document.getElementById('form-checkout__submit');if(submit)submit.disabled=true;
+          try{
+            const data=cardFormController.getCardFormData();
+            if(!data?.token)throw new Error('A tokenização segura do cartão não foi concluída. Confira os campos.');
+            const payload=await backendRequest('/api/payments/card',{method:'POST',headers:{'Idempotency-Key':crypto.randomUUID()},body:JSON.stringify({token:data.token,payment_method_id:data.paymentMethodId,issuer_id:data.issuerId,installments:Number(data.installments),payer:{email:data.cardholderEmail,identification:{type:data.identificationType,number:data.identificationNumber}},couponCode:appliedCouponCode||undefined})});
+            if(status)status.textContent=`Status: ${payload.status||'em processamento'}.`;
+            showSuccessModal('Pagamento enviado para processamento. O acesso depende da aprovação confirmada.');
+          }catch(error){const message=getFriendlyCheckoutError(error,'Não foi possível processar o cartão. Confira os dados e tente novamente.');if(status)status.textContent=message;showCustomAlert('Pagamento não concluído',message)}finally{if(submit)submit.disabled=false}
+        },
+        onFetching:()=>{if(status)status.textContent='Validando dados seguros…';return Promise.resolve();}
+      }
+    });
+    if(!cardFormController||typeof cardFormController.getCardFormData!=='function')throw new Error('O formulário seguro do cartão não foi inicializado.');
+  }catch(e){cardFormController=null;const message=getFriendlyCheckoutError(e);if(status)status.textContent=message;console.warn('card_form_initialization_failed',{type:String(e?.name||e?.type||'unknown')});showCustomAlert('Checkout indisponível',message);}
+}
+
+async function submitIdzPix(){
+  const status=document.getElementById('pix-submit-status');if(status)status.textContent='Gerando PIX seguro…';
+  try{
+    const {user}=await requireFirebaseSession();
+    const cpf=safeGetValue('pix-payer-cpf').replace(/\D/g,'');
+    const payload=await backendRequest('/api/payments/pix',{method:'POST',headers:{'Idempotency-Key':crypto.randomUUID()},body:JSON.stringify({payment_method_id:'pix',payer:{email:user.email,identification:cpf?{type:'CPF',number:cpf}:undefined},couponCode:appliedCouponCode||undefined})});
+    showPixPayment(payload);if(status)status.textContent=`Status: ${payload.status||'pending'}. O acesso continua bloqueado até aprovação.`;
+  }catch(e){if(status)status.textContent=e.message;showCustomAlert('Não foi possível gerar o PIX',e.message);}
+}
+
