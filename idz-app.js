@@ -767,7 +767,7 @@ async function closeCheckoutModalSafe() {
   checkoutTargetUser = null;
 }
 
-async function requireFirebaseSession() {
+async async function requireFirebaseSession() {
   if (!window.auth) throw new Error('Entre na sua conta para continuar o pagamento.');
   let user=window.auth.currentUser;
   if(!user&&window.firebaseModules?.onAuthStateChanged){
@@ -798,13 +798,21 @@ function getFriendlyCheckoutError(error,fallback='Não foi possível carregar o 
 }
 
 async function backendRequest(path, options = {}) {
-  const {token}=await requireFirebaseSession();
-  const headers=new Headers(options.headers||{});
-  headers.set('Content-Type','application/json');
-  headers.set('Authorization',`Bearer ${token}`);
-  const response = await fetch(`${RAILWAY_BACKEND_URL}${path}`, { ...options, headers });
-  const payload = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(friendlyBackendError(response,payload));
+  const session = await requireFirebaseSession();
+  const makeRequest = async (token) => {
+    const headers = new Headers(options.headers || {});
+    headers.set('Content-Type', 'application/json');
+    headers.set('Authorization', `Bearer ${token}`);
+    return fetch(`${RAILWAY_BACKEND_URL}${path}`, { ...options, headers });
+  };
+  let response = await makeRequest(session.token);
+  let payload = await response.json().catch(() => ({}));
+  if (response.status === 401 && session.user?.getIdToken) {
+    const refreshed = await session.user.getIdToken(true);
+    response = await makeRequest(refreshed);
+    payload = await response.json().catch(() => ({}));
+  }
+  if (!response.ok) throw new Error(friendlyBackendError(response, payload));
   return payload;
 }
 
@@ -1437,16 +1445,29 @@ function startCourseJourney() {
 async function sendAdminNotificationTest() {
   if (!isAdmin) return showCustomAlert('Acesso restrito', 'Somente administradores podem enviar notificações de teste.');
   const result = document.getElementById('notification-test-result');
-  const uid = safeGetValue('notification-test-student');
+  const submit = document.querySelector('[data-send-notification]');
+  const recipient = safeGetValue('notification-test-student');
   const title = safeGetValue('notification-test-title');
   const message = safeGetValue('notification-test-message');
-  if (!uid || !title || !message) return showCustomAlert('Notificação', 'Selecione um aluno e preencha título e mensagem.');
+  if (!recipient || !title || !message) return showCustomAlert('Notificação', 'Selecione um destinatário e preencha título e mensagem.');
+  if (recipient === '__ALL_STUDENTS__' && !window.confirm('Esta notificação será enviada para todos os alunos. Deseja continuar?')) return;
+  if (submit) submit.disabled = true;
   if (result) result.textContent = 'Enviando notificação…';
   try {
-    await adminApi('/api/admin/notifications/test', { method: 'POST', body: JSON.stringify({ uid, title, message }) });
-    if (result) result.textContent = 'Notificação enviada ao backend para entrega.';
+    const payload = await adminApi('/api/admin/notifications', {
+      method: 'POST',
+      body: JSON.stringify({
+        audience: recipient === '__ALL_STUDENTS__' ? 'all_students' : 'student',
+        uid: recipient === '__ALL_STUDENTS__' ? undefined : recipient,
+        title,
+        message
+      })
+    });
+    if (result) result.textContent = `Notificação enviada. Destinatários: ${payload.recipients ?? 0}. Internas: ${payload.internalCreated ?? 0}. Push enviados: ${payload.pushSent ?? 0}. Sem dispositivo: ${payload.withoutPush ?? 0}. Falhas: ${payload.failures ?? 0}.`;
   } catch (error) {
     if (result) result.textContent = `Não foi possível enviar: ${error.message}`;
+  } finally {
+    if (submit) submit.disabled = false;
   }
 }
 
@@ -2092,13 +2113,27 @@ function updateTxStatus(email, st) {
   localStorage.setItem('admin_sales_transactions', JSON.stringify(salesTransactions));
 }
 
-function populateTestStudentSelect() {
-  const sel = document.getElementById('test-student-select');
-  if(!sel) return;
-  sel.innerHTML = '';
-  registeredUsers.forEach(u => {
-    sel.innerHTML += `<option value="${u.email}">${u.fullname || u.email} (${u.email})</option>`;
-  });
+async function populateTestStudentSelect() {
+  const sel = document.getElementById('notification-test-student');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">Carregando alunos…</option>';
+  try {
+    const recipients = await backendRequest('/api/admin/notification-recipients', { method: 'GET' });
+    const students = Array.isArray(recipients.students) ? recipients.students : [];
+    sel.innerHTML = '';
+    if (!students.length) {
+      sel.innerHTML = '<option value="">Nenhum aluno encontrado</option>';
+      return;
+    }
+    sel.insertAdjacentHTML('beforeend', '<option value="__ALL_STUDENTS__">Todos os alunos</option>');
+    students.forEach(student => {
+      const label = escapeHTML(`${student.fullname || 'Aluno'} — ${student.email || student.uid}`);
+      sel.insertAdjacentHTML('beforeend', `<option value="${escapeHTML(student.uid)}">${label}</option>`);
+    });
+  } catch (error) {
+    sel.innerHTML = '<option value="">Não foi possível carregar alunos</option>';
+    console.warn('notification_recipients_load_failed', { message: String(error?.message || 'unknown') });
+  }
 }
 
 function openTestCheckoutCustom() {
