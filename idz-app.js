@@ -1473,7 +1473,7 @@ function showAdminArea() {
   document.getElementById('public-site').style.display = 'none';
   const a = document.getElementById('admin-area'); if(a) a.style.display = 'block';
   
-  switchAdminTab('alunos'); 
+  switchAdminTab('overview');
   populateLessonModuleSelect(); 
   populateTestStudentSelect();
 }
@@ -1882,11 +1882,11 @@ async function generateOfficialCertificatePDF(targetEmail = currentUser) {
 }
 
 function switchAdminTab(secName) {
-  ['alunos', 'vendas', 'cart', 'modules', 'certificates', 'testcheckout', 'support', 'refunds', 'coupons'].forEach(s => {
+  ['overview', 'alunos', 'vendas', 'cart', 'modules', 'certificates', 'testcheckout', 'support', 'refunds', 'coupons'].forEach(s => {
     let elem = document.getElementById(`admin-sec-${s}`);
     if(elem) elem.style.display = (s === secName) ? 'block' : 'none';
   });
-  if(secName === 'alunos') renderDashboard();
+  if(secName === 'overview' || secName === 'alunos') renderDashboard();
   else if(secName === 'vendas') renderSalesTab();
   else if(secName === 'cart') renderCartTab();
   else if(secName === 'modules') renderAdminModules();
@@ -1958,6 +1958,7 @@ async function confirmPhysicalReceipt() {
 
 function renderDashboard() {
   safeSetText('admin-total-users', `${registeredUsers.length}`);
+  safeSetText('admin-overview-users', `${registeredUsers.length}`);
   updateCourseStatsUI();
   
   const tbody = document.getElementById('users-list-body'); 
