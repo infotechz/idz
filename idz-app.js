@@ -407,6 +407,8 @@ function startAuthBootstrap() {
             if (!user.emailVerified && !isAdmin && user.providerData.every(p => p.providerId === 'password')) {
               showEmailVerificationGate(user);
             } else if (isAdmin) {
+              // A área administrativa é a tela inicial do Admin, mesmo quando
+              // a leitura do Firestore demora ou falha.
               showAdminArea();
             } else if (uObj && uObj.paid) {
               showMemberArea();
@@ -416,7 +418,8 @@ function startAuthBootstrap() {
           } catch(err) {
             console.error("Erro ao sincronizar Firestore:", err);
             updateNavState(true, currentUser, isAdmin ? 'ADMIN' : 'STUDENT');
-            showPublicSite();
+            if (isAdmin) showAdminArea();
+            else showPublicSite();
           }
         } else {
           currentUser = null;
@@ -1395,11 +1398,24 @@ function showMemberArea() {
   showPublicSite();
   document.getElementById('public-site').style.display = 'none';
   const m = document.getElementById('member-area'); if(m) m.style.display = 'block';
+  window.IDZ_ACTIVE_VIEW = isAdmin ? 'admin-preview' : 'student';
+  if (isAdmin && m && !document.getElementById('admin-preview-return')) {
+    const header = m.querySelector('.student-dashboard-header');
+    const back = document.createElement('button');
+    back.id = 'admin-preview-return';
+    back.type = 'button';
+    back.className = 'btn-outline';
+    back.innerHTML = '<i class="fa-solid fa-shield-halved"></i> Voltar ao painel Admin';
+    back.addEventListener('click', () => showAdminArea());
+    header?.appendChild(back);
+  }
   
   updateStudentDashboard();
   renderMemberSidebar();
   if(courseData.length > 0 && courseData[0].lessons?.length > 0) {
     loadLessonContent(courseData[0].id, courseData[0].lessons[0].id);
+  } else {
+    safeSetHTML('lms-main-content', '<div class="empty-state"><i class="fa-solid fa-hourglass-half"></i><h3>Carregando suas aulas</h3><p>O conteúdo será exibido assim que a estrutura do curso estiver disponível.</p></div>');
   }
 }
 
@@ -1436,7 +1452,9 @@ async function sendAdminNotificationTest() {
 
 function updateStudentDashboard() {
   let uObj = currentProfile();
-  safeSetText('student-welcome-title', `Olá, ${uObj?.fullname || currentUser} 👋`);
+  const displayName = String(uObj?.fullname || '').trim();
+  safeSetText('student-welcome-title', `Olá, ${displayName || 'Aluno'} 👋`);
+  safeSetText('student-welcome-subtitle', currentUser ? `${currentUser} · continue de onde parou e conquiste sua autonomia digital.` : 'Continue de onde parou e conquiste sua autonomia digital.');
 
   const stats = getCourseProgressStats();
   safeSetText('dash-stat-progress', `Progresso: ${stats.percent}%`);
@@ -1445,11 +1463,12 @@ function updateStudentDashboard() {
 }
 
 function showAdminArea() {
-  if(!isAdmin){
+  if(!isAdmin || window.IDZ_AUTH_STATE !== 'ADMIN'){
     showCustomAlert("Acesso Restrito", "Você não possui permissão de administrador."); 
-    showMemberArea(); 
+    showPublicSite();
     return; 
   }
+  window.IDZ_ACTIVE_VIEW = 'admin';
   showPublicSite();
   document.getElementById('public-site').style.display = 'none';
   const a = document.getElementById('admin-area'); if(a) a.style.display = 'block';
