@@ -300,7 +300,9 @@ function startAuthBootstrap() {
   changeTheme('azul', false);
 
   const checkDbInterval = setInterval(() => {
-    if (window.db && window.auth) {
+    // Auth é suficiente para restaurar a sessão e atualizar o menu.
+    // Firestore pode chegar depois, sem bloquear os handlers básicos.
+    if (window.auth && window.firebaseModules) {
       clearInterval(checkDbInterval);
       const { collection, onSnapshot, doc, setDoc, getDoc, getDocs, onAuthStateChanged } = window.firebaseModules;
 
@@ -424,7 +426,7 @@ function startAuthBootstrap() {
         }
       });
 
-      onSnapshot(collection(window.db, "modules"), (snapshot) => {
+      if (window.db) onSnapshot(collection(window.db, "modules"), (snapshot) => {
         const snapshotData = snapshot.docs.map(docSnap => docSnap.data());
         courseData = selectCourseData(snapshotData);
         courseData.sort((a, b) => Number(a.id) - Number(b.id));
@@ -450,7 +452,7 @@ function startAuthBootstrap() {
 // Assim que o módulo Auth estiver disponível, a sessão é restaurada e o menu atualizado.
 window.addEventListener('load', startAuthBootstrap, { once: true });
 const authReadyPoll = setInterval(() => {
-  if (window.auth && window.firebaseModules && window.db) {
+  if (window.auth && window.firebaseModules) {
     clearInterval(authReadyPoll);
     startAuthBootstrap();
   }
