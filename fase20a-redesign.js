@@ -8,11 +8,13 @@
   function closeDrawer() {
     $('#idz20a-drawer')?.classList.remove('open');
     $('#idz20a-backdrop')?.classList.remove('open');
+    document.body.classList.remove('drawer-open');
   }
 
   function openDrawer() {
     $('#idz20a-drawer')?.classList.add('open');
     $('#idz20a-backdrop')?.classList.add('open');
+    document.body.classList.add('drawer-open');
     window.renderNavigation?.();
   }
 
