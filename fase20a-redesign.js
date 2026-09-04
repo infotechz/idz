@@ -1,56 +1,83 @@
+/* Fase 20A: camada visual. A lógica de autenticação, navegação e dados vive em idz-app.js. */
 (() => {
-'use strict';
-const qs=(s,r=document)=>r.querySelector(s),qsa=(s,r=document)=>[...r.querySelectorAll(s)],el=(t,c,h='')=>{const n=document.createElement(t);if(c)n.className=c;if(h)n.innerHTML=h;return n},call=(n,...a)=>{try{return typeof window[n]==='function'?window[n](...a):undefined}catch(e){console.warn('[IDZ 20A]',e)}};
-function only(node){['public-site','member-area','settings-area','admin-area','idz-support-20a','idz-refund-20a'].forEach(id=>{const x=document.getElementById(id);if(x)x.style.display=x===node?'block':'none'});document.querySelectorAll('body>footer').forEach(f=>f.style.display=node&&node.id==='public-site'?'block':'none');scrollTo({top:0,behavior:'auto'})}
-function background(){document.body.classList.add('idz-20a');qsa('section,footer,#public-site,#member-area,#settings-area,#admin-area').forEach(n=>n.style.backgroundColor='transparent');performance.mark?.('idz-shell-visible')}
-function groups(admin){return admin?[['GERAL',[['fa-house','Início',()=>call('showPublicSite')],['fa-gauge-high','Painel',()=>call('showAdminPanel')],['fa-graduation-cap','Acessar aulas',()=>call('showMemberArea')]]],['CONTEÚDO',[['fa-play','Aulas',()=>adminGo('aula')],['fa-layer-group','Módulos',()=>adminGo('módulo')],['fa-flag','Etapa 0',()=>adminGo('etapa 0')],['fa-list-check','Exercícios',()=>adminGo('exerc')],['fa-diagram-project','Projeto Final',()=>adminGo('projeto')]]],['GESTÃO',[['fa-users','Alunos',()=>adminGo('aluno')],['fa-wallet','Financeiro',()=>adminGo('finance')],['fa-ticket','Cupons',()=>adminGo('cupom')],['fa-certificate','Certificados',()=>adminGo('certif')],['fa-headset','Atendimentos',openSupport]]],['CONTA',[['fa-gear','Configurações',()=>call('showSettingsArea')],['fa-right-from-bracket','Sair',()=>call('logout'),1]]]]:[['NAVEGAÇÃO',[['fa-house','Início',()=>call('showPublicSite')],['fa-graduation-cap','Aulas',()=>call('showMemberArea')],['fa-chart-line','Progresso',()=>call('showMemberArea')],['fa-award','Certificado',()=>call('showMemberArea')],['fa-headset','Suporte',openSupport],['fa-user','Perfil',()=>settings('perfil')],['fa-gear','Configurações',()=>call('showSettingsArea')],['fa-right-from-bracket','Sair',()=>call('logout'),1]]]]}
-function drawer(){if(qs('#idz20a-drawer'))return;const b=el('div','idz20a-backdrop');b.id='idz20a-backdrop';b.onclick=close;const d=el('aside','idz20a-drawer');d.id='idz20a-drawer';d.innerHTML='<div class="idz20a-drawer-head"><img src="assets/logo-idz-oficial-v2.png" alt="IDZ"><button class="idz20a-close" aria-label="Fechar"><i class="fa-solid fa-xmark"></i></button></div><div id="idz20a-drawer-body"></div>';d.querySelector('button').onclick=close;document.body.append(b,d);renderDrawer();qsa('.hamburger').forEach(x=>{x.removeAttribute('onclick');x.setAttribute('data-menu-toggle','true');x.setAttribute('aria-label','Abrir menu')})}
-function renderDrawer(){const body=qs('#idz20a-drawer-body');if(!body)return;body.innerHTML='';const state=window.IDZ_AUTH_STATE;const authUser=window.auth?.currentUser||null;const signedIn=state==='STUDENT'||state==='ADMIN'||Boolean(authUser);const loading=state==='AUTH_LOADING'&&!authUser;const menuGroups=loading?[['NAVEGAÇÃO',[['fa-spinner','Carregando sessão…',()=>{}]]]]:signedIn?groups(state==='ADMIN'||Boolean(window.isAdmin)):[['NAVEGAÇÃO',[['fa-user','Entrar / Criar conta',()=>call('openAuthModal','login')],['fa-house','Início',()=>call('showPublicSite')],['fa-book-open','Conhecer o curso',()=>{close();scrollTo({top:0,behavior:'smooth'})}],['fa-cart-shopping','Comprar',()=>call('openAuthModal','login')]]]];menuGroups.forEach(([title,items])=>{const g=el('div','idz20a-menu-group');g.innerHTML=`<span class="idz20a-menu-title">${title}</span>`;items.forEach(([i,t,a,d])=>{const b=el('button','idz20a-menu-item'+(d?' danger':''),`<i class="fa-solid ${i}"></i><span>${t}</span>`);b.onclick=()=>{close();a()};g.appendChild(b)});if(g.querySelector('button'))body.appendChild(g)})}
-function open(){renderDrawer();qs('#idz20a-drawer')?.classList.add('open');qs('#idz20a-backdrop')?.classList.add('open')}function close(){qs('#idz20a-drawer')?.classList.remove('open');qs('#idz20a-backdrop')?.classList.remove('open')}
-function settings(term){call('showSettingsArea');setTimeout(()=>qsa('.settings-tab-btn').find(b=>(b.textContent||'').toLowerCase().includes(term))?.click(),50)}
-function adminGo(term){call('showAdminPanel');setTimeout(()=>qsa('#admin-area button,[data-admin-section]').find(b=>(b.textContent||'').toLowerCase().includes(term))?.click(),60)}
-function home(){const h=qs('.hero-copy');if(!h)return;const tag=qs('#hero-tag-lessons',h);if(tag)tag.innerHTML='<i class="fa-solid fa-layer-group"></i> 12 MÓDULOS + PROJETO FINAL + 3 BÔNUS';const title=qs('h1',h);if(title)title.innerHTML='Aprenda informática e conquiste sua <span>autonomia digital.</span>';const p=qs('p',h);if(p)p.textContent='Do básico ao uso prático de documentos, planilhas, internet, segurança digital e inteligência artificial, com uma trilha organizada para quem está começando.';const old=qs('.btn',h);if(old&&!qs('.idz20a-hero-cta',h)){const c=el('div','idz20a-hero-cta'),b=el('button','btn','<i class="fa-solid fa-arrow-right"></i> COMEÇAR AGORA — R$ 29,90');b.onclick=()=>call('handlePurchaseAction');c.append(b,el('span','idz20a-price-note','Pagamento por Pix ou cartão. Acesso após aprovação real.'));old.replaceWith(c)}if(!qs('.idz20a-hero-badge',h))h.prepend(el('span','idz20a-hero-badge','<i class="fa-solid fa-star"></i> FORMAÇÃO COMPLETA'));const visual=qs('.hero-card');if(visual&&!qs('.idz20a-hero-emblem',visual)){visual.innerHTML='<div class="idz20a-hero-emblem"><img src="assets/logo-idz-oficial-v2.png" alt="" width="286" height="96" decoding="async"></div><div class="benefits-list"><div><i class="fa-solid fa-layer-group"></i> 12 módulos organizados</div><div><i class="fa-solid fa-diagram-project"></i> Projeto Final</div><div><i class="fa-solid fa-gift"></i> 3 bônus práticos</div><div><i class="fa-solid fa-award"></i> Certificado após os requisitos</div></div>'}courseGrid()}
-function courseGrid(){const s=qs('#course-details .wrap');if(!s||qs('.idz20a-course-grid',s))return;qs('.cards',s)?.remove();const fallback=['Conhecendo o computador','Teclado e mouse','Arquivos e pastas','Internet','E-mail','Word','Excel','PowerPoint','Google Drive','Segurança digital','Inteligência artificial','Projeto Final'];const icons=['fa-desktop','fa-keyboard','fa-folder-open','fa-globe','fa-envelope','fa-file-word','fa-file-excel','fa-file-powerpoint','fa-cloud','fa-shield-halved','fa-wand-magic-sparkles','fa-diagram-project'];const modules=window.IDZ_COURSE_V2?.modules||fallback.map((title,i)=>({title:`Módulo ${i+1} — ${title}`,lessons:[]}));const g=el('div','idz20a-course-grid');modules.forEach((module,i)=>{const name=(module.title||fallback[i]).replace(/^Módulo\s+\d+\s+[—-]\s+/i,'');const count=module.lessons?.length||0;g.appendChild(el('article','idz20a-panel idz20a-course-card',`<div class="idz20a-course-icon"><i class="fa-solid ${icons[i]}"></i></div><div><small>MÓDULO ${i+1}</small><h3>${name}</h3></div><p>Conteúdo organizado em aulas práticas e progressivas.</p><small>${count} ${count===1?'aula':'aulas'}</small>`))});const bonus=el('div','idz20a-bonus-row');[['fa-keyboard','30 atalhos de teclado'],['fa-file-lines','Modelo de currículo editável'],['fa-chart-column','Planilha financeira']].forEach(([i,t])=>bonus.appendChild(el('div','idz20a-bonus',`<strong><i class="fa-solid ${i}"></i>${t}</strong>`)));s.append(g,bonus)}
-function stage(){const m=qs('#member-area'),z=qs('#stage-zero-card'),l=qs('.lms-layout',m);if(!m||!z||!l)return;m.insertBefore(z,l);const lessons=qs('.stage-zero-lessons',z);if(lessons)lessons.innerHTML=[['0.1','2–3 min','Seja bem-vindo ao Informática do Zero'],['0.2','4–5 min','Como funciona o curso'],['0.3','4–6 min','Como usar a plataforma do curso'],['0.4','3–4 min','Como estudar e aprender melhor'],['0.5','4–5 min','Prepare seu computador'],['0.6','3–5 min','Antes de começar: teste seus conhecimentos']].map(x=>`<div class="stage-zero-lesson"><strong>${x[0]} · ${x[1]}</strong>${x[2]}</div>`).join('');const pr=qs('.stage-zero-progress',z);if(pr&&!qs('.idz20a-lock-notice',pr))pr.insertAdjacentHTML('beforeend','<div class="idz20a-lock-notice"><i class="fa-solid fa-lock"></i>Conclua a Etapa 0 para liberar o curso.</div>');if(!qs('#idz20a-current-lesson',m)){const c=el('section','idz20a-panel idz20a-current');c.id='idz20a-current-lesson';c.innerHTML='<div class="idz20a-player-shell"><div class="idz20a-player-poster"><div class="idz20a-player-mark"><i class="fa-solid fa-shield-halved"></i></div><button class="idz20a-player-play" aria-label="Reproduzir vídeo"><i class="fa-solid fa-play"></i></button></div><div class="idz20a-player-controls"><i class="fa-solid fa-play"></i><span class="idz20a-player-track"><b></b></span><span>00:00 / 04:00</span><i class="fa-solid fa-volume-high"></i><i class="fa-solid fa-expand"></i></div></div><div class="idz20a-current-copy"><span class="eyebrow">ETAPA 0 · VÍDEO 0.1</span><h3>Seja bem-vindo ao Informática do Zero</h3><p>Conheça a proposta do curso e como aproveitar a plataforma.</p><button class="btn">ABRIR AULA</button></div>';c.querySelector('button.btn').onclick=()=>call('showCustomAlert','Etapa 0','Interface visual pronta. Lógica avançada entra na Fase 20B.');m.insertBefore(c,z)}locks()}
-function locks(){const l=qs('#module-list');if(!l)return;if(!qs('#idz20a-lock-list',l)){const d=el('div');d.id='idz20a-lock-list';const n=['Conhecendo o computador','Teclado e mouse','Arquivos e pastas','Internet','E-mail','Word','Excel','PowerPoint','Google Drive','Segurança digital','Inteligência artificial','Projeto Final'];d.innerHTML=n.map((x,i)=>`<div class="idz20a-module-lock"><span>Módulo ${i+1} — ${x}</span><small>Bloqueado 🔒</small></div>`).join('');l.prepend(d)}qsa('.lms-module-box',l).forEach(n=>n.style.display='none')}
-function improveSettings(){const a=qs('#settings-area'),tabs=qs('.settings-tabs',a);if(!tabs)return;['Perfil','Verificação','Segurança','Tema','Conexões','Notificações','Suporte','Reembolso'].forEach(n=>{if(!qsa('.settings-tab-btn',tabs).some(b=>(b.textContent||'').trim().toLowerCase()===n.toLowerCase())){const b=el('button','settings-tab-btn',n);b.onclick=()=>n==='Suporte'?openSupport():n==='Reembolso'?openRefund():call('showCustomAlert',n,'Interface visual preservada nesta fase.');tabs.appendChild(b)}})}
-function support(){if(qs('#idz-support-20a'))return;const w=el('main','wrap idz20a-support');w.id='idz-support-20a';w.innerHTML='<div class="idz20a-page-head"><div><h2>Suporte</h2><p>Abra uma solicitação e acompanhe seus atendimentos.</p></div><button class="btn-outline" id="support-back">VOLTAR</button></div><div class="idz20a-support-grid"><section class="idz20a-panel idz20a-form"><h3>Novo atendimento</h3><div class="idz20a-form-grid"><label>Assunto<input placeholder="Digite o assunto"></label><label>Categoria<select><option>Selecione</option><option>Acesso</option><option>Curso</option><option>Pagamento</option><option>Certificado</option></select></label><label class="full">Mensagem<textarea placeholder="Descreva sua solicitação"></textarea></label><label class="full">Anexo<input type="file"></label></div><button class="btn" style="margin-top:12px">ENVIAR SOLICITAÇÃO</button></section><section class="idz20a-panel idz20a-empty"><div><i class="fa-regular fa-comments"></i><strong style="display:block">Meus atendimentos</strong><small>Nenhuma mensagem ainda.</small></div></section></div>';qs('#public-site')?.after(w);qs('#support-back',w).onclick=()=>call('showPublicSite');qs('.idz20a-form .btn',w).onclick=()=>call('showCustomAlert','Suporte','Interface pronta. Função real entra na Fase 20B.')}
-function openSupport(){support();const n=qs('#idz-support-20a');if(n){only(n);n.classList.add('active')}}
-function refund(){if(qs('#idz-refund-20a'))return;const w=el('main','wrap idz20a-refund');w.id='idz-refund-20a';w.innerHTML='<div class="idz20a-page-head"><div><h2>Solicitar reembolso</h2><p>Envie a solicitação para análise.</p></div><button class="btn-outline" id="refund-back">VOLTAR</button></div><section class="idz20a-panel idz20a-form"><div class="idz20a-warning">⚠ A solicitação será analisada conforme os termos aplicáveis.</div><div class="idz20a-refund-summary"><div class="idz20a-summary-box"><small>CURSO</small><strong>Informática do Zero</strong></div><div class="idz20a-summary-box"><small>VALOR</small><strong>Conforme compra real</strong></div><div class="idz20a-summary-box"><small>STATUS</small><strong>Pendente</strong></div></div><label style="margin-top:14px">Motivo<textarea placeholder="Explique o motivo"></textarea></label><label style="display:flex;gap:8px;margin:12px 0;text-transform:none"><input type="checkbox" style="width:18px"> Confirmo o envio para análise.</label><button class="btn">ENVIAR PARA ANÁLISE</button></section>';qs('#public-site')?.after(w);qs('#refund-back',w).onclick=()=>call('showSettingsArea');qs('.btn',w).onclick=()=>call('showCustomAlert','Reembolso','Interface pronta. Função real entra na Fase 20B.')}
-function openRefund(){refund();const n=qs('#idz-refund-20a');if(n){only(n);n.classList.add('active')}}
-function admin(){const a=qs('#admin-area');if(!a||qs('#idz20a-admin-brief',a))return;const nav=el('div','idz20a-admin-nav');['Visão geral','Alunos','Módulos e aulas','Etapa 0','Financeiro','Cupons','Certificados','Atendimentos','Acessar aulas'].forEach(n=>{const b=el('button','',n);b.onclick=()=>n==='Atendimentos'?openSupport():n==='Acessar aulas'?call('showMemberArea'):adminGo(n.toLowerCase().split(' ')[0]);nav.appendChild(b)});const br=el('section','idz20a-admin-brief');br.id='idz20a-admin-brief';br.innerHTML='<article class="idz20a-panel idz20a-metric"><small>Estrutura</small><strong>12 módulos</strong></article><article class="idz20a-panel idz20a-metric"><small>Etapa 0</small><strong>6 vídeos</strong></article><article class="idz20a-panel idz20a-metric"><small>Bônus</small><strong>3 materiais</strong></article>';a.prepend(br);a.prepend(nav)}
-function footer(){const f=qs('footer .wrap');if(!f||qs('.idz20a-footer-links',f))return;const d=el('div','idz20a-footer-links','<a href="privacidade.html">Política de Privacidade</a> · <a href="termos.html">Termos</a>');f.appendChild(d)}
-/* Interação essencial independente do bootstrap inline/Firebase. Alguns ambientes
-   (incluindo a CDN do Pages) bloqueiam handlers inline; a delegação abaixo mantém
-   login, menu, CTA e modais funcionais assim que o shell aparece. */
-function coreInteractions(){
-  if(window.__idzCoreInteractionsBound)return;
-  window.__idzCoreInteractionsBound=true;
-  const modalOpen=id=>{const n=document.getElementById(id);if(n){n.classList.add('active');n.setAttribute('aria-hidden','false')}};
-  const modalClose=id=>{const n=document.getElementById(id);if(n){n.classList.remove('active');n.setAttribute('aria-hidden','true')}};
-  const authTab=tab=>{const login=document.getElementById('form-login'),register=document.getElementById('form-register');if(login)login.style.display=tab==='register'?'none':'block';if(register)register.style.display=tab==='register'?'block':'none';document.getElementById('tab-btn-login')?.classList.toggle('active',tab!=='register');document.getElementById('tab-btn-register')?.classList.toggle('active',tab==='register');modalOpen('modal-auth')};
-  const closeDrawer=()=>{document.getElementById('idz20a-drawer')?.classList.remove('open');document.getElementById('idz20a-backdrop')?.classList.remove('open');document.querySelectorAll('.mobile-dropdown').forEach(node=>node.classList.remove('active'));document.getElementById('mobile-overlay')?.classList.remove('active')};
-  const openDrawer=()=>{document.getElementById('idz20a-drawer')?.classList.add('open');document.getElementById('idz20a-backdrop')?.classList.add('open');document.querySelectorAll('.mobile-dropdown').forEach(node=>node.classList.remove('active'));document.getElementById('mobile-overlay')?.classList.remove('active')};
-  document.addEventListener('click',event=>{
-    const target=event.target.closest('button,a,summary'); if(!target)return;
-    if(target.matches('.nav-icon-only,[data-login],.idz20a-login')){event.preventDefault();event.stopImmediatePropagation();authTab('login');return}
-    if(target.matches('.hamburger,[data-menu-toggle]')){event.preventDefault();event.stopImmediatePropagation();const d=document.getElementById('idz20a-drawer');d?.classList.contains('open')?closeDrawer():openDrawer();return}
-    if(target.matches('.idz20a-close,#mobile-overlay,.mobile-overlay')){event.preventDefault();event.stopImmediatePropagation();closeDrawer();return}
-    if(target.matches('.idz20a-hero-cta button,.hero .btn,[data-purchase],.purchase-btn')||/COMPRAR AGORA|COMEÇAR AGORA/.test(target.textContent||'')){event.preventDefault();event.stopImmediatePropagation();target.removeAttribute('onclick');target.onclick=null;modalClose('custom-alert-modal');modalClose('modal-custom-checkout');authTab('login');return}
-    if(target.matches('#modal-auth .close-btn,.modal-overlay .close-btn')){event.preventDefault();event.stopImmediatePropagation();const modal=target.closest('.modal-overlay');if(modal)modalClose(modal.id);return}
-    if(target.matches('#tab-btn-login')){event.preventDefault();event.stopImmediatePropagation();authTab('login');return}
-    if(target.matches('#tab-btn-register')){event.preventDefault();event.stopImmediatePropagation();authTab('register');return}
-    if(target.matches('summary')){const details=target.parentElement;if(details?.tagName==='DETAILS'){event.preventDefault();event.stopImmediatePropagation();const next=!details.open;details.open=next;setTimeout(()=>{details.open=next},0)}return}
-    const inline=target.getAttribute('onclick');
-    if(inline){
-      const calls=[...inline.matchAll(/(?:^|;)\s*([A-Za-z_$][\w$]*)\s*\(([^)]*)\)/g)];
-      let handled=false;
-      for(const match of calls){const name=match[1];const args=match[2];if(name==='openAuthModal'||name==='handleAccountAction'||name==='handlePurchaseAction'||name==='openCheckout'){authTab('login');handled=true;break}if(name==='toggleMobileMenu'){closeDrawer();handled=true;break}if(name==='closeModal'){const id=(args.match(/['"]([^'"]+)/)||[])[1];if(id)modalClose(id);handled=true;break}if(name==='switchAuthTab'){authTab((args.match(/['"]([^'"]+)/)||[])[1]||'login');handled=true;break}if(name==='showPublicSite'){closeDrawer();window.scrollTo({top:0,behavior:'smooth'});handled=true;break}if(name==='saveCookieConsent'){const choice=(args.match(/['"]([^'"]+)/)||[])[1]||'necessary';localStorage.setItem('idz_cookie_consent',JSON.stringify({choice,updatedAt:new Date().toISOString()}));target.closest('#cookie-consent')?.remove();handled=true;break}}
-      if(handled)event.preventDefault();
+  'use strict';
+
+  const $ = (selector, root = document) => root.querySelector(selector);
+  const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
+
+  function closeDrawer() {
+    $('#idz20a-drawer')?.classList.remove('open');
+    $('#idz20a-backdrop')?.classList.remove('open');
+  }
+
+  function openDrawer() {
+    $('#idz20a-drawer')?.classList.add('open');
+    $('#idz20a-backdrop')?.classList.add('open');
+    window.renderNavigation?.();
+  }
+
+  function ensureDrawer() {
+    if (!$('#idz20a-backdrop')) {
+      const backdrop = document.createElement('div');
+      backdrop.id = 'idz20a-backdrop';
+      backdrop.addEventListener('click', closeDrawer);
+      document.body.append(backdrop);
     }
-  },{capture:true});
-}
-function metrics(){const longTasks=[];if('PerformanceObserver'in window)try{new PerformanceObserver(list=>list.getEntries().forEach(item=>longTasks.push(Math.round(item.duration)))).observe({type:'longtask',buffered:true})}catch{}window.addEventListener('load',()=>{const nav=performance.getEntriesByType?.('navigation')?.[0],shell=performance.getEntriesByName?.('idz-shell-visible')?.[0];window.IDZ_PERFORMANCE={domContentLoaded:nav?Math.round(nav.domContentLoadedEventEnd):null,load:nav?Math.round(nav.loadEventEnd):null,shellVisible:shell?Math.round(shell.startTime):null,longTasks}}, {once:true})}
-function safely(name,task){try{task()}catch(error){console.error(`[IDZ 20A] Falha isolada em ${name}:`,error)}}
-function boot(){coreInteractions();if(!window.IDZ_AUTH_STATE)window.IDZ_AUTH_STATE='AUTH_LOADING';document.body.classList.add('idz-20a');const publicSite=qs('#public-site');if(publicSite)publicSite.style.display='block';[['background',background],['drawer',drawer],['home',home],['stage',stage],['settings',improveSettings],['support',support],['refund',refund],['admin',admin],['footer',footer],['lazy-images',()=>qsa('img').forEach((img,i)=>{img.decoding='async';if(i>1)img.loading='lazy'})]].forEach(([name,task])=>safely(name,task));setTimeout(()=>{safely('locks',locks);safely('admin-refresh',admin);safely('menu',renderDrawer)},0);window.IDZ_PHASE_20A={openDrawer:open,closeDrawer:close,openSupport,openRefund,refreshMenu:renderDrawer};console.info('[IDZ] Fase 20A.3 visual. Fase 20B não iniciada.')}metrics();document.readyState==='loading'?document.addEventListener('DOMContentLoaded',boot,{once:true}):boot();
+    if (!$('#idz20a-drawer')) {
+      const drawer = document.createElement('aside');
+      drawer.id = 'idz20a-drawer';
+      drawer.setAttribute('aria-label', 'Menu de navegação');
+      drawer.innerHTML = `
+        <div class="idz20a-drawer-head">
+          <img src="assets/logo-idz-oficial-v2.png" alt="Informática do Zero" decoding="async">
+          <button type="button" class="idz20a-close" aria-label="Fechar menu"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div id="idz20a-drawer-body"><span class="idz20a-menu-title">CARREGANDO SESSÃO…</span></div>`;
+      $('.idz20a-close', drawer).addEventListener('click', closeDrawer);
+      document.body.append(drawer);
+    }
+
+    $$('.hamburger').forEach((button) => {
+      if (button.dataset.idzDrawerBound === 'true') return;
+      button.dataset.idzDrawerBound = 'true';
+      button.removeAttribute('onclick');
+      button.setAttribute('aria-label', 'Abrir menu');
+      button.addEventListener('click', (event) => {
+        event.preventDefault();
+        $('#idz20a-drawer')?.classList.contains('open') ? closeDrawer() : openDrawer();
+      });
+    });
+  }
+
+  function removeLegacyVisualMocks() {
+    ['#idz-support-20a', '#idz-refund-20a', '#idz20a-current-lesson', '#idz20a-lock-list', '#idz20a-admin-brief'].forEach((selector) => $(selector)?.remove());
+    $$('.idz20a-admin-nav').forEach((node) => node.remove());
+    $$('.lms-module-box').forEach((node) => { node.style.display = ''; });
+  }
+
+  function optimizeDecoration() {
+    document.body.classList.add('idz-20a');
+    $('#particles-canvas')?.style.setProperty('pointer-events', 'none');
+    $$('.background-orb, .ambient-orb, .decorative, [data-decorative]').forEach((node) => {
+      node.style.pointerEvents = 'none';
+    });
+    $$('img').forEach((image, index) => {
+      image.decoding = 'async';
+      if (index > 1) image.loading = 'lazy';
+    });
+  }
+
+  function boot() {
+    if (!window.IDZ_AUTH_STATE) window.IDZ_AUTH_STATE = 'AUTH_LOADING';
+    removeLegacyVisualMocks();
+    optimizeDecoration();
+    ensureDrawer();
+    window.IDZ_PHASE_20A = { openDrawer, closeDrawer, refreshMenu: () => window.renderNavigation?.() };
+    window.renderNavigation?.();
+  }
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') closeDrawer();
+  });
+  document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', boot, { once: true }) : boot();
 })();
