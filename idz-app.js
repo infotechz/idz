@@ -767,7 +767,7 @@ async function closeCheckoutModalSafe() {
   checkoutTargetUser = null;
 }
 
-async async function requireFirebaseSession() {
+async function requireFirebaseSession() {
   if (!window.auth) throw new Error('Entre na sua conta para continuar o pagamento.');
   let user=window.auth.currentUser;
   if(!user&&window.firebaseModules?.onAuthStateChanged){
