@@ -39,6 +39,11 @@ let particlesArray = [];
 let particlesFrame = 0;
 let particlesRunning = false;
 let particlesResizeTimer = 0;
+let particlesLastPaint = 0;
+let particlesColor = '#49d9ef';
+function refreshParticlesColor() {
+  particlesColor = getComputedStyle(document.body).getPropertyValue('--accent-cyan').trim() || '#49d9ef';
+}
 function resizeCanvas() { 
   if (canvas) {
     const ratio = Math.min(window.devicePixelRatio || 1, 1.5);
@@ -75,7 +80,7 @@ class Particle {
   draw() {
     if (!ctx) return;
     ctx.save(); ctx.globalAlpha = this.opacity * (.72 + Math.sin(this.phase) * .28);
-    ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--accent-cyan').trim() || '#49d9ef';
+    ctx.fillStyle = particlesColor;
     ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); ctx.restore();
   }
 }
@@ -86,9 +91,15 @@ function initParticles() {
   let numberOfParticles = window.innerWidth < 600 ? Math.min(30, Math.max(20, Math.floor(area / 19000))) : Math.min(60, Math.max(40, Math.floor(area / 27000)));
   for (let i = 0; i < numberOfParticles; i++) particlesArray.push(new Particle());
 }
-function animateParticles() {
+function animateParticles(timestamp = 0) {
   if (!ctx || !canvas) return;
   if (!particlesRunning || document.hidden || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  // Em celulares o fundo anima a ~30 FPS: mantém o efeito sem disputar a thread principal.
+  if (window.innerWidth < 600 && timestamp - particlesLastPaint < 33) {
+    particlesFrame = requestAnimationFrame(animateParticles);
+    return;
+  }
+  particlesLastPaint = timestamp;
   ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
   particlesArray.forEach(p => { p.update(); p.draw(); });
   particlesFrame = requestAnimationFrame(animateParticles);
@@ -96,7 +107,7 @@ function animateParticles() {
 function startParticles(){ if (particlesRunning || document.hidden) return; particlesRunning = true; particlesFrame = requestAnimationFrame(animateParticles); }
 function stopParticles(){ particlesRunning = false; if (particlesFrame) cancelAnimationFrame(particlesFrame); }
 document.addEventListener('visibilitychange', () => document.hidden ? stopParticles() : startParticles());
-initParticles(); startParticles();
+refreshParticlesColor(); initParticles(); startParticles();
 
 // ESTRUTURA CURRICULAR V2
 const courseV2Runtime = courseV2.modules.map((mod, moduleIndex) => Object.assign({}, mod, {
@@ -572,6 +583,7 @@ function changeTheme(themeName, save = true) {
   const selected = allowed.includes(themeName) ? themeName : 'azul';
   allowed.forEach(theme => document.body.classList.remove(`theme-${theme}`));
   document.body.classList.add(`theme-${selected}`);
+  refreshParticlesColor();
   if(save && currentUser) localStorage.setItem(`app_theme_${window.auth?.currentUser?.uid || currentUser}`, selected);
 }
 
