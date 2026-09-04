@@ -2,6 +2,7 @@ const courseV2 = window.IDZ_COURSE_V2 || { modules: [] };
 const RAILWAY_BACKEND_URL = "https://backend-informatica-do-zero-production.up.railway.app";
 const ADMIN_COMPAT_LOGIN_URL = "https://backend-informatica-do-zero-production.up.railway.app/admin/compat-login";
 const TARGET_ADMIN_EMAIL = "olliveirazvz@gmail.com";
+window.IDZ_AUTH_STATE = window.IDZ_AUTH_STATE || 'AUTH_LOADING';
 
 function safeSetText(id, text) {
   const el = document.getElementById(id);
@@ -309,9 +310,7 @@ function startAuthBootstrap() {
       onAuthStateChanged(window.auth, async (user) => {
         // O menu deve refletir o Auth imediatamente, sem esperar Firestore.
         // Dados privados continuam sendo carregados abaixo, depois desta atualização.
-        window.IDZ_AUTH_STATE = user ? 'STUDENT' : 'VISITOR';
-        updateNavState(!!user, user?.email || null);
-        window.IDZ_PHASE_20A?.refreshMenu?.();
+        updateNavState(!!user, user?.email || null, user ? 'STUDENT' : 'VISITOR');
         if (user) {
           currentUser = user.email;
           currentUserUid = user.uid;
@@ -322,9 +321,8 @@ function startAuthBootstrap() {
           let tokenClaims = {};
           try { tokenClaims = (await user.getIdTokenResult()).claims || {}; } catch (_) {}
           isAdmin = tokenClaims.admin === true;
-          window.IDZ_AUTH_STATE = isAdmin ? 'ADMIN' : 'STUDENT';
-          updateNavState(true, currentUser);
-          window.IDZ_PHASE_20A?.refreshMenu?.();
+          window.IDZ_ADMIN_CLAIM = isAdmin;
+          updateNavState(true, currentUser, isAdmin ? 'ADMIN' : 'STUDENT');
 
           try {
             // Usuários comuns leem somente o próprio documento UID. A coleção
@@ -393,7 +391,7 @@ function startAuthBootstrap() {
             }
             changeTheme(localStorage.getItem(`app_theme_${user.uid}`) || 'azul', false);
             loadNotificationsForCurrentAccount();
-            updateNavState(true, currentUser);
+            updateNavState(true, currentUser, isAdmin ? 'ADMIN' : 'STUDENT');
 
             if (!user.emailVerified && !isAdmin && user.providerData.every(p => p.providerId === 'password')) {
               showEmailVerificationGate(user);
@@ -406,21 +404,17 @@ function startAuthBootstrap() {
             }
           } catch(err) {
             console.error("Erro ao sincronizar Firestore:", err);
-            window.IDZ_AUTH_STATE = isAdmin ? 'ADMIN' : 'STUDENT';
-            updateNavState(true, currentUser);
-            window.IDZ_PHASE_20A?.refreshMenu?.();
+            updateNavState(true, currentUser, isAdmin ? 'ADMIN' : 'STUDENT');
             showPublicSite();
           }
         } else {
-          window.IDZ_AUTH_STATE = 'VISITOR';
           currentUser = null;
           currentUserUid = null;
           if (usersUnsubscribe) { usersUnsubscribe(); usersUnsubscribe = null; }
           isAdmin = false;
           notificationsList = [];
           changeTheme('azul', false);
-          updateNavState(false, null);
-          window.IDZ_PHASE_20A?.refreshMenu?.();
+          updateNavState(false, null, 'VISITOR');
           updateNotificationsBadge();
           showPublicSite();
         }
@@ -458,10 +452,101 @@ const authReadyPoll = setInterval(() => {
   }
 }, 50);
 
-function updateNavState(isLoggedIn, email) {
+function closeNavigationDrawer() {
+  document.getElementById('idz20a-drawer')?.classList.remove('open');
+  document.getElementById('idz20a-backdrop')?.classList.remove('open');
+  document.getElementById('mobile-menu')?.classList.remove('active');
+  document.getElementById('mobile-overlay')?.classList.remove('active');
+}
+
+function idzNavigationItems(state) {
+  if (state === 'AUTH_LOADING') return [{ icon: 'fa-spinner', label: 'Carregando sessão…', action: 'noop' }];
+  if (state === 'ADMIN') return [
+    { icon: 'fa-house', label: 'Início', action: 'home' },
+    { icon: 'fa-gauge-high', label: 'Visão geral', action: 'admin' },
+    { icon: 'fa-users', label: 'Alunos', action: 'admin-students' },
+    { icon: 'fa-layer-group', label: 'Conteúdo', action: 'admin-content' },
+    { icon: 'fa-wallet', label: 'Financeiro', action: 'admin-finance' },
+    { icon: 'fa-headset', label: 'Atendimentos', action: 'admin-support' },
+    { icon: 'fa-certificate', label: 'Certificados', action: 'admin-certificates' },
+    { icon: 'fa-ticket', label: 'Cupons', action: 'admin-coupons' },
+    { icon: 'fa-gear', label: 'Configurações', action: 'settings' },
+    { icon: 'fa-graduation-cap', label: 'Acessar aulas', action: 'lessons' },
+    { icon: 'fa-right-from-bracket', label: 'Sair', action: 'logout', danger: true }
+  ];
+  if (state === 'STUDENT') return [
+    { icon: 'fa-house', label: 'Início', action: 'home' },
+    { icon: 'fa-graduation-cap', label: 'Aulas', action: 'lessons' },
+    { icon: 'fa-chart-line', label: 'Progresso', action: 'progress' },
+    { icon: 'fa-award', label: 'Certificado', action: 'certificate' },
+    { icon: 'fa-headset', label: 'Suporte', action: 'support' },
+    { icon: 'fa-user', label: 'Perfil', action: 'profile' },
+    { icon: 'fa-gear', label: 'Configurações', action: 'settings' },
+    { icon: 'fa-right-from-bracket', label: 'Sair', action: 'logout', danger: true }
+  ];
+  return [
+    { icon: 'fa-user', label: 'Entrar / Criar conta', action: 'auth' },
+    { icon: 'fa-house', label: 'Início', action: 'home' },
+    { icon: 'fa-book-open', label: 'Conhecer o curso', action: 'course' },
+    { icon: 'fa-cart-shopping', label: 'Comprar', action: 'buy' }
+  ];
+}
+
+function navigationButton(item, className = '') {
+  return `<button type="button" class="${className}${item.danger ? ' danger' : ''}" data-idz-nav-action="${item.action}"><i class="fa-solid ${item.icon}"></i><span>${escapeHTML(item.label)}</span></button>`;
+}
+
+function renderNavigation() {
+  const state = window.IDZ_AUTH_STATE || 'AUTH_LOADING';
+  const items = idzNavigationItems(state);
+  const nativeMenu = document.getElementById('mobile-menu-options');
+  const drawerBody = document.getElementById('idz20a-drawer-body');
+  if (nativeMenu) nativeMenu.innerHTML = items.map(item => navigationButton(item)).join('');
+  if (drawerBody) drawerBody.innerHTML = `<div class="idz20a-menu-group"><span class="idz20a-menu-title">NAVEGAÇÃO</span>${items.map(item => navigationButton(item, 'idz20a-menu-item')).join('')}</div>`;
+}
+window.renderNavigation = renderNavigation;
+
+function openSettingsSection(name) {
+  showSettingsArea();
+  const tab = [...document.querySelectorAll('.settings-tab-btn')]
+    .find(button => (button.textContent || '').trim().toLowerCase() === name);
+  if (tab) switchSettingsTab({ currentTarget: tab }, name);
+}
+
+function navigateIdz(action) {
+  closeNavigationDrawer();
+  if (action === 'noop') return;
+  if (action === 'auth') return openAuthModal('login');
+  if (action === 'home') return showPublicSite();
+  if (action === 'course') return document.querySelector('.hero, #course-details')?.scrollIntoView({ behavior: 'smooth' });
+  if (action === 'buy') return handlePurchaseAction();
+  if (action === 'lessons') return showMemberArea();
+  if (action === 'progress') { showMemberArea(); return document.getElementById('student-welcome-title')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+  if (action === 'certificate') { showMemberArea(); return document.querySelector('[onclick*="generateOfficialCertificatePDF"]')?.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+  if (action === 'support') return openSettingsSection('suporte');
+  if (action === 'profile') return openSettingsSection('perfil');
+  if (action === 'settings') return showSettingsArea();
+  if (action === 'logout') return logout();
+  if (action === 'admin') return showAdminArea();
+  const adminSections = { 'admin-students': 'alunos', 'admin-content': 'modules', 'admin-finance': 'vendas', 'admin-support': 'support', 'admin-certificates': 'certificates', 'admin-coupons': 'coupons' };
+  if (adminSections[action]) { showAdminArea(); return switchAdminTab(adminSections[action]); }
+}
+
+if (!window.__idzNavigationDelegationBound) {
+  window.__idzNavigationDelegationBound = true;
+  document.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-idz-nav-action]');
+    if (!button) return;
+    event.preventDefault();
+    navigateIdz(button.dataset.idzNavAction);
+  });
+}
+
+function updateNavState(isLoggedIn, email, requestedState) {
   const navGuest = document.getElementById('nav-guest');
   const navUser = document.getElementById('nav-user');
-  const mobileContainer = document.getElementById('mobile-menu-options');
+  const state = requestedState || (isLoggedIn ? (isAdmin ? 'ADMIN' : 'STUDENT') : 'VISITOR');
+  window.IDZ_AUTH_STATE = state;
 
   document.querySelectorAll('[data-auth-only],#logout-btn,[onclick*="logout()"]')
     .forEach(el => { el.style.display = isLoggedIn ? '' : 'none'; });
@@ -472,29 +557,14 @@ function updateNavState(isLoggedIn, email) {
     safeSetText('user-display', email);
     updateNavAvatar();
 
-    if (mobileContainer) {
-      mobileContainer.innerHTML = `
-        <button onclick="toggleMobileMenu(); showPublicSite();"><i class="fa-solid fa-house"></i> Início</button>
-        <button onclick="toggleMobileMenu(); ${isAdmin ? 'showAdminArea()' : 'showMemberArea()'}"><i class="fa-solid fa-graduation-cap"></i> ${isAdmin ? 'Painel Admin' : 'Acessar Aulas'}</button>
-        <button onclick="toggleMobileMenu(); showSettingsArea();"><i class="fa-solid fa-gear"></i> Configurações</button>
-        <button style="color:var(--red);" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> Sair</button>
-      `;
-    }
     safeSetText('hero-btn-text', isAdmin ? "IR AO PAINEL ADMIN" : "ACESSAR MINHAS AULAS");
   } else {
     if (navGuest) navGuest.style.display = 'block';
     if (navUser) navUser.style.display = 'none';
     /* Visitante: nunca exibir ações privadas ou logout. */
-    if (mobileContainer) {
-      mobileContainer.innerHTML = `
-        <button onclick="toggleMobileMenu(); openAuthModal('login')"><i class="fa-regular fa-user"></i> Login / Criar Conta</button>
-        <button onclick="toggleMobileMenu(); showPublicSite();"><i class="fa-solid fa-house"></i> Início</button>
-        <button onclick="toggleMobileMenu(); document.querySelector('.hero')?.scrollIntoView({behavior:'smooth'});"><i class="fa-solid fa-book-open"></i> Conhecer o curso</button>
-        <button onclick="toggleMobileMenu(); openAuthModal('login');"><i class="fa-solid fa-cart-shopping"></i> Comprar</button>
-      `;
-    }
     safeSetText('hero-btn-text', "ACESSAR MINHA CONTA");
   }
+  renderNavigation();
 }
 
 function changeTheme(themeName, save = true) {
@@ -635,6 +705,12 @@ async function saveProgressToCloud() {
 }
 
 function toggleMobileMenu() {
+  if (document.getElementById('idz20a-drawer')) {
+    const drawer = document.getElementById('idz20a-drawer');
+    if (drawer.classList.contains('open')) window.IDZ_PHASE_20A?.closeDrawer?.();
+    else window.IDZ_PHASE_20A?.openDrawer?.();
+    return;
+  }
   const mm = document.getElementById('mobile-menu');
   const mo = document.getElementById('mobile-overlay');
   if (mm) mm.classList.toggle('active');
@@ -1291,7 +1367,7 @@ async function handleUpdatePassword(e) {
 }
 
 function showMemberArea() {
-  if (!window.auth.currentUser) {
+  if (!window.auth?.currentUser) {
     openAuthModal('login');
     return;
   }
@@ -1323,6 +1399,27 @@ function handlePurchaseAction() {
     return;
   }
   openCheckoutModal();
+}
+
+function startCourseJourney() {
+  // A Etapa 0 faz parte da área de aulas real e segue as mesmas regras de acesso.
+  showMemberArea();
+}
+
+async function sendAdminNotificationTest() {
+  if (!isAdmin) return showCustomAlert('Acesso restrito', 'Somente administradores podem enviar notificações de teste.');
+  const result = document.getElementById('notification-test-result');
+  const uid = safeGetValue('notification-test-student');
+  const title = safeGetValue('notification-test-title');
+  const message = safeGetValue('notification-test-message');
+  if (!uid || !title || !message) return showCustomAlert('Notificação', 'Selecione um aluno e preencha título e mensagem.');
+  if (result) result.textContent = 'Enviando notificação…';
+  try {
+    await adminApi('/api/admin/notifications/test', { method: 'POST', body: JSON.stringify({ uid, title, message }) });
+    if (result) result.textContent = 'Notificação enviada ao backend para entrega.';
+  } catch (error) {
+    if (result) result.textContent = `Não foi possível enviar: ${error.message}`;
+  }
 }
 
 function updateStudentDashboard() {
