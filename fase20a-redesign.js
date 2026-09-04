@@ -40,7 +40,7 @@ function coreInteractions(){
     if(target.matches('#modal-auth .close-btn,.modal-overlay .close-btn')){event.preventDefault();event.stopImmediatePropagation();const modal=target.closest('.modal-overlay');if(modal)modalClose(modal.id);return}
     if(target.matches('#tab-btn-login')){event.preventDefault();event.stopImmediatePropagation();authTab('login');return}
     if(target.matches('#tab-btn-register')){event.preventDefault();event.stopImmediatePropagation();authTab('register');return}
-    if(target.matches('summary')){const details=target.parentElement;if(details?.tagName==='DETAILS'){event.preventDefault();event.stopImmediatePropagation();details.open=!details.open}return}
+    if(target.matches('summary')){const details=target.parentElement;if(details?.tagName==='DETAILS'){event.preventDefault();event.stopImmediatePropagation();const next=!details.open;details.open=next;setTimeout(()=>{details.open=next},0)}return}
     const inline=target.getAttribute('onclick');
     if(inline){
       const calls=[...inline.matchAll(/(?:^|;)\s*([A-Za-z_$][\w$]*)\s*\(([^)]*)\)/g)];
