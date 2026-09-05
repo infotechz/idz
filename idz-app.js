@@ -873,7 +873,12 @@ async function backendRequest(path, options = {}) {
     response = await makeRequest(refreshed);
     payload = await response.json().catch(() => ({}));
   }
-  if (!response.ok) throw new Error(friendlyBackendError(response, payload));
+  if (!response.ok) {
+    const error = new Error(friendlyBackendError(response, payload));
+    error.code = String(payload.code || (response.status === 403 ? 'ADMIN_REQUIRED' : response.status === 401 ? 'AUTH_TOKEN_INVALID' : 'BACKEND_ERROR'));
+    error.status = response.status;
+    throw error;
+  }
   return payload;
 }
 
