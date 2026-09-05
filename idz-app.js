@@ -2060,8 +2060,10 @@ function renderDashboard() {
     let studentEmail = u.email;
     const safeStudentEmail = escapeHTML(studentEmail);
     const actionUid = encodeURIComponent(u.uid || '');
-    const progress=u.progress||{},lessonsDoneCount=Object.values(progress.lessons||{}).filter(Boolean).length;
-    const projectsDone=Object.values(progress.projects||{}).filter(Boolean).length,bonusesDone=Object.values(progress.bonuses||{}).filter(Boolean).length;
+    const progress=u.progress||{};
+    const lessonsDoneCount=Number.isFinite(progress.lessonsCompleted) ? progress.lessonsCompleted : Object.values(progress.lessons||{}).filter(Boolean).length;
+    const projectsDone=Number.isFinite(progress.projectStepsCompleted) ? progress.projectStepsCompleted : Object.values(progress.projects||{}).filter(Boolean).length;
+    const bonusesDone=Number.isFinite(progress.bonusesCompleted) ? progress.bonusesCompleted : Object.values(progress.bonuses||{}).filter(Boolean).length;
 
     let verifiedLabel = u.verifiedData ? `<span style="color:var(--green); font-size:10px;"><i class="fa-solid fa-circle-check"></i> Verificado</span>` : `<span style="color:var(--yellow); font-size:10px;"><i class="fa-solid fa-triangle-exclamation"></i> Pendente</span>`;
 
