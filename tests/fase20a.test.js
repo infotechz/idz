@@ -2,6 +2,8 @@ const test=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const html=fs.readFileSync(new URL('../index.html',`file://${__filename}`),'utf8');
+const app=fs.readFileSync(new URL('../idz-app.js',`file://${__filename}`),'utf8');
+const design=fs.readFileSync(new URL('../idz-design-system.css',`file://${__filename}`),'utf8');
 const css=fs.readFileSync(new URL('../idz-design-system.css',`file://${__filename}`),'utf8');
 
 test('Design System IDZ está carregado e preserva a logo oficial',()=>{
@@ -27,11 +29,11 @@ test('Etapa 0 tem seis vídeos e não altera os 12 módulos',()=>{
 });
 
 test('aula, player e accordions usam a hierarquia visual nova',()=>{
-  assert.match(html,/Aula atual · \$\{mod\.title\}/);
+  assert.match(app,/Aula atual · \$\{mod\.title\}/);
   assert.match(css,/\.video-frame,\.image-frame/);
-  assert.match(html,/O que vai aprender/);
-  assert.match(html,/Descrição detalhada/);
-  assert.match(html,/Objetivos pedagógicos/);
+  assert.match(app,/O que vai aprender/);
+  assert.match(app,/Descrição detalhada/);
+  assert.match(app,/Objetivos pedagógicos/);
 });
 
 test('checkout, suporte, reembolso, perfil e Google seguem o padrão IDZ',()=>{
@@ -50,14 +52,17 @@ test('Admin possui navegação agrupada e gestão individual segmentada',()=>{
 });
 
 test('breakpoints obrigatórios não permitem largura fixa administrativa',()=>{
-  for(const width of ['460','768','900'])assert.match(css,new RegExp(`max-width:${width}px`));
-  assert.match(css,/max-width:100%/);
-  assert.match(css,/overflow-x:auto/);
-  assert.doesNotMatch(css,/min-width:\s*(?:[5-9]\d\d|\d{4,})px/);
+  for(const width of ['460','768','900'])assert.match(design,new RegExp(`max-width:${width}px`));
+  assert.match(design,/max-width:100%/);
+  assert.match(design,/overflow-x:auto/);
+  // Tabelas podem conservar uma largura interna para scroll controlado;
+  // layouts de página não podem impor larguras de desktop.
+  const layoutCss=design.replace(/\.table-responsive[\s\S]*?\}/g,'');
+  assert.doesNotMatch(layoutCss,/min-width:\s*(?:[5-9]\d\d|\d{4,})px/);
 });
 
 test('toast global possui quatro estados',()=>{
   assert.match(html,/id="idz-toast-stack"/);
-  assert.match(html,/function showToast/);
-  for(const state of ['success','error','warning','info'])assert.match(html,new RegExp(`'${state}'`));
+  assert.match(app,/function showToast/);
+  for(const state of ['success','error','warning','info'])assert.match(app,new RegExp(`'${state}'`));
 });
