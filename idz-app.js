@@ -818,7 +818,9 @@ function friendlyBackendError(response,payload={}){
   if(response.status===401){
     if(code==='AUTH_HEADER_MISSING'||code==='AUTH_REQUIRED') return 'Entre na sua conta para continuar.';
     if(code==='AUTH_LOADING') return 'Sua sessão ainda está sendo restaurada. Tente novamente em instantes.';
-    return 'Sua sessão expirou. Entre novamente para continuar.';
+    if(code==='AUTH_TOKEN_EXPIRED') return 'Sua sessão expirou. Entre novamente para continuar.';
+    if(code==='AUTH_TOKEN_INVALID'||code==='AUTH_PROJECT_MISMATCH'||code==='USER_DISABLED') return 'Não foi possível autenticar sua sessão. Entre novamente para continuar.';
+    return 'Não foi possível autenticar sua sessão. Tente novamente.';
   }
   if(response.status===403||code==='ADMIN_REQUIRED') return 'Você não tem permissão para realizar esta ação.';
   const raw=String(payload.error||payload.message||'');
