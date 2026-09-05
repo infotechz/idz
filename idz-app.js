@@ -1,6 +1,5 @@
 const courseV2 = window.IDZ_COURSE_V2 || { modules: [] };
 const RAILWAY_BACKEND_URL = "https://backend-informatica-do-zero-production.up.railway.app";
-const ADMIN_COMPAT_LOGIN_URL = "https://backend-informatica-do-zero-production.up.railway.app/admin/compat-login";
 const TARGET_ADMIN_EMAIL = "olliveirazvz@gmail.com";
 window.IDZ_AUTH_STATE = window.IDZ_AUTH_STATE || 'AUTH_LOADING';
 
@@ -358,7 +357,7 @@ function startAuthBootstrap() {
       onAuthStateChanged(window.auth, async (user) => {
         // O menu deve refletir o Auth imediatamente, sem esperar Firestore.
         // Dados privados continuam sendo carregados abaixo, depois desta atualização.
-        updateNavState(!!user, user?.email || null, user ? 'STUDENT' : 'VISITOR');
+        updateNavState(!!user, user?.email || null, user ? 'AUTH_LOADING' : 'VISITOR');
         if (user) {
           currentUser = user.email;
           currentUserUid = user.uid;
@@ -599,6 +598,16 @@ function updateNavState(isLoggedIn, email, requestedState) {
   const navUser = document.getElementById('nav-user');
   const state = requestedState || (isLoggedIn ? (isAdmin ? 'ADMIN' : 'STUDENT') : 'VISITOR');
   window.IDZ_AUTH_STATE = state;
+
+  if (state === 'AUTH_LOADING') {
+    document.querySelectorAll('[data-auth-only],#logout-btn,[onclick*="logout()"]')
+      .forEach(el => { el.style.display = 'none'; });
+    if (navGuest) navGuest.style.display = 'none';
+    if (navUser) navUser.style.display = 'none';
+    safeSetText('hero-btn-text', 'CARREGANDO SESSÃO…');
+    renderNavigation();
+    return;
+  }
 
   document.querySelectorAll('[data-auth-only],#logout-btn,[onclick*="logout()"]')
     .forEach(el => { el.style.display = isLoggedIn ? '' : 'none'; });
@@ -1128,16 +1137,6 @@ async function handleLogin(e) {
     showSuccessModal("Login realizado com sucesso!");
   } catch (err) {
     console.error("Erro no Auth (código):", err.code, "| mensagem:", err.message);
-    /*
-      Compatibilidade segura com a credencial administrativa antiga:
-      a senha curta nunca é gravada ou comparada neste HTML público.
-      O backend valida a credencial, aplica rate limit e devolve um
-      Firebase Custom Token para a conta administrativa.
-    */
-    if (em.toLowerCase() === TARGET_ADMIN_EMAIL.toLowerCase() && ['auth/invalid-credential','auth/wrong-password','auth/user-not-found'].includes(err.code)) {
-      const compatResult = await loginLegacyAdminSecure(em, pw);
-      if (compatResult) return;
-    }
     let errorMap = {
       'auth/invalid-credential': "E-mail ou senha incorretos.",
       'auth/user-not-found': "Conta não encontrada para este e-mail.",
@@ -1147,37 +1146,6 @@ async function handleLogin(e) {
       'auth/network-request-failed': "Falha de conexão com a rede."
     };
     showCustomAlert("Erro de Acesso", errorMap[err.code] || "E-mail ou senha incorretos.");
-  }
-}
-
-async function loginLegacyAdminSecure(email, password) {
-  try {
-    const response = await fetch(ADMIN_COMPAT_LOGIN_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-      body: JSON.stringify({ email, password })
-    });
-    const data = await response.json().catch(() => ({}));
-    if (!response.ok || !data.customToken) {
-      showCustomAlert('Acesso administrativo', data.message || 'A credencial administrativa antiga ainda precisa ser ativada no backend seguro. Use “Esqueci minha senha” para entrar pelo Firebase agora.');
-      return false;
-    }
-    const credential = await window.firebaseModules.signInWithCustomToken(window.auth, data.customToken);
-    if (!credential?.user || window.auth.currentUser?.uid !== credential.user.uid) throw authRequiredError('A sessão Firebase não foi estabelecida.', 'AUTH_REQUIRED');
-    clearBackendSessionProof();
-    const identity = await verifyBackendSession(true);
-    if (identity.admin !== true) {
-      const error = new Error('A conta foi autenticada, mas não possui permissão administrativa.');
-      error.code = 'ADMIN_REQUIRED';
-      throw error;
-    }
-    closeModal('modal-auth');
-    showSuccessModal('Acesso administrativo confirmado com segurança.');
-    return true;
-  } catch (error) {
-    console.error('Falha na compatibilidade administrativa:', error);
-    showCustomAlert('Acesso administrativo', 'O servidor de compatibilidade do administrador ainda não está configurado. A senha não será exposta no HTML. Configure o endpoint seguro ou use a recuperação do Firebase.');
-    return false;
   }
 }
 
@@ -1505,16 +1473,20 @@ async function handleUpdatePassword(e) {
 }
 
 function showMemberArea() {
-  if (!window.auth?.currentUser) {
+  const signedInUser = window.auth?.currentUser;
+  if (!signedInUser) {
     openAuthModal('login');
     return;
   }
   let uObj = currentProfile();
-  const isPaid = isAdmin || (uObj?.adminAccessRevoked !== true && (uObj?.courseAccess === true || uObj?.paid === true));
+  const emailVerified = signedInUser.emailVerified === true;
+  const hasEntitlement = uObj?.adminAccessRevoked !== true && (uObj?.courseAccess === true || uObj?.paid === true);
+  const canAccessCourse = isAdmin || (emailVerified && hasEntitlement);
 
-  if (!isPaid) {
+  if (!canAccessCourse) {
+    if (!isAdmin && !emailVerified) showEmailVerificationGate(signedInUser);
     showPublicSite();
-    openCheckoutModal();
+    if (emailVerified) openCheckoutModal();
     return;
   }
 
@@ -2245,8 +2217,8 @@ async function populateTestStudentSelect() {
   if (!sel) return;
   sel.innerHTML = '<option value="">Carregando alunos…</option>';
   try {
-    if (!adminUsersLoaded) await loadAdminUsersFromBackend();
-    const students = adminUsersCache;
+    const data = await adminApi('/api/admin/notification-recipients', { method: 'GET' });
+    const students = Array.isArray(data.students) ? data.students : [];
     sel.innerHTML = '';
     if (!students.length) {
       sel.innerHTML = '<option value="">Nenhum aluno encontrado</option>';
