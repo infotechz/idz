@@ -883,7 +883,7 @@ async function backendRequest(path, options = {}) {
   };
   let response = await makeRequest(session.token);
   let payload = await response.json().catch(() => ({}));
-  if (response.status === 401 && session.user?.getIdToken) {
+  if (response.status === 401 && payload.code !== 'AUTH_HEADER_MISSING' && session.user?.getIdToken) {
     const refreshed = await session.user.getIdToken(true);
     response = await makeRequest(refreshed);
     payload = await response.json().catch(() => ({}));
