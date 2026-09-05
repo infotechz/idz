@@ -767,25 +767,60 @@ async function closeCheckoutModalSafe() {
   checkoutTargetUser = null;
 }
 
-async function requireFirebaseSession() {
-  if (!window.auth) throw new Error('Entre na sua conta para continuar o pagamento.');
-  let user=window.auth.currentUser;
-  if(!user&&window.firebaseModules?.onAuthStateChanged){
-    user=await new Promise(resolve=>{
-      let settled=false,unsubscribe=null;
-      const finish=value=>{if(settled)return;settled=true;clearTimeout(timer);unsubscribe?.();resolve(value||null)};
-      const timer=setTimeout(()=>finish(window.auth.currentUser),2500);
-      unsubscribe=window.firebaseModules.onAuthStateChanged(window.auth,finish,()=>finish(null));
+let authReadyPromise = null;
+let authReadyInstance = null;
+
+function authRequiredError(message, code = 'AUTH_REQUIRED') {
+  const error = new Error(message);
+  error.code = code;
+  return error;
+}
+
+async function waitForFirebaseUser(timeoutMs = 15000) {
+  const startedAt = Date.now();
+  while (!window.auth || !window.firebaseModules?.onAuthStateChanged) {
+    if (Date.now() - startedAt >= timeoutMs) return null;
+    await new Promise(resolve => setTimeout(resolve, 50));
+  }
+  const auth = window.auth;
+  if (auth.currentUser) return auth.currentUser;
+  if (!authReadyPromise || authReadyInstance !== auth) {
+    authReadyInstance = auth;
+    authReadyPromise = new Promise(resolve => {
+      let settled = false;
+      let unsubscribe = null;
+      const finish = value => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
+        unsubscribe?.();
+        resolve(value || null);
+      };
+      const timer = setTimeout(() => finish(auth.currentUser), timeoutMs);
+      unsubscribe = window.firebaseModules.onAuthStateChanged(auth, finish, () => finish(null));
     });
   }
-  if(!user)throw new Error('Entre na sua conta para continuar o pagamento.');
-  const token=await user.getIdToken();
-  if(typeof token!=='string'||!token.trim())throw new Error('Sua sessão expirou. Entre novamente para continuar.');
-  return {user,token};
+  return authReadyPromise;
+}
+
+async function requireFirebaseSession() {
+  const user = await waitForFirebaseUser();
+  if (!user) throw authRequiredError('Entre na sua conta para continuar o pagamento.');
+  const token = await user.getIdToken();
+  if (typeof token !== 'string' || !token.trim()) {
+    throw authRequiredError('Sua sessão ainda está sendo restaurada. Tente novamente em instantes.', 'AUTH_LOADING');
+  }
+  return { user, token };
 }
 
 function friendlyBackendError(response,payload={}){
-  if(response.status===401)return 'Sua sessão expirou. Entre novamente para continuar.';
+  const code=String(payload.code||'');
+  if(response.status===401){
+    if(code==='AUTH_HEADER_MISSING'||code==='AUTH_REQUIRED') return 'Entre na sua conta para continuar.';
+    if(code==='AUTH_LOADING') return 'Sua sessão ainda está sendo restaurada. Tente novamente em instantes.';
+    return 'Sua sessão expirou. Entre novamente para continuar.';
+  }
+  if(response.status===403||code==='ADMIN_REQUIRED') return 'Você não tem permissão para realizar esta ação.';
   const raw=String(payload.error||payload.message||'');
   if(/authorization value not present|unauthorized|token invalid|token expir/i.test(raw))return 'Não foi possível autenticar o pagamento. Entre novamente e tente de novo.';
   return raw||'Operação não concluída.';
