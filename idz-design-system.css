@@ -29,3 +29,91 @@ input,textarea,select{max-width:100%;border-radius:12px!important;border:1px sol
 @media(max-width:768px){.glass-panel,.modal-card,.admin-card,.hero-card{backdrop-filter:blur(10px) saturate(115%)!important;-webkit-backdrop-filter:blur(10px) saturate(115%)!important}.wrap,#admin-area{width:min(100% - 24px,var(--page-max))!important}.hero{padding:38px 0 48px!important}.student-dashboard-header{padding-inline:0!important}.lms-sidebar{grid-row:2!important}.lms-content{grid-row:1!important}#settings-area>.glass-panel{padding:18px!important}.sales-table td{border:1px solid var(--idz-line)!important;border-radius:10px!important;margin:5px 0}.admin-toolbar{scroll-snap-type:x proximity}.admin-toolbar-group{flex:0 0 auto;scroll-snap-align:start}.admin-filter-bar{grid-template-columns:1fr}.content-organizer-actions>*{flex:1 1 150px}}
 @media(max-width:460px){:root{--idz-radius:15px}.stage-zero-lessons{grid-template-columns:1fr}.idz-stage-zero{padding:14px}.checkout-method{min-width:0}.checkout-method small{font-size:.68rem}.checkout-panel.active{padding:11px}.google-connection-card{flex-direction:column!important;align-items:stretch!important}.google-connection-card .btn-outline{width:100%}.certificate-timeline{grid-template-columns:1fr}.support-message{max-width:94%}.idz-toast-stack{right:12px;bottom:12px;width:calc(100% - 24px)}}
 @media(prefers-reduced-motion:reduce){#particles-canvas,.orb{display:none!important}.rgb-detail,.idz-toast,.btn::before,.btn-outline::before{animation:none!important}.btn,.btn-outline,.lesson-meta-compact summary::after{transition:none!important}}
+
+
+/* Functional mobile stabilization — keeps page width fixed by sizing children, not by clipping overflow. */
+body.idz-20a :where(
+  #app,#public-site,#member-area,#settings-area,#admin-area,
+  .wrap,.admin-grid,.admin-card,.glass-panel,.hero-card,
+  .gateway-metrics,.table-responsive,.support-chat-shell,.support-chat-main,
+  .checkout-panel,.checkout-summary,.notification-test-card,
+  .student-manager,.manager-panel,.student-dashboard-header
+){min-width:0;max-width:100%}
+body.idz-20a :where(
+  .admin-grid,.gateway-metrics,.admin-toolbar,.support-chat-shell,
+  .idz-card-grid,.checkout-methods,.student-dashboard-header
+)>*{min-width:0}
+body.idz-20a :where(input,select,textarea){width:100%;min-width:0;max-width:100%;box-sizing:border-box}
+body.idz-20a :where(
+  .student-dashboard-header,.student-profile-main,.manager-status,
+  .certificate-step,.certificate-actions,.checkout-status,
+  .support-message,.admin-card,.notification-test-card
+){overflow-wrap:anywhere}
+body.idz-20a .table-responsive{
+  width:100%;max-width:100%;min-width:0;overflow-x:auto;
+  overscroll-behavior-inline:contain;-webkit-overflow-scrolling:touch
+}
+body.idz-20a .admin-toolbar{
+  width:100%;max-width:100%;min-width:0;overscroll-behavior-inline:contain;
+  -webkit-overflow-scrolling:touch
+}
+body.idz-20a .admin-toolbar-group{flex:0 0 auto;min-width:max-content}
+body.idz-20a .modal-overlay{overflow-y:auto;overscroll-behavior:contain}
+body.idz-20a .modal-card{
+  width:min(100%,calc(100vw - 16px));max-width:calc(100vw - 16px);
+  max-height:calc(100dvh - 16px);overflow-y:auto
+}
+body.idz-20a canvas{pointer-events:none}
+
+@media(max-width:768px){
+  body.idz-20a :where(.admin-grid,.gateway-metrics,.checkout-methods,.idz-card-grid){
+    grid-template-columns:minmax(0,1fr)!important
+  }
+  body.idz-20a :where(
+    #settings-area [style*="grid-template-columns"],
+    #admin-sec-modules [style*="grid-template-columns"],
+    #admin-sec-coupons [style*="grid-template-columns"],
+    #admin-sec-finance [style*="grid-template-columns"],
+    #admin-sec-notifications [style*="grid-template-columns"],
+    .notification-test-card [style*="grid-template-columns"]
+  ){grid-template-columns:minmax(0,1fr)!important}
+  body.idz-20a .admin-card{width:100%;max-width:100%}
+  body.idz-20a .admin-filter-bar{grid-template-columns:minmax(0,1fr)!important}
+  body.idz-20a .support-chat-shell{grid-template-columns:minmax(0,1fr)!important}
+  body.idz-20a .support-chat-list{max-height:42dvh;overflow-y:auto}
+  body.idz-20a .certificate-timeline{
+    grid-template-columns:minmax(0,1fr)!important;position:relative
+  }
+  body.idz-20a .certificate-step{width:100%;overflow-wrap:anywhere}
+  body.idz-20a .certificate-actions{display:grid;grid-template-columns:minmax(0,1fr);width:100%}
+  body.idz-20a .certificate-actions>*{width:100%;max-width:100%}
+  body.idz-20a :where(.notification-test-card,.checkout-panel,.checkout-summary){
+    width:100%;min-width:0;max-width:100%
+  }
+  body.idz-20a .notification-test-card :where(button,.btn,.btn-outline){width:100%;max-width:100%}
+  body.idz-20a .table-responsive .sales-table{min-width:640px}
+  body.idz-20a :where(.settings-tabs,.manager-tabs,.profile-tabs){
+    display:flex;max-width:100%;overflow-x:auto;overscroll-behavior-inline:contain;
+    -webkit-overflow-scrolling:touch
+  }
+  body.idz-20a :where(.settings-tabs,.manager-tabs,.profile-tabs)>*{flex:0 0 auto}
+  body.idz-20a :where(.content-organizer-actions,.manager-actions){
+    display:grid;grid-template-columns:minmax(0,1fr);width:100%
+  }
+  body.idz-20a :where(.content-organizer-actions,.manager-actions)>*{width:100%;max-width:100%}
+  body.idz-20a .modal-overlay{padding:8px}
+}
+
+@media(max-width:430px){
+  body.idz-20a :where(.glass-panel,.modal-card,.admin-card,.hero-card){
+    backdrop-filter:blur(8px) saturate(110%)!important;
+    -webkit-backdrop-filter:blur(8px) saturate(110%)!important
+  }
+  body.idz-20a :where(.certificate-actions,.content-organizer-actions,.manager-actions) .btn,
+  body.idz-20a :where(.certificate-actions,.content-organizer-actions,.manager-actions) .btn-outline{
+    width:100%;max-width:100%;white-space:normal
+  }
+  body.idz-20a :where(.student-profile-main,.student-profile-copy,.student-profile-copy h2){
+    min-width:0;max-width:100%;overflow-wrap:anywhere
+  }
+}
