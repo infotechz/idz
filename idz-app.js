@@ -144,6 +144,9 @@ function selectCourseData(snapshotData) {
 
 let courseData = [];
 let registeredUsers = [];
+let adminUsersCache = [];
+let adminUsersLoaded = false;
+let adminUsersLoadingPromise = null;
 let salesTransactions = JSON.parse(localStorage.getItem('admin_sales_transactions')) || [];
 let notificationsList = [];
 let completedLessons = JSON.parse(localStorage.getItem('user_completed_lessons')) || {};
@@ -221,6 +224,29 @@ function showToast(message,type='info'){
 
 function currentProfile() {
   return registeredUsers.find(u => u.uid === currentUserUid) || registeredUsers.find(u => u.email === currentUser) || null;
+}
+
+async function loadAdminUsersFromBackend() {
+  if (!isAdmin || window.IDZ_AUTH_STATE !== 'ADMIN') return [];
+  if (adminUsersLoadingPromise) return adminUsersLoadingPromise;
+  adminUsersLoadingPromise = (async () => {
+    try {
+      const data = await adminApi('/api/admin/users', { method: 'GET' });
+      const students = Array.isArray(data.students) ? data.students : [];
+      adminUsersCache = students;
+      registeredUsers = students;
+      adminUsersLoaded = true;
+      renderDashboard();
+      return students;
+    } catch (error) {
+      adminUsersLoaded = false;
+      console.warn('admin_users_load_failed', { code: String(error?.code || 'BACKEND_ERROR'), message: String(error?.message || 'unknown') });
+      throw error;
+    } finally {
+      adminUsersLoadingPromise = null;
+    }
+  })();
+  return adminUsersLoadingPromise;
 }
 function progressKey() { return currentUserUid || currentUser || 'anonymous'; }
 
@@ -391,14 +417,10 @@ function startAuthBootstrap() {
             }
 
             isAdmin = tokenClaims.admin === true;
-            if (isAdmin && !usersUnsubscribe) {
-              usersUnsubscribe = onSnapshot(collection(window.db, 'users'), (snapshot) => {
-                registeredUsers = snapshot.docs.map(docSnap => docSnap.data());
-                if (document.getElementById('admin-area')?.style.display === 'block') {
-                  renderDashboard();
-                  populateTestStudentSelect();
-                }
-              });
+            if (isAdmin) {
+              adminUsersLoaded = false;
+              adminUsersCache = [];
+              loadAdminUsersFromBackend().catch(() => {});
             }
             changeTheme(localStorage.getItem(`app_theme_${user.uid}`) || 'azul', false);
             loadNotificationsForCurrentAccount();
@@ -425,6 +447,8 @@ function startAuthBootstrap() {
           currentUser = null;
           currentUserUid = null;
           if (usersUnsubscribe) { usersUnsubscribe(); usersUnsubscribe = null; }
+          adminUsersCache = [];
+          adminUsersLoaded = false;
           isAdmin = false;
           notificationsList = [];
           changeTheme('azul', false);
@@ -2155,8 +2179,8 @@ async function populateTestStudentSelect() {
   if (!sel) return;
   sel.innerHTML = '<option value="">Carregando alunos…</option>';
   try {
-    const recipients = await backendRequest('/api/admin/notification-recipients', { method: 'GET' });
-    const students = Array.isArray(recipients.students) ? recipients.students : [];
+    if (!adminUsersLoaded) await loadAdminUsersFromBackend();
+    const students = adminUsersCache;
     sel.innerHTML = '';
     if (!students.length) {
       sel.innerHTML = '<option value="">Nenhum aluno encontrado</option>';
@@ -2169,7 +2193,7 @@ async function populateTestStudentSelect() {
     });
   } catch (error) {
     sel.innerHTML = '<option value="">Não foi possível carregar alunos</option>';
-    console.warn('notification_recipients_load_failed', { message: String(error?.message || 'unknown') });
+    console.warn('admin_users_select_load_failed', { code: String(error?.code || 'BACKEND_ERROR'), message: String(error?.message || 'unknown') });
   }
 }
 
