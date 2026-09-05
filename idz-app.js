@@ -2090,13 +2090,23 @@ async function confirmPhysicalReceipt() {
 }
 
 function renderDashboard() {
-  safeSetText('admin-total-users', `${registeredUsers.length}`);
-  safeSetText('admin-overview-users', `${registeredUsers.length}`);
+  const usersState = adminUsersLoaded ? String(adminUsersCache.length) : (adminUsersLoadError ? 'Erro' : 'Carregando…');
+  safeSetText('admin-total-users', usersState);
+  safeSetText('admin-overview-users', usersState);
   updateCourseStatsUI();
   
   const tbody = document.getElementById('users-list-body'); 
   if(!tbody) return;
   tbody.innerHTML = '';
+  if (!adminUsersLoaded) {
+    const message = adminUsersLoadError ? 'Não foi possível carregar os alunos. Tente novamente.' : 'Carregando alunos…';
+    tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--text-secondary)">${message}</td></tr>`;
+    return;
+  }
+  if (!adminUsersCache.length) {
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--text-secondary)">Nenhum aluno cadastrado.</td></tr>';
+    return;
+  }
 
   let totalLessonsInCourse = 0;
   let totalQuizInCourse = 0;
