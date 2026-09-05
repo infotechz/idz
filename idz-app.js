@@ -821,29 +821,29 @@ async function waitForFirebaseUser(timeoutMs = 15000) {
     await new Promise(resolve => setTimeout(resolve, 50));
   }
   const auth = window.auth;
-  if (auth.currentUser) return auth.currentUser;
   if (!authReadyPromise || authReadyInstance !== auth) {
     authReadyInstance = auth;
     authReadyPromise = new Promise(resolve => {
       let settled = false;
       let unsubscribe = null;
-      const finish = value => {
+      const finish = () => {
         if (settled) return;
         settled = true;
         clearTimeout(timer);
         unsubscribe?.();
-        resolve(value || null);
+        resolve(true);
       };
-      const timer = setTimeout(() => finish(auth.currentUser), timeoutMs);
-      unsubscribe = window.firebaseModules.onAuthStateChanged(auth, finish, () => finish(null));
+      const timer = setTimeout(finish, timeoutMs);
+      unsubscribe = window.firebaseModules.onAuthStateChanged(auth, finish, finish);
     });
   }
-  return authReadyPromise;
+  await authReadyPromise;
+  return auth.currentUser || null;
 }
 
 async function requireFirebaseSession() {
   const user = await waitForFirebaseUser();
-  if (!user) throw authRequiredError('Entre na sua conta para continuar o pagamento.');
+  if (!user) throw authRequiredError('Entre na sua conta para continuar.');
   const token = await user.getIdToken();
   if (typeof token !== 'string' || !token.trim()) {
     throw authRequiredError('Sua sessão ainda está sendo restaurada. Tente novamente em instantes.', 'AUTH_LOADING');
@@ -892,6 +892,7 @@ async function backendRequest(path, options = {}) {
     const error = new Error(friendlyBackendError(response, payload));
     error.code = String(payload.code || (response.status === 403 ? 'ADMIN_REQUIRED' : response.status === 401 ? 'AUTH_TOKEN_INVALID' : 'BACKEND_ERROR'));
     error.status = response.status;
+    console.warn('backend_request_failed', { path, status: response.status, code: error.code, authorizationSent: true });
     throw error;
   }
   return payload;
