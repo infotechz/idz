@@ -146,7 +146,10 @@ let courseData = [];
 let registeredUsers = [];
 let adminUsersCache = [];
 let adminUsersLoaded = false;
+let adminUsersLoadError = null;
 let adminUsersLoadingPromise = null;
+let backendSessionProofPromise = null;
+let backendSessionProofUid = null;
 let salesTransactions = JSON.parse(localStorage.getItem('admin_sales_transactions')) || [];
 let notificationsList = [];
 let completedLessons = JSON.parse(localStorage.getItem('user_completed_lessons')) || {};
@@ -229,18 +232,24 @@ function currentProfile() {
 async function loadAdminUsersFromBackend() {
   if (!isAdmin || window.IDZ_AUTH_STATE !== 'ADMIN') return [];
   if (adminUsersLoadingPromise) return adminUsersLoadingPromise;
+  adminUsersLoadError = null;
+  renderDashboard();
   adminUsersLoadingPromise = (async () => {
     try {
+      await verifyBackendSession();
       const data = await adminApi('/api/admin/users', { method: 'GET' });
       const students = Array.isArray(data.students) ? data.students : [];
       adminUsersCache = students;
       registeredUsers = students;
       adminUsersLoaded = true;
+      adminUsersLoadError = null;
       renderDashboard();
       return students;
     } catch (error) {
       adminUsersLoaded = false;
-      console.warn('admin_users_load_failed', { code: String(error?.code || 'BACKEND_ERROR'), message: String(error?.message || 'unknown') });
+      adminUsersLoadError = error;
+      renderDashboard();
+      console.warn('admin_users_load_failed', { code: String(error?.code || 'BACKEND_ERROR'), status: Number(error?.status || 0) });
       throw error;
     } finally {
       adminUsersLoadingPromise = null;
@@ -419,6 +428,7 @@ function startAuthBootstrap() {
             isAdmin = tokenClaims.admin === true;
             if (isAdmin) {
               adminUsersLoaded = false;
+              adminUsersLoadError = null;
               adminUsersCache = [];
               loadAdminUsersFromBackend().catch(() => {});
             }
@@ -449,6 +459,8 @@ function startAuthBootstrap() {
           if (usersUnsubscribe) { usersUnsubscribe(); usersUnsubscribe = null; }
           adminUsersCache = [];
           adminUsersLoaded = false;
+          adminUsersLoadError = null;
+          clearBackendSessionProof();
           isAdmin = false;
           notificationsList = [];
           changeTheme('azul', false);
@@ -840,7 +852,8 @@ async function requireFirebaseSession() {
 function friendlyBackendError(response,payload={}){
   const code=String(payload.code||'');
   if(response.status===401){
-    if(code==='AUTH_HEADER_MISSING'||code==='AUTH_REQUIRED') return 'Entre na sua conta para continuar.';
+    if(code==='AUTH_HEADER_MISSING') return 'Não foi possível validar sua sessão. Entre novamente e tente de novo.';
+    if(code==='AUTH_REQUIRED') return 'Entre na sua conta para continuar.';
     if(code==='AUTH_LOADING') return 'Sua sessão ainda está sendo restaurada. Tente novamente em instantes.';
     if(code==='AUTH_TOKEN_EXPIRED') return 'Sua sessão expirou. Entre novamente para continuar.';
     if(code==='AUTH_TOKEN_INVALID'||code==='AUTH_PROJECT_MISMATCH'||code==='USER_DISABLED') return 'Não foi possível autenticar sua sessão. Entre novamente para continuar.';
@@ -880,6 +893,31 @@ async function backendRequest(path, options = {}) {
     throw error;
   }
   return payload;
+}
+
+async function verifyBackendSession(force = false) {
+  const { user } = await requireFirebaseSession();
+  if (!force && backendSessionProofPromise && backendSessionProofUid === user.uid) return backendSessionProofPromise;
+  backendSessionProofUid = user.uid;
+  backendSessionProofPromise = backendRequest('/api/auth/me', { method: 'GET' })
+    .then(identity => {
+      if (!identity?.authenticated || identity.uid !== user.uid) {
+        const error = new Error('Não foi possível validar sua sessão.');
+        error.code = 'AUTH_IDENTITY_MISMATCH';
+        throw error;
+      }
+      return identity;
+    })
+    .catch(error => {
+      backendSessionProofPromise = null;
+      throw error;
+    });
+  return backendSessionProofPromise;
+}
+
+function clearBackendSessionProof() {
+  backendSessionProofPromise = null;
+  backendSessionProofUid = null;
 }
 
 async function enablePushNotifications() {
@@ -1121,7 +1159,15 @@ async function loginLegacyAdminSecure(email, password) {
       showCustomAlert('Acesso administrativo', data.message || 'A credencial administrativa antiga ainda precisa ser ativada no backend seguro. Use “Esqueci minha senha” para entrar pelo Firebase agora.');
       return false;
     }
-    await window.firebaseModules.signInWithCustomToken(window.auth, data.customToken);
+    const credential = await window.firebaseModules.signInWithCustomToken(window.auth, data.customToken);
+    if (!credential?.user || window.auth.currentUser?.uid !== credential.user.uid) throw authRequiredError('A sessão Firebase não foi estabelecida.', 'AUTH_REQUIRED');
+    clearBackendSessionProof();
+    const identity = await verifyBackendSession(true);
+    if (identity.admin !== true) {
+      const error = new Error('A conta foi autenticada, mas não possui permissão administrativa.');
+      error.code = 'ADMIN_REQUIRED';
+      throw error;
+    }
     closeModal('modal-auth');
     showSuccessModal('Acesso administrativo confirmado com segurança.');
     return true;
@@ -2474,6 +2520,7 @@ async function initializeCardForm(){
           event.preventDefault();
           const submit=document.getElementById('form-checkout__submit');if(submit)submit.disabled=true;
           try{
+            await verifyBackendSession();
             const data=cardFormController.getCardFormData();
             if(!data?.token)throw new Error('A tokenização segura do cartão não foi concluída. Confira os campos.');
             const payload=await backendRequest('/api/payments/card',{method:'POST',headers:{'Idempotency-Key':crypto.randomUUID()},body:JSON.stringify({token:data.token,payment_method_id:data.paymentMethodId,issuer_id:data.issuerId,installments:Number(data.installments),payer:{email:data.cardholderEmail,identification:{type:data.identificationType,number:data.identificationNumber}},couponCode:appliedCouponCode||undefined})});
@@ -2492,6 +2539,7 @@ async function submitIdzPix(){
   const status=document.getElementById('pix-submit-status');if(status)status.textContent='Gerando PIX seguro…';
   try{
     const {user}=await requireFirebaseSession();
+    await verifyBackendSession();
     const cpf=safeGetValue('pix-payer-cpf').replace(/\D/g,'');
     const payload=await backendRequest('/api/payments/pix',{method:'POST',headers:{'Idempotency-Key':crypto.randomUUID()},body:JSON.stringify({payment_method_id:'pix',payer:{email:user.email,identification:cpf?{type:'CPF',number:cpf}:undefined},couponCode:appliedCouponCode||undefined})});
     showPixPayment(payload);if(status)status.textContent=`Status: ${payload.status||'pending'}. O acesso continua bloqueado até aprovação.`;
