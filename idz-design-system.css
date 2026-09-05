@@ -117,3 +117,37 @@ body.idz-20a canvas{pointer-events:none}
     min-width:0;max-width:100%;overflow-wrap:anywhere
   }
 }
+
+/* Certificado físico e tabelas administrativas: os controles ficam dentro do card. */
+body.idz-20a .cert-actions{
+  display:grid;
+  grid-template-columns:minmax(0,1fr);
+  gap:8px;
+  width:100%;
+  min-width:0;
+  max-width:100%;
+}
+body.idz-20a .cert-actions>*{
+  width:100%;
+  min-width:0;
+  max-width:100%;
+  white-space:normal;
+  overflow-wrap:anywhere;
+}
+body.idz-20a .cert-request-details,
+body.idz-20a .cert-request-details p{
+  max-width:100%;
+  min-width:0;
+  overflow-wrap:anywhere;
+}
+@media(max-width:700px){
+  body.idz-20a .table-responsive .sales-table{
+    min-width:0!important;
+    max-width:100%;
+  }
+  body.idz-20a .table-responsive .sales-table td{
+    min-width:0;
+    max-width:100%;
+    overflow-wrap:anywhere;
+  }
+}
