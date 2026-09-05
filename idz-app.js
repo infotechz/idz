@@ -142,7 +142,7 @@ function selectCourseData(snapshotData) {
 }
 
 
-let courseData = [];
+let courseData = selectCourseData([]);
 let registeredUsers = [];
 let adminUsersCache = [];
 let adminUsersLoaded = false;
@@ -345,6 +345,8 @@ function startAuthBootstrap() {
 
   /* A área pública sempre inicia no Azul IDZ; preferências só são carregadas após autenticação. */
   changeTheme('azul', false);
+  // O resumo público usa o Course V2 local imediatamente; Firestore apenas aprimora os dados depois.
+  updateCourseStatsUI();
 
   const checkDbInterval = setInterval(() => {
     // Auth é suficiente para restaurar a sessão e atualizar o menu.
