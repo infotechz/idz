@@ -46,9 +46,9 @@ test('reopening overview or students retries a failed initial load', () => {
   assert.equal(retries, 2);
 });
 
-test('switching to card preserves an already generated Pix panel', () => {
+test('switching to card hides Pix and returning to Pix restores it', () => {
   const elements = {
-    'pix-payment-panel': { active: true, classList: { contains: () => true, add() { this.wasAdded = true; } } },
+    'pix-payment-panel': { active: true, classList: { contains: () => true, toggle(value, state) { this.lastState = state; } } },
     'pix-copy-code': { value: 'pix-copy-paste-code' },
     'checkout-method-pix': { classList: { toggle() {} } },
     'checkout-method-card': { classList: { toggle() {} } },
@@ -63,5 +63,8 @@ test('switching to card preserves an already generated Pix panel', () => {
     initializeCardForm: () => Promise.resolve()
   });
   vm.runInContext(section('async function selectCheckoutMethod(', 'async function mercadoPagoBrowserConfig('), ctx);
-  return ctx.selectCheckoutMethod('card').then(() => assert.equal(elements['pix-payment-panel'].classList.wasAdded, true));
+  return ctx.selectCheckoutMethod('card').then(() => {
+    assert.equal(elements['pix-payment-panel'].classList.lastState, false);
+    return ctx.selectCheckoutMethod('pix');
+  }).then(() => assert.equal(elements['pix-payment-panel'].classList.lastState, true));
 });

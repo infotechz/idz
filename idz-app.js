@@ -2466,14 +2466,14 @@ function updateCheckoutPrice(){
 
 async function selectCheckoutMethod(method) {
   const selected=method==='card'?'card':'pix';
-  // O PIX gerado pertence ao checkout atual e deve continuar visível ao
-  // alternar para cartão. Só o fechamento do modal ou um novo checkout limpa o QR.
+  // O PIX gerado pertence ao checkout atual: esconda-o no cartão, mas preserve
+  // o código para reapresentá-lo quando o usuário voltar ao método PIX.
   const pixPanel=document.getElementById('pix-payment-panel');
   const pixCode=document.getElementById('pix-copy-code');
-  const preservePix=Boolean(pixPanel?.classList.contains('active') && pixCode?.value);
+  const hasPix=Boolean(pixCode?.value);
   document.querySelectorAll('.checkout-method').forEach(button=>button.classList.toggle('active',button.id===`checkout-method-${selected}`));
   document.querySelectorAll('.checkout-panel').forEach(panel=>panel.classList.toggle('active',panel.id===`checkout-panel-${selected}`));
-  if(preservePix)pixPanel.classList.add('active');
+  if(pixPanel)pixPanel.classList.toggle('active',selected==='pix' && hasPix);
   if(selected==='card')await initializeCardForm();
 }
 
