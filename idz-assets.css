@@ -4,6 +4,7 @@ html,body{max-width:100%;overflow-x:hidden}
 img,video,iframe{max-width:100%}
 button,a{max-width:100%}
 body.idz-20a .gridhero{grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:center}
+.hero-card{display:none!important}.hero h1{font-size:clamp(2.7rem,4.8vw,4.15rem)!important;line-height:1.02!important;max-width:12ch}
 .gridhero>*,.idz-asset-split>*{min-width:0}
 .idz-hero-visual{display:block;grid-column:2;grid-row:1}
 .idz-hero-visual img{display:block;width:100%;height:auto;object-fit:contain;border-radius:24px}
