@@ -31,7 +31,7 @@
       drawer.setAttribute('aria-label', 'Menu de navegação');
       drawer.innerHTML = `
         <div class="idz20a-drawer-head">
-          <img src="assets/logo-idz-oficial-v2.png" alt="Informática do Zero" decoding="async">
+          <img src="assets/idz/brand/logo-horizontal.png" alt="Informática do Zero" decoding="async">
           <button type="button" class="idz20a-close" aria-label="Fechar menu"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <div id="idz20a-drawer-body"><span class="idz20a-menu-title">CARREGANDO SESSÃO…</span></div>`;
@@ -65,7 +65,7 @@
     });
     $$('img').forEach((image, index) => {
       image.decoding = 'async';
-      if (index > 1) image.loading = 'lazy';
+      if (index > 1 && image.fetchPriority !== 'high') image.loading = 'lazy';
     });
   }
 
