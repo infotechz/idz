@@ -48,7 +48,7 @@ test('reopening overview or students retries a failed initial load', () => {
 
 test('switching to card hides Pix and returning to Pix restores it', () => {
   const elements = {
-    'pix-payment-panel': { active: true, classList: { contains: () => true, toggle(value, state) { this.lastState = state; } } },
+    'pix-payment-panel': { active: true, style: {}, classList: { contains: () => true, toggle(value, state) { this.lastState = state; } } },
     'pix-copy-code': { value: 'pix-copy-paste-code' },
     'checkout-method-pix': { classList: { toggle() {} } },
     'checkout-method-card': { classList: { toggle() {} } },

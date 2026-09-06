@@ -990,6 +990,7 @@ function resetPixPanel() {
   const image = document.getElementById('pix-qr-image');
   const code = document.getElementById('pix-copy-code');
   if (panel) panel.classList.remove('active');
+  if (panel) panel.style.display = 'none';
   if (image) { image.removeAttribute('src'); image.style.display = 'none'; }
   if (code) code.value = '';
   const countdown = document.getElementById('pix-countdown');
@@ -1012,6 +1013,7 @@ function showPixPayment(response = {}) {
 
   if (!copyCode && !qrSource) return false;
   code.value = copyCode;
+  panel.style.display = 'block';
   status.textContent = pix.ticket_url ? 'Pix criado. Você também pode abrir o comprovante do pagamento.' : 'Pix criado. Pague pelo QR Code ou copie o código abaixo.';
   if (qrSource) { image.src = qrSource; image.style.display = 'block'; }
   panel.classList.add('active');
@@ -2473,7 +2475,11 @@ async function selectCheckoutMethod(method) {
   const hasPix=Boolean(pixCode?.value);
   document.querySelectorAll('.checkout-method').forEach(button=>button.classList.toggle('active',button.id===`checkout-method-${selected}`));
   document.querySelectorAll('.checkout-panel').forEach(panel=>panel.classList.toggle('active',panel.id===`checkout-panel-${selected}`));
-  if(pixPanel)pixPanel.classList.toggle('active',selected==='pix' && hasPix);
+  if(pixPanel){
+    const showPix=selected==='pix' && hasPix;
+    pixPanel.classList.toggle('active',showPix);
+    pixPanel.style.display=showPix?'block':'none';
+  }
   if(selected==='card')await initializeCardForm();
 }
 
