@@ -1,5 +1,5 @@
 const courseV2 = window.IDZ_COURSE_V2 || { modules: [] };
-const RAILWAY_BACKEND_URL = "https://api.idzoficial.com";
+const RAILWAY_BACKEND_URL = "https://backend-informatica-do-zero-production.up.railway.app";
 const TARGET_ADMIN_EMAIL = "olliveirazvz@gmail.com";
 window.IDZ_AUTH_STATE = window.IDZ_AUTH_STATE || 'AUTH_LOADING';
 
