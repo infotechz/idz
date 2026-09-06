@@ -1,5 +1,5 @@
 const courseV2 = window.IDZ_COURSE_V2 || { modules: [] };
-const RAILWAY_BACKEND_URL = "https://backend-informatica-do-zero-production.up.railway.app";
+const RAILWAY_BACKEND_URL = "https://api.idzoficial.com";
 const TARGET_ADMIN_EMAIL = "olliveirazvz@gmail.com";
 window.IDZ_AUTH_STATE = window.IDZ_AUTH_STATE || 'AUTH_LOADING';
 
@@ -237,8 +237,7 @@ async function loadAdminUsersFromBackend() {
     try {
       await verifyBackendSession();
       const data = await adminApi('/api/admin/users', { method: 'GET' });
-      if (!Array.isArray(data.students)) throw new Error('Resposta inválida ao carregar os alunos. Tente novamente.');
-      const students = data.students;
+      const students = Array.isArray(data.students) ? data.students : [];
       adminUsersCache = students;
       registeredUsers = students;
       adminUsersLoaded = true;
@@ -882,7 +881,6 @@ async function requireFirebaseSession() {
 
 function friendlyBackendError(response,payload={}){
   const code=String(payload.code||'');
-  if(code==='PAYMENT_PROVIDER_AUTH_ERROR'||code==='PAYMENT_NOT_CONFIGURED')return 'Pagamento temporariamente indisponível. Entre em contato com o suporte.';
   if(response.status===401){
     if(code==='AUTH_HEADER_MISSING') return 'Não foi possível validar sua sessão. Entre novamente e tente de novo.';
     if(code==='AUTH_REQUIRED') return 'Entre na sua conta para continuar.';
@@ -893,7 +891,7 @@ function friendlyBackendError(response,payload={}){
   }
   if(response.status===403||code==='ADMIN_REQUIRED') return 'Você não tem permissão para realizar esta ação.';
   const raw=String(payload.error||payload.message||'');
-  if(/authorization value not present|unauthorized|token invalid|token expir/i.test(raw))return 'Pagamento temporariamente indisponível. Entre em contato com o suporte.';
+  if(/authorization value not present|unauthorized|token invalid|token expir/i.test(raw))return 'Não foi possível autenticar o pagamento. Entre novamente e tente de novo.';
   return raw||'Operação não concluída.';
 }
 
@@ -2016,10 +2014,7 @@ function switchAdminTab(secName) {
     let elem = document.getElementById(`admin-sec-${s}`);
     if(elem) elem.style.display = (s === secName) ? 'block' : 'none';
   });
-  if(secName === 'overview' || secName === 'alunos') {
-    renderDashboard();
-    if (!adminUsersLoaded) loadAdminUsersFromBackend().catch(() => {});
-  }
+  if(secName === 'overview' || secName === 'alunos') renderDashboard();
   else if(secName === 'vendas') renderSalesTab();
   else if(secName === 'cart') renderCartTab();
   else if(secName === 'modules') renderAdminModules();
@@ -2099,9 +2094,8 @@ function renderDashboard() {
   if(!tbody) return;
   tbody.innerHTML = '';
   if (!adminUsersLoaded) {
-    const message = adminUsersLoadError ? (adminUsersLoadError.message || 'Não foi possível carregar os alunos.') : 'Carregando alunos…';
-    const retry = adminUsersLoadError ? '<br><button class="btn-outline" onclick="loadAdminUsersFromBackend().catch(() => {})">Tentar novamente</button>' : '';
-    tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--text-secondary)">${escapeHTML(message)}${retry}</td></tr>`;
+    const message = adminUsersLoadError ? 'Não foi possível carregar os alunos. Tente novamente.' : 'Carregando alunos…';
+    tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--text-secondary)">${message}</td></tr>`;
     return;
   }
   if (!adminUsersCache.length) {
