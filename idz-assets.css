@@ -61,3 +61,16 @@ body.idz-20a .faq details{background:rgba(8,35,62,.72);border:1px solid rgba(0,1
 body.idz-20a .faq summary{padding:20px 24px;font-weight:700;cursor:pointer}
 body.idz-20a footer{border-top:1px solid rgba(0,213,255,.22);background:rgba(2,11,24,.88)}
 @media(max-width:768px){body.idz-20a .hero{padding-top:42px}body.idz-20a .hero h1{font-size:clamp(2.35rem,12vw,3.5rem)!important}body.idz-20a .hero p{font-size:1rem}.idz-course-stats .wrap>div{min-height:54px}.idz-timeline{grid-template-columns:repeat(2,minmax(0,1fr))}.idz-hero-actions{display:grid}.idz-hero-actions>*{min-width:0}.idz-bonus-grid article{padding:18px}.faq summary{padding:17px 16px}}
+
+/* Screen-specific reference proportions */
+#member-area .member-layout{grid-template-columns:220px minmax(0,1fr);gap:18px;align-items:start}
+#member-area .member-sidebar{border-radius:18px;padding:14px;background:rgba(3,18,38,.82);border:1px solid rgba(0,157,255,.3)}
+#member-area .dashboard-card{border-radius:16px;padding:18px}
+#member-area .student-dashboard-header{padding-bottom:18px;margin-bottom:18px}
+#member-area .progress-bar,.lesson-progress{height:8px;border-radius:99px;background:#071b33;overflow:hidden}
+#member-area .progress-fill,.lesson-progress>i{height:100%;display:block;border-radius:inherit;background:linear-gradient(90deg,#0787ff,#00d5ff)}
+#lesson-area .lesson-layout,#lesson-player .lesson-layout{grid-template-columns:minmax(0,1fr) 250px;gap:16px;align-items:start}
+#lesson-area .lesson-video,#lesson-player .lesson-video{aspect-ratio:16/9;border-radius:16px;overflow:hidden;background:#020b18;border:1px solid rgba(0,213,255,.35)}
+#lesson-area .lesson-sidebar,#lesson-player .lesson-sidebar{max-height:650px;overflow:auto;border-radius:16px;background:rgba(3,18,38,.86);border:1px solid rgba(0,157,255,.3)}
+#admin-area .admin-card{border-radius:16px}
+@media(max-width:768px){#member-area .member-layout,#lesson-area .lesson-layout,#lesson-player .lesson-layout{grid-template-columns:1fr!important}#member-area .member-sidebar{order:2}.lesson-video{width:100%}}
