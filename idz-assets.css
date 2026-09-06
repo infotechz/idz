@@ -24,6 +24,8 @@ body.idz-20a .official-brand-logo{object-fit:contain!important}
 body.idz-20a #course-details .icon{width:72px;height:72px;background:none;border:0;box-shadow:none}
 .idz-module-art{display:block;width:64px;height:64px;object-fit:contain}
 .idz-sidebar-module-art{width:32px;height:32px;object-fit:contain;vertical-align:middle;margin-right:8px}
+#faq{text-align:center}#faq>.wrap{width:min(100% - 32px,920px);margin-inline:auto}.faq details{text-align:left;width:100%}.faq .section-header{justify-items:center;text-align:center}
+.idz-free-modal-card{width:min(92vw,620px);max-height:90vh;overflow:auto;text-align:center}.idz-free-modal-card .idz-responsive-art{max-height:280px;object-fit:cover;margin:18px auto}.idz-free-modal-card p{color:var(--20a-muted);line-height:1.6;margin:14px 0 20px}
 @media(max-width:768px){
  body.idz-20a .gridhero,.idz-asset-split{grid-template-columns:minmax(0,1fr)}
  .idz-hero-visual{grid-column:1;grid-row:auto;width:100%;max-width:520px;justify-self:center}

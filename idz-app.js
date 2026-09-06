@@ -1,5 +1,5 @@
 const courseV2 = window.IDZ_COURSE_V2 || { modules: [] };
-const RAILWAY_BACKEND_URL = "https://api.idzoficial.com";
+const RAILWAY_BACKEND_URL = "https://backend-informatica-do-zero-production.up.railway.app";
 const TARGET_ADMIN_EMAIL = "olliveirazvz@gmail.com";
 window.IDZ_AUTH_STATE = window.IDZ_AUTH_STATE || 'AUTH_LOADING';
 
@@ -780,13 +780,32 @@ function toggleMobileMenu() {
 }
 
 let modalStackLevel = 6000;
-function openModal(id) { 
+function openModal(id) {
   const el = document.getElementById(id);
   if (!el) return;
   modalStackLevel += 2;
   el.style.zIndex = String(modalStackLevel);
   el.classList.add('active');
 }
+
+function openFreeLesson() {
+  const first = courseData?.[0]?.lessons?.[0];
+  const title = first?.title || 'Introdução ao IDZ';
+  const summary = first?.bloco1 || first?.introduction || 'Conheça a metodologia, a plataforma e a trilha prática do IDZ.';
+  let modal = document.getElementById('idz-free-lesson-modal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'idz-free-lesson-modal';
+    modal.className = 'modal-overlay';
+    modal.innerHTML = '<div class="modal-card idz-free-modal-card" role="dialog" aria-modal="true" aria-labelledby="idz-free-modal-title"><button class="close-btn" type="button" aria-label="Fechar aula gratuita" onclick="closeFreeLesson()"><i class="fa-solid fa-xmark"></i></button><span class="tag">AULA GRATUITA</span><h2 id="idz-free-modal-title"></h2><img src="assets/idz/thumbnails/aula-default.webp" alt="Prévia da aula gratuita IDZ" class="idz-responsive-art"><p id="idz-free-modal-summary"></p><button class="btn" type="button" onclick="closeFreeLesson();handlePurchaseAction()">QUERO ACESSAR O CURSO COMPLETO</button></div>';
+    document.body.appendChild(modal);
+    modal.addEventListener('click', event => { if (event.target === modal) closeFreeLesson(); });
+  }
+  modal.querySelector('#idz-free-modal-title').textContent = title;
+  modal.querySelector('#idz-free-modal-summary').textContent = summary;
+  modal.classList.add('active');
+}
+function closeFreeLesson() { document.getElementById('idz-free-lesson-modal')?.classList.remove('active'); }
 function closeModal(id) { 
   const el = document.getElementById(id);
   if (el) el.classList.remove('active'); 
