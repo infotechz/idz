@@ -1,0 +1,133 @@
+name: "Fix PIX auth flow"
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    if: github.event.head_commit.message != 'fix: harden PIX auth request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Patch frontend safely
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          app = Path('idz-app.js')
+          text = app.read_text(encoding='utf-8')
+
+          old_backend = '''async function backendRequest(path, options = {}) {
+  const session = await requireFirebaseSession();
+  const makeRequest = async (token) => {
+    const headers = new Headers(options.headers || {});
+    headers.set('Content-Type', 'application/json');
+    headers.set('Authorization', `Bearer ${token}`);
+    return fetch(`${RAILWAY_BACKEND_URL}${path}`, { ...options, headers });
+  };
+  let response = await makeRequest(session.token);
+  let payload = await response.json().catch(() => ({}));
+  if (response.status === 401 && payload.code !== 'AUTH_HEADER_MISSING' && session.user?.getIdToken) {
+    const refreshed = await session.user.getIdToken(true);
+    response = await makeRequest(refreshed);
+    payload = await response.json().catch(() => ({}));
+  }
+  if (!response.ok) {
+    const error = new Error(friendlyBackendError(response, payload));
+    error.code = String(payload.code || (response.status === 403 ? 'ADMIN_REQUIRED' : response.status === 401 ? 'AUTH_TOKEN_INVALID' : 'BACKEND_ERROR'));
+    error.status = response.status;
+    console.warn('backend_request_failed', { path, status: response.status, code: error.code, authorizationSent: true });
+    throw error;
+  }
+  return payload;
+}'''
+
+          new_backend = '''async function backendRequest(path, options = {}) {
+  const session = await requireFirebaseSession();
+  const makeRequest = async (forceRefresh = false) => {
+    const token = await session.user.getIdToken(forceRefresh);
+    if (typeof token !== 'string' || !token.trim()) {
+      throw authRequiredError('Sua sessão ainda está sendo restaurada. Tente novamente em instantes.', 'AUTH_LOADING');
+    }
+    const headers = new Headers(options.headers || {});
+    headers.set('Accept', 'application/json');
+    headers.set('Content-Type', 'application/json');
+    headers.set('Authorization', `Bearer ${token}`);
+    return fetch(`${RAILWAY_BACKEND_URL}${path}`, {
+      ...options,
+      headers,
+      cache: 'no-store',
+      credentials: 'omit'
+    });
+  };
+  let response = await makeRequest(false);
+  let payload = await response.json().catch(() => ({}));
+  if (response.status === 401 && session.user?.getIdToken) {
+    response = await makeRequest(true);
+    payload = await response.json().catch(() => ({}));
+  }
+  if (!response.ok) {
+    const error = new Error(friendlyBackendError(response, payload));
+    error.code = String(payload.code || (response.status === 403 ? 'ADMIN_REQUIRED' : response.status === 401 ? 'AUTH_TOKEN_INVALID' : 'BACKEND_ERROR'));
+    error.status = response.status;
+    console.warn('backend_request_failed', { path, status: response.status, code: error.code, authorizationSent: true });
+    throw error;
+  }
+  return payload;
+}'''
+
+          if old_backend not in text:
+              raise SystemExit('backendRequest block not found exactly; no changes made')
+          text = text.replace(old_backend, new_backend, 1)
+
+          old_friendly = "  if(response.status===403||code==='ADMIN_REQUIRED') return 'Você não tem permissão para realizar esta ação.';\n  const raw=String(payload.error||payload.message||'');"
+          new_friendly = "  if(response.status===403||code==='ADMIN_REQUIRED') return 'Você não tem permissão para realizar esta ação.';\n  if(code==='MP_ACCESS_TOKEN_MISSING') return 'Pagamento temporariamente indisponível: a credencial privada do Mercado Pago não está configurada no servidor.';\n  if(code==='MP_CREDENTIALS_INCOMPATIBLE') return 'Pagamento temporariamente indisponível: as credenciais do Mercado Pago estão em ambientes diferentes.';\n  const raw=String(payload.error||payload.message||'');"
+          if old_friendly not in text:
+              raise SystemExit('friendlyBackendError insertion point not found; no changes made')
+          text = text.replace(old_friendly, new_friendly, 1)
+
+          pattern = re.compile(r"(async function submitIdzPix\(\)\{.*?)(await verifyBackendSession\(\);)(.*?\n\})", re.S)
+          match = pattern.search(text)
+          if not match:
+              raise SystemExit('submitIdzPix verification call not found; no changes made')
+          text = text[:match.start()] + match.group(1) + 'await verifyBackendSession(true);' + match.group(3) + text[match.end():]
+
+          app.write_text(text, encoding='utf-8')
+
+          index = Path('index.html')
+          html = index.read_text(encoding='utf-8')
+          old_src = '<script defer src="idz-app.js?v=fix1090"></script>'
+          new_src = '<script defer src="idz-app.js?v=fix1091-pix-auth"></script>'
+          if old_src not in html:
+              raise SystemExit('idz-app cache-bust tag not found; no changes made')
+          index.write_text(html.replace(old_src, new_src, 1), encoding='utf-8')
+          PY
+
+      - name: Validate frontend correction
+        shell: bash
+        run: |
+          grep -F "headers.set('Authorization', \`Bearer \${token}\`);" idz-app.js
+          grep -F "await verifyBackendSession(true);" idz-app.js
+          grep -F "MP_ACCESS_TOKEN_MISSING" idz-app.js
+          grep -F 'idz-app.js?v=fix1091-pix-auth' index.html
+
+      - name: Remove temporary workflow and commit
+        shell: bash
+        run: |
+          rm -f .github/workflows/pix-auth-fix.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add idz-app.js index.html .github/workflows/pix-auth-fix.yml
+          git commit -m "fix: harden PIX auth request"
+          git push
