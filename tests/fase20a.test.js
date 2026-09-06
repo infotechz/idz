@@ -6,9 +6,9 @@ const app=fs.readFileSync(new URL('../idz-app.js',`file://${__filename}`),'utf8'
 const design=fs.readFileSync(new URL('../idz-design-system.css',`file://${__filename}`),'utf8');
 const css=fs.readFileSync(new URL('../idz-design-system.css',`file://${__filename}`),'utf8');
 
-test('Design System IDZ está carregado e preserva a logo oficial',()=>{
+test('Design System IDZ está carregado com a identidade IDZ+',()=>{
   assert.match(html,/idz-design-system\.css/);
-  assert.match(html,/assets\/logo-idz-oficial-v2\.png/);
+  assert.match(html,/assets\/idz\/brand\/logo-horizontal\.png/);
   assert.match(css,/--idz-navy:/);
   assert.match(css,/--idz-cyan:/);
   assert.doesNotMatch(css,/background:\s*#fff[^!]/i);

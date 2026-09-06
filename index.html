@@ -3,15 +3,16 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="description" content="Informática do Zero — Plataforma EdTech para aprender informática com aulas, exercícios e certificado.">
+<meta name="description" content="Aprenda informática do zero com aulas práticas, exercícios, projeto final e certificado.">
 <meta name="referrer" content="strict-origin-when-cross-origin">
-<title>Informática do Zero — Plataforma EdTech Premium</title>
+<title>IDZ — Informática do Zero | Curso de Informática para Iniciantes</title>
+<link rel="canonical" href="https://idzoficial.com/">
 
-<!-- Identidade oficial extraída do certificado enviado pelo proprietário -->
-<link rel="icon" href="assets/favicon-v2.ico" sizes="any">
-<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32-v2.png">
-<link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16x16-v2.png">
-<link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon-v2.png">
+<!-- Identidade IDZ+; templates originais do certificado preservados -->
+<link rel="icon" href="assets/idz/brand/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/idz/brand/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/idz/brand/favicon-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/idz/brand/favicon-180.png">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -250,7 +251,7 @@ a { text-decoration: none; }
 }
 .official-brand-logo {
   display:block; width:206px; height:72px; flex:0 0 auto; overflow:hidden;
-  background-image:url('assets/logo-idz.png'); background-repeat:no-repeat;
+  background-image:url('assets/idz/brand/logo-simbolo.png'); background-repeat:no-repeat;
   background-size:cover; background-position:center;
   border-radius:14px; box-shadow:0 12px 34px rgba(0,0,0,.32);
 }
@@ -788,6 +789,9 @@ nav,#public-site,#member-area,#settings-area,#admin-area,footer { position:relat
   @media (max-width:600px) { #idz20a-drawer { width:min(92vw,390px); } }
 </style>
 <link rel="stylesheet" href="idz-design-system.css?v=20a8-auth-mobile13">
+<link rel="stylesheet" href="idz-assets.css?v=1">
+<meta property="og:image" content="https://idzoficial.com/assets/idz/social/og-image.jpg">
+<meta property="og:image:alt" content="IDZ+ — Informática do Zero">
 </head>
 <body class="theme-azul">
 
@@ -945,7 +949,7 @@ nav,#public-site,#member-area,#settings-area,#admin-area,footer { position:relat
   <div class="wrap nav-wrap">
     <!-- LOGO OFICIAL IDZ -->
     <a href="#" class="brand-logo-container" onclick="handleLogoClick()" aria-label="Informática do Zero — início">
-      <img class="official-brand-logo" src="assets/logo-idz-oficial-v2.png" alt="IDZ — Informática do Zero" width="286" height="96">
+      <img class="official-brand-logo" src="assets/idz/brand/logo-horizontal.png" alt="IDZ — Informática do Zero" width="286" height="96">
     </a>
 
     <ul class="nav-links">
@@ -991,10 +995,17 @@ nav,#public-site,#member-area,#settings-area,#admin-area,footer { position:relat
     <div class="wrap gridhero">
       <div class="hero-copy">
         <span class="tag" id="hero-tag-lessons"><i class="fa-solid fa-bolt"></i> FORMAÇÃO COMPLETA • CARREGANDO...</span>
-        <h1>Aprenda <span>Informática Definitiva</span> e conquiste sua autonomia digital.</h1>
-        <p>Domine o computador, crie planilhas, documentos profissionais, navegue com total segurança e use a Inteligência Artificial a seu favor.</p>
-        <button class="btn" onclick="handleAccountAction()"><i class="fa-solid fa-unlock-keyhole"></i> <span id="hero-btn-text">ACESSAR MINHA CONTA</span></button>
+        <h1><span>IDZ</span> Informática do Zero</h1>
+        <p>Aprenda informática do básico, mesmo que você esteja começando do zero.</p>
+        <p>Domine computador, internet, documentos, planilhas, apresentações, segurança digital e inteligência artificial em uma trilha prática e organizada.</p>
+        <div class="idz-hero-price"><strong>R$ 29,90</strong><span>Pagamento único · Acesso imediato</span></div>
+        <div class="idz-hero-actions"><button class="btn" onclick="handleAccountAction()"><i class="fa-solid fa-arrow-right"></i> <span id="hero-btn-text">COMEÇAR AGORA</span></button><button class="btn-outline" onclick="document.querySelector('#course-details')?.scrollIntoView({behavior:'smooth'})">CONHECER O CURSO</button></div>
+        <div class="idz-trust-row"><span>✓ Pagamento seguro</span><span>✓ Acesso ao curso</span><span>✓ Certificado após conclusão</span></div>
       </div>
+      <picture class="idz-hero-visual">
+        <source media="(max-width: 600px)" srcset="assets/idz/hero/hero-mobile.webp" width="768" height="1152">
+        <img src="assets/idz/hero/hero-desktop.webp" alt="Computador com elementos de aprendizagem digital IDZ+" width="1536" height="1024" fetchpriority="high" decoding="async">
+      </picture>
       <div class="glass-panel hero-card">
         <span class="badge-discount"><i class="fa-solid fa-fire"></i> ACESSO IMEDIATO</span>
         <h3 style="font-size: 23px; margin: 10px 0;">Área de Membros Premium</h3>
@@ -1011,6 +1022,8 @@ nav,#public-site,#member-area,#settings-area,#admin-area,footer { position:relat
     </div>
   </header>
 
+  <section class="idz-course-stats" aria-label="Indicadores do curso"><div class="wrap"><div><strong>12</strong><span>Módulos</span></div><div><strong>7</strong><span>Etapas no Projeto Final</span></div><div><strong>3</strong><span>Bônus</span></div><div><i class="fa-solid fa-certificate"></i><span>Certificado</span></div></div></section>
+
   <section id="course-details">
     <div class="wrap">
       <div class="section-header">
@@ -1018,16 +1031,34 @@ nav,#public-site,#member-area,#settings-area,#admin-area,footer { position:relat
         <p>Estrutura passo a passo atualizada com as ferramentas modernas do mercado.</p>
       </div>
       <div class="cards">
-        <div class="glass-panel card"><div class="icon"><i class="fa-solid fa-desktop"></i></div><h3>M1: O Computador</h3><p>Hardware, periféricos e introdução ao ambiente digital.</p></div>
-        <div class="glass-panel card"><div class="icon"><i class="fa-solid fa-keyboard"></i></div><h3>M2: Teclado & Mouse</h3><p>Atalhos rápidos para multiplicar sua velocidade diária.</p></div>
-        <div class="glass-panel card"><div class="icon"><i class="fa-regular fa-folder-open"></i></div><h3>M3: Sistema Windows</h3><p>Gerenciamento de pastas, janelas e atalhos do sistema.</p></div>
-        <div class="glass-panel card"><div class="icon"><i class="fa-solid fa-shield-halved"></i></div><h3>M4: Internet & E-mail</h3><p>Navegação segura, pesquisas e configuração de correio.</p></div>
-        <div class="glass-panel card"><div class="icon"><i class="fa-regular fa-file-word"></i></div><h3>M5: Word Essencial</h3><p>Criação de textos, contratos e formatação de documentos.</p></div>
-        <div class="glass-panel card"><div class="icon"><i class="fa-regular fa-file-excel"></i></div><h3>M6: Excel Básico</h3><p>Planilhas, células, tabelas e operações matemáticas.</p></div>
+        <div class="glass-panel card"><div class="icon"><img class="idz-module-art" src="assets/idz/modules/modulo-01.png" alt="" width="64" height="64" loading="lazy" decoding="async"></div><h3>M1: O Computador</h3><p>Hardware, periféricos e introdução ao ambiente digital.</p></div>
+        <div class="glass-panel card"><div class="icon"><img class="idz-module-art" src="assets/idz/modules/modulo-02.png" alt="" width="64" height="64" loading="lazy" decoding="async"></div><h3>M2: Teclado & Mouse</h3><p>Atalhos rápidos para multiplicar sua velocidade diária.</p></div>
+        <div class="glass-panel card"><div class="icon"><img class="idz-module-art" src="assets/idz/modules/modulo-03.png" alt="" width="64" height="64" loading="lazy" decoding="async"></div><h3>M3: Sistema Windows</h3><p>Gerenciamento de pastas, janelas e atalhos do sistema.</p></div>
+        <div class="glass-panel card"><div class="icon"><img class="idz-module-art" src="assets/idz/modules/modulo-04.png" alt="" width="64" height="64" loading="lazy" decoding="async"></div><h3>M4: Internet & E-mail</h3><p>Navegação segura, pesquisas e configuração de correio.</p></div>
+        <div class="glass-panel card"><div class="icon"><img class="idz-module-art" src="assets/idz/modules/modulo-06.png" alt="" width="64" height="64" loading="lazy" decoding="async"></div><h3>M5: Word Essencial</h3><p>Criação de textos, contratos e formatação de documentos.</p></div>
+        <div class="glass-panel card"><div class="icon"><img class="idz-module-art" src="assets/idz/modules/modulo-07.png" alt="" width="64" height="64" loading="lazy" decoding="async"></div><h3>M6: Excel Básico</h3><p>Planilhas, células, tabelas e operações matemáticas.</p></div>
       </div>
     </div>
   </section>
 
+  <section id="idz-platform-preview" aria-labelledby="idz-platform-title">
+    <div class="wrap idz-asset-split">
+      <div><h2 id="idz-platform-title">Seu aprendizado, em qualquer tela.</h2><p>Acompanhe suas aulas, pratique os exercícios e continue sua jornada pelo celular ou computador.</p></div>
+      <figure><picture>
+        <source media="(max-width: 600px)" srcset="assets/idz/platform/plataforma-mobile.webp" width="768" height="1152">
+        <img class="idz-responsive-art" src="assets/idz/platform/plataforma-desktop.webp" alt="Ilustração da plataforma em computador e celular" width="1536" height="1024" loading="lazy" decoding="async">
+      </picture><figcaption>Representação ilustrativa da plataforma.</figcaption></figure>
+    </div>
+  </section>
+  <section id="idz-certificate-preview" aria-labelledby="idz-certificate-title">
+    <div class="wrap idz-asset-split">
+      <div><h2 id="idz-certificate-title">Uma conquista para levar com você.</h2><p>Conclua as etapas do curso para receber seu certificado de conclusão.</p></div>
+      <figure><img class="idz-responsive-art" src="assets/certificado-idz-clean-template.png" alt="Modelo original do certificado de conclusão IDZ" loading="lazy" decoding="async"><figcaption>Modelo original. Dados preenchidos após a conclusão.</figcaption></figure>
+    </div>
+  </section>
+  <section id="idz-free-lesson" aria-labelledby="idz-free-title"><div class="wrap idz-free-card"><div><span class="tag">AULA GRATUITA</span><h2 id="idz-free-title">Experimente antes de começar</h2><p>Conheça a metodologia e veja a qualidade das aulas do IDZ.</p></div><div class="idz-free-actions"><button class="btn-outline" type="button" disabled title="Vídeo gratuito será conectado quando estiver disponível"><i class="fa-solid fa-play"></i> ASSISTIR AULA GRATUITA</button><button class="btn" onclick="handlePurchaseAction()">ACESSAR O CURSO COMPLETO</button></div></div></section>
+  <section id="idz-project-preview" aria-labelledby="idz-project-title"><div class="wrap"><div class="section-header"><h2 id="idz-project-title">Projeto Final</h2><p>Coloque em prática o que aprendeu nas 7 etapas reais do curso.</p></div><div class="idz-timeline">${['Planejamento','Pesquisa','Desenvolvimento','Aplicação','Apresentação','Entrega','Conclusão'].map((x,i)=>`<div><strong>${i+1}</strong><span>${x}</span></div>`).join('')}</div></div></section>
+  <section id="idz-bonuses" aria-labelledby="idz-bonus-title"><div class="wrap"><div class="section-header"><h2 id="idz-bonus-title">3 bônus exclusivos</h2></div><div class="idz-bonus-grid"><article><img src="assets/idz/illustrations/bonus.webp" alt="Ilustração de bônus" loading="lazy"><h3>30 atalhos de teclado</h3><p>Aumente sua produtividade no dia a dia.</p></article><article><img src="assets/idz/illustrations/projeto-final.webp" alt="Modelo de currículo" loading="lazy"><h3>Modelo de currículo</h3><p>Um modelo pronto e profissional.</p></article><article><img src="assets/idz/illustrations/progresso.webp" alt="Planilha financeira" loading="lazy"><h3>Planilha financeira</h3><p>Organize suas finanças de forma simples.</p></article></div></div></section>
   <section id="checkout">
     <div class="wrap">
       <div class="section-header">
@@ -1422,7 +1453,7 @@ nav,#public-site,#member-area,#settings-area,#admin-area,footer { position:relat
   <div class="modal-card">
     <button class="close-btn" onclick="closeModal('modal-auth')"><i class="fa-solid fa-xmark"></i></button>
     <div style="text-align: center; margin-bottom: 20px;">
-      <img class="official-brand-logo" src="assets/logo-idz-oficial-v2.png" alt="IDZ — Informática do Zero" width="286" height="96" style="margin:0 auto 14px">
+      <img class="official-brand-logo" src="assets/idz/brand/logo-horizontal.png" alt="IDZ — Informática do Zero" width="286" height="96" style="margin:0 auto 14px">
       <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 18px; color: #fff; display: block;">Informática do Zero</span>
       <span style="font-size: 12.5px; color: var(--text-secondary);">Acesse sua conta para continuar seus estudos</span>
     </div>

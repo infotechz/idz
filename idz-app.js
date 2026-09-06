@@ -1605,7 +1605,7 @@ function renderMemberSidebar() {
     const box = document.createElement('div'); box.className = 'lms-module-box';
     box.innerHTML = `
       <div class="lms-module-header" onclick="toggleAccordion(this)">
-        <span><i class="fa-regular fa-folder" style="margin-right:8px; color:var(--accent-cyan);"></i> ${mod.title}</span>
+        <span>${index < 12 ? `<img class="idz-sidebar-module-art" src="assets/idz/modules/modulo-${String(index + 1).padStart(2, '0')}.png" alt="" width="32" height="32" loading="lazy" decoding="async">` : '<i class="fa-regular fa-folder" style="margin-right:8px; color:var(--accent-cyan);"></i>'} ${mod.title}</span>
         <i class="fa-solid ${index===0?'fa-chevron-up':'fa-chevron-down'} arrow" style="font-size:10px;"></i>
       </div>
       <div class="lms-module-body ${index===0?'expanded':''}">${html}</div>
@@ -1752,6 +1752,7 @@ function loadLessonContent(modId, lessonId) {
         <h3 style="color: #fff; font-size: 22px; font-weight: 800; margin-bottom: 6px;">PARABÉNS! CURSO CONCLUÍDO COM SUCESSO!</h3>
         <p style="color: var(--accent-cyan); font-size: 14px; font-weight: 700; margin-bottom: 14px;">Sua Autonomia Digital foi conquistada!</p>
         <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px;">Aluno: <strong>${uObj?.fullname || currentUser}</strong></p>
+        <img class="idz-responsive-art idz-certificate-art" src="assets/certificado-idz-clean-template.png" alt="Modelo original do certificado IDZ" loading="lazy" decoding="async">
         <p id="certificate-meta" style="font-size:12px;color:var(--text-secondary);margin:-8px 0 18px">Conclusão: ${uObj?.courseCompletedAt ? new Date(uObj.courseCompletedAt).toLocaleDateString('pt-BR') : new Date().toLocaleDateString('pt-BR')} · Nº ${uObj?.certificateNumber || 'será gerado ao baixar'}</p>
         ${uObj?.physicalCertificateRequestedAt ? `<div class="delivery-status"><i class="fa-solid fa-truck"></i> Certificado físico: <strong>${uObj.physicalCertificateStatus === 'entregue' ? 'Entregue' : uObj.physicalCertificateStatus === 'a_caminho' ? 'A caminho' : 'Solicitado'}</strong>${uObj.physicalCertificateStatus === 'entregue' ? ' <button class="btn-outline" onclick="confirmPhysicalReceipt()">Confirmar recebimento</button>' : ''}</div>` : ''}
         <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
@@ -1983,7 +1984,7 @@ async function generateOfficialCertificatePDF(targetEmail = currentUser) {
     setTimeout(() => URL.revokeObjectURL(url), 1000); addNotification('Certificado oficial baixado em PDF!');
   };
   img.onerror = () => {
-    if (!img.dataset.fallback) { img.dataset.fallback = '1'; img.src = 'assets/certificado-idz-template.png'; return; }
+    if (!img.dataset.fallback) { img.dataset.fallback = '1'; img.src = 'assets/certificado-idz-template.jpg'; return; }
     showCustomAlert('Certificado indisponível', 'Envie certificado-idz-template.jpg ou certificado-idz-template.png para a pasta assets do GitHub.');
   };
   img.src = 'assets/certificado-idz-clean-template.png';
