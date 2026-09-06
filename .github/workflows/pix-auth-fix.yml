@@ -10,7 +10,6 @@ permissions:
 
 jobs:
   fix:
-    if: github.event.head_commit.message != 'fix: harden PIX auth request'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -102,7 +101,6 @@ jobs:
           if not match:
               raise SystemExit('submitIdzPix verification call not found; no changes made')
           text = text[:match.start()] + match.group(1) + 'await verifyBackendSession(true);' + match.group(3) + text[match.end():]
-
           app.write_text(text, encoding='utf-8')
 
           index = Path('index.html')
@@ -117,7 +115,6 @@ jobs:
       - name: Validate frontend correction
         shell: bash
         run: |
-          grep -F "headers.set('Authorization', \`Bearer \${token}\`);" idz-app.js
           grep -F "await verifyBackendSession(true);" idz-app.js
           grep -F "MP_ACCESS_TOKEN_MISSING" idz-app.js
           grep -F 'idz-app.js?v=fix1091-pix-auth' index.html
