@@ -45,3 +45,23 @@ test('reopening overview or students retries a failed initial load', () => {
   ctx.switchAdminTab('overview');
   assert.equal(retries, 2);
 });
+
+test('switching to card preserves an already generated Pix panel', () => {
+  const elements = {
+    'pix-payment-panel': { active: true, classList: { contains: () => true, add() { this.wasAdded = true; } } },
+    'pix-copy-code': { value: 'pix-copy-paste-code' },
+    'checkout-method-pix': { classList: { toggle() {} } },
+    'checkout-method-card': { classList: { toggle() {} } },
+    'checkout-panel-pix': { id: 'checkout-panel-pix', classList: { toggle() {} } },
+    'checkout-panel-card': { id: 'checkout-panel-card', classList: { toggle() {} } }
+  };
+  const ctx = vm.createContext({
+    document: {
+      getElementById: id => elements[id],
+      querySelectorAll: selector => selector === '.checkout-method' ? [elements['checkout-method-pix'], elements['checkout-method-card']] : [elements['checkout-panel-pix'], elements['checkout-panel-card']]
+    },
+    initializeCardForm: () => Promise.resolve()
+  });
+  vm.runInContext(section('async function selectCheckoutMethod(', 'async function mercadoPagoBrowserConfig('), ctx);
+  return ctx.selectCheckoutMethod('card').then(() => assert.equal(elements['pix-payment-panel'].classList.wasAdded, true));
+});
