@@ -32,6 +32,7 @@ body.idz-20a .hero p{max-width:54ch!important;font-size:1rem!important;line-heig
 body.idz-20a .idz-hero-price{display:inline-flex!important;flex-direction:column!important;align-items:flex-start!important;padding:9px 16px!important;border:1px solid var(--idz-ref-line)!important;border-radius:13px!important;background:rgba(2,16,35,.72)!important;box-shadow:0 0 28px rgba(0,130,255,.16)!important}
 body.idz-20a .idz-hero-price strong{font-size:1.65rem!important;color:#fff!important}
 body.idz-20a .idz-hero-actions .btn{background:linear-gradient(120deg,#ffe679,#f5b82e)!important;color:#071525!important;border-color:#ffe27a!important;box-shadow:0 8px 24px rgba(255,193,42,.28)!important}
+body.idz-20a .idz-nav-purchase{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:39px;padding:8px 16px;border:1px solid #ffe27a;border-radius:999px;background:linear-gradient(120deg,#ffe679,#f5b82e)!important;color:#071525!important;font:800 .72rem 'Plus Jakarta Sans',sans-serif;cursor:pointer;box-shadow:0 7px 22px rgba(255,193,42,.24)!important}
 body.idz-20a .idz-hero-actions .btn-outline{border-color:var(--idz-ref-cyan)!important;color:#e9fbff!important;background:rgba(3,28,55,.62)!important}
 body.idz-20a .idz-hero-visual{filter:drop-shadow(0 24px 34px rgba(0,91,255,.35));align-self:center!important}
 body.idz-20a .idz-hero-visual img{max-height:435px!important;object-fit:contain!important}
@@ -66,6 +67,7 @@ body.idz-20a .admin-toolbar,body.idz-20a .admin-summary{border-color:var(--idz-r
   body.idz-20a nav{height:62px!important}
   body.idz-20a .nav-wrap{min-height:62px!important}
   body.idz-20a .official-brand-logo{width:145px!important;height:46px!important}
+  body.idz-20a .idz-nav-purchase{display:none!important}
   body.idz-20a .hero{padding:28px 0 24px!important}
   body.idz-20a .hero-copy{text-align:left!important}
   body.idz-20a .hero h1{font-size:clamp(2.35rem,11vw,3.55rem)!important}
