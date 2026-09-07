@@ -1929,7 +1929,7 @@ function splitCertificateName(fullName) {
   return best;
 }
 
-async const CERTIFICATE_PDF_LAYOUT = Object.freeze({
+const CERTIFICATE_PDF_LAYOUT = Object.freeze({
   width: 1080,
   height: 720,
   name: { centerX: 540, maxWidth: 520, oneLineY: 238, firstLineY: 230, secondLineY: 258 },
@@ -1946,7 +1946,7 @@ function certificateTextScale(doc, lines, initialSize, maxWidth, minimumSize) {
   return size;
 }
 
-function requestPhysicalCertificate() {
+async function requestPhysicalCertificate() {
   const uObj = currentProfile();
   if (!uObj) return;
   if (uObj.physicalCertificateRequestedAt) {
