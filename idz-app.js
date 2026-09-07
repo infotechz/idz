@@ -1896,11 +1896,12 @@ function checkAndIssueCertificate() {
 
 function ensureCertificateRecord(userObj) {
   if (!userObj) return null;
-  if (!userObj.certificateNumber) {
-    const year = new Date(userObj.courseCompletedAt || Date.now()).getFullYear();
-    const initial = String(userObj.fullname || userObj.email || 'A').trim().charAt(0).toUpperCase();
-    const uniquePart = (window.crypto?.randomUUID ? crypto.randomUUID().replace(/-/g,'').slice(0,8) : `${Date.now()}${Math.floor(Math.random()*1000)}`).toUpperCase();
-    userObj.certificateNumber = `IDZ-${year}-${uniquePart}X-${initial}`;
+  const existingDigits = String(userObj.certificateNumber || '').replace(/\D/g, '');
+  if (existingDigits.length >= 6) {
+    userObj.certificateNumber = existingDigits;
+  } else if (!userObj.certificateNumber || existingDigits.length < 6) {
+    const randomPart = String(Math.floor(Math.random() * 10000)).padStart(4, '0');
+    userObj.certificateNumber = `${Date.now()}${randomPart}`.slice(-12);
     userObj.courseCompletedAt = userObj.courseCompletedAt || new Date().toISOString();
     saveUserToCloud(userObj);
     addNotification(`Conclusão de curso: ${userObj.fullname || userObj.email}`, 'admin', TARGET_ADMIN_EMAIL, 'conclusao');
@@ -1928,7 +1929,24 @@ function splitCertificateName(fullName) {
   return best;
 }
 
-async function requestPhysicalCertificate() {
+async const CERTIFICATE_PDF_LAYOUT = Object.freeze({
+  width: 1080,
+  height: 720,
+  name: { centerX: 540, maxWidth: 520, oneLineY: 238, firstLineY: 230, secondLineY: 258 },
+  date: { centerX: 368, baselineY: 686 },
+  number: { centerX: 530, baselineY: 686 }
+});
+
+function certificateTextScale(doc, lines, initialSize, maxWidth, minimumSize) {
+  let size = initialSize;
+  doc.setFontSize(size);
+  const widestLine = Math.max(...lines.map(line => doc.getTextWidth(line)));
+  if (widestLine > maxWidth) size = Math.max(minimumSize, Math.floor(size * maxWidth / widestLine));
+  doc.setFontSize(size);
+  return size;
+}
+
+function requestPhysicalCertificate() {
   const uObj = currentProfile();
   if (!uObj) return;
   if (uObj.physicalCertificateRequestedAt) {
@@ -1982,26 +2000,23 @@ async function generateOfficialCertificatePDF(targetEmail = currentUser) {
   const { jsPDF } = window.jspdf;
   const img = new Image();
   img.onload = () => {
-    const doc = new jsPDF({ orientation:'landscape', unit:'pt', format:[1080,720] });
+    const layout = CERTIFICATE_PDF_LAYOUT;
+    const doc = new jsPDF({ orientation:'landscape', unit:'pt', format:[layout.width, layout.height] });
     const imageFormat = img.src.toLowerCase().includes('.png') ? 'PNG' : 'JPEG';
-    doc.addImage(img, imageFormat, 0, 0, 1080, 720);
+    doc.addImage(img, imageFormat, 0, 0, layout.width, layout.height);
     const date = new Date(uObj.courseCompletedAt || Date.now()).toLocaleDateString('pt-BR');
     const nameLines = splitCertificateName(studentName);
     doc.setTextColor(8,27,56); doc.setFont('times','bold');
-    let nameSize = nameLines.length === 1 ? 34 : 30;
-    doc.setFontSize(nameSize);
-    const widestLine = Math.max(...nameLines.map(line => doc.getTextWidth(line)));
-    if (widestLine > 520) nameSize = Math.max(26, Math.floor(nameSize * 520 / widestLine));
-    doc.setFontSize(nameSize);
+    certificateTextScale(doc, nameLines, nameLines.length === 1 ? 34 : 30, layout.name.maxWidth, 26);
     if (nameLines.length === 1) {
-      doc.text(nameLines[0], 585, 250, {align:'center'});
+      doc.text(nameLines[0], layout.name.centerX, layout.name.oneLineY, {align:'center'});
     } else {
-      doc.text(nameLines[0], 585, 238, {align:'center'});
-      doc.text(nameLines[1], 585, 270, {align:'center'});
+      doc.text(nameLines[0], layout.name.centerX, layout.name.firstLineY, {align:'center'});
+      doc.text(nameLines[1], layout.name.centerX, layout.name.secondLineY, {align:'center'});
     }
     // O rótulo "IDZ:" já pertence à arte; desenhamos somente o código.
-    doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(20,65,105); doc.text(date, 368, 672, {align:'center'});
-    doc.setFontSize(10); doc.text(uObj.certificateNumber, 553, 672, {align:'center'});
+    doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(20,65,105); doc.text(date, layout.date.centerX, layout.date.baselineY, {align:'center'});
+    doc.setFontSize(10); doc.text(String(uObj.certificateNumber).replace(/\D/g, ''), layout.number.centerX, layout.number.baselineY, {align:'center'});
     const output = doc.output('blob'); const url = URL.createObjectURL(output); const link = document.createElement('a');
     link.href = url; link.download = `Certificado_IDZ_${studentName.replace(/\s+/g,'_')}.pdf`; link.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000); addNotification('Certificado oficial baixado em PDF!');
