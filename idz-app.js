@@ -32,82 +32,6 @@ function isSafeHttpUrl(value = '') {
   catch { return false; }
 }
 
-const canvas = document.getElementById('particles-canvas');
-const ctx = canvas ? canvas.getContext('2d') : null;
-let particlesArray = [];
-let particlesFrame = 0;
-let particlesRunning = false;
-let particlesResizeTimer = 0;
-let particlesLastPaint = 0;
-let particlesColor = '#49d9ef';
-function refreshParticlesColor() {
-  particlesColor = getComputedStyle(document.body).getPropertyValue('--accent-cyan').trim() || '#49d9ef';
-}
-function resizeCanvas() { 
-  if (canvas) {
-    const ratio = Math.min(window.devicePixelRatio || 1, 1.5);
-    canvas.width = Math.floor(window.innerWidth * ratio);
-    canvas.height = Math.floor(window.innerHeight * ratio);
-    canvas.style.width = window.innerWidth + 'px';
-    canvas.style.height = window.innerHeight + 'px';
-    ctx?.setTransform(ratio, 0, 0, ratio, 0, 0);
-  }
-}
-window.addEventListener('resize', () => {
-  clearTimeout(particlesResizeTimer);
-  particlesResizeTimer = setTimeout(() => { resizeCanvas(); initParticles(); }, 140);
-}, { passive: true });
-resizeCanvas();
-
-class Particle {
-  constructor() {
-    this.x = Math.random() * window.innerWidth;
-    this.y = Math.random() * window.innerHeight;
-    this.depth = Math.random() * .8 + .2;
-    this.size = (Math.random() * 1.8 + 0.55) * this.depth;
-    this.speedX = (Math.random() - 0.42) * 0.52 * this.depth;
-    this.speedY = (Math.random() - 0.5) * 0.38 * this.depth;
-    this.opacity = Math.random() * 0.42 + 0.16;
-    this.phase = Math.random() * Math.PI * 2;
-  }
-  update() {
-    if (!canvas) return;
-    this.x += this.speedX; this.y += this.speedY; this.phase += .006 + this.depth * .004;
-    if (this.x < -8) this.x = window.innerWidth + 8; if (this.x > window.innerWidth + 8) this.x = -8;
-    if (this.y < -8) this.y = window.innerHeight + 8; if (this.y > window.innerHeight + 8) this.y = -8;
-  }
-  draw() {
-    if (!ctx) return;
-    ctx.save(); ctx.globalAlpha = this.opacity * (.72 + Math.sin(this.phase) * .28);
-    ctx.fillStyle = particlesColor;
-    ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); ctx.restore();
-  }
-}
-function initParticles() {
-  if (!canvas) return;
-  particlesArray = [];
-  const area = window.innerWidth * window.innerHeight;
-  let numberOfParticles = window.innerWidth < 600 ? Math.min(30, Math.max(20, Math.floor(area / 19000))) : Math.min(60, Math.max(40, Math.floor(area / 27000)));
-  for (let i = 0; i < numberOfParticles; i++) particlesArray.push(new Particle());
-}
-function animateParticles(timestamp = 0) {
-  if (!ctx || !canvas) return;
-  if (!particlesRunning || document.hidden || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  // Em celulares o fundo anima a ~30 FPS: mantém o efeito sem disputar a thread principal.
-  if (window.innerWidth < 600 && timestamp - particlesLastPaint < 33) {
-    particlesFrame = requestAnimationFrame(animateParticles);
-    return;
-  }
-  particlesLastPaint = timestamp;
-  ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-  particlesArray.forEach(p => { p.update(); p.draw(); });
-  particlesFrame = requestAnimationFrame(animateParticles);
-}
-function startParticles(){ if (particlesRunning || document.hidden) return; particlesRunning = true; particlesFrame = requestAnimationFrame(animateParticles); }
-function stopParticles(){ particlesRunning = false; if (particlesFrame) cancelAnimationFrame(particlesFrame); }
-document.addEventListener('visibilitychange', () => document.hidden ? stopParticles() : startParticles());
-refreshParticlesColor(); initParticles(); startParticles();
-
 // ESTRUTURA CURRICULAR V2
 const courseV2Runtime = courseV2.modules.map((mod, moduleIndex) => Object.assign({}, mod, {
   id: moduleIndex + 1,
@@ -373,6 +297,8 @@ function startAuthBootstrap() {
           updateNavState(true, currentUser, isAdmin ? 'ADMIN' : 'STUDENT');
 
           try {
+            await waitForFirebaseServices();
+            const {doc,getDoc,setDoc,getDocs,collection}=window.firebaseModules;
             // Usuários comuns leem somente o próprio documento UID. A coleção
             // completa só é carregada para o painel administrativo.
             const uidRef = doc(window.db, 'users', user.uid);
@@ -472,7 +398,7 @@ function startAuthBootstrap() {
         }
       });
 
-      if (window.db) onSnapshot(collection(window.db, "modules"), (snapshot) => {
+      const subscribeCourse=()=>{if(!window.db||window.__idzCourseSubscribed)return;window.__idzCourseSubscribed=true;window.firebaseModules.onSnapshot(window.firebaseModules.collection(window.db, "modules"), (snapshot) => {
         const snapshotData = snapshot.docs.map(docSnap => docSnap.data());
         courseData = selectCourseData(snapshotData);
         courseData.sort((a, b) => Number(a.id) - Number(b.id));
@@ -486,7 +412,8 @@ function startAuthBootstrap() {
           renderAdminModules();
           renderDashboard();
         }
-      });
+      },error=>console.warn('Não foi possível sincronizar o curso.',error));};
+      subscribeCourse();window.addEventListener('idz:firebase-services-ready',subscribeCourse,{once:true});
 
     }
   }, 100);
@@ -505,50 +432,20 @@ const authReadyPoll = setInterval(() => {
 }, 50);
 
 function closeNavigationDrawer() {
-  document.getElementById('idz20a-drawer')?.classList.remove('open');
-  document.getElementById('idz20a-backdrop')?.classList.remove('open');
-  document.getElementById('mobile-menu')?.classList.remove('active');
-  document.getElementById('mobile-overlay')?.classList.remove('active');
+ const drawer=document.getElementById('idz20a-drawer'),backdrop=document.getElementById('idz20a-backdrop');
+ if(drawer)drawer.hidden=true;if(backdrop)backdrop.hidden=true;
+ document.body.classList.remove('drawer-open');document.querySelector('.hamburger')?.setAttribute('aria-expanded','false');
+ if(typeof drawerTrigger !== 'undefined')drawerTrigger?.focus();
 }
 
-function idzNavigationItems(state) {
-  if (state === 'AUTH_LOADING') return [{ icon: 'fa-spinner', label: 'Carregando sessão…', action: 'noop' }];
-  if (state === 'ADMIN') return [
-    { icon: 'fa-house', label: 'Início', action: 'home' },
-    { icon: 'fa-gauge-high', label: 'Visão geral', action: 'admin' },
-    { icon: 'fa-users', label: 'Alunos', action: 'admin-students' },
-    { icon: 'fa-layer-group', label: 'Conteúdo', action: 'admin-content' },
-    { icon: 'fa-wallet', label: 'Financeiro', action: 'admin-finance' },
-    { icon: 'fa-headset', label: 'Atendimentos', action: 'admin-support' },
-    { icon: 'fa-certificate', label: 'Certificados', action: 'admin-certificates' },
-    { icon: 'fa-ticket', label: 'Cupons', action: 'admin-coupons' },
-    { icon: 'fa-gear', label: 'Configurações', action: 'settings' },
-    { icon: 'fa-graduation-cap', label: 'Acessar aulas', action: 'lessons' },
-    { icon: 'fa-right-from-bracket', label: 'Sair', action: 'logout', danger: true }
-  ];
-  if (state === 'STUDENT') return [
-    { icon: 'fa-house', label: 'Início', action: 'home' },
-    { icon: 'fa-graduation-cap', label: 'Aulas', action: 'lessons' },
-    { icon: 'fa-chart-line', label: 'Progresso', action: 'progress' },
-    { icon: 'fa-award', label: 'Certificado', action: 'certificate' },
-    { icon: 'fa-headset', label: 'Suporte', action: 'support' },
-    { icon: 'fa-user', label: 'Perfil', action: 'profile' },
-    { icon: 'fa-gear', label: 'Configurações', action: 'settings' },
-    { icon: 'fa-right-from-bracket', label: 'Sair', action: 'logout', danger: true }
-  ];
-  return [
-    { icon: 'fa-user', label: 'Entrar / Criar conta', action: 'auth' },
-    { icon: 'fa-house', label: 'Início', action: 'home' },
-    { icon: 'fa-book-open', label: 'Conhecer o curso', action: 'course' },
-    { icon: 'fa-cart-shopping', label: 'Comprar', action: 'buy' }
-  ];
-}
+function idzNavigationItems(state) { return typeof navigationForPresentation === 'function' ? navigationForPresentation(state) : [{icon:'fa-spinner',label:'Carregando sessão…',action:'noop'}]; }
 
 function navigationButton(item, className = '') {
   return `<button type="button" class="${className}${item.danger ? ' danger' : ''}" data-idz-nav-action="${item.action}"><i class="fa-solid ${item.icon}"></i><span>${escapeHTML(item.label)}</span></button>`;
 }
 
 function renderNavigation() {
+  if(typeof renderShellNavigation === 'function') renderShellNavigation();
   const state = window.IDZ_AUTH_STATE || 'AUTH_LOADING';
   const items = idzNavigationItems(state);
   const nativeMenu = document.getElementById('mobile-menu-options');
@@ -558,30 +455,22 @@ function renderNavigation() {
 }
 window.renderNavigation = renderNavigation;
 
-function openSettingsSection(name) {
-  showSettingsArea();
-  const tab = [...document.querySelectorAll('.settings-tab-btn')]
-    .find(button => (button.textContent || '').trim().toLowerCase() === name);
-  if (tab) switchSettingsTab({ currentTarget: tab }, name);
-}
+function openSettingsSection(name) { showSettingsArea();if(!window.auth?.currentUser)return;const tab=[...document.querySelectorAll('.settings-tab-btn')].find(button=>button.getAttribute('onclick')?.includes("'"+name+"'"));switchSettingsTab(tab?{currentTarget:tab}:null,name); }
 
 function navigateIdz(action) {
-  closeNavigationDrawer();
-  if (action === 'noop') return;
-  if (action === 'auth') return openAuthModal('login');
-  if (action === 'home') return showPublicSite();
-  if (action === 'course') return document.querySelector('.hero, #course-details')?.scrollIntoView({ behavior: 'smooth' });
-  if (action === 'buy') return handlePurchaseAction();
-  if (action === 'lessons') return showMemberArea();
-  if (action === 'progress') { showMemberArea(); return document.getElementById('student-welcome-title')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
-  if (action === 'certificate') { showMemberArea(); return document.querySelector('[onclick*="generateOfficialCertificatePDF"]')?.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
-  if (action === 'support') return openSettingsSection('suporte');
-  if (action === 'profile') return openSettingsSection('perfil');
-  if (action === 'settings') return showSettingsArea();
-  if (action === 'logout') return logout();
-  if (action === 'admin') return showAdminArea();
-  const adminSections = { 'admin-students': 'alunos', 'admin-content': 'modules', 'admin-finance': 'vendas', 'admin-support': 'support', 'admin-certificates': 'certificates', 'admin-coupons': 'coupons' };
-  if (adminSections[action]) { showAdminArea(); return switchAdminTab(adminSections[action]); }
+ closeNavigationDrawer();if(action==='noop')return;
+ if(action==='auth')return openAuthModal('login');
+ if(action==='home')return showPublicSite();
+ const anchors={course:'why-idz',content:'course-details','public-certificate':'idz-certificate-preview',faq:'faq'};
+ if(anchors[action]){showPublicSite();return document.getElementById(anchors[action])?.scrollIntoView({behavior:'smooth'});}
+ if(action==='buy')return handlePurchaseAction();
+ if(['dashboard','lessons','progress','exercises','project','certificate','bonuses'].includes(action))return showMemberArea(action);
+ if(action==='support')return openSettingsSection('suporte');
+ if(action==='profile')return openSettingsSection('perfil');
+ if(action==='settings')return showSettingsArea();if(action==='logout')return logout();
+ if(action==='admin')return showAdminArea();
+ const sections={'admin-students':'alunos','admin-content':'modules','admin-exercises':'modules','admin-project':'modules','admin-finance':'vendas','admin-support':'support','admin-certificates':'certificates','admin-coupons':'coupons','admin-notifications':'testcheckout','admin-refunds':'refunds','admin-cart':'cart'};
+ if(sections[action]){showAdminArea();switchAdminTab(sections[action]);if(action==='admin-project'){const project=[...document.querySelectorAll('.admin-mod-box')].at(-1);project?.scrollIntoView({block:'center'});} }
 }
 
 if (!window.__idzNavigationDelegationBound) {
@@ -634,7 +523,7 @@ function changeTheme(themeName, save = true) {
   const selected = allowed.includes(themeName) ? themeName : 'azul';
   allowed.forEach(theme => document.body.classList.remove(`theme-${theme}`));
   document.body.classList.add(`theme-${selected}`);
-  refreshParticlesColor();
+
   if(save && currentUser) localStorage.setItem(`app_theme_${window.auth?.currentUser?.uid || currentUser}`, selected);
 }
 
@@ -708,11 +597,12 @@ async function refreshVerificationStatus() {
 }
 
 function updateCourseStatsUI() {
+  if(typeof renderPublicCourse === 'function') renderPublicCourse();
   const totalMod = 12;
   let totalLes = 0;
   courseData.forEach(m => { if(m.lessons) totalLes += m.lessons.length; });
 
-  safeSetHTML('hero-tag-lessons', `<i class="fa-solid fa-bolt"></i> FORMAÇÃO COMPLETA • ${totalLes} AULAS EM ${totalMod} MÓDULOS`);
+  safeSetHTML('hero-tag-lessons', '<i class="fa-solid fa-graduation-cap"></i> CURSO ONLINE COMPLETO');
   safeSetHTML('benefit-lessons-count', `<i class="fa-solid fa-check"></i> ${totalLes} Aulas práticas em ${totalMod} Módulos`);
   safeSetHTML('sidebar-title-header', `<i class="fa-solid fa-book-open"></i> Conteúdo do Curso`);
   safeSetHTML('admin-total-modules-lessons', `${totalMod} Módulos • Projeto Final 7 etapas • 3 Bônus`);
@@ -768,48 +658,35 @@ async function saveProgressToCloud() {
 }
 
 function toggleMobileMenu() {
-  if (document.getElementById('idz20a-drawer')) {
-    const drawer = document.getElementById('idz20a-drawer');
-    if (drawer.classList.contains('open')) window.IDZ_PHASE_20A?.closeDrawer?.();
-    else window.IDZ_PHASE_20A?.openDrawer?.();
-    return;
-  }
-  const mm = document.getElementById('mobile-menu');
-  const mo = document.getElementById('mobile-overlay');
-  if (mm) mm.classList.toggle('active');
-  if (mo) mo.classList.toggle('active');
+ const drawer=document.getElementById('idz20a-drawer');if(!drawer)return;
+ if(!drawer.hidden)return closeNavigationDrawer();
+ drawerTrigger=document.activeElement;renderNavigation();drawer.hidden=false;
+ document.getElementById('idz20a-backdrop').hidden=false;document.body.classList.add('drawer-open');
+ document.querySelector('.hamburger')?.setAttribute('aria-expanded','true');drawer.querySelector('button')?.focus();
 }
 
-let modalStackLevel = 6000;
+let modalStackLevel = 1000;
 function openModal(id) {
   const el = document.getElementById(id);
   if (!el) return;
   modalStackLevel += 2;
   el.style.zIndex = String(modalStackLevel);
   el.classList.add('active');
+  if(typeof focusModal === 'function')focusModal(el);
 }
 
 function openFreeLesson() {
-  const first = courseData?.[0]?.lessons?.[0];
-  const title = first?.title || 'Introdução ao IDZ';
-  const summary = first?.bloco1 || first?.introduction || 'Conheça a metodologia, a plataforma e a trilha prática do IDZ.';
-  let modal = document.getElementById('idz-free-lesson-modal');
-  if (!modal) {
-    modal = document.createElement('div');
-    modal.id = 'idz-free-lesson-modal';
-    modal.className = 'modal-overlay';
-    modal.innerHTML = '<div class="modal-card idz-free-modal-card" role="dialog" aria-modal="true" aria-labelledby="idz-free-modal-title"><button class="close-btn" type="button" aria-label="Fechar aula gratuita" onclick="closeFreeLesson()"><i class="fa-solid fa-xmark"></i></button><span class="tag">AULA GRATUITA</span><h2 id="idz-free-modal-title"></h2><img src="assets/idz/thumbnails/aula-default.webp" alt="Prévia da aula gratuita IDZ" class="idz-responsive-art"><p id="idz-free-modal-summary"></p><button class="btn" type="button" onclick="closeFreeLesson();handlePurchaseAction()">QUERO ACESSAR O CURSO COMPLETO</button></div>';
-    document.body.appendChild(modal);
-    modal.addEventListener('click', event => { if (event.target === modal) closeFreeLesson(); });
-  }
-  modal.querySelector('#idz-free-modal-title').textContent = title;
-  modal.querySelector('#idz-free-modal-summary').textContent = summary;
-  modal.classList.add('active');
+ const first=courseData[0]?.lessons[0];let modal=document.getElementById('idz-free-lesson-modal');
+ if(!modal){modal=document.createElement('div');modal.id='idz-free-lesson-modal';modal.className='modal-overlay';document.body.appendChild(modal);}
+ const video=getYouTubeId(first?.video||'');
+ modal.innerHTML=`<div class="modal-card"><button class="close-btn" aria-label="Fechar aula gratuita" onclick="closeFreeLesson()">×</button><span class="tag">AULA GRATUITA</span><h2>${escapeHTML(first?.title||'Introdução ao IDZ')}</h2>${/^[a-zA-Z0-9_-]{11}$/.test(video)?`<div class="video-frame"><iframe title="Aula gratuita IDZ" src="https://www.youtube-nocookie.com/embed/${video}?rel=0" allowfullscreen></iframe></div>`:'<p>O vídeo desta aula ainda não foi publicado. Conheça abaixo o conteúdo introdutório disponível.</p>'}<p>${escapeHTML(first?.bloco1||first?.introduction||'Conheça a trilha prática do IDZ.')}</p><p>${escapeHTML(first?.bloco2||first?.description||'')}</p><button class="btn" onclick="closeFreeLesson();handlePurchaseAction()">ACESSAR O CURSO COMPLETO</button></div>`;
+ openModal(modal.id);
 }
-function closeFreeLesson() { document.getElementById('idz-free-lesson-modal')?.classList.remove('active'); }
-function closeModal(id) { 
+function closeFreeLesson(){closeModal('idz-free-lesson-modal');}
+
+function closeModal(id) {
   const el = document.getElementById(id);
-  if (el) el.classList.remove('active'); 
+  if (el) { el.classList.remove('active'); el._trigger?.focus(); el.querySelectorAll('iframe').forEach(frame=>frame.remove()); }
   if(activePaymentInterval) { clearInterval(activePaymentInterval); activePaymentInterval = null; }
   if(pixCountdownInterval) { clearInterval(pixCountdownInterval); pixCountdownInterval = null; }
 }
@@ -826,6 +703,7 @@ async function destroyCardForm() {
 }
 
 async function closeCheckoutModalSafe() {
+  stopCheckoutWatcher();
   closeModal('modal-custom-checkout');
   await destroyCardForm();
   resetPixPanel();
@@ -1279,6 +1157,7 @@ async function handleRegister(e) {
 }
 
 async function logout() {
+  stopCheckoutWatcher();
   const { signOut } = window.firebaseModules;
   if(window.auth) await signOut(window.auth);
   currentUser = null; currentUserUid = null; isAdmin = false;
@@ -1495,7 +1374,7 @@ async function handleUpdatePassword(e) {
   }
 }
 
-function showMemberArea() {
+function showMemberArea(view = 'dashboard') {
   const signedInUser = window.auth?.currentUser;
   if (!signedInUser) {
     openAuthModal('login');
@@ -1530,11 +1409,7 @@ function showMemberArea() {
   
   updateStudentDashboard();
   renderMemberSidebar();
-  if(courseData.length > 0 && courseData[0].lessons?.length > 0) {
-    loadLessonContent(courseData[0].id, courseData[0].lessons[0].id);
-  } else {
-    safeSetHTML('lms-main-content', '<div class="empty-state"><i class="fa-solid fa-hourglass-half"></i><h3>Carregando suas aulas</h3><p>O conteúdo será exibido assim que a estrutura do curso estiver disponível.</p></div>');
-  }
+  if(typeof renderStudentView === 'function') renderStudentView(view);
 }
 
 function handlePurchaseAction() {
@@ -1584,13 +1459,15 @@ async function sendAdminNotificationTest() {
 function updateStudentDashboard() {
   let uObj = currentProfile();
   const displayName = String(uObj?.fullname || '').trim();
-  safeSetText('student-welcome-title', `Olá, ${displayName || 'Aluno'} 👋`);
-  safeSetText('student-welcome-subtitle', currentUser ? `${currentUser} · continue de onde parou e conquiste sua autonomia digital.` : 'Continue de onde parou e conquiste sua autonomia digital.');
+  safeSetText('student-welcome-title', `Olá, ${displayName.split(' ')[0] || 'Aluno'}!`);
+  safeSetText('student-welcome-subtitle', 'Continue de onde parou.');
 
   const stats = getCourseProgressStats();
   safeSetText('dash-stat-progress', `Progresso: ${stats.percent}%`);
   safeSetText('dash-stat-lessons', `Curso: ${stats.completedModuleCount}/12 módulos · Projeto Final: ${stats.completedProjectStepCount}/7 etapas · Bônus: ${stats.completedBonusCount}/3`);
   safeSetText('dash-stat-cert', stats.complete ? "Certificado: Liberado 🏆" : "Certificado: Bloqueado 🔒");
+  if(typeof renderStudentDashboard === 'function') renderStudentDashboard();
+  if(typeof studentView !== 'undefined' && ['progress','project','certificate'].includes(studentView))renderStudentDetail(studentView);
 }
 
 function showAdminArea() {
@@ -1619,18 +1496,18 @@ function renderMemberSidebar() {
     if (mod.lessons) {
       mod.lessons.forEach(l => {
         let isDone = isLessonCompleted(l);
-        html += `<div class="lms-lesson-item" onclick="loadLessonContent(${mod.id}, ${l.id})">
+        html += `<button type="button" class="lms-lesson-item ${isDone ? 'done' : ''}" data-lesson-id="${l.id}" onclick="loadLessonContent(${mod.id}, ${l.id})">
           <span><i class="fa-regular fa-circle-play" style="margin-right: 8px;"></i> ${l.title}</span>
           ${isDone ? '<i class="fa-solid fa-check-circle"></i>' : ''}
-        </div>`;
+        </button>`;
       });
     }
     const box = document.createElement('div'); box.className = 'lms-module-box';
     box.innerHTML = `
-      <div class="lms-module-header" onclick="toggleAccordion(this)">
-        <span>${index < 12 ? `<img class="idz-sidebar-module-art" src="assets/idz/modules/modulo-${String(index + 1).padStart(2, '0')}.png" alt="" width="32" height="32" loading="lazy" decoding="async">` : '<i class="fa-regular fa-folder" style="margin-right:8px; color:var(--accent-cyan);"></i>'} ${mod.title}</span>
+      <button type="button" class="lms-module-header" aria-expanded="${index===0}" onclick="toggleAccordion(this)">
+        <span>${index < 12 ? `<span class="icon-tile"><i class="fa-solid fa-${moduleIcons[index]}"></i></span>` : '<i class="fa-regular fa-folder" style="margin-right:8px; color:var(--accent-cyan);"></i>'} ${mod.title}</span>
         <i class="fa-solid ${index===0?'fa-chevron-up':'fa-chevron-down'} arrow" style="font-size:10px;"></i>
-      </div>
+      </button>
       <div class="lms-module-body ${index===0?'expanded':''}">${html}</div>
     `;
     container.appendChild(box);
@@ -1649,7 +1526,7 @@ function renderMemberSidebar() {
     item.style.width = '100%';
     item.style.border = '0';
     item.style.textAlign = 'left';
-    item.innerHTML = `<span><i class="fa-regular fa-star" style="margin-right:8px"></i>${escapeHTML(bonus.title)}</span>${done ? '<i class="fa-solid fa-check-circle"></i>' : ''}`;
+    item.innerHTML = `<span><i class="fa-regular fa-star" style="margin-right:8px"></i>${escapeHTML(bonus.title.replace(/^🎁 Bônus \d+ — /,''))}</span>${done ? '<i class="fa-solid fa-check-circle"></i>' : ''}`;
     item.addEventListener('click', () => toggleStudentBonus(bonus.id));
     container.appendChild(item);
   });
@@ -1669,6 +1546,8 @@ async function toggleStudentBonus(bonusId) {
 function toggleAccordion(headerElem) {
   const bodyElem = headerElem.nextElementSibling;
   const isAlreadyExpanded = bodyElem.classList.contains('expanded');
+  document.querySelectorAll('button.lms-module-header').forEach(b=>b.setAttribute('aria-expanded','false'));
+  headerElem.setAttribute('aria-expanded',String(!isAlreadyExpanded));
   
   document.querySelectorAll('.lms-module-body').forEach(b => b.classList.remove('expanded'));
   document.querySelectorAll('.lms-module-header .arrow').forEach(a => {
@@ -1684,10 +1563,11 @@ function toggleAccordion(headerElem) {
 
 function toggleAdminAccordion(headerElem) {
   const bodyElem = headerElem.nextElementSibling;
-  if(bodyElem) bodyElem.classList.toggle('expanded');
+  if(bodyElem){bodyElem.classList.toggle('expanded');headerElem.setAttribute('aria-expanded',String(bodyElem.classList.contains('expanded')));}
 }
 
 function setAllAdminModules(expanded){
+  document.querySelectorAll('button.admin-mod-header').forEach(button=>button.setAttribute('aria-expanded',String(expanded)));
   document.querySelectorAll('#admin-modules-list-container .admin-mod-body').forEach(body=>body.classList.toggle('expanded',expanded));
 }
 
@@ -1771,7 +1651,7 @@ function loadLessonContent(modId, lessonId) {
   if (certificateAllowed) {
     certificateSectionHtml = `
       <div style="margin-top: 35px; padding: 32px; background: radial-gradient(circle at center, rgba(16, 185, 129, 0.15), rgba(15, 23, 42, 0.95)); border: 2px solid var(--green); border-radius: 24px; text-align: center; box-shadow: 0 0 30px rgba(16,185,129,0.25);">
-        <div style="font-size: 52px; margin-bottom: 12px; filter: drop-shadow(0 0 10px rgba(16,185,129,0.5));">🏆🎉</div>
+        <div style="font-size: 52px; margin-bottom: 12px; filter: drop-shadow(0 0 10px rgba(16,185,129,0.5));"><i class="fa-solid fa-award"></i></div>
         <h3 style="color: #fff; font-size: 22px; font-weight: 800; margin-bottom: 6px;">PARABÉNS! CURSO CONCLUÍDO COM SUCESSO!</h3>
         <p style="color: var(--accent-cyan); font-size: 14px; font-weight: 700; margin-bottom: 14px;">Sua Autonomia Digital foi conquistada!</p>
         <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px;">Aluno: <strong>${uObj?.fullname || currentUser}</strong></p>
@@ -1802,28 +1682,7 @@ function loadLessonContent(modId, lessonId) {
     </section>`;
   }
 
-  container.innerHTML = `
-    <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:13px"><div><span style="font-size:11px;color:var(--accent-cyan);font-weight:800;text-transform:uppercase">Aula atual · ${mod.title}</span><h2 style="margin:4px 0 0;font-size:clamp(19px,3vw,25px);color:#fff">${lesson.title}</h2></div><span class="status-chip ${lessonDone?'ok':''}">${lessonDone?'Concluída':'Em andamento'}</span></div>
-    ${mediaHtml} ${imgHtml} ${pdfHtml}
-    <div style="display:flex;align-items:center;gap:10px;margin:13px 0"><div class="stage-zero-bar" style="flex:1"><span style="width:${progressStats.percent}%"></span></div><small style="color:var(--text-secondary)">${progressStats.percent}%</small></div>
-    <div class="student-admin-actions" style="justify-content:space-between;margin:16px 0">
-      ${previousLesson?`<button class="btn-outline" onclick="loadLessonContent('${previousLesson.modId}','${previousLesson.lessonId}')"><i class="fa-solid fa-arrow-left"></i> Anterior</button>`:'<span></span>'}
-      ${nextLesson?`<button class="btn-outline" onclick="loadLessonContent('${nextLesson.modId}','${nextLesson.lessonId}')">Próxima <i class="fa-solid fa-arrow-right"></i></button>`:''}
-    </div>
-    <div class="lesson-meta-compact">
-      <details><summary><i class="fa-solid fa-list-check"></i> O que vai aprender</summary><p>${escapeHTML(lesson.bloco1 || 'Introdução pedagógica aos conceitos principais.')}</p></details>
-      <details><summary><i class="fa-solid fa-align-left"></i> Descrição detalhada</summary><p>${escapeHTML(lesson.bloco2 || 'Acompanhe com atenção todos os passos recomendados.')}</p></details>
-      <details><summary><i class="fa-solid fa-bullseye"></i> Objetivos pedagógicos</summary><p>${escapeHTML(lesson.bloco3 || 'Dominar a prática do tópico abordado.')}</p></details>
-    </div>
-    
-    ${quizHtml}
-    ${finalProjectHtml}
-    
-    <div style="margin-top: 25px; text-align: center;">
-      ${!lessonDone ? `<button class="btn" onclick="markLessonAsDone(${mod.id}, ${lesson.id})"><i class="fa-solid fa-check"></i> Marcar Aula como Concluída</button>` : ''}
-    </div>
-    ${certificateSectionHtml}
-  `;
+  renderLessonPresentation({mod,lesson,mediaHtml,imgHtml,pdfHtml,quizHtml,finalProjectHtml,certificateSectionHtml,lessonDone,previousLesson,nextLesson,progressStats});
 }
 
 function toggleFinalProjectStep(stepId, checked) {
@@ -1840,7 +1699,7 @@ function toggleFinalProjectStep(stepId, checked) {
 function activateYouTubePlayer(lessonId, videoId) {
   const container = document.getElementById(`yt-player-container-${lessonId}`);
   if (!container) return;
-  container.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="width: 100%; height: 100%;"></iframe>`;
+  container.innerHTML = `<iframe title="Vídeo da aula" src="https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="width: 100%; height: 100%;"></iframe>`;
 }
 
 function markLessonAsDone(modId, lessonId) {
@@ -2045,6 +1904,7 @@ function switchAdminTab(secName) {
   else if(secName === 'support') renderAdminCollection('supportTickets','admin-support-list');
   else if(secName === 'refunds') renderAdminCollection('refundRequests','admin-refunds-list');
   else if(secName === 'coupons') renderAdminCollection('coupons','admin-coupons-list');
+  if(typeof enhanceAccessibility==='function')setTimeout(()=>enhanceAccessibility(),0);
 }
 
 async function submitSupportTicket(event) {
@@ -2061,8 +1921,16 @@ async function submitRefundRequest(event) {
   event.target.reset();addNotification('Pedido de reembolso enviado para análise.');showSuccessModal('Pedido enviado para análise.');loadAccountRequests();
 }
 async function loadAccountRequests() {
-  const user=window.auth?.currentUser;if(!user||!window.db)return;const {collection,getDocs,query,where}=window.firebaseModules;
-  for(const [name,target] of [['supportTickets','support-history'],['refundRequests','refund-history']]){const host=document.getElementById(target);if(!host)continue;try{const snap=await getDocs(query(collection(window.db,name),where('uid','==',user.uid)));host.innerHTML=snap.empty?'':snap.docs.map(d=>{const x=d.data();return `<div class="glass-panel" style="padding:12px;margin-top:8px"><strong>${escapeHTML(x.subject||'Reembolso')}</strong><br><small>Status: ${escapeHTML(x.status||'aberto')}</small></div>`}).join('')}catch(_){host.innerHTML='<small>Não foi possível carregar o histórico agora.</small>'}}
+ const user=window.auth?.currentUser;if(!user||!window.db)return;
+ const {collection,getDocs,query,where}=window.firebaseModules;
+ const labels={aberto:'Em análise',em_analise:'Em análise',em_atendimento:'Em análise',respondido:'Respondido',resolvido:'Resolvido'};
+ for(const [name,target] of [['supportTickets','support-history'],['refundRequests','refund-history']]){
+  const host=document.getElementById(target);if(!host)continue;
+  host.innerHTML='<p role="status">Carregando solicitações…</p>';
+  try{const snap=await getDocs(query(collection(window.db,name),where('uid','==',user.uid)));
+   host.innerHTML=snap.empty?'<p>Nenhuma solicitação ainda.</p>':snap.docs.map(d=>{const x=d.data();const date=x.createdAt?.toDate?x.createdAt.toDate():new Date(x.createdAt||0);return `<article class="card ticket-card"><strong>${escapeHTML(x.subject||'Reembolso')}</strong><small>Nº ${escapeHTML(d.id)} · ${date.getTime()?date.toLocaleDateString('pt-BR'):'Data indisponível'}</small>${x.category?`<small>${escapeHTML(x.category)}</small>`:''}<span class="status-chip ${['respondido','resolvido'].includes(x.status)?'ok':''}">${escapeHTML(labels[x.status]||x.status||'Em análise')}</span><p>${escapeHTML(x.message||x.reason||'')}</p>${x.reply?`<p><strong>Resposta:</strong> ${escapeHTML(x.reply)}</p>`:''}</article>`;}).join('');
+  }catch(_){host.innerHTML='<p>Não foi possível carregar o histórico agora.</p><button class="btn-outline" onclick="loadAccountRequests()">Tentar novamente</button>';}
+ }
 }
 async function adminApi(path,options={}){return backendRequest(path,options)}
 async function renderAdminCollection(name,targetId){if(!isAdmin)return;const host=document.getElementById(targetId);if(!host)return;try{const {collection,getDocs}=window.firebaseModules,snap=await getDocs(collection(window.db,name));host.innerHTML=snap.empty?'<p>Nenhum registro.</p>':snap.docs.map(d=>{const x=d.data(),id=encodeURIComponent(d.id);let actions='';if(name==='supportTickets')actions=`<button class="btn-outline" onclick="adminReplySupport('${id}')">Responder</button> <button class="btn-outline" onclick="adminReplySupport('${id}','resolvido')">Resolvido</button>`;if(name==='refundRequests')actions=`<button class="btn-outline" onclick="adminRefundStatus('${id}','em_analise')">Analisar</button> <button class="btn-outline" onclick="adminRefundStatus('${id}','aprovado')">Aprovar</button> <button class="btn-outline" onclick="adminRefundStatus('${id}','recusado')">Recusar</button> <button class="btn-outline" onclick="adminExecuteRefund('${id}','${escapeHTML(String(x.paymentId||''))}')">Reembolsar</button>`;if(name==='coupons')actions=`<button class="btn-outline" onclick="adminToggleCoupon('${id}',${x.active===false?'true':'false'})">${x.active===false?'Ativar':'Desativar'}</button>`;const detail=x.message||x.reason||(x.type?`${x.type}: ${x.value} · usos: ${x.usageCount||0}`:'');return `<div class="glass-panel" style="padding:14px;margin:8px 0"><strong>${escapeHTML(x.code||x.subject||x.email||d.id)}</strong><p style="color:var(--text-secondary)">${escapeHTML(detail)}</p><small>Status: ${escapeHTML(x.status||(x.active===false?'inativo':'ativo'))}</small><div style="margin-top:10px">${actions}</div></div>`}).join('')}catch(e){host.innerHTML='<p>Não foi possível carregar.</p>'}}
@@ -2107,6 +1975,7 @@ async function confirmPhysicalReceipt() {
 }
 
 function renderDashboard() {
+  if(typeof renderAdminOverview==='function')renderAdminOverview();
   const usersState = adminUsersLoaded ? String(adminUsersCache.length) : (adminUsersLoadError ? 'Erro' : 'Carregando…');
   safeSetText('admin-total-users', usersState);
   safeSetText('admin-overview-users', usersState);
@@ -2366,10 +2235,10 @@ function renderAdminModules() {
       });
     }
     c.innerHTML += `<div class="admin-mod-box">
-      <div class="admin-mod-header" onclick="toggleAdminAccordion(this)">
+      <button type="button" class="admin-mod-header" aria-expanded="false" onclick="toggleAdminAccordion(this)">
         <span><i class="fa-regular fa-folder" style="color:var(--accent-cyan); margin-right:8px;"></i> ${escapeHTML(m.title)}</span>
         <i class="fa-solid fa-chevron-down" style="font-size:10px;"></i>
-      </div>
+      </button>
       <div class="admin-mod-body">
         <h5 style="font-size:12px; color:var(--text-secondary); margin-bottom:8px;">Aulas do Módulo:</h5>
         ${lessonsHtml || '<p style="font-size:12px; color:var(--text-muted);">Nenhuma aula.</p>'}
@@ -2472,6 +2341,7 @@ async function openCheckoutModal() {
   updateCheckoutPrice();
   openModal('modal-custom-checkout');
   selectCheckoutMethod('pix');
+  watchCheckoutEntitlement();
 }
 
 function updateCheckoutPrice(){

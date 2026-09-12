@@ -2,17 +2,13 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="description" content="Aprenda informática do zero com aulas práticas, exercícios, projeto final e certificado.">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <title>IDZ — Informática do Zero | Curso de Informática para Iniciantes</title>
 <link rel="canonical" href="https://idzoficial.com/">
 
 <!-- Identidade IDZ+; templates originais do certificado preservados -->
-<link rel="icon" href="assets/idz/brand/favicon.ico" sizes="any">
-<link rel="icon" type="image/png" sizes="32x32" href="assets/idz/brand/favicon-32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="assets/idz/brand/favicon-16.png">
-<link rel="apple-touch-icon" sizes="180x180" href="assets/idz/brand/favicon-180.png">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -20,10 +16,10 @@
 <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
 <script defer src="course-v2.js?v=631f47a"></script>
-    <link rel="stylesheet" href="fase20a-redesign.css?v=20a8-interaction">
-    <link rel="stylesheet" href="fase20a-premium.css?v=20a8-interaction">
-    <link rel="stylesheet" href="idz-reference-visual.css?v=3">
-<script defer src="fase20a-redesign.js?v=20a8-functional2"></script>
+
+    
+    
+
 <script>
 // Fallback de Auth: executa mesmo quando o módulo inline é bloqueado pelo navegador.
 (async () => {
@@ -130,717 +126,59 @@
   }).catch(() => {});
 </script>
 
-<style>
-:root {
-  --bg-main: #030712;
-  --bg-card: rgba(15, 23, 42, 0.94);
-  --accent-cyan: #00f0ff;
-  --accent-blue: #0066ff;
-  --accent-purple: #7c3aed;
-  --accent-gold: #ffd700;
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
-  --green: #10b981;
-  --red: #ef4444;
-  --yellow: #f59e0b;
-  --glass-border: rgba(255, 255, 255, 0.08);
-  --glass-border-hover: rgba(0, 240, 255, 0.35);
-  --glass-shadow: 0 12px 40px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  --glow-shadow: 0 0 25px rgba(0, 240, 255, 0.3);
-  --rgb-border-angle: 0deg;
-}
 
-/* TEMAS SISTÊMICOS COMPLETOS */
-body.theme-azul {
-  --bg-main: #030712;
-  --bg-card: rgba(15, 23, 42, 0.94);
-  --accent-cyan: #00f0ff;
-  --accent-blue: #0066ff;
-  --accent-purple: #3b82f6;
-  --glass-border-hover: rgba(0, 240, 255, 0.4);
-  --glow-shadow: 0 0 25px rgba(0, 240, 255, 0.3);
-}
 
-body.theme-roxo {
-  --bg-main: #0b0717;
-  --bg-card: rgba(23, 15, 38, 0.94);
-  --accent-cyan: #c084fc;
-  --accent-blue: #7c3aed;
-  --accent-purple: #a855f7;
-  --glass-border-hover: rgba(192, 132, 252, 0.4);
-  --glow-shadow: 0 0 25px rgba(124, 58, 237, 0.35);
-}
 
-body.theme-vermelho {
-  --bg-main: #140507;
-  --bg-card: rgba(35, 12, 16, 0.94);
-  --accent-cyan: #f87171;
-  --accent-blue: #dc2626;
-  --accent-purple: #b91c1c;
-  --glass-border-hover: rgba(248, 113, 113, 0.4);
-  --glow-shadow: 0 0 25px rgba(220, 38, 38, 0.35);
-}
 
-body.theme-rosa {
-  --bg-main: #140612;
-  --bg-card: rgba(36, 14, 30, 0.94);
-  --accent-cyan: #f472b6;
-  --accent-blue: #db2777;
-  --accent-purple: #e879f9;
-  --glass-border-hover: rgba(244, 114, 182, 0.4);
-  --glow-shadow: 0 0 25px rgba(219, 39, 119, 0.35);
-}
-
-/* TEMA CHROMA RGB ANIMAÇÃO */
-@keyframes chromaFlow { to { background-position: 200% center; } }
-
-body.theme-rgb {
-  --bg-main: #030712;
-  --bg-card: rgba(15, 23, 42, 0.94);
-  --accent-cyan: #00f0ff;
-  --accent-blue: #9333ea;
-  --accent-purple: #f43f5e;
-  --glass-border-hover: #00f0ff;
-  --glow-shadow: 0 0 25px rgba(0, 240, 255, 0.5);
-  --rgb-gradient: linear-gradient(90deg,#22d3ee,#2563eb,#7c3aed,#ec4899,#ef4444,#f59e0b,#eab308,#22c55e,#22d3ee);
-}
-
-* { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { width: 100%; overflow-x: hidden; position: relative; scroll-behavior: smooth; }
-
-::-webkit-scrollbar { width: 8px; }
-::-webkit-scrollbar-track { background: var(--bg-main); }
-::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: var(--accent-cyan); }
-
-body {
-  font-family: 'Inter', sans-serif;
-  color: var(--text-primary);
-  background-color: var(--bg-main);
-  line-height: 1.6;
-}
-
-#particles-canvas {
-  position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: -1; opacity: 0.45;
-}
-.bg-orbs {
-  position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: -2; overflow: hidden;
-}
-.orb {
-  position: absolute; border-radius: 50%; filter: blur(140px); opacity: 0.22;
-  animation: float 25s infinite ease-in-out alternate;
-}
-.orb-1 { width: 450px; height: 450px; background: var(--accent-blue); top: -10%; left: -10%; }
-.orb-2 { width: 550px; height: 550px; background: var(--accent-purple); bottom: -20%; right: -10%; animation-delay: -6s; }
-
-@keyframes float {
-  0% { transform: translate(0, 0) scale(1); }
-  100% { transform: translate(40px, 60px) scale(1.1); }
-}
-
-.animate-fade-up { animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; transform: translateY(20px); }
-@keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
-
-.wrap { max-width: 1240px; margin: auto; padding: 0 20px; width: 100%; }
-h1, h2, h3, h4, .tag, .btn, .badge { font-family: 'Plus Jakarta Sans', sans-serif; }
-a { text-decoration: none; }
-
-/* BRANDING & LOGO IDZ */
-.brand-logo-container {
-  display: flex; align-items: center; gap: 12px; cursor: pointer; text-decoration: none;
-}
-.official-brand-logo {
-  display:block; width:206px; height:72px; flex:0 0 auto; overflow:hidden;
-  background-image:url('assets/idz/brand/logo-simbolo.png'); background-repeat:no-repeat;
-  background-size:cover; background-position:center;
-  border-radius:14px; box-shadow:0 12px 34px rgba(0,0,0,.32);
-}
-.official-brand-logo.compact { width:72px; height:72px; background-size:633px 422px; }
-body.theme-rgb .btn:not(.btn-danger), body.theme-rgb .progress-fill, body.theme-rgb .member-sidebar-item.active {
-  background-image:var(--rgb-gradient)!important; background-size:200% auto!important; animation:chromaFlow 7s linear infinite!important;
-}
-body.theme-rgb .card:hover, body.theme-rgb .admin-card:hover, body.theme-rgb .lesson-card:hover {
-  border-color:transparent; box-shadow:0 0 0 1px #7c3aed,0 18px 55px rgba(34,211,238,.18),0 0 38px rgba(236,72,153,.12);
-}
-
-/* Acabamento EdTech: superfícies, hierarquia, acessibilidade e movimento suave */
-.card,.admin-card,.dashboard-card,.module-card,.lesson-card,.settings-card,.modal-box {
-  background:linear-gradient(145deg,color-mix(in srgb,var(--bg-card) 94%,white 6%),var(--bg-card));
-  border:1px solid color-mix(in srgb,var(--glass-border) 72%,var(--accent-cyan) 28%);
-  box-shadow:0 18px 60px rgba(0,0,0,.28); transition:transform .25s ease,border-color .25s ease,box-shadow .25s ease;
-}
-.card:hover,.admin-card:hover,.dashboard-card:hover,.module-card:hover,.lesson-card:hover { transform:translateY(-3px); border-color:var(--glass-border-hover); box-shadow:0 22px 70px rgba(0,0,0,.36),var(--glow-shadow); }
-.btn,.btn-outline,button { min-height:42px; }
-.btn:focus-visible,.btn-outline:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible { outline:3px solid color-mix(in srgb,var(--accent-cyan) 55%,transparent); outline-offset:3px; }
-@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
-@media(max-width:760px){.official-brand-logo{width:72px;height:58px;background-size:cover}.wrap{padding-inline:14px}.dashboard-grid,.admin-grid{grid-template-columns:1fr!important}.member-layout{display:block!important}.member-sidebar{position:relative!important;width:100%!important;max-height:none!important;margin-bottom:16px}.modal-box{max-height:92vh;overflow:auto}}
-button,a,input,select,textarea{transition:box-shadow .2s ease,border-color .2s ease,transform .2s ease}
-button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid color-mix(in srgb,var(--accent-cyan) 65%,white);outline-offset:3px}
-@media(max-width:700px){#admin-sec-coupons form{grid-template-columns:1fr!important}.settings-panel textarea{min-height:130px}.public-legal-links{padding-bottom:34px!important}}
-@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
-.brand-symbol-hexagon {
-  width: 42px; height: 42px; position: relative; display: flex; align-items: center; justify-content: center;
-  background: linear-gradient(135deg, #0a1f44, #001026); border-radius: 10px;
-  border: 2px solid var(--accent-gold); box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
-  overflow: hidden; flex-shrink: 0;
-}
-.brand-symbol-hexagon::before {
-  content: ''; position: absolute; inset: 0; background: linear-gradient(45deg, transparent, rgba(0, 240, 255, 0.3), transparent);
-}
-.brand-symbol-text {
-  font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 900; font-size: 16px; color: var(--accent-cyan);
-  text-shadow: 0 0 8px rgba(0, 240, 255, 0.8); z-index: 1; letter-spacing: -0.5px;
-}
-.brand-symbol-plus { color: var(--accent-gold); font-size: 12px; font-weight: 800; margin-left: 1px; }
-.brand-text-block { display: flex; flex-direction: column; line-height: 1.15; }
-.brand-text-top { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 16px; color: #ffffff; letter-spacing: -0.3px; }
-.brand-text-bot { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 12.5px; color: var(--accent-cyan); }
-
-nav {
-  position: sticky; top: 0; z-index: 100;
-  background: rgba(3, 7, 18, 0.92);
-  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid var(--glass-border); padding: 12px 0; transition: all 0.3s;
-}
-.nav-wrap { display: flex; justify-space-between; align-items: center; gap: 12px; }
-.nav-links { display: flex; gap: 24px; list-style: none; align-items: center; }
-.nav-links a { color: var(--text-secondary); font-size: 13px; font-weight: 600; transition: 0.3s; }
-.nav-links a:hover { color: var(--accent-cyan); text-shadow: 0 0 10px rgba(0, 240, 255, 0.5); }
-
-.nav-right-cluster { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
-
-.btn-outline {
-  padding: 8px 16px; border-radius: 12px; border: 1px solid var(--glass-border-hover);
-  background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); color: #fff;
-  font-weight: 600; font-size: 12px; transition: all 0.3s ease; cursor: pointer;
-  display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
-}
-.btn-outline:hover { 
-  background: rgba(0, 240, 255, 0.1); border-color: var(--accent-cyan); box-shadow: var(--glow-shadow);
-}
-
-.hamburger {
-  background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: #fff; width: 38px; height: 38px; border-radius: 10px; font-size: 16px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center;
-}
-.hamburger:hover { border-color: var(--accent-cyan); color: var(--accent-cyan); }
-
-.mobile-dropdown {
-  position: fixed; top: 0; right: 0; width: 280px; max-width: 85vw; height: 100vh;
-  background: rgba(3, 7, 18, 0.98); backdrop-filter: blur(25px); border-left: 1px solid var(--glass-border);
-  padding: 20px; display: flex; flex-direction: column; gap: 12px; transform: translateX(100%);
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); z-index: 999; box-shadow: -20px 0 50px rgba(0,0,0,0.8);
-}
-.mobile-dropdown.active { transform: translateX(0); }
-.mobile-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--glass-border); padding-bottom: 14px; margin-bottom: 6px; }
-.mobile-dropdown button {
-  width: 100%; text-align: left; padding: 12px 14px; background: rgba(255,255,255,0.03);
-  border: 1px solid var(--glass-border); color: #fff; border-radius: 12px; font-weight: 600; font-size: 13px;
-  display: flex; align-items: center; gap: 10px; cursor: pointer;
-}
-.mobile-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 998; display: none; }
-.mobile-overlay.active { display: block; }
-
-.glass-panel {
-  background: var(--bg-card); backdrop-filter: blur(24px) saturate(180%);
-  border: 1px solid var(--glass-border); border-radius: 24px; box-shadow: var(--glass-shadow);
-}
-
-.btn {
-  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
-  background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
-  color: #030712; font-weight: 800; font-size: 13px; padding: 14px 24px; border-radius: 14px;
-  border: none; box-shadow: 0 10px 30px rgba(0, 102, 255, 0.35);
-  transition: all 0.3s ease; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px;
-}
-.btn:hover { transform: translateY(-2px); box-shadow: 0 15px 35px rgba(0, 240, 255, 0.5); filter: brightness(1.1); }
-
-.hero { padding: 60px 0 40px; }
-.gridhero { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 50px; align-items: center; }
-.tag {
-  display: inline-flex; align-items: center; gap: 8px; padding: 6px 16px; border-radius: 999px;
-  background: rgba(0, 102, 255, 0.15); border: 1px solid rgba(0, 240, 255, 0.4);
-  color: var(--accent-cyan); font-size: 12px; font-weight: 700; margin-bottom: 24px; text-transform: uppercase;
-}
-.hero h1 { font-size: clamp(34px, 4.5vw, 52px); line-height: 1.15; font-weight: 800; letter-spacing: -1px; margin-bottom: 20px; }
-.hero h1 span {
-  background: linear-gradient(135deg, #fff 20%, var(--accent-cyan) 100%);
-  -webkit-background-clip: text; background-clip: text; color: transparent;
-}
-.hero p { font-size: 17px; color: var(--text-secondary); margin-bottom: 30px; }
-
-.hero-card { padding: 30px; text-align: center; background: radial-gradient(circle at top right, rgba(0, 240, 255, 0.1), transparent 70%), var(--bg-card); border-color: rgba(0, 240, 255, 0.3); }
-.badge-discount {
-  display: inline-block; background: rgba(16, 185, 129, 0.2); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.4);
-  padding: 6px 14px; border-radius: 99px; font-size: 12px; font-weight: 800; margin-bottom: 16px;
-}
-.benefits-list div {
-  display: flex; align-items: center; gap: 10px; justify-content: center; font-size: 14px; color: var(--text-secondary); margin-bottom: 12px;
-}
-.benefits-list div i { color: var(--accent-cyan); }
-
-section { padding: 60px 0; }
-.section-header { text-align: center; margin-bottom: 45px; }
-.section-header h2 { font-size: clamp(26px, 3.5vw, 38px); font-weight: 800; margin-bottom: 14px; }
-.section-header p { max-width: 580px; margin: auto; color: var(--text-secondary); font-size: 15px; }
-
-.cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
-.card { padding: 30px 22px; transition: 0.3s; }
-.card:hover { transform: translateY(-8px); border-color: var(--glass-border-hover); box-shadow: var(--glow-shadow); }
-.card .icon {
-  font-size: 26px; margin-bottom: 18px; display: inline-flex; align-items: center; justify-content: center;
-  background: rgba(255, 255, 255, 0.04); width: 56px; height: 56px; border-radius: 14px; border: 1px solid rgba(255, 255, 255, 0.08);
-  color: var(--accent-cyan);
-}
-.card h3 { font-size: 19px; font-weight: 700; margin-bottom: 10px; }
-.card p { color: var(--text-secondary); font-size: 13.5px; }
-
-.pricebox { max-width: 680px; margin: auto; padding: 45px 30px; text-align: center; border-color: rgba(0, 240, 255, 0.4); box-shadow: 0 20px 60px rgba(0,0,0,0.6), inset 0 0 40px rgba(0,240,255,0.05); }
-.price-tag { display: flex; align-items: center; justify-content: center; gap: 16px; margin: 20px 0; }
-.old-price { text-decoration: line-through; color: var(--text-muted); font-size: 19px; font-weight: 600; }
-.new-price { font-size: 52px; font-weight: 800; color: #fff; text-shadow: 0 0 20px rgba(0,240,255,0.3); }
-
-.faq { max-width: 780px; margin: auto; display: flex; flex-direction: column; gap: 14px; }
-.faq details { padding: 18px 22px; border-radius: 14px; cursor: pointer; transition: 0.3s; }
-.faq details[open] { border-color: var(--accent-cyan); background: rgba(0, 240, 255, 0.025); box-shadow: var(--glow-shadow); }
-.faq summary { font-weight: 700; font-size: 15px; outline: none; display: flex; justify-content: space-between; align-items: center; list-style: none; }
-.faq summary::-webkit-details-marker { display: none; }
-.faq summary .faq-arrow { color: var(--accent-cyan); transition: transform 0.3s; font-size: 14px; }
-.faq details[open] summary .faq-arrow { transform: rotate(180deg); }
-.faq p { color: var(--text-secondary); margin-top: 12px; font-size: 13.5px; border-left: 2px solid var(--accent-cyan); padding-left: 12px; }
-
-.modal-overlay {
-  position: fixed; inset: 0; background: linear-gradient(135deg,rgba(3, 12, 30, 0.68),rgba(20, 18, 55, 0.62)); backdrop-filter: blur(15px);
-  display: flex; align-items: center; justify-content: center; z-index: 1000;
-  opacity: 0; pointer-events: none; transition: 0.3s; padding: 16px;
-  overflow-y: auto;
-}
-.modal-overlay.active { opacity: 1; pointer-events: auto; }
-.modal-card {
-  background: var(--bg-card); border: 1px solid var(--glass-border-hover); backdrop-filter: blur(25px);
-  border-radius: 22px; padding: 30px 22px; max-width: 650px; width: 100%; position: relative;
-  box-shadow: 0 30px 60px rgba(0,0,0,0.8), 0 0 40px rgba(0,240,255,0.1); transform: scale(0.95); transition: 0.3s;
-  max-height: 90vh; overflow-y: auto; margin: auto;
-}
-.modal-overlay.active .modal-card { transform: scale(1); }
-.close-btn { position: absolute; top: 16px; right: 16px; background: none; border: none; color: var(--text-muted); font-size: 22px; cursor: pointer; transition: 0.2s; z-index: 10; }
-.close-btn:hover { color: #fff; }
-
-.input-group { margin-bottom: 16px; width: 100%; text-align: left; }
-.input-group label { display: block; font-size: 12px; color: var(--text-secondary); margin-bottom: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
-.input-group input, .input-group textarea, .input-group select {
-  width: 100%; padding: 14px 16px; border-radius: 12px; background: rgba(0,0,0,0.4);
-  border: 1px solid var(--glass-border); color: #fff; font-size: 14px; outline: none; transition: 0.3s; font-family: 'Inter', sans-serif;
-}
-.input-group input:focus, .input-group textarea:focus, .input-group select:focus {
-  border-color: var(--accent-cyan); background: rgba(0,240,255,0.04); box-shadow: 0 0 15px rgba(0,240,255,0.2);
-}
-.password-wrapper { position: relative; }
-.toggle-password {
-  position: absolute; right: 14px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 15px;
-}
-
-.student-dashboard-header {
-  padding: 24px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;
-  background: linear-gradient(135deg, rgba(0, 240, 255, 0.08), rgba(15, 23, 42, 0.95)); border: 1px solid var(--glass-border-hover); border-radius: 20px;
-}
-.student-stat-pill {
-  display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); border-radius: 12px; font-size: 12px; font-weight: 600;
-}
-
-.lms-layout { display: grid; grid-template-columns: 1fr 360px; gap: 24px; align-items: start; }
-@media(max-width: 950px){ .lms-layout { grid-template-columns: 1fr; } .lms-sidebar { order: 1; } .lms-content { order: 2; } }
-
-.lms-sidebar h3 { font-size: 15px; padding-bottom: 12px; border-bottom: 1px solid var(--glass-border); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; color: #fff; }
-.lms-module-box { border: 1px solid var(--glass-border); border-radius: 12px; margin-bottom: 10px; background: rgba(255,255,255,0.015); overflow: hidden; }
-.lms-module-header {
-  padding: 13px 15px; font-size: 12.5px; font-weight: 700; cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.25); transition: 0.2s;
-}
-.lms-module-header:hover { background: rgba(0, 240, 255, 0.06); color: var(--accent-cyan); }
-.lms-module-body { padding: 10px; display: none; border-top: 1px solid var(--glass-border); }
-.lms-module-body.expanded { display: block; animation: fadeUp 0.3s ease; }
-.lms-lesson-item {
-  padding: 10px 12px; border-radius: 8px; margin-bottom: 4px; cursor: pointer; font-size: 12.5px;
-  color: var(--text-secondary); transition: 0.2s; display: flex; justify-content: space-between; align-items: center;
-}
-.lms-lesson-item:hover, .lms-lesson-item.active { background: rgba(0, 240, 255, 0.1); color: #fff; font-weight: 600; }
-.lms-lesson-item i.fa-check-circle { color: var(--green); }
-
-.lms-content { padding: 32px; min-height: 520px; }
-.video-frame, .image-frame {
-  width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 16px;
-  border: 1px solid var(--glass-border); overflow: hidden; margin-bottom: 22px; box-shadow: 0 15px 40px rgba(0,0,0,0.5);
-}
-.video-frame iframe, .image-frame img { width: 100%; height: 100%; object-fit: cover; }
-
-.quiz-container {
-  margin-top: 35px;
-  background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.6));
-  border: 1px solid rgba(0, 240, 255, 0.25);
-  border-radius: 20px;
-  padding: 28px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-}
-.quiz-header-badge {
-  display: inline-flex; align-items: center; gap: 8px; padding: 5px 14px; border-radius: 99px;
-  background: rgba(0, 240, 255, 0.1); border: 1px solid rgba(0, 240, 255, 0.3);
-  color: var(--accent-cyan); font-size: 11px; font-weight: 700; text-transform: uppercase; margin-bottom: 14px;
-}
-.quiz-question-title {
-  font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 18px; line-height: 1.5;
-}
-.quiz-options-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
-.quiz-option-btn {
-  width: 100%; text-align: left; padding: 14px 18px;
-  background: rgba(255, 255, 255, 0.03); border: 1px solid var(--glass-border);
-  color: var(--text-secondary); border-radius: 12px; font-size: 13.5px; font-weight: 600;
-  cursor: pointer; transition: 0.25s ease; display: flex; align-items: center; justify-content: space-between;
-}
-.quiz-option-btn.correct {
-  background: rgba(16, 185, 129, 0.2) !important; border-color: var(--green) !important; color: #34d399 !important;
-}
-.quiz-option-btn.incorrect {
-  background: rgba(239, 68, 68, 0.2) !important; border-color: var(--red) !important; color: #f87171 !important;
-}
-.quiz-feedback {
-  font-size: 13.5px; font-weight: 600; margin-top: 14px; padding: 12px 16px; border-radius: 10px; display: none;
-}
-.quiz-feedback.success { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.3); display: flex; align-items: center; gap: 10px; }
-.quiz-feedback.error { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.3); display: flex; align-items: center; gap: 10px; }
-.exercise-toggle { width:100%; justify-content:space-between; margin-top:18px; border-color:rgba(73,217,239,.28); }
-.activity-panel { display:none; margin-top:12px; }
-.activity-panel.is-open { display:block; animation:fadeUp .28s ease both; }
-.delivery-status { margin:10px auto 18px; padding:10px 14px; border:1px solid rgba(73,217,239,.25); border-radius:12px; color:var(--text-secondary); font-size:12px; display:flex; align-items:center; justify-content:center; gap:8px; flex-wrap:wrap; }
-
-.admin-grid { display: grid; grid-template-columns: 1fr; gap: 24px; }
-.admin-card { padding: 26px; width: 100%; overflow: hidden; }
-.admin-card h3 { border-bottom: 1px solid var(--glass-border); padding-bottom: 12px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; font-size: 17px; flex-wrap: wrap; }
-
-.gateway-metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 26px; }
-.metric-box { background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); padding: 16px; border-radius: 16px; border-left: 4px solid var(--accent-cyan); }
-.metric-box span { font-size: 11px; color: var(--text-secondary); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; display: block; }
-.metric-box h4 { font-size: 22px; color: #fff; font-weight: 800; margin-top: 4px; display: flex; align-items: center; justify-content: space-between; }
-
-.table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin-bottom: 10px; }
-.sales-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 320px; }
-.sales-table th, .sales-table td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--glass-border); }
-.sales-table th { color: var(--text-secondary); font-weight: 700; text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; }
-.badge-status { padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 700; text-transform: uppercase; display: inline-block; }
-
-.admin-mod-box { border: 1px solid var(--glass-border); border-radius: 14px; margin-bottom: 12px; background: rgba(0,0,0,0.25); overflow: hidden; }
-.admin-mod-header { padding: 14px 16px; font-size: 13px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; gap: 10px; cursor: pointer; }
-.admin-mod-header:hover { background: rgba(0, 240, 255, 0.05); }
-.admin-mod-body { padding: 16px; border-top: 1px solid var(--glass-border); background: rgba(255,255,255,0.015); display: none; }
-.admin-mod-body.expanded { display: block; }
-.admin-lesson-item-box { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: rgba(0,0,0,0.2); border-radius: 8px; margin-bottom: 6px; font-size: 12.5px; }
-
-.settings-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; border-bottom: 1px solid var(--glass-border); padding-bottom: 14px; }
-.settings-tab-btn { background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); color: var(--text-secondary); padding: 8px 14px; border-radius: 10px; font-weight: 600; font-size: 12.5px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 6px; }
-.settings-tab-btn.active { background: rgba(0, 240, 255, 0.15); border-color: var(--accent-cyan); color: var(--accent-cyan); }
-.settings-panel { display: none; }
-.settings-panel.active { display: block; animation: fadeUp 0.3s ease; }
-
-footer {
-  background: rgba(3, 7, 18, 0.9); border-top: 1px solid var(--glass-border);
-  padding: 40px 0 20px; text-align: center; margin-top: 80px; position: relative; z-index: 10;
-}
-.footer-social { display: flex; justify-content: center; gap: 16px; margin-bottom: 24px; }
-.footer-social a {
-  display: flex; align-items: center; justify-content: center; width: 40px; height: 40px;
-  border-radius: 50%; background: rgba(255,255,255,0.05); color: var(--text-secondary); font-size: 18px;
-  border: 1px solid var(--glass-border); transition: 0.3s;
-}
-.footer-social a:hover { background: var(--accent-cyan); color: #000; border-color: var(--accent-cyan); transform: translateY(-3px); box-shadow: var(--glow-shadow); }
-
-@media (max-width: 768px) {
-  .gridhero { grid-template-columns: 1fr; gap: 40px; text-align: center; }
-  .cards { grid-template-columns: 1fr; }
-  .nav-links { display: none; }
-  .pricebox { padding: 35px 20px; }
-  .new-price { font-size: 42px; }
-}
-
-/* ================================================================
-   IDZ ENTERPRISE UI 2.0 — layout completo para desktop/tablet/mobile
-   ================================================================ */
-:root {
-  --page-max: 1440px;
-  --nav-height: 84px;
-  --radius-xs: 10px;
-  --radius-sm: 14px;
-  --radius-md: 20px;
-  --radius-lg: 28px;
-  --surface-1: rgba(8,18,38,.86);
-  --surface-2: rgba(11,29,55,.78);
-  --surface-3: rgba(17,39,70,.72);
-  --line: rgba(143,183,226,.15);
-  --line-strong: rgba(0,207,255,.42);
-  --nav-bg: rgba(2,9,22,.82);
-  --accent-primary: var(--accent-cyan);
-  --accent-secondary: var(--accent-blue);
-  --page-gradient: radial-gradient(circle at 12% 5%,rgba(0,102,255,.16),transparent 28%),radial-gradient(circle at 88% 30%,rgba(0,207,255,.12),transparent 24%),linear-gradient(180deg,#020712 0%,var(--bg-main) 45%,#061326 100%);
-}
-body.theme-roxo { --surface-1:rgba(25,13,45,.86);--surface-2:rgba(35,20,58,.8);--surface-3:rgba(47,27,75,.72);--line:rgba(200,160,255,.16);--page-gradient:radial-gradient(circle at 12% 5%,rgba(124,58,237,.2),transparent 28%),radial-gradient(circle at 88% 30%,rgba(192,132,252,.12),transparent 24%),linear-gradient(180deg,#080412,#0b0717 45%,#180b2d)}
-body.theme-vermelho { --surface-1:rgba(42,13,19,.86);--surface-2:rgba(54,18,25,.8);--surface-3:rgba(70,24,31,.72);--line:rgba(255,141,141,.15);--page-gradient:radial-gradient(circle at 12% 5%,rgba(220,38,38,.18),transparent 28%),radial-gradient(circle at 88% 30%,rgba(248,113,113,.1),transparent 24%),linear-gradient(180deg,#0d0305,#140507 45%,#29080d)}
-body.theme-rosa { --surface-1:rgba(42,13,35,.86);--surface-2:rgba(57,20,47,.8);--surface-3:rgba(75,28,62,.72);--line:rgba(255,158,216,.16);--page-gradient:radial-gradient(circle at 12% 5%,rgba(219,39,119,.18),transparent 28%),radial-gradient(circle at 88% 30%,rgba(244,114,182,.1),transparent 24%),linear-gradient(180deg,#0e040c,#140612 45%,#2c0a24)}
-
-html { font-size:16px; overflow-x:clip; }
-body { min-height:100vh; overflow-x:clip; background:var(--page-gradient); background-attachment:fixed; }
-body::before { content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;opacity:.2;background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:52px 52px;mask-image:linear-gradient(to bottom,black,transparent 75%); }
-.wrap { width:min(100% - 40px,var(--page-max));max-width:var(--page-max);padding:0;margin-inline:auto; }
-
-nav { min-height:var(--nav-height);padding:10px 0;background:var(--nav-bg);border-bottom:1px solid var(--line);box-shadow:0 12px 45px rgba(0,0,0,.22); }
-.nav-wrap { min-height:62px;display:grid;grid-template-columns:minmax(190px,310px) 1fr auto;justify-content:initial;align-items:center;gap:28px; }
-.brand-logo-container { min-width:0;overflow:visible; }
-.official-brand-logo { display:block;width:min(100%,286px);height:auto;aspect-ratio:3/1;object-fit:contain;object-position:left center;background:none;border-radius:0;box-shadow:none;filter:drop-shadow(0 8px 18px rgba(0,0,0,.35)); }
-.nav-links { justify-content:center;gap:clamp(14px,2vw,32px); }
-.nav-links a { position:relative;padding:12px 0;font-size:.82rem;letter-spacing:.01em; }
-.nav-links a::after { content:"";position:absolute;left:0;right:100%;bottom:5px;height:2px;border-radius:4px;background:linear-gradient(90deg,var(--accent-cyan),var(--accent-blue));transition:right .24s ease; }
-.nav-links a:hover::after { right:0; }
-.nav-right-cluster { justify-self:end;max-width:100%; }
-
-.btn,.btn-outline { border-radius:12px;font-weight:800;letter-spacing:.01em;min-height:46px;padding:11px 18px;position:relative;overflow:hidden;isolation:isolate; }
-.btn { border:0;color:#02101c;background:linear-gradient(110deg,var(--accent-cyan),#19b7ff 48%,var(--accent-blue));box-shadow:0 10px 30px color-mix(in srgb,var(--accent-cyan) 24%,transparent); }
-.btn::after { content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(110deg,transparent 20%,rgba(255,255,255,.42),transparent 75%);transform:translateX(-120%);transition:transform .55s ease; }
-.btn:hover::after { transform:translateX(120%); }
-.btn:hover { transform:translateY(-2px);box-shadow:0 14px 38px color-mix(in srgb,var(--accent-cyan) 32%,transparent); }
-.btn-outline { background:rgba(255,255,255,.035);border-color:var(--line); }
-.btn-outline:hover { background:color-mix(in srgb,var(--accent-cyan) 9%,transparent); }
-
-.glass-panel,.modal-card { border:1px solid var(--line);background:linear-gradient(145deg,var(--surface-2),var(--surface-1));box-shadow:0 24px 80px rgba(0,0,0,.32),inset 0 1px rgba(255,255,255,.055);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px); }
-.hero { min-height:calc(100svh - var(--nav-height));padding:clamp(56px,7vw,108px) 0;display:grid;align-items:center;position:relative;overflow:hidden; }
-.hero::after { content:"";position:absolute;width:520px;aspect-ratio:1;border-radius:50%;right:-180px;top:10%;background:color-mix(in srgb,var(--accent-blue) 22%,transparent);filter:blur(120px);pointer-events:none; }
-.gridhero { grid-template-columns:minmax(0,1.12fr) minmax(330px,.72fr);gap:clamp(40px,7vw,100px);align-items:center; }
-.hero-copy { max-width:780px; }
-.hero h1 { font-size:clamp(2.6rem,5.35vw,5.2rem);line-height:1.03;letter-spacing:-.055em;max-width:14ch;margin:24px 0 22px;text-wrap:balance; }
-.hero p { font-size:clamp(1rem,1.35vw,1.24rem);max-width:62ch;line-height:1.75; }
-.tag { padding:9px 14px;border-color:var(--line-strong);background:color-mix(in srgb,var(--accent-cyan) 8%,transparent); }
-.hero-card { border-radius:var(--radius-lg);padding:clamp(30px,4vw,52px);position:relative;overflow:hidden; }
-.hero-card::before { content:"";position:absolute;inset:0 0 auto;height:3px;background:linear-gradient(90deg,var(--accent-cyan),var(--accent-blue),var(--accent-purple)); }
-.hero-card h3 { font-size:clamp(1.35rem,2vw,1.8rem); }
-.benefits-list>div { padding:11px 0;display:flex;align-items:center;gap:12px;border-bottom:1px solid rgba(255,255,255,.055); }
-
-section { position:relative; }
-.section-header h2 { font-size:clamp(2rem,3vw,3.2rem);letter-spacing:-.04em;text-wrap:balance; }
-.cards { grid-template-columns:repeat(3,minmax(0,1fr));gap:20px; }
-.card { min-height:220px;padding:28px;border-radius:var(--radius-md); }
-.card .icon { width:54px;height:54px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(135deg,color-mix(in srgb,var(--accent-cyan) 20%,transparent),color-mix(in srgb,var(--accent-blue) 17%,transparent));border:1px solid var(--line-strong); }
-.pricebox { max-width:920px;border-radius:var(--radius-lg); }
-.faq { max-width:920px; }
-.faq details { border-radius:var(--radius-sm); }
-
-#member-area,#settings-area,#admin-area { min-height:calc(100svh - var(--nav-height));padding-top:clamp(28px,4vw,58px)!important;padding-bottom:70px; }
-.student-dashboard-header { padding:0 4px 26px;border-bottom:1px solid var(--line);margin-bottom:26px; }
-.student-dashboard-header h2 { font-size:clamp(1.8rem,3vw,2.7rem)!important;letter-spacing:-.04em; }
-.student-stat-pill { border:1px solid var(--line);background:var(--surface-2);box-shadow:0 10px 25px rgba(0,0,0,.18); }
-.lms-layout { grid-template-columns:minmax(0,1fr) minmax(280px,370px);gap:24px;align-items:start; }
-.lms-content,.lms-sidebar { border-radius:var(--radius-md); }
-.lms-content { min-width:0;padding:clamp(20px,3vw,38px); }
-.lms-sidebar { position:sticky;top:calc(var(--nav-height) + 18px);max-height:calc(100svh - var(--nav-height) - 36px);overflow:auto; }
-.module-item,.lesson-item,.sidebar-module { max-width:100%;overflow-wrap:anywhere; }
-.video-container,iframe,video,img { max-width:100%; }
-
-#settings-area { max-width:1040px!important; }
-#settings-area>.glass-panel { border-radius:var(--radius-lg);padding:clamp(22px,4vw,44px)!important; }
-.settings-tabs { display:grid;grid-template-columns:repeat(6,minmax(110px,1fr));gap:10px;border:0;background:rgba(0,0,0,.16);padding:10px;border-radius:16px;overflow-x:auto; }
-.settings-tab-btn { justify-content:center;white-space:nowrap;min-width:0; }
-.settings-panel { padding:clamp(12px,2vw,24px) 4px 4px; }
-
-#admin-area { width:min(100% - 40px,1540px);max-width:1540px; }
-#admin-area>div:first-child { position:relative;top:auto;z-index:5;padding:16px 0 20px;background:color-mix(in srgb,var(--bg-main) 96%,transparent);backdrop-filter:blur(18px);margin-bottom:8px; }
-#admin-area>div:first-child { background:linear-gradient(135deg,rgba(20,43,76,.70),rgba(7,19,39,.58)); border:1px solid rgba(73,217,239,.16); border-radius:20px; padding:20px 18px 22px; box-shadow:0 18px 48px rgba(0,0,0,.18),inset 0 1px rgba(255,255,255,.06); }
-#admin-area>div:first-child>div { display:flex;gap:9px!important;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin; }
-#admin-area>div:first-child button { flex:0 0 auto; }
-.admin-grid { gap:28px; }
-.admin-card { padding:clamp(18px,3vw,34px);border-radius:var(--radius-md); }
-.gateway-metrics { grid-template-columns:repeat(4,minmax(160px,1fr)); }
-.metric-box { min-height:112px;background:var(--surface-3);border-radius:16px; }
-.table-responsive { border:1px solid var(--line);border-radius:16px;background:rgba(0,0,0,.14); }
-.sales-table { min-width:760px; }
-.sales-table th { position:sticky;top:0;background:#0a1830;z-index:2; }
-.sales-table tbody tr:hover { background:color-mix(in srgb,var(--accent-cyan) 5%,transparent); }
-.admin-mod-box { background:var(--surface-2); }
-.admin-lesson-item-box { gap:12px; }
-
-.modal-overlay { padding:18px;overflow:auto; }
-.modal-card { width:min(100%,560px);max-height:min(90svh,900px);overflow:auto;border-radius:24px;padding:clamp(22px,4vw,38px); }
-#modal-edit-lesson .modal-card,#modal-custom-checkout .modal-card { width:min(100%,780px)!important; }
-.input-group input,.input-group textarea,.input-group select { width:100%;min-width:0;border-radius:12px;background:rgba(1,8,20,.66);border-color:var(--line);font-size:16px; }
-.input-group input:focus,.input-group textarea:focus,.input-group select:focus { border-color:var(--accent-cyan);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent-cyan) 12%,transparent); }
-.idz-checkout-form { display:grid; gap:18px; padding:4px 0 2px; }
-.idz-checkout-form h3 { margin:0; color:#fff; font-size:22px; }
-.idz-checkout-form p { margin:-8px 0 2px; color:var(--text-secondary); line-height:1.6; }
-.idz-checkout-field { display:grid; gap:8px; }
-.idz-checkout-field label { color:#dce9fb; font-size:13px; font-weight:700; }
-.idz-checkout-field input,.idz-checkout-field select { width:100%; box-sizing:border-box; border:1px solid var(--line); border-radius:12px; padding:13px 14px; color:#fff; background:rgba(1,8,20,.72); font:inherit; outline:none; }
-.idz-checkout-field input:focus,.idz-checkout-field select:focus { border-color:var(--accent-cyan); box-shadow:0 0 0 3px rgba(73,217,239,.14); }
-.idz-checkout-submit { width:100%; justify-content:center; border:0; border-radius:12px; padding:14px 18px; color:#03131d; background:linear-gradient(110deg,var(--accent-cyan),#19b7ff 48%,var(--accent-blue)); font:800 14px 'Plus Jakarta Sans',sans-serif; cursor:pointer; box-shadow:0 10px 28px rgba(73,217,239,.2); }
-.idz-checkout-submit:hover { filter:brightness(1.08); transform:translateY(-1px); }
-
-@media (max-width:1100px) {
-  :root{--nav-height:76px}.nav-wrap{grid-template-columns:minmax(150px,230px) 1fr auto;gap:16px}.nav-links{gap:16px}.nav-right-cluster #user-display{display:none}.cards{grid-template-columns:repeat(2,minmax(0,1fr))}.lms-layout{grid-template-columns:minmax(0,1fr) 310px}.settings-tabs{grid-template-columns:repeat(3,1fr)}.gateway-metrics{grid-template-columns:repeat(2,1fr)}
-}
-@media (max-width:820px) {
-  :root{--nav-height:70px}.wrap,#admin-area{width:min(100% - 28px,var(--page-max))}.nav-wrap{grid-template-columns:minmax(112px,1fr) auto;gap:12px}.official-brand-logo{width:210px;max-width:46vw}.nav-links{display:none}.nav-right-cluster{gap:7px}.nav-right-cluster .btn-outline{padding:9px 12px}.hamburger{display:flex}.gridhero{grid-template-columns:1fr;text-align:left}.hero{min-height:auto}.hero-copy{max-width:720px}.hero h1{max-width:13ch}.hero-card{max-width:680px;width:100%}.lms-layout{grid-template-columns:1fr}.lms-sidebar{position:relative;top:auto;max-height:none;grid-row:1}.settings-tabs{grid-template-columns:repeat(2,minmax(145px,1fr))}
-}
-@media (max-width:560px) {
-  html{font-size:15px}.wrap,#admin-area{width:min(100% - 22px,var(--page-max))}.official-brand-logo{width:148px;max-width:43vw}.nav-right-cluster #nav-user-avatar,.nav-right-cluster #user-display{display:none!important}.nav-right-cluster .btn-outline:not(:first-child){padding:8px 10px}.hero{padding:44px 0 58px}.hero h1{font-size:clamp(2.4rem,12vw,3.35rem);max-width:100%;letter-spacing:-.06em}.hero p{font-size:1rem}.tag{font-size:.69rem;line-height:1.35}.hero .btn{width:100%;justify-content:center}.hero-card{padding:26px 20px}.cards{grid-template-columns:1fr}.card{min-height:auto}.student-dashboard-header>div{align-items:flex-start!important}.student-dashboard-header>div>div:last-child{width:100%;display:grid!important;grid-template-columns:1fr}.student-stat-pill{justify-content:flex-start}.lms-content,.lms-sidebar{padding:18px!important}.settings-tabs{display:flex;overflow-x:auto;scroll-snap-type:x mandatory}.settings-tab-btn{flex:0 0 150px;scroll-snap-align:start}.gateway-metrics{grid-template-columns:1fr}.admin-card h3{font-size:1rem}.admin-lesson-item-box{align-items:flex-start;flex-direction:column}.admin-lesson-item-box>div{width:100%;display:flex;justify-content:flex-end}.modal-overlay{padding:10px}.modal-card{border-radius:18px;padding:22px 17px}.input-group+div[style*="grid-template-columns"]{grid-template-columns:1fr!important}footer{margin-top:40px}
-}
-@media (max-width:380px) {
-  .official-brand-logo{width:124px}.nav-right-cluster .btn-outline{font-size:0;width:42px;justify-content:center}.nav-right-cluster .btn-outline i{font-size:14px}.hamburger{width:42px}.hero h1{font-size:2.3rem}.new-price{font-size:2.35rem}
-}
-
-/* V3 — atmosfera suave, navegação leve e camadas de diálogo confiáveis */
-@keyframes idzAmbientGlow {
-  0%,100% { transform:translate3d(-3%,-2%,0) scale(1); opacity:.28; }
-  50% { transform:translate3d(4%,3%,0) scale(1.12); opacity:.42; }
-}
-body.theme-rgb {
-  --bg-main:#050914;
-  --bg-card:rgba(11,23,43,.92);
-  --accent-cyan:#49d9ef;
-  --accent-blue:#5269ef;
-  --accent-purple:#9b6fe8;
-  --glass-border-hover:rgba(115,166,255,.42);
-  --glow-shadow:0 0 28px rgba(82,105,239,.20);
-  --page-gradient:radial-gradient(circle at 18% 8%,rgba(73,217,239,.13),transparent 30%),radial-gradient(circle at 84% 76%,rgba(155,111,232,.14),transparent 32%),linear-gradient(145deg,#050914 0%,#0a1225 48%,#0d1230 100%);
-}
-body.theme-rgb::after {
-  content:"";position:fixed;z-index:0;pointer-events:none;inset:-20%;
-  background:radial-gradient(circle at 25% 30%,rgba(68,223,238,.26),transparent 22%),radial-gradient(circle at 72% 58%,rgba(116,106,238,.22),transparent 25%),radial-gradient(circle at 48% 86%,rgba(211,115,223,.10),transparent 20%);
-  filter:blur(48px);animation:idzAmbientGlow 26s ease-in-out infinite;
-}
-body.theme-rgb .btn:not(.btn-danger),body.theme-rgb .progress-fill,body.theme-rgb .member-sidebar-item.active {
-  background-image:linear-gradient(110deg,#4bd7ee,#5276f2 55%,#8061dd)!important;
-  background-size:100% 100%!important;animation:none!important;
-}
-body.theme-rgb .card:hover,body.theme-rgb .admin-card:hover,body.theme-rgb .lesson-card:hover { border-color:rgba(116,149,246,.48);box-shadow:0 18px 46px rgba(73,217,239,.10),0 0 32px rgba(128,97,221,.08); }
-
-/* Faz as partículas realmente visíveis sem competir com o conteúdo. */
-#particles-canvas { z-index:0;opacity:.42;mix-blend-mode:screen; }
-.bg-orbs { z-index:0;opacity:.68; }
-nav,#public-site,#member-area,#settings-area,#admin-area,footer { position:relative;z-index:1; }
-.mobile-dropdown { position:fixed;z-index:4990; }
-.mobile-overlay { position:fixed;z-index:4980; }
-.modal-overlay { z-index:5000; }
-
-/* Logo menor e natural; os controles viram ícones leves, sem quadrados pesados. */
-.official-brand-logo { width:210px!important;max-width:30vw!important; }
-.nav-right-cluster { gap:5px; }
-.nav-right-cluster .btn-outline,.nav-icon-only,.hamburger {
-  width:38px!important;height:38px!important;min-height:38px!important;padding:0!important;
-  display:inline-grid!important;place-items:center;border-radius:50%!important;
-  background:transparent!important;border:1px solid transparent!important;color:var(--text-secondary)!important;
-  box-shadow:none!important;overflow:visible!important;
-}
-.nav-right-cluster .btn-outline:hover,.nav-icon-only:hover,.hamburger:hover {
-  color:var(--accent-cyan)!important;background:rgba(73,217,239,.08)!important;border-color:rgba(73,217,239,.28)!important;transform:translateY(-1px);
-}
-.nav-icon-only .nav-label { position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0; }
-.hamburger { font-size:16px; }
-#nav-user-avatar { width:36px!important;height:36px!important;background:rgba(73,217,239,.08)!important;border-color:rgba(73,217,239,.30)!important; }
-#notif-badge { top:-2px!important;right:-1px!important;box-shadow:0 0 0 2px var(--bg-main); }
-
-/* Mensagens sempre ficam à frente de login, checkout e notificações. */
-#modal-auth { z-index:5100; }
-#modal-custom-checkout { z-index:5200; }
-#modal-notifications { z-index:5300; }
-#success-modal,#custom-alert-modal { z-index:6000; }
-
-/* Área de cobrança Pix exibida pelo próprio backend após criar a transação. */
-#pix-payment-panel { display:none;margin:0 0 18px;padding:20px;border:1px solid var(--line-strong);border-radius:18px;background:linear-gradient(135deg,rgba(6,28,51,.96),rgba(7,18,38,.96));text-align:center;position:relative; }
-#pix-payment-panel.active { display:block;animation:fadeUp .28s ease both; }
-#pix-qr-image { display:none;width:min(100%,240px);aspect-ratio:1;object-fit:contain;background:#fff;border-radius:14px;padding:10px;margin:14px auto; }
-#pix-copy-code { width:100%;min-height:72px;resize:vertical;font-size:12px;line-height:1.35; }
-#pix-status { color:var(--text-secondary);font-size:.86rem; }
-#pix-expiry { display:inline-flex;align-items:center;gap:6px;margin:8px auto 2px;padding:6px 12px;border-radius:999px;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.35);color:#fecaca;font-size:.82rem;font-weight:800; }
-.checkout-summary{display:grid;gap:4px;margin-bottom:18px;padding:18px;border:1px solid var(--line);border-radius:18px;background:rgba(5,18,38,.6)}.checkout-summary h2{margin:0;font-size:clamp(1.2rem,4vw,1.55rem)}.checkout-summary p{margin:0;color:var(--text-secondary);font-size:.9rem}.checkout-price{margin-top:8px;color:var(--accent-cyan);font-size:1.65rem;font-weight:900}.checkout-methods{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 18px}.checkout-method{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;align-items:center;min-height:72px;padding:12px 16px;text-align:left;border:1px solid var(--line-strong);border-radius:14px;background:var(--surface-2);color:var(--text-primary);font-weight:800;cursor:pointer}.checkout-method i{grid-row:1/3;font-size:1.2rem;color:var(--accent-cyan)}.checkout-method small{font-weight:500;color:var(--text-secondary)}.checkout-method.active{border-color:var(--accent-cyan);box-shadow:0 0 0 2px rgba(73,217,239,.12)}.checkout-panel{display:none}.checkout-panel.active{display:block}.checkout-panel-title{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:14px}.checkout-panel-title h3,.checkout-panel-title p{margin:0}.checkout-panel-title p{color:var(--text-secondary);font-size:.84rem}.checkout-panel-value{white-space:nowrap;color:var(--accent-cyan);font-weight:900}.checkout-status{min-height:22px;color:var(--text-secondary);font-size:.86rem;margin-top:10px}.idz-card-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px}.idz-card-field{display:grid;gap:7px;min-width:0}.idz-card-field.full{grid-column:1/-1}.idz-card-field label{font-size:.78rem;font-weight:750;color:#dce9fb}.idz-card-field input,.idz-card-field select,.mp-secure-input{width:100%;height:48px;box-sizing:border-box;border:1px solid var(--line);border-radius:12px;padding:0 13px;color:#fff;background:rgba(1,8,20,.72);font:inherit;outline:none}.mp-secure-input{padding:0;overflow:hidden}.mp-secure-input iframe{width:100%!important;height:46px!important}.idz-card-field input:focus,.idz-card-field select:focus,.mp-secure-input:focus-within{border-color:var(--accent-cyan);box-shadow:0 0 0 3px rgba(73,217,239,.14)}.idz-secure-note{display:flex;align-items:flex-start;gap:8px;margin:13px 0;color:var(--text-secondary);font-size:.78rem;line-height:1.45}.lesson-meta-compact details{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:8px 0;background:rgba(8,20,40,.4)}.lesson-meta-compact summary{cursor:pointer;font-weight:750}.student-admin-card{display:grid;gap:14px}.student-admin-actions{display:flex;gap:8px;flex-wrap:wrap}.student-admin-actions .btn-outline{min-height:40px}.danger-action{border-color:var(--red)!important;color:var(--red)!important}
-.input-group select,.admin-card select,.student-manager select,.idz-select{width:100%;max-width:100%;min-height:46px;appearance:none;-webkit-appearance:none;padding:0 42px 0 14px;border:1px solid rgba(73,217,239,.28);border-radius:13px;color:#f4f9ff;background-color:#07172c;background-image:linear-gradient(45deg,transparent 50%,#49d9ef 50%),linear-gradient(135deg,#49d9ef 50%,transparent 50%),linear-gradient(135deg,rgba(20,48,80,.86),rgba(5,20,40,.94));background-position:calc(100% - 18px) 20px,calc(100% - 12px) 20px,0 0;background-size:6px 6px,6px 6px,100% 100%;background-repeat:no-repeat;font:600 .86rem 'Inter',sans-serif;outline:none}.input-group select:focus,.admin-card select:focus,.student-manager select:focus,.idz-select:focus{border-color:var(--accent-cyan);box-shadow:0 0 0 3px rgba(73,217,239,.14)}select option{color:#f4f9ff;background:#07172c}.student-manager{display:grid;gap:16px;min-width:0}.student-profile-header{display:grid;grid-template-columns:minmax(0,1.4fr) repeat(4,minmax(105px,.65fr));gap:10px;padding:16px;border:1px solid var(--line);border-radius:18px;background:rgba(5,18,38,.7);overflow:hidden}.student-profile-main{min-width:0}.student-profile-main strong,.student-profile-main span{display:block;overflow:hidden;text-overflow:ellipsis}.student-profile-main span{color:var(--text-secondary);font-size:.82rem}.student-profile-main code{display:block;color:var(--accent-cyan);font-size:.7rem;overflow:hidden;text-overflow:ellipsis}.manager-status{display:grid;gap:3px;align-content:center;padding:9px;border-radius:12px;background:rgba(255,255,255,.035)}.manager-status small{color:var(--text-muted);font-size:.67rem;text-transform:uppercase}.status-chip{width:max-content;max-width:100%;padding:4px 8px;border-radius:99px;font-size:.7rem;font-weight:800;background:rgba(245,158,11,.14);color:#fcd34d}.status-chip.ok{background:rgba(16,185,129,.14);color:#6ee7b7}.status-chip.blocked{background:rgba(239,68,68,.14);color:#fca5a5}.manager-tabs{display:flex;gap:7px;overflow-x:auto;padding:3px 1px 9px;scrollbar-width:thin;scroll-snap-type:x proximity}.manager-tab{flex:0 0 auto;min-height:40px;padding:8px 13px;border:1px solid var(--line);border-radius:11px;background:rgba(8,24,47,.72);color:var(--text-secondary);font-weight:750;cursor:pointer;scroll-snap-align:start}.manager-tab.active{color:#04121f;background:var(--accent-cyan);border-color:var(--accent-cyan)}.manager-panel{display:none;min-width:0}.manager-panel.active{display:grid;gap:13px}.manager-overview-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.manager-card{min-width:0;padding:15px;border:1px solid var(--line);border-radius:15px;background:rgba(7,23,44,.64);overflow:hidden}.manager-card h4{margin:0 0 6px;font-size:.76rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.04em}.manager-card strong{font-size:1rem}.manager-card p{margin:5px 0;color:var(--text-secondary);font-size:.8rem;overflow-wrap:anywhere}.manager-actions{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:9px}.manager-actions button{width:100%;justify-content:center}.manager-module{border:1px solid var(--line);border-radius:15px;background:rgba(7,23,44,.64);overflow:hidden}.manager-module summary{display:grid;grid-template-columns:1fr auto;gap:10px;padding:14px;cursor:pointer;list-style:none}.manager-module summary::-webkit-details-marker{display:none}.manager-module summary span{display:block;color:var(--text-secondary);font-size:.78rem}.manager-module-body{display:grid;gap:9px;padding:0 12px 12px}.manager-item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:11px;border-radius:12px;background:rgba(255,255,255,.035);overflow:hidden}.manager-item strong,.manager-item small{display:block;overflow-wrap:anywhere}.manager-item small{color:var(--text-secondary)}.manager-item-actions{display:flex;gap:6px}.manager-item-actions button{min-height:34px;padding:5px 9px;font-size:.72rem}.notification-test-card{display:grid;gap:12px;margin-top:18px;padding:16px;border:1px solid rgba(73,217,239,.25);border-radius:16px;background:rgba(5,20,40,.68)}
-@media(max-width:700px){body::before{display:none}.glass-panel,.modal-card,.admin-card,.card,.hero-card{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}.table-responsive{overflow:visible}.sales-table,.sales-table tbody,.sales-table tr,.sales-table td{display:block;width:100%}.sales-table thead{display:none}.sales-table tr{margin-bottom:14px;border:1px solid var(--line);border-radius:14px;padding:10px}.sales-table td{border:0;padding:7px}.modal-card{max-height:92svh}}
-@media(max-width:460px){#modal-custom-checkout{align-items:flex-start;padding:0}.modal-card{max-height:none!important;min-height:100svh;border-radius:0!important;padding:54px 14px 24px!important;overflow:visible!important}.checkout-summary{padding:14px}.checkout-methods{gap:7px}.checkout-method{padding:10px;min-height:68px}.idz-card-grid{grid-template-columns:1fr}.idz-card-field.full{grid-column:auto}.checkout-panel-title{align-items:flex-start}.idz-checkout-field>div{display:grid!important;grid-template-columns:1fr auto}.idz-checkout-field .btn-outline{padding-inline:12px}}
-@media(max-width:768px){#modal-manage-student{align-items:flex-start;padding:0}#modal-manage-student .modal-card{width:100%!important;max-height:none;min-height:100svh;border-radius:0;padding:54px 14px 26px;overflow:visible}.student-profile-header{grid-template-columns:1fr 1fr}.student-profile-main{grid-column:1/-1}.manager-overview-grid{grid-template-columns:1fr 1fr}.manager-item{grid-template-columns:1fr}.manager-item-actions{display:grid;grid-template-columns:1fr 1fr}.manager-actions{grid-template-columns:1fr 1fr}}
-@media(max-width:420px){.manager-overview-grid,.manager-actions{grid-template-columns:1fr}.student-profile-header{grid-template-columns:1fr}.student-profile-main{grid-column:auto}.manager-item-actions{grid-template-columns:1fr 1fr}.manager-tab{padding-inline:11px}.notification-test-card{padding:13px}}
-
-@media (max-width:820px) { .official-brand-logo{width:176px!important;max-width:43vw!important}.nav-right-cluster .btn-outline,.nav-icon-only,.hamburger{width:36px!important;height:36px!important;min-height:36px!important} }
-@media (max-width:420px) { .official-brand-logo{width:136px!important;max-width:38vw!important}.nav-right-cluster{gap:2px}.nav-right-cluster .btn-outline,.nav-icon-only,.hamburger{width:34px!important;height:34px!important;min-height:34px!important;font-size:13px} }
-
-/* Acabamento premium: vidro mais leve, logo discreta e ações arredondadas. */
-:root { --bg-card: rgba(15,23,42,.62); --surface-1: rgba(12,25,48,.58); --surface-2: rgba(21,38,68,.46); }
-.glass-panel,.modal-card,.admin-card,.card,.hero-card { background:linear-gradient(135deg,rgba(25,48,82,.56),rgba(8,20,40,.48))!important; border-radius:24px; box-shadow:0 20px 60px rgba(0,0,0,.22),inset 0 1px rgba(255,255,255,.09); }
-.btn,.btn-outline,button.btn,button.btn-outline { border-radius:14px!important; box-shadow:0 10px 28px rgba(36,190,255,.16); transition:transform .25s ease,box-shadow .25s ease,background .25s ease; }
-.btn:hover,.btn-outline:hover { transform:translateY(-3px) scale(1.015); box-shadow:0 16px 38px rgba(36,190,255,.28); }
-.official-brand-logo { width:188px!important; max-width:25vw!important; filter:drop-shadow(0 6px 14px rgba(0,0,0,.28)); }
-@media (max-width:820px) { .official-brand-logo{width:160px!important;max-width:42vw!important} }
-@media (max-width:420px) { .official-brand-logo{width:132px!important;max-width:39vw!important} }
-</style>
-<style id="idz-functional-layout-fixes">
-  /* O drawer pertence ao shell da aplicação e nunca pode ficar atrás do footer. */
-  body.drawer-open { overflow:hidden; }
-  #idz20a-backdrop { position:fixed; inset:0; z-index:7000; background:rgba(2,10,24,.72); opacity:0; visibility:hidden; pointer-events:none; transition:opacity .2s ease,visibility .2s ease; }
-  #idz20a-backdrop.open { opacity:1; visibility:visible; pointer-events:auto; }
-  #idz20a-drawer { position:fixed; top:0; right:0; bottom:0; width:min(88vw,390px); height:100dvh; max-height:100dvh; z-index:7001; overflow-y:auto; padding-top:env(safe-area-inset-top); padding-bottom:env(safe-area-inset-bottom); background:#071a33; border-left:1px solid rgba(73,217,239,.25); transform:translateX(105%); transition:transform .22s ease; overscroll-behavior:contain; }
-  #idz20a-drawer.open { transform:translateX(0); }
-  #idz20a-drawer .idz20a-drawer-head { position:sticky; top:0; z-index:1; display:flex; align-items:center; justify-content:space-between; padding:22px 22px 16px; background:#071a33; }
-  #idz20a-drawer .idz20a-drawer-head img { width:min(240px,70%); height:auto; }
-  #idz20a-drawer-body { padding:8px 22px 28px; }
-  #idz20a-drawer .idz20a-menu-item { width:100%; justify-content:flex-start; text-align:left; }
-  #student-welcome-title { max-width:100%; overflow-wrap:anywhere; word-break:break-word; font-size:clamp(1.2rem,2.8vw,1.7rem)!important; line-height:1.2; }
-  #student-welcome-subtitle { max-width:100%; overflow-wrap:anywhere; word-break:break-word; }
-  #lms-main-content:empty { min-height:0!important; padding:0!important; }
-  @media (max-width:600px) { #idz20a-drawer { width:min(92vw,390px); } }
-</style>
-<link rel="stylesheet" href="idz-design-system.css?v=20a8-auth-mobile13">
-<link rel="stylesheet" href="idz-assets.css?v=2">
 <meta property="og:image" content="https://idzoficial.com/assets/idz/social/og-image.jpg">
 <meta property="og:image:alt" content="IDZ+ — Informática do Zero">
+<meta name="theme-color" content="#020b17">
+<link rel="icon" href="assets/favicon/favicon.ico" sizes="any">
+<link rel="icon" href="assets/brand/logo-idz-symbol.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/favicon/apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
+<link rel="stylesheet" href="ui/tokens.css">
+<link rel="stylesheet" href="ui/components.css">
+<link rel="stylesheet" href="ui/layouts.css">
 </head>
 <body class="theme-azul">
 
-<canvas id="particles-canvas"></canvas>
-<div class="bg-orbs">
-  <div class="orb orb-1"></div>
-  <div class="orb orb-2"></div>
-  <div class="orb orb-3"></div>
-  <div class="orb orb-4"></div>
-</div>
-
-<!-- MODAL DE ALERTA PROFISSIONAL -->
 <div class="modal-overlay" id="custom-alert-modal">
-  <div class="modal-card" style="max-width: 450px; text-align: center; border-color: var(--red);">
-    <i class="fa-solid fa-triangle-exclamation" style="font-size: 48px; color: var(--red); margin-bottom: 16px; filter: drop-shadow(0 0 10px rgba(239,68,68,0.5));"></i>
-    <h3 id="custom-alert-title" style="font-size: 19px; margin-bottom: 10px; color: #fff;">Atenção do Sistema</h3>
-    <p id="custom-alert-text" style="color: var(--text-secondary); font-size: 13.5px; margin-bottom: 24px; line-height: 1.5;"></p>
-    <button class="btn" style="width: 100%; background: linear-gradient(135deg, var(--red), #b91c1c); color: #fff;" onclick="closeCustomAlert()">Entendido</button>
+  <div class="modal-card">
+    <i class="fa-solid fa-triangle-exclamation"></i>
+    <h3 id="custom-alert-title">Atenção do Sistema</h3>
+    <p id="custom-alert-text"></p>
+    <button class="btn" onclick="closeCustomAlert()">Entendido</button>
   </div>
 </div>
 
 <!-- MODAL DE SUCESSO -->
 <div class="modal-overlay" id="success-modal">
-  <div class="modal-card" style="text-align: center; border-color: var(--green);">
-    <i class="fa-solid fa-circle-check" style="font-size: 52px; color: var(--green); margin-bottom: 16px; filter: drop-shadow(0 0 10px rgba(16,185,129,0.5));"></i>
-    <h3 style="font-size: 21px; margin-bottom: 8px;">Operação Concluída!</h3>
-    <p id="success-modal-text" style="color: var(--text-secondary); font-size: 13.5px; margin-bottom: 22px;">Sincronizado na nuvem com sucesso.</p>
-    <button class="btn" style="width: 100%;" onclick="closeSuccessModal()">Continuar <i class="fa-solid fa-arrow-right"></i></button>
+  <div class="modal-card">
+    <i class="fa-solid fa-circle-check"></i>
+    <h3>Operação Concluída!</h3>
+    <p id="success-modal-text">Sincronizado na nuvem com sucesso.</p>
+    <button class="btn" onclick="closeSuccessModal()">Continuar <i class="fa-solid fa-arrow-right"></i></button>
   </div>
 </div>
 
 <!-- MODAL DE CHECKOUT -->
 <div class="modal-overlay" id="modal-custom-checkout">
-  <div class="modal-card" style="max-width: 650px;">
+  <div class="modal-card">
     <button class="close-btn" onclick="closeCheckoutModalSafe()"><i class="fa-solid fa-xmark"></i></button>
-    <div class="checkout-summary">
-      <span style="font-size:11px;color:var(--accent-cyan);text-transform:uppercase;letter-spacing:1px;font-weight:800">Checkout</span>
+    <ol class="checkout-steps"><li>1 <span>Conta</span></li><li aria-current="step">2 <span>Pagamento</span></li><li>3 <span>Confirmação</span></li></ol><div class="checkout-layout"><aside class="checkout-summary">
+      <span>Checkout</span>
       <h2>Informática do Zero</h2>
       <p>12 módulos + Projeto Final + 3 bônus</p>
       <div class="checkout-price" id="checkout-modal-title">R$ 29,90</div>
-    </div>
+    </aside><div class="checkout-form">
     <section id="pix-payment-panel" aria-live="polite">
       <h3><i class="fa-brands fa-pix"></i> Pix gerado</h3>
       <p id="pix-status">Aponte a câmera para o QR Code ou copie o código Pix.</p>
       <div id="pix-expiry"><i class="fa-regular fa-clock"></i> Expira em <span id="pix-countdown">15:00</span></div>
       <img id="pix-qr-image" alt="QR Code para pagamento Pix">
       <textarea id="pix-copy-code" readonly aria-label="Código Pix copia e cola"></textarea>
-      <button type="button" class="btn-outline" style="width:100%;justify-content:center;margin-top:10px" onclick="copyPixCode()"><i class="fa-regular fa-copy"></i> Copiar código Pix</button>
+      <button type="button" class="btn-outline" onclick="copyPixCode()"><i class="fa-regular fa-copy"></i> Copiar código Pix</button>
     </section>
     <div class="checkout-methods" role="tablist" aria-label="Forma de pagamento">
       <button type="button" class="checkout-method active" id="checkout-method-pix" onclick="selectCheckoutMethod('pix')"><i class="fa-brands fa-pix"></i><span>PIX</span><small>Pagamento rápido e seguro</small></button>
@@ -848,15 +186,15 @@ nav,#public-site,#member-area,#settings-area,#admin-area,footer { position:relat
     </div>
     <section class="checkout-panel active" id="checkout-panel-pix">
       <div class="checkout-panel-title"><div><h3>PIX</h3><p>Pagamento instantâneo</p></div><strong class="checkout-panel-value" data-checkout-price>R$ 29,90</strong></div>
-      <p style="color:var(--text-secondary);font-size:13px;margin-bottom:12px">O acesso só será liberado depois da confirmação do pagamento.</p>
+      <p>O acesso só será liberado depois da confirmação do pagamento.</p>
       <div class="input-group"><label for="pix-payer-cpf">CPF do pagador</label><input id="pix-payer-cpf" inputmode="numeric" maxlength="14" placeholder="000.000.000-00" oninput="maskCpf(this)"></div>
-      <button type="button" class="btn" style="width:100%;justify-content:center" onclick="submitIdzPix()"><i class="fa-brands fa-pix"></i> Gerar PIX</button>
+      <button type="button" class="btn" onclick="submitIdzPix()"><i class="fa-brands fa-pix"></i> Gerar PIX</button>
       <div class="checkout-status" id="pix-submit-status" aria-live="polite"></div>
     </section>
-    <div class="idz-checkout-field" style="margin-bottom:14px">
+    <div class="idz-checkout-field">
       <label for="checkout-coupon">Cupom de desconto</label>
-      <div style="display:flex;gap:8px"><input id="checkout-coupon" maxlength="40" placeholder="Digite o código"><button type="button" class="btn-outline" onclick="applyCheckoutCoupon()">Aplicar</button></div>
-      <small id="checkout-coupon-result" style="color:var(--text-secondary)"></small>
+      <div><input id="checkout-coupon" maxlength="40" placeholder="Digite o código"><button type="button" class="btn-outline" onclick="applyCheckoutCoupon()">Aplicar</button></div>
+      <small id="checkout-coupon-result"></small>
     </div>
     <section class="checkout-panel" id="checkout-panel-card">
       <div class="checkout-panel-title"><div><h3>Cartão de crédito</h3><p>Pagamento tokenizado com segurança</p></div><strong class="checkout-panel-value" data-checkout-price>R$ 29,90</strong></div>
@@ -876,15 +214,13 @@ nav,#public-site,#member-area,#settings-area,#admin-area,footer { position:relat
         <button type="submit" id="form-checkout__submit" class="idz-checkout-submit">PAGAR R$ 29,90</button>
       </form>
       <div class="checkout-status" id="card-submit-status" aria-live="polite"></div>
-    </section>
-  </div>
-</div>
+    </section></div></div></div></div>
 
 <!-- MODAL EDITAR AULA E EXERCÍCIO -->
 <div class="modal-overlay" id="modal-edit-lesson">
-  <div class="modal-card" style="max-width: 700px;">
+  <div class="modal-card">
     <button class="close-btn" onclick="closeModal('modal-edit-lesson')"><i class="fa-solid fa-xmark"></i></button>
-    <h3 style="margin-bottom: 16px; font-size: 18px; color: var(--accent-cyan); display: flex; align-items: center; gap: 8px;">
+    <h3>
       <i class="fa-solid fa-pen"></i> Editar Aula, Blocos e Atividade Prática
     </h3>
     <input type="hidden" id="edit-mod-id">
@@ -906,16 +242,16 @@ nav,#public-site,#member-area,#settings-area,#admin-area,footer { position:relat
       <label>Bloco 3 (Objetivos Pedagógicos)</label>
       <textarea id="edit-lesson-bloco3" rows="2"></textarea>
     </div>
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+    <div>
       <div class="input-group"><label>Vídeo YouTube (Link ou ID)</label><input type="text" id="edit-lesson-video"></div>
       <div class="input-group"><label>PDF Material (URL)</label><input type="text" id="edit-lesson-pdf"></div>
     </div>
     <div class="input-group"><label>Imagem URL (Capa / Ilustração)</label><input type="text" id="edit-lesson-img"></div>
 
-    <hr style="border:0; border-top:1px solid var(--glass-border); margin: 15px 0;">
-    <h4 style="font-size: 14px; color: var(--accent-cyan); margin-bottom: 10px;"><i class="fa-solid fa-brain"></i> Configurar Atividade Prática da Aula</h4>
+    <hr>
+    <h4><i class="fa-solid fa-brain"></i> Configurar Atividade Prática da Aula</h4>
     <div class="input-group"><label>Pergunta do Quiz</label><input type="text" id="edit-quiz-question"></div>
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+    <div>
       <div class="input-group"><label>Alternativa A</label><input type="text" id="edit-quiz-opt0"></div>
       <div class="input-group"><label>Alternativa B</label><input type="text" id="edit-quiz-opt1"></div>
       <div class="input-group"><label>Alternativa C</label><input type="text" id="edit-quiz-opt2"></div>
@@ -931,172 +267,42 @@ nav,#public-site,#member-area,#settings-area,#admin-area,footer { position:relat
       </select>
     </div>
 
-    <button class="btn" style="width: 100%; margin-top: 10px;" onclick="saveEditedLesson()"><i class="fa-solid fa-floppy-disk"></i> Salvar Alterações na Aula e Atividade</button>
+    <button class="btn" onclick="saveEditedLesson()"><i class="fa-solid fa-floppy-disk"></i> Salvar Alterações na Aula e Atividade</button>
   </div>
 </div>
 
 <!-- MODAL CENTRAL DE NOTIFICAÇÕES -->
 <div class="modal-overlay" id="modal-notifications">
-  <div class="modal-card" style="max-width: 500px;">
+  <div class="modal-card">
     <button class="close-btn" onclick="closeModal('modal-notifications')"><i class="fa-solid fa-xmark"></i></button>
-    <h3 style="margin-bottom: 16px; font-size: 18px; color: var(--accent-cyan); display: flex; align-items: center; gap: 8px;">
+    <h3>
       <i class="fa-solid fa-bell"></i> Central de Notificações
     </h3>
-    <div id="notifications-list-modal" style="display: flex; flex-direction: column; gap: 10px; max-height: 400px; overflow-y: auto;"></div>
+    <div id="notifications-list-modal"></div>
   </div>
 </div>
 
-<nav>
-  <div class="wrap nav-wrap">
-    <!-- LOGO OFICIAL IDZ -->
-    <a href="#" class="brand-logo-container" onclick="handleLogoClick()" aria-label="Informática do Zero — início">
-      <img class="official-brand-logo" src="assets/idz/brand/logo-horizontal.png" alt="IDZ — Informática do Zero" width="286" height="96">
-    </a>
-
-    <ul class="nav-links">
-      <li><a href="#" onclick="handleLogoClick();return false">Início</a></li>
-      <li><a href="#course-details" onclick="showPublicSite()">Curso</a></li>
-      <li><a href="#course-details" onclick="showPublicSite()">Conteúdo</a></li>
-      <li><a href="#idz-certificate-preview" onclick="showPublicSite()">Certificado</a></li>
-      <li><a href="#faq" onclick="showPublicSite()">FAQ</a></li>
-    </ul>
-
-    <div class="nav-right-cluster">
-      <div id="nav-guest" style="display:none">
-        <button class="nav-icon-only" onclick="openAuthModal('login')" title="Entrar ou criar conta" aria-label="Entrar ou criar conta"><i class="fa-regular fa-user"></i><span class="nav-label">Login / Criar Conta</span></button>
-      </div>
-      <button class="idz-nav-purchase" type="button" onclick="handlePurchaseAction()">Começar agora <i class="fa-solid fa-arrow-right"></i></button>
-
-      <div id="nav-user" style="display: none; align-items: center; gap: 10px;">
-        <div id="nav-user-avatar" style="width: 34px; height: 34px; border-radius: 50%; overflow: hidden; border: 1.5px solid var(--accent-cyan); display: flex; align-items: center; justify-content: center; background: rgba(0,240,255,0.1);">
-          <i class="fa-solid fa-user" style="font-size: 13px; color: var(--accent-cyan);"></i>
-        </div>
-        <span id="user-display" style="font-size: 12.5px; font-weight: 600; color: var(--text-primary); max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></span>
-        <button class="btn-outline" style="position: relative; padding: 6px 10px;" onclick="openNotificationsModal()" title="Notificações">
-          <i class="fa-solid fa-bell"></i>
-          <span id="notif-badge" style="position: absolute; top: -4px; right: -4px; background: var(--red); color: #fff; font-size: 9px; width: 16px; height: 16px; border-radius: 50%; display: none; align-items: center; justify-content: center; font-weight: 750;">0</span>
-        </button>
-        <button class="btn-outline" style="border-color: rgba(0, 240, 255, 0.4); color: var(--accent-cyan); padding: 6px 10px;" onclick="showSettingsArea()" title="Configurações da Conta"><i class="fa-solid fa-gear"></i></button>
-        <button class="btn-outline" style="border-color: rgba(239, 68, 68, 0.4); color: var(--red); padding: 6px 8px;" onclick="logout()" title="Sair da Conta"><i class="fa-solid fa-right-from-bracket"></i></button>
-      </div>
-
-      <button class="hamburger" onclick="toggleMobileMenu()"><i class="fa-solid fa-bars"></i></button>
-    </div>
-  </div>
-</nav>
-
-<div class="mobile-overlay" id="mobile-overlay" onclick="toggleMobileMenu()"></div>
-<div class="mobile-dropdown" id="mobile-menu">
-  <div class="mobile-header">
-    <span style="font-size: 15px; font-weight: 700; color: #fff;">Navegação IDZ</span>
-    <button onclick="toggleMobileMenu()" style="background:none; border:none; color:var(--text-muted); font-size: 20px; width:auto; padding:0;"><i class="fa-solid fa-xmark"></i></button>
-  </div>
-  <div id="mobile-menu-options" style="display: flex; flex-direction: column; gap: 10px;"></div>
-</div>
-
-<div id="public-site" class="animate-fade-up" style="display: block;">
-  <header class="hero">
-    <div class="wrap gridhero">
-      <div class="hero-copy">
-        <span class="tag" id="hero-tag-lessons"><i class="fa-solid fa-bolt"></i> FORMAÇÃO COMPLETA • CARREGANDO...</span>
-        <h1><span>IDZ</span> Informática do Zero</h1>
-        <p>Aprenda informática do básico, mesmo que você esteja começando do zero.</p>
-        <p>Domine computador, internet, documentos, planilhas, apresentações, segurança digital e inteligência artificial em uma trilha prática e organizada.</p>
-        <div class="idz-hero-price"><strong>R$ 29,90</strong><span>Pagamento único · Acesso imediato</span></div>
-        <div class="idz-hero-actions"><button class="btn" onclick="handleAccountAction()"><i class="fa-solid fa-arrow-right"></i> <span id="hero-btn-text">COMEÇAR AGORA</span></button><button class="btn-outline" onclick="document.querySelector('#course-details')?.scrollIntoView({behavior:'smooth'})">CONHECER O CURSO</button></div>
-        <div class="idz-trust-row"><span>✓ Pagamento seguro</span><span>✓ Acesso ao curso</span><span>✓ Certificado após conclusão</span></div>
-      </div>
-      <picture class="idz-hero-visual">
-        <source media="(max-width: 600px)" srcset="assets/idz/hero/hero-mobile.webp" width="768" height="1152">
-        <img src="assets/idz/hero/hero-desktop.webp" alt="Computador com elementos de aprendizagem digital IDZ+" width="1536" height="1024" fetchpriority="high" decoding="async">
-      </picture>
-      <div class="glass-panel hero-card">
-        <span class="badge-discount"><i class="fa-solid fa-fire"></i> ACESSO IMEDIATO</span>
-        <h3 style="font-size: 23px; margin: 10px 0;">Área de Membros Premium</h3>
-        <p style="font-size: 13.5px; margin-bottom: 22px;">Aprenda no seu ritmo com suporte dedicado.</p>
-        
-        <div class="benefits-list">
-          <div id="benefit-lessons-count"><i class="fa-solid fa-check"></i> 12 Módulos + Projeto Final</div>
-          <div><i class="fa-solid fa-check"></i> Bônus práticos e exclusivos</div>
-          <div><i class="fa-solid fa-check"></i> Acesso via celular ou computador</div>
-          <div><i class="fa-solid fa-check"></i> Certificado de Conclusão Oficial</div>
-        </div>
-        <button class="btn" style="width:100%; margin-top:20px;" onclick="handlePurchaseAction()">GARANTIR VAGA — R$ 29,90</button>
-      </div>
-    </div>
-  </header>
-
-  <section class="idz-course-stats" aria-label="Indicadores do curso"><div class="wrap"><div><strong>12</strong><span>Módulos</span></div><div><strong>7</strong><span>Etapas no Projeto Final</span></div><div><strong>3</strong><span>Bônus</span></div><div><i class="fa-solid fa-certificate"></i><span>Certificado</span></div></div></section>
-
-  <section id="course-details">
-    <div class="wrap">
-      <div class="section-header">
-        <h2 id="section-course-title">Conteúdo Programático Completo</h2>
-        <p>Estrutura passo a passo atualizada com as ferramentas modernas do mercado.</p>
-      </div>
-      <div class="cards">
-        <div class="glass-panel card"><div class="icon"><img class="idz-module-art" src="assets/idz/modules/modulo-01.png" alt="" width="64" height="64" loading="lazy" decoding="async"></div><h3>M1: O Computador</h3><p>Hardware, periféricos e introdução ao ambiente digital.</p></div>
-        <div class="glass-panel card"><div class="icon"><img class="idz-module-art" src="assets/idz/modules/modulo-02.png" alt="" width="64" height="64" loading="lazy" decoding="async"></div><h3>M2: Teclado & Mouse</h3><p>Atalhos rápidos para multiplicar sua velocidade diária.</p></div>
-        <div class="glass-panel card"><div class="icon"><img class="idz-module-art" src="assets/idz/modules/modulo-03.png" alt="" width="64" height="64" loading="lazy" decoding="async"></div><h3>M3: Arquivos e pastas</h3><p>Organização de arquivos, pastas, janelas e atalhos.</p></div>
-        <div class="glass-panel card"><div class="icon"><img class="idz-module-art" src="assets/idz/modules/modulo-04.png" alt="" width="64" height="64" loading="lazy" decoding="async"></div><h3>M4: Internet</h3><p>Navegação segura, pesquisas e recursos online.</p></div>
-        <div class="glass-panel card"><div class="icon"><img class="idz-module-art" src="assets/idz/modules/modulo-05.png" alt="" width="64" height="64" loading="lazy" decoding="async"></div><h3>M5: E-mail</h3><p>Mensagens, anexos, organização e comunicação digital.</p></div>
-        <div class="glass-panel card"><div class="icon"><img class="idz-module-art" src="assets/idz/modules/modulo-06.png" alt="" width="64" height="64" loading="lazy" decoding="async"></div><h3>M6: Word</h3><p>Criação de textos e documentos profissionais.</p></div>
-        <div class="glass-panel card"><div class="icon"><img class="idz-module-art" src="assets/idz/modules/modulo-07.png" alt="" width="64" height="64" loading="lazy" decoding="async"></div><h3>M7: Excel</h3><p>Planilhas, fórmulas e organização de dados.</p></div>
-        <div class="glass-panel card"><div class="icon"><img class="idz-module-art" src="assets/idz/modules/modulo-08.png" alt="" width="64" height="64" loading="lazy" decoding="async"></div><h3>M8: PowerPoint</h3><p>Apresentações claras, visuais e profissionais.</p></div>
-        <div class="glass-panel card"><div class="icon"><img class="idz-module-art" src="assets/idz/modules/modulo-09.png" alt="" width="64" height="64" loading="lazy" decoding="async"></div><h3>M9: Google Drive</h3><p>Arquivos na nuvem e colaboração com segurança.</p></div>
-        <div class="glass-panel card"><div class="icon"><img class="idz-module-art" src="assets/idz/modules/modulo-10.png" alt="" width="64" height="64" loading="lazy" decoding="async"></div><h3>M10: Segurança digital</h3><p>Proteção de contas, dados e navegação.</p></div>
-        <div class="glass-panel card"><div class="icon"><img class="idz-module-art" src="assets/idz/modules/modulo-11.png" alt="" width="64" height="64" loading="lazy" decoding="async"></div><h3>M11: Inteligência artificial</h3><p>Conceitos, ferramentas e uso responsável de IA.</p></div>
-        <div class="glass-panel card"><div class="icon"><img class="idz-module-art" src="assets/idz/modules/modulo-12.png" alt="" width="64" height="64" loading="lazy" decoding="async"></div><h3>M12: Projeto Final</h3><p>Aplicação prática de tudo o que você aprendeu.</p></div>
-      </div>
-    </div>
-  </section>
-
-  <section id="idz-platform-preview" aria-labelledby="idz-platform-title">
-    <div class="wrap idz-asset-split">
-      <div><h2 id="idz-platform-title">Seu aprendizado, em qualquer tela.</h2><p>Acompanhe suas aulas, pratique os exercícios e continue sua jornada pelo celular ou computador.</p></div>
-      <figure><picture>
-        <source media="(max-width: 600px)" srcset="assets/idz/platform/plataforma-mobile.webp" width="768" height="1152">
-        <img class="idz-responsive-art" src="assets/idz/platform/plataforma-desktop.webp" alt="Ilustração da plataforma em computador e celular" width="1536" height="1024" loading="lazy" decoding="async">
-      </picture><figcaption>Representação ilustrativa da plataforma.</figcaption></figure>
-    </div>
-  </section>
-  <section id="idz-certificate-preview" aria-labelledby="idz-certificate-title">
-    <div class="wrap idz-asset-split">
-      <div><h2 id="idz-certificate-title">Uma conquista para levar com você.</h2><p>Conclua as etapas do curso para receber seu certificado de conclusão.</p></div>
-      <figure><img class="idz-responsive-art" src="assets/certificado-idz-clean-template.png" alt="Modelo original do certificado de conclusão IDZ" loading="lazy" decoding="async"><figcaption>Modelo original. Dados preenchidos após a conclusão.</figcaption></figure>
-    </div>
-  </section>
-  <section id="idz-free-lesson" aria-labelledby="idz-free-title"><div class="wrap idz-free-card"><div><span class="tag">AULA GRATUITA</span><h2 id="idz-free-title">Experimente antes de começar</h2><p>Conheça a metodologia e veja a qualidade das aulas do IDZ.</p></div><div class="idz-free-actions"><button class="btn-outline" type="button" onclick="openFreeLesson()"><i class="fa-solid fa-play"></i> ASSISTIR AULA GRATUITA</button><button class="btn" onclick="handlePurchaseAction()">ACESSAR O CURSO COMPLETO</button></div></div></section>
-  <section id="idz-project-preview" aria-labelledby="idz-project-title"><div class="wrap"><div class="section-header"><h2 id="idz-project-title">Projeto Final</h2><p>Coloque em prática o que aprendeu nas 7 etapas reais do curso.</p></div><div class="idz-timeline"><div><strong>1</strong><span>Planejamento</span></div><div><strong>2</strong><span>Pesquisa</span></div><div><strong>3</strong><span>Desenvolvimento</span></div><div><strong>4</strong><span>Aplicação</span></div><div><strong>5</strong><span>Apresentação</span></div><div><strong>6</strong><span>Entrega</span></div><div><strong>7</strong><span>Conclusão</span></div></div></div></section>
-  <section id="idz-bonuses" aria-labelledby="idz-bonus-title"><div class="wrap"><div class="section-header"><h2 id="idz-bonus-title">3 bônus exclusivos</h2></div><div class="idz-bonus-grid"><article><img src="assets/idz/illustrations/bonus.webp" alt="Ilustração de bônus" loading="lazy"><h3>30 atalhos de teclado</h3><p>Aumente sua produtividade no dia a dia.</p></article><article><img src="assets/idz/illustrations/projeto-final.webp" alt="Modelo de currículo" loading="lazy"><h3>Modelo de currículo</h3><p>Um modelo pronto e profissional.</p></article><article><img src="assets/idz/illustrations/progresso.webp" alt="Planilha financeira" loading="lazy"><h3>Planilha financeira</h3><p>Organize suas finanças de forma simples.</p></article></div></div></section>
-  <section id="checkout">
-    <div class="wrap">
-      <div class="section-header">
-        <h2>Libere seu Acesso Agora</h2>
-        <p>Inscrição rápida e segura com valor promocional por tempo limitado.</p>
-      </div>
-      <div class="glass-panel pricebox">
-        <span class="badge-discount" style="font-size: 13.5px;"><i class="fa-solid fa-tag"></i> OFERTA ESPECIAL</span>
-        <div class="price-tag">
-          <span class="old-price">R$ 59,90</span>
-          <span class="new-price">R$ 29,90</span>
-        </div>
-        <div class="manager-card" style="max-width:460px;margin:0 auto 18px;text-align:left"><div style="display:flex;justify-content:space-between;gap:12px"><strong>Informática do Zero</strong><span>Quantidade 1</span></div><div style="display:grid;gap:7px;margin-top:12px;color:var(--text-secondary);font-size:.82rem"><div style="display:flex;justify-content:space-between"><span>Subtotal</span><span>R$ 29,90</span></div><div style="display:flex;justify-content:space-between"><span>Desconto</span><span>R$ 0,00</span></div><div style="display:flex;justify-content:space-between;color:#fff;font-weight:800"><span>Total</span><span>R$ 29,90</span></div></div></div>
-        <p style="color: var(--text-secondary); margin-bottom: 26px; font-size: 13.5px;"><i class="fa-solid fa-lock"></i> Pagamento 100% seguro via Pix ou Cartão com validação antifraude</p>
-        <button class="btn" style="width: 100%; max-width: 380px; font-size: 14.5px; padding: 16px;" onclick="handlePurchaseAction()">
-          COMPRAR AGORA E COMEÇAR <i class="fa-solid fa-arrow-right"></i>
-        </button>
-        <div style="font-size: 12px; color: var(--text-muted); margin-top: 18px; display: flex; justify-content: center; gap: 16px;">
-          <span><i class="fa-brands fa-pix" style="color: #32BCAD;"></i> Pix Imediato</span>
-          <span><i class="fa-regular fa-credit-card"></i> Cartão de Crédito</span>
-        </div>
-      </div>
-    </div>
-  </section>
-
+<a class="skip-link" href="#public-site">Pular para o conteúdo</a>
+<nav class="site-header" aria-label="Navegação principal"><div class="wrap nav-wrap">
+<a href="#" class="brand-logo-container" onclick="handleLogoClick();return false"><img src="assets/brand/logo-idz-horizontal.svg" alt="IDZ — Informática do Zero" width="180" height="40"></a>
+<ul class="nav-links" id="desktop-public-nav" hidden><li><a href="#" onclick="showPublicSite()">Início</a></li><li><a href="#why-idz" onclick="showPublicSite()">Curso</a></li><li><a href="#course-details" onclick="showPublicSite()">Conteúdo</a></li><li><a href="#idz-certificate-preview" onclick="showPublicSite()">Certificado</a></li><li><a href="#faq" onclick="showPublicSite()">FAQ</a></li></ul>
+<div class="nav-right-cluster"><div id="nav-guest" style="display:none"><button class="btn-outline" onclick="openAuthModal('login')">Entrar</button></div><button class="btn-gold idz-nav-purchase" hidden onclick="handlePurchaseAction()">Começar agora</button>
+<div id="nav-user" style="display:none"><button class="nav-icon-only" onclick="showMemberArea()" aria-label="Minha área"><span id="nav-user-avatar"></span></button><span id="user-display"></span><button class="nav-icon-only" onclick="openNotificationsModal()" aria-label="Notificações"><i class="fa-solid fa-bell"></i><span id="notif-badge" style="display:none"></span></button><button class="nav-icon-only" onclick="showSettingsArea()" aria-label="Meu perfil"><i class="fa-solid fa-user"></i></button></div>
+<button class="hamburger" onclick="toggleMobileMenu()" aria-label="Abrir menu" aria-controls="idz20a-drawer" aria-expanded="false"><i class="fa-solid fa-bars"></i></button></div></div></nav>
+<div id="idz20a-backdrop" hidden></div><aside id="idz20a-drawer" role="dialog" aria-modal="true" aria-label="Menu de navegação" hidden><div class="drawer-head"><img src="assets/brand/logo-idz-horizontal.svg" alt="IDZ — Informática do Zero" width="180" height="40"><button class="nav-icon-only" onclick="closeNavigationDrawer()" aria-label="Fechar menu"><i class="fa-solid fa-xmark"></i></button></div><div id="idz20a-drawer-body"></div><p class="drawer-foot">Aprender hoje.<br>Mais oportunidades amanhã.</p></aside>
+<main id="public-site">
+<header class="hero"><div class="wrap gridhero"><div class="hero-copy"><span class="tag" id="hero-tag-lessons">CURSO ONLINE COMPLETO</span><h1><span>IDZ</span>INFORMÁTICA DO ZERO</h1><p class="hero-lead">Aprenda informática do básico,<br>mesmo que você esteja começando do zero.</p><p>Domine computador, internet, documentos, planilhas, apresentações, segurança digital e inteligência artificial em uma trilha prática e organizada.</p><div class="idz-hero-price"><strong data-course-price>R$ 29,90</strong><small>Pagamento único · Acesso imediato após aprovação</small></div><div class="idz-hero-actions"><button class="btn-gold" onclick="handlePurchaseAction()"><span id="hero-btn-text">COMEÇAR AGORA</span><i class="fa-solid fa-arrow-right"></i></button><a class="btn-outline" href="#course-details">CONHECER O CURSO</a></div><div class="idz-trust-row"><span><i class="fa-solid fa-lock"></i>Pagamento seguro</span><span><i class="fa-regular fa-user"></i>Acesso ao curso</span><span><i class="fa-solid fa-shield-halved"></i>Certificado após conclusão</span></div></div><figure class="idz-hero-visual"><img src="assets/hero/idz-laptop.webp" alt="Notebook com a marca IDZ e ícones de informática" width="1200" height="800" fetchpriority="high" decoding="async"></figure></div>
+<div class="wrap"><div class="idz-course-stats" id="public-stats" aria-label="Indicadores do curso"></div></div></header>
+<section id="why-idz" class="wrap section"><div class="section-header"><span class="eyebrow">SEU PRÓXIMO PASSO</span><h2>Por que escolher o IDZ?</h2><p>Um curso completo, prático e direto ao ponto.</p></div><div class="feature-grid"><article class="card feature"><span class="icon-tile"><i class="fa-solid fa-compass"></i></span><h3>Do zero ao avançado</h3></article><article class="card feature"><span class="icon-tile"><i class="fa-solid fa-desktop"></i></span><h3>Aulas práticas</h3></article><article class="card feature"><span class="icon-tile"><i class="fa-solid fa-list-check"></i></span><h3>Exercícios em cada aula</h3></article><article class="card feature"><span class="icon-tile"><i class="fa-solid fa-diagram-project"></i></span><h3>Projeto Final real</h3></article><article class="card feature"><span class="icon-tile"><i class="fa-solid fa-gift"></i></span><h3>3 bônus exclusivos</h3></article><article class="card feature"><span class="icon-tile"><i class="fa-solid fa-award"></i></span><h3>Certificado de conclusão</h3></article></div></section>
+<section id="course-details" class="wrap section"><div class="section-header"><span class="eyebrow">UMA TRILHA PARA EVOLUIR</span><h2 id="section-course-title">12 MÓDULOS DO CURSO</h2><p>Do básico ao avançado, com aulas práticas e diretas ao ponto.</p></div><div id="public-modules" class="module-grid"></div></section>
+<section id="idz-free-lesson" class="wrap section"><div class="section-header"><h2>EXPERIMENTE ANTES DE COMEÇAR</h2><p>Conheça a metodologia e o conteúdo do IDZ.</p></div><div class="card free-layout"><button class="preview-player" onclick="openFreeLesson()" aria-label="Abrir aula gratuita"><img src="assets/hero/idz-laptop.webp" alt="Prévia do IDZ" width="1200" height="800" loading="lazy"><span class="play-circle"><i class="fa-solid fa-play"></i></span></button><div><span class="eyebrow">AULA GRATUITA</span><h3 id="free-lesson-title">Introdução ao IDZ</h3><ul class="checklist"><li>Conheça a metodologia</li><li>Veja o conteúdo das aulas</li><li>Entenda como funciona</li></ul><button class="btn" onclick="openFreeLesson()">ASSISTIR AULA GRATUITA</button><button class="btn-outline" onclick="handlePurchaseAction()">QUERO ACESSAR O CURSO COMPLETO</button></div></div></section>
+<section id="idz-project-preview" class="wrap section"><div class="card project-preview"><div class="section-header"><h2>PROJETO FINAL</h2><span class="eyebrow gold">COLOQUE EM PRÁTICA O QUE APRENDEU</span><p>Um projeto completo em 7 etapas para aplicar os conhecimentos adquiridos ao longo do curso.</p></div><ol class="idz-timeline"><li><strong>1</strong><span>Planejamento</span></li><li><strong>2</strong><span>Pesquisa</span></li><li><strong>3</strong><span>Desenvolvimento</span></li><li><strong>4</strong><span>Aplicação</span></li><li><strong>5</strong><span>Apresentação</span></li><li><strong>6</strong><span>Entrega</span></li><li><strong>7</strong><span>Conclusão</span></li></ol><button class="btn-outline" onclick="navigateIdz('project')">CONHECER O PROJETO FINAL</button></div></section>
+<section id="idz-bonuses" class="wrap section"><div class="section-header"><h2>3 BÔNUS EXCLUSIVOS</h2><p>Materiais extras para você aplicar ainda mais o seu conhecimento.</p></div><div class="bonus-grid"><article class="card bonus-card"><span class="icon-tile"><i class="fa-solid fa-keyboard"></i></span><h3>30 atalhos de teclado</h3><p>Aumente sua produtividade no dia a dia.</p></article><article class="card bonus-card"><span class="icon-tile"><i class="fa-solid fa-file-lines"></i></span><h3>Modelo de currículo</h3><p>Um modelo pronto e profissional.</p></article><article class="card bonus-card"><span class="icon-tile"><i class="fa-solid fa-chart-column"></i></span><h3>Planilha financeira</h3><p>Organize suas finanças de forma simples.</p></article></div></section>
+<section id="idz-certificate-preview" class="wrap section"><div class="section-header"><h2>CONCLUA O CURSO E RECEBA SEU CERTIFICADO</h2><p>Uma conquista para acompanhar os seus próximos passos.</p></div><div class="card certificate-layout"><img src="assets/certificado-idz-clean-template.png" alt="Template oficial do certificado IDZ, sem alterações" loading="lazy" decoding="async"><div><ul class="checklist"><li>Conclusão de todas as aulas</li><li>Realização dos exercícios</li><li>Projeto Final concluído</li><li>Emissão do certificado</li></ul><button class="btn" onclick="openCertificatePreview()">VER EXEMPLO DE CERTIFICADO</button></div></div></section>
+<section id="checkout" class="wrap section"><div class="card purchase-banner"><div><span class="eyebrow">INVISTA NO SEU FUTURO</span><h2>Seu próximo passo começa aqui.</h2><p>12 módulos + Projeto Final + 3 bônus</p></div><div><strong class="price" data-course-price>R$ 29,90</strong><p>Pagamento único</p><button class="btn-gold" onclick="handlePurchaseAction()">COMEÇAR AGORA <i class="fa-solid fa-arrow-right"></i></button></div></div></section>
   <section id="faq">
     <div class="wrap faq">
-      <div class="section-header" style="margin-bottom: 28px;">
+      <div class="section-header">
         <h2>Perguntas Frequentes</h2>
       </div>
       <details class="glass-panel"><summary><span>Como funciona o acesso às aulas?</span><i class="fa-solid fa-chevron-down faq-arrow"></i></summary><p>Após a aprovação real do pagamento, seu e-mail é liberado automaticamente para acessar a Área de Membros.</p></details>
@@ -1109,53 +315,27 @@ nav,#public-site,#member-area,#settings-area,#admin-area,footer { position:relat
       <details class="glass-panel"><summary><span>Como funciona o suporte?</span><i class="fa-solid fa-chevron-down faq-arrow"></i></summary><p>O suporte fica disponível dentro da plataforma para dúvidas e acompanhamento.</p></details>
     </div>
   </section>
-</div>
+</main>
 
-<!-- ÁREA DE MEMBROS & DASHBOARD DO ALUNO -->
-<div id="member-area" class="wrap" style="display: none; padding-top: 36px;">
-  <!-- DASHBOARD RESUMO DO ALUNO -->
-  <div class="student-dashboard-header animate-fade-up">
+<!-- Área do aluno: a navegação usa os mesmos serviços e regras de acesso. -->
+<div id="member-area" class="wrap app-shell" style="display:none"><aside class="app-sidebar" id="student-navigation" aria-label="Navegação do aluno"></aside><main class="app-content"><header class="student-dashboard-header"><div><h1 id="student-welcome-title">Olá!</h1><p id="student-welcome-subtitle">Continue de onde parou.</p></div></header><section id="student-dashboard"></section><section id="student-detail" hidden></section><div class="lms-layout" id="student-classroom" hidden><div class="lms-content" id="lms-main-content"></div><aside class="card lms-sidebar"><h3 id="sidebar-title-header">Conteúdo do curso</h3><div id="module-list"></div></aside></div></main></div>
+<!-- CONFIGURAÇÕES<!-- CONFIGURAÇÕES DA CONTA COM ABAS -->
+<div id="settings-area" class="wrap app-shell" style="display:none"><aside class="app-sidebar" id="settings-navigation"></aside><main class="app-content">
+  <div class="glass-panel animate-fade-up">
     <div>
-      <h2 style="font-size: 20px; color: #fff;" id="student-welcome-title">Olá, Aluno! 👋</h2>
-      <p id="student-welcome-subtitle" style="font-size: 13px; color: var(--text-secondary);">Continue de onde parou e conquiste sua autonomia digital.</p>
-    </div>
-    <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
-      <div class="student-stat-pill"><i class="fa-solid fa-chart-line" style="color: var(--accent-cyan);"></i> <span id="dash-stat-progress">Progresso: 0%</span></div>
-      <div class="student-stat-pill"><i class="fa-solid fa-check-double" style="color: var(--green);"></i> <span id="dash-stat-lessons">Aulas: 0/0</span></div>
-      <div class="student-stat-pill"><i class="fa-solid fa-award" style="color: var(--accent-gold);"></i> <span id="dash-stat-cert">Certificado: Bloqueado</span></div>
-    </div>
-  </div>
-
-  <div class="lms-layout animate-fade-up">
-    <div class="glass-panel lms-content" id="lms-main-content"></div>
-    <div class="glass-panel lms-sidebar">
-      <h3 id="sidebar-title-header"><i class="fa-solid fa-book-open"></i> Aulas e Módulos</h3>
-      <div id="module-list"></div>
-    </div>
-  </div>
-  <section class="idz-stage-zero animate-fade-up" id="stage-zero-card">
-    <div><span class="tag"><i class="fa-solid fa-graduation-cap"></i> COMECE POR AQUI</span><h3>🎓 Etapa 0 — Começando o Informática do Zero</h3><p>6 vídeos introdutórios para conhecer a plataforma, preparar o computador e estudar melhor. Esta etapa não conta entre os 12 módulos oficiais.</p><div class="stage-zero-lessons"><div class="stage-zero-lesson"><strong>0.1 · 2–3 min</strong>Seja bem-vindo</div><div class="stage-zero-lesson"><strong>0.2 · 4–5 min</strong>Como funciona o curso</div><div class="stage-zero-lesson"><strong>0.3 · 4–6 min</strong>Como usar a plataforma</div><div class="stage-zero-lesson"><strong>0.4 · 3–4 min</strong>Como aprender melhor</div><div class="stage-zero-lesson"><strong>0.5 · 4–5 min</strong>Prepare seu computador</div><div class="stage-zero-lesson"><strong>0.6 · 3–5 min</strong>Teste seus conhecimentos</div></div></div>
-    <div class="stage-zero-progress"><strong>Progresso da introdução</strong><div class="stage-zero-bar"><span></span></div><small>0 / 6 vídeos</small><button type="button" class="btn" onclick="startCourseJourney()"><i class="fa-solid fa-play"></i> COMEÇAR</button></div>
-  </section>
-</div>
-
-<!-- CONFIGURAÇÕES DA CONTA COM ABAS -->
-<div id="settings-area" class="wrap" style="display: none; padding-top: 36px; max-width: 750px;">
-  <div class="glass-panel animate-fade-up" style="padding: 36px;">
-    <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 24px; border-bottom: 1px solid var(--glass-border); padding-bottom: 16px;">
-      <div style="width: 52px; height: 52px; border-radius: 16px; background: rgba(0,240,255,0.1); border: 1px solid var(--glass-border-hover); display: flex; align-items: center; justify-content: center; color: var(--accent-cyan); font-size: 22px;">
+      <div>
         <i class="fa-solid fa-gear"></i>
       </div>
       <div>
-        <h2 style="font-size: 21px; color: #fff;">Configurações Avançadas da Conta</h2>
-        <p style="font-size: 13px; color: var(--text-secondary);">Gerencie seu perfil, verificação, temas, segurança e preferências.</p>
+        <h2>Meu perfil</h2>
+        <p>Gerencie suas informações pessoais e preferências.</p>
       </div>
     </div>
 
     <!-- Abas de Configurações -->
     <div class="settings-tabs">
-      <button class="settings-tab-btn active" onclick="switchSettingsTab(event, 'perfil')"><i class="fa-solid fa-user"></i> Perfil</button>
-      <button class="settings-tab-btn" onclick="switchSettingsTab(event, 'verificacao')"><i class="fa-solid fa-id-card"></i> Verificação</button>
+      <button class="settings-tab-btn active" onclick="switchSettingsTab(event, 'perfil')"><i class="fa-solid fa-user"></i> Dados pessoais</button>
+      <button class="settings-tab-btn" onclick="switchSettingsTab(event, 'verificacao')"><i class="fa-solid fa-id-card"></i> Dados e endereço</button>
       <button class="settings-tab-btn" onclick="switchSettingsTab(event, 'seguranca')"><i class="fa-solid fa-lock"></i> Segurança</button>
       <button class="settings-tab-btn" onclick="switchSettingsTab(event, 'tema')"><i class="fa-solid fa-palette"></i> Tema</button>
       <button class="settings-tab-btn" onclick="switchSettingsTab(event, 'conexoes')"><i class="fa-solid fa-link"></i> Conexões</button>
@@ -1169,8 +349,8 @@ nav,#public-site,#member-area,#settings-area,#admin-area,footer { position:relat
       <form onsubmit="handleUpdateProfile(event)">
         <div class="input-group">
           <label>Foto de Perfil</label>
-          <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;"><img id="profile-avatar-preview" alt="Prévia da foto de perfil" style="width:72px;height:72px;border-radius:50%;object-fit:cover;border:1px solid var(--line);background:var(--surface-3);display:none"><input class="profile-upload-input" type="file" id="set-avatar-file" accept="image/jpeg,image/png,image/webp" onchange="previewAvatar(event)"><label class="btn-outline profile-upload-label" for="set-avatar-file"><i class="fa-solid fa-camera"></i> ALTERAR FOTO</label><button type="button" class="btn-outline" onclick="removeAvatar()">Remover</button></div>
-          <small style="color:var(--text-muted);">JPG, PNG ou WEBP até 5 MB.</small>
+          <div><img id="profile-avatar-preview" alt="Prévia da foto de perfil" style="display:none"><input class="profile-upload-input" type="file" id="set-avatar-file" accept="image/jpeg,image/png,image/webp" onchange="previewAvatar(event)"><label class="btn-outline profile-upload-label" for="set-avatar-file"><i class="fa-solid fa-camera"></i> ALTERAR FOTO</label><button type="button" class="btn-outline" onclick="removeAvatar()">Remover</button></div>
+          <small>JPG, PNG ou WEBP até 5 MB.</small>
         </div>
         <div class="input-group">
           <label>Nome de Exibição</label>
@@ -1180,34 +360,34 @@ nav,#public-site,#member-area,#settings-area,#admin-area,footer { position:relat
           <label>E-mail de Acesso</label>
           <input type="email" id="set-email" required>
         </div>
-        <div id="verified-badge-status" style="margin-bottom: 16px; font-size: 13px; font-weight: 600;"></div>
-        <button type="submit" class="btn" style="width:100%;"><i class="fa-solid fa-floppy-disk"></i> Salvar Perfil</button>
+        <div id="verified-badge-status"></div>
+        <button type="submit" class="btn"><i class="fa-solid fa-floppy-disk"></i> Salvar Perfil</button>
       </form>
     </div>
 
     <!-- PAINEL 2: VERIFICAÇÃO -->
     <div class="settings-panel" id="spanel-verificacao">
-      <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px; background: rgba(0,240,255,0.05); padding: 12px; border-radius: 10px; border: 1px solid var(--glass-border);">
-        <i class="fa-solid fa-circle-info" style="color:var(--accent-cyan);"></i> Estes dados serão vinculados à emissão oficial do seu Certificado e envios físicos.
+      <p>
+        <i class="fa-solid fa-circle-info"></i> Estes dados serão vinculados à emissão oficial do seu Certificado e envios físicos.
       </p>
       <form onsubmit="handleSaveVerification(event)">
         <div class="input-group"><label>Nome Completo</label><input type="text" id="v-name" required></div>
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+        <div>
           <div class="input-group"><label>Data de Nascimento</label><input type="date" id="v-nasc" required></div>
           <div class="input-group"><label>CPF</label><input type="text" id="v-cpf" placeholder="000.000.000-00" maxlength="14" oninput="maskCpf(this)" required></div>
         </div>
         <div class="input-group"><label>Endereço Completo</label><input type="text" id="v-end" placeholder="Rua, Avenida..." required></div>
-        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+        <div>
           <div class="input-group"><label>CEP</label><input type="text" id="v-cep" maxlength="9" placeholder="00000-000" oninput="lookupCep(this.value)" required></div>
           <div class="input-group"><label>Número</label><input type="text" id="v-num" required></div>
           <div class="input-group"><label>Complemento</label><input type="text" id="v-comp"></div>
         </div>
-        <div style="display:grid; grid-template-columns: 2fr 2fr 1fr; gap: 10px;">
+        <div>
           <div class="input-group"><label>Bairro</label><input type="text" id="v-bairro" required></div>
           <div class="input-group"><label>Cidade</label><input type="text" id="v-cidade" required></div>
           <div class="input-group"><label>Estado</label><input type="text" id="v-uf" maxlength="2" required></div>
         </div>
-        <button type="submit" class="btn" style="width:100%; margin-top:10px;"><i class="fa-solid fa-shield-check"></i> Salvar e Verificar Dados</button>
+        <button type="submit" class="btn"><i class="fa-solid fa-shield-check"></i> Salvar e Verificar Dados</button>
       </form>
     </div>
 
@@ -1221,31 +401,31 @@ nav,#public-site,#member-area,#settings-area,#admin-area,footer { position:relat
             <button type="button" class="toggle-password" onclick="togglePasswordVisibility('set-new-pass', this)"><i class="fa-solid fa-eye"></i></button>
           </div>
         </div>
-        <button type="submit" class="btn" style="width:100%;"><i class="fa-solid fa-lock"></i> Atualizar Senha de Segurança</button>
+        <button type="submit" class="btn"><i class="fa-solid fa-lock"></i> Atualizar Senha de Segurança</button>
       </form>
     </div>
 
     <!-- PAINEL 4: TEMA -->
     <div class="settings-panel" id="spanel-tema">
-      <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">Escolha o tema visual completo da plataforma IDZ:</p>
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 12px; margin-bottom: 20px;">
-        <button class="btn-outline" style="justify-content:center; border-color:#00f0ff;" onclick="changeTheme('azul')"><i class="fa-solid fa-circle" style="color:#00f0ff;"></i> Azul IDZ</button>
-        <button class="btn-outline" style="justify-content:center; border-color:#c084fc;" onclick="changeTheme('roxo')"><i class="fa-solid fa-circle" style="color:#c084fc;"></i> Roxo</button>
-        <button class="btn-outline" style="justify-content:center; border-color:#f87171;" onclick="changeTheme('vermelho')"><i class="fa-solid fa-circle" style="color:#f87171;"></i> Vermelho</button>
-        <button class="btn-outline" style="justify-content:center; border-color:#f472b6;" onclick="changeTheme('rosa')"><i class="fa-solid fa-circle" style="color:#f472b6;"></i> Rosa</button>
-        <button class="btn-outline" style="justify-content:center; border-color:#00f0ff; background: linear-gradient(135deg, rgba(0,240,255,0.2), rgba(244,63,94,0.2));" onclick="changeTheme('rgb')"><i class="fa-solid fa-rainbow" style="color:#00f0ff;"></i> CHROMA RGB</button>
+      <p>Escolha o tema visual completo da plataforma IDZ:</p>
+      <div>
+        <button class="btn-outline" onclick="changeTheme('azul')"><i class="fa-solid fa-circle"></i> Azul IDZ</button>
+        <button class="btn-outline" onclick="changeTheme('roxo')"><i class="fa-solid fa-circle"></i> Roxo</button>
+        <button class="btn-outline" onclick="changeTheme('vermelho')"><i class="fa-solid fa-circle"></i> Vermelho</button>
+        <button class="btn-outline" onclick="changeTheme('rosa')"><i class="fa-solid fa-circle"></i> Rosa</button>
+        <button class="btn-outline" onclick="changeTheme('rgb')"><i class="fa-solid fa-rainbow"></i> CHROMA RGB</button>
       </div>
     </div>
 
     <!-- PAINEL 5: CONEXÕES -->
     <div class="settings-panel" id="spanel-conexoes">
-      <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">Conecte ou gerencie autenticação via Google:</p>
+      <p>Conecte ou gerencie autenticação via Google:</p>
       <div class="google-connection-card">
-        <div style="display:flex; align-items:center; gap:12px;">
-          <i class="fa-brands fa-google" style="font-size: 24px; color: #ea4335;"></i>
+        <div>
+          <i class="fa-brands fa-google"></i>
           <div>
-            <h4 style="font-size: 14px; color:#fff;">Conta Google</h4>
-            <p style="font-size: 11.5px; color:var(--text-secondary);">Autenticação Rápida Google Auth</p>
+            <h4>Conta Google</h4>
+            <p>Autenticação Rápida Google Auth</p>
           </div>
         </div>
         <button class="btn-outline" onclick="loginWithGoogle()"><i class="fa-solid fa-link"></i> Conectar / Entrar com Google</button>
@@ -1254,62 +434,50 @@ nav,#public-site,#member-area,#settings-area,#admin-area,footer { position:relat
 
     <!-- PAINEL 6: NOTIFICAÇÕES -->
     <div class="settings-panel" id="spanel-notificacoes">
-      <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">Preferências de alertas e avisos da plataforma:</p>
-      <div style="display: flex; flex-direction: column; gap: 12px;">
-        <label style="display:flex; align-items:center; gap:10px; font-size:13px; cursor:pointer;"><input type="checkbox" id="notif-aulas" checked> Novas aulas e atualizações</label>
-        <label style="display:flex; align-items:center; gap:10px; font-size:13px; cursor:pointer;"><input type="checkbox" id="notif-modulos" checked> Novos módulos</label>
-        <label style="display:flex; align-items:center; gap:10px; font-size:13px; cursor:pointer;"><input type="checkbox" id="notif-exercicios" checked> Novos exercícios</label>
-        <label style="display:flex; align-items:center; gap:10px; font-size:13px; cursor:pointer;"><input type="checkbox" id="notif-certificados" checked> Liberação de Certificados</label>
+      <p>Preferências de alertas e avisos da plataforma:</p>
+      <div>
+        <label><input type="checkbox" id="notif-aulas" checked> Novas aulas e atualizações</label>
+        <label><input type="checkbox" id="notif-modulos" checked> Novos módulos</label>
+        <label><input type="checkbox" id="notif-exercicios" checked> Novos exercícios</label>
+        <label><input type="checkbox" id="notif-certificados" checked> Liberação de Certificados</label>
         <button type="button" class="btn-outline" onclick="enablePushNotifications()"><i class="fa-solid fa-bell"></i> Ativar notificações no dispositivo</button>
       </div>
     </div>
 
-    <div class="settings-panel" id="spanel-suporte"><div class="support-chat-shell"><aside class="support-chat-list"><strong>Conversas</strong><p style="font-size:.78rem;color:var(--text-secondary);margin-top:6px">Seus tickets aparecem separados por atendimento.</p><div id="support-history" style="margin-top:14px"></div></aside><section class="support-chat-main"><div><h3>Precisa de ajuda?</h3><p style="color:var(--text-secondary);font-size:.8rem">Fale com a moderação IDZ.</p></div><div style="padding:16px 0"><div class="support-message">Descreva sua dúvida para iniciar um atendimento.</div></div><form onsubmit="submitSupportTicket(event)"><div class="input-group"><label>Assunto</label><input id="support-subject" maxlength="100" required></div><div class="input-group"><label>Mensagem</label><textarea id="support-message" rows="4" maxlength="1500" required></textarea></div><button class="btn" type="submit"><i class="fa-solid fa-paper-plane"></i> FALAR COM A MODERAÇÃO</button></form></section></div></div>
-    <div class="settings-panel" id="spanel-reembolso"><div class="refund-warning"><i class="fa-solid fa-triangle-exclamation"></i> A solicitação será analisada. Enviar o pedido não executa reembolso automático.</div><div class="manager-card" style="margin:14px 0"><h3>Solicitar reembolso</h3><p>Curso: Informática do Zero</p><p>O valor e o status reais serão conferidos pelo backend.</p></div><form onsubmit="submitRefundRequest(event)"><div class="input-group"><label>Motivo</label><textarea id="refund-reason" rows="5" maxlength="1200" required></textarea></div><label style="display:flex;gap:9px;align-items:flex-start;margin:12px 0;font-size:.82rem;color:var(--text-secondary)"><input type="checkbox" required> Confirmo que as informações são verdadeiras e desejo enviar para análise.</label><button class="btn" type="submit"><i class="fa-solid fa-rotate-left"></i> ENVIAR PARA ANÁLISE</button></form><div id="refund-history" style="margin-top:18px"></div></div>
+    <div class="settings-panel" id="spanel-suporte"><div class="support-chat-shell"><aside class="support-chat-list"><strong>Conversas</strong><p>Seus tickets aparecem separados por atendimento.</p><div id="support-history"></div></aside><section class="support-chat-main"><div><h3>Precisa de ajuda?</h3><p>Fale com a moderação IDZ.</p></div><div><div class="support-message">Descreva sua dúvida para iniciar um atendimento.</div></div><form onsubmit="submitSupportTicket(event)"><div class="input-group"><label>Assunto</label><input id="support-subject" maxlength="100" required></div><div class="input-group"><label>Mensagem</label><textarea id="support-message" rows="4" maxlength="1500" required></textarea></div><button class="btn" type="submit"><i class="fa-solid fa-paper-plane"></i> FALAR COM A MODERAÇÃO</button></form></section></div></div>
+    <div class="settings-panel" id="spanel-reembolso"><div class="refund-warning"><i class="fa-solid fa-triangle-exclamation"></i> A solicitação será analisada. Enviar o pedido não executa reembolso automático.</div><div class="manager-card"><h3>Solicitar reembolso</h3><p>Curso: Informática do Zero</p><p>O valor e o status reais serão conferidos pelo backend.</p></div><form onsubmit="submitRefundRequest(event)"><div class="input-group"><label>Motivo</label><textarea id="refund-reason" rows="5" maxlength="1200" required></textarea></div><label><input type="checkbox" required> Confirmo que as informações são verdadeiras e desejo enviar para análise.</label><button class="btn" type="submit"><i class="fa-solid fa-rotate-left"></i> ENVIAR PARA ANÁLISE</button></form><div id="refund-history"></div></div>
 
-    <div style="margin-top: 30px; display: flex; justify-content: flex-end;">
+    <div>
       <button type="button" class="btn-outline" onclick="showMemberArea()"><i class="fa-solid fa-arrow-left"></i> Voltar às Aulas</button>
     </div>
   </div>
-</div>
+</main></div>
 
 <!-- PAINEL ADMINISTRATIVO EMPRESARIAL COMPLETO -->
-<div id="admin-area" class="wrap" style="display: none; padding-top: 36px;">
-  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 26px; flex-wrap: wrap; gap: 14px;">
-    <h2 style="margin: 0; font-size: 22px; color: #fff;"><i class="fa-solid fa-user-shield" style="color: var(--accent-cyan);"></i> Painel Administrador IDZ</h2>
-    <div class="admin-toolbar" aria-label="Navegação administrativa">
-      <div class="admin-toolbar-group"><span>Gestão</span><button class="btn-outline" onclick="switchAdminTab('alunos')"><i class="fa-solid fa-users"></i> Alunos</button></div>
-      <div class="admin-toolbar-group"><span>Conteúdo</span><button class="btn-outline" onclick="switchAdminTab('modules')"><i class="fa-solid fa-layer-group"></i> Módulos e aulas</button></div>
-      <div class="admin-toolbar-group"><span>Certificação</span><button class="btn-outline" onclick="switchAdminTab('certificates')"><i class="fa-solid fa-certificate"></i> Certificados</button></div>
-      <div class="admin-toolbar-group"><span>Financeiro</span><button class="btn-outline" onclick="switchAdminTab('vendas')"><i class="fa-solid fa-cash-register"></i> Pagamentos</button><button class="btn-outline" onclick="switchAdminTab('refunds')"><i class="fa-solid fa-rotate-left"></i> Reembolsos</button><button class="btn-outline" onclick="switchAdminTab('cart')"><i class="fa-solid fa-cart-shopping"></i> Pendentes</button><button class="btn-outline" onclick="switchAdminTab('coupons')"><i class="fa-solid fa-ticket"></i> Cupons</button></div>
-      <div class="admin-toolbar-group"><span>Atendimento</span><button class="btn-outline" onclick="switchAdminTab('support')"><i class="fa-solid fa-comments"></i> Chat / Suporte</button></div>
-      <div class="admin-toolbar-group"><span>Comunicação</span><button class="btn-outline" onclick="switchAdminTab('testcheckout')"><i class="fa-solid fa-bell"></i> Notificações e testes</button></div>
-    </div>
-  </div>
-  
+<div id="admin-area" class="wrap app-shell" style="display:none"><aside class="app-sidebar" id="admin-navigation"></aside><main class="app-content"><header class="page-heading"><span class="eyebrow">GESTÃO DA PLATAFORMA</span><h1>Painel administrativo</h1></header>
   <div class="admin-grid animate-fade-up">
     <div class="glass-panel admin-card" id="admin-sec-overview">
-      <h3><i class="fa-solid fa-gauge-high" style="color:var(--accent-cyan);"></i> Visão geral</h3>
+      <h3><i class="fa-solid fa-gauge-high"></i> Visão geral</h3>
       <div class="gateway-metrics">
         <div class="metric-box"><span>Alunos cadastrados</span><h4 id="admin-overview-users">0</h4></div>
         <div class="metric-box"><span>Conteúdo publicado</span><h4 id="admin-overview-content">12 módulos</h4></div>
         <div class="metric-box"><span>Atendimentos</span><h4 id="admin-overview-support">Consulte Atendimentos</h4></div>
         <div class="metric-box"><span>Certificados</span><h4 id="admin-overview-certificates">Consulte Certificados</h4></div>
       </div>
-      <p style="font-size:13px;color:var(--text-secondary);margin-top:16px;">Use o menu administrativo para abrir cada área sem misturar o painel do aluno.</p>
+      <p>Últimos alunos</p><div id="admin-recent-users"></div>
     </div>
 
     <!-- SEÇÃO 1: GESTÃO DE ALUNOS -->
     <div class="glass-panel admin-card" id="admin-sec-alunos">
-      <h3><i class="fa-solid fa-users" style="color:var(--accent-cyan);"></i> Seção 1: Gestão de Alunos e Progresso Acadêmico</h3>
+      <h3><i class="fa-solid fa-users"></i> Alunos e progresso</h3>
       <div class="gateway-metrics">
         <div class="metric-box">
           <span>Total de Alunos</span>
-          <h4 id="admin-total-users">0 <i class="fa-solid fa-user-check" style="font-size: 15px; color: var(--text-muted);"></i></h4>
+          <h4 id="admin-total-users">0 <i class="fa-solid fa-user-check"></i></h4>
         </div>
         <div class="metric-box">
           <span>Módulos / Aulas</span>
-          <h4 id="admin-total-modules-lessons">0 / 0 <i class="fa-solid fa-layer-group" style="font-size: 15px; color: var(--text-muted);"></i></h4>
+          <h4 id="admin-total-modules-lessons">0 / 0 <i class="fa-solid fa-layer-group"></i></h4>
         </div>
       </div>
       <div class="table-responsive">
@@ -1328,9 +496,9 @@ nav,#public-site,#member-area,#settings-area,#admin-area,footer { position:relat
     </div>
 
     <!-- SEÇÃO 2: VENDAS & TRANSAÇÕES -->
-    <div class="glass-panel admin-card" id="admin-sec-vendas" style="display: none;">
-      <h3><i class="fa-solid fa-cash-register" style="color:var(--green);"></i> Seção 2: Histórico de Vendas e Status Automáticos</h3>
-      <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">Transações registradas via gateway com status em tempo real.</p>
+    <div class="glass-panel admin-card" id="admin-sec-vendas" style="display:none">
+      <h3><i class="fa-solid fa-cash-register"></i> Seção 2: Histórico de Vendas e Status Automáticos</h3>
+      <p>Transações registradas via gateway com status em tempo real.</p>
       <div class="table-responsive">
         <table class="sales-table">
           <thead>
@@ -1347,8 +515,8 @@ nav,#public-site,#member-area,#settings-area,#admin-area,footer { position:relat
     </div>
 
     <!-- SEÇÃO 3: CARRINHO ABANDONADO / PENDENTES -->
-    <div class="glass-panel admin-card" id="admin-sec-cart" style="display: none;">
-      <h3><i class="fa-solid fa-cart-shopping" style="color:var(--yellow);"></i> Seção 3: Carrinho Abandonado e Compras Pendentes</h3>
+    <div class="glass-panel admin-card" id="admin-sec-cart" style="display:none">
+      <h3><i class="fa-solid fa-cart-shopping"></i> Seção 3: Carrinho Abandonado e Compras Pendentes</h3>
       <div class="table-responsive">
         <table class="sales-table">
           <thead>
@@ -1364,9 +532,9 @@ nav,#public-site,#member-area,#settings-area,#admin-area,footer { position:relat
       </div>
     </div>
 
-    <div class="glass-panel admin-card" id="admin-sec-certificates" style="display:none;">
-      <h3><i class="fa-solid fa-certificate" style="color:var(--accent-gold);"></i> Solicitações de Certificado Físico</h3>
-      <p style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;">Consulte o aluno, endereço informado e prazo para alteração.</p>
+    <div class="glass-panel admin-card" id="admin-sec-certificates" style="display:none">
+      <h3><i class="fa-solid fa-certificate"></i> Solicitações de Certificado Físico</h3>
+      <p>Consulte o aluno, endereço informado e prazo para alteração.</p>
       <div class="admin-filter-bar" aria-label="Filtros de certificados">
         <label class="input-group"><span>Busca</span><input id="certificate-search" type="search" placeholder="Nome ou e-mail" oninput="filterCertificateRequests()"></label>
         <label class="input-group"><span>Status</span><select id="certificate-status-filter" onchange="filterCertificateRequests()"><option value="">Todos</option><option value="pendente">Pendente</option><option value="a_caminho">A caminho</option><option value="entregue">Entregue</option><option value="cancelado">Cancelado</option></select></label>
@@ -1376,15 +544,15 @@ nav,#public-site,#member-area,#settings-area,#admin-area,footer { position:relat
     </div>
     <div class="glass-panel admin-card" id="admin-sec-support" style="display:none"><h3><i class="fa-solid fa-headset"></i> Tickets de suporte</h3><div id="admin-support-list"></div></div>
     <div class="glass-panel admin-card" id="admin-sec-refunds" style="display:none"><h3><i class="fa-solid fa-rotate-left"></i> Pedidos de reembolso</h3><div id="admin-refunds-list"></div></div>
-    <div class="glass-panel admin-card" id="admin-sec-coupons" style="display:none"><h3><i class="fa-solid fa-ticket"></i> Gestão de cupons</h3><form onsubmit="saveCoupon(event)" style="display:grid;grid-template-columns:2fr 1fr auto;gap:10px"><input id="coupon-code-admin" placeholder="CÓDIGO" required><input id="coupon-percent-admin" type="number" min="1" max="90" placeholder="%" required><button class="btn">Salvar</button></form><div id="admin-coupons-list" style="margin-top:16px"></div></div>
+    <div class="glass-panel admin-card" id="admin-sec-coupons" style="display:none"><h3><i class="fa-solid fa-ticket"></i> Gestão de cupons</h3><form onsubmit="saveCoupon(event)"><input id="coupon-code-admin" placeholder="CÓDIGO" required><input id="coupon-percent-admin" type="number" min="1" max="90" placeholder="%" required><button class="btn">Salvar</button></form><div id="admin-coupons-list"></div></div>
 
     <!-- SEÇÃO 4: TESTE DE PAGAMENTO -->
-    <div class="glass-panel admin-card" id="admin-sec-testcheckout" style="display: none;">
+    <div class="glass-panel admin-card" id="admin-sec-testcheckout" style="display:none">
       <h3><i class="fa-solid fa-credit-card"></i> Checkout de homologação</h3>
-      <p style="font-size:13px;color:var(--text-secondary);margin-bottom:22px">O pagamento pertence sempre ao UID autenticado. O preço oficial de R$ 29,90 é calculado novamente pelo backend.</p>
+      <p>O pagamento pertence sempre ao UID autenticado. O preço oficial de R$ 29,90 é calculado novamente pelo backend.</p>
       <button class="btn" onclick="openTestCheckoutCustom()"><i class="fa-solid fa-play"></i> Abrir checkout sandbox</button>
       <div class="notification-test-card">
-        <div><h3><i class="fa-solid fa-bell"></i> Teste de notificações</h3><p style="color:var(--text-secondary);font-size:.82rem">Envio protegido pelo backend para um dispositivo habilitado do aluno.</p></div>
+        <div><h3><i class="fa-solid fa-bell"></i> Teste de notificações</h3><p>Envio protegido pelo backend para um dispositivo habilitado do aluno.</p></div>
         <div class="input-group"><label for="notification-test-student">Aluno</label><select id="notification-test-student" class="idz-select"></select></div>
         <div class="input-group"><label for="notification-test-title">Título</label><input id="notification-test-title" value="Teste de notificação IDZ" maxlength="120"></div>
         <div class="input-group"><label for="notification-test-message">Mensagem</label><textarea id="notification-test-message" rows="3" maxlength="1000">Se você recebeu esta mensagem, suas notificações estão funcionando corretamente.</textarea></div>
@@ -1394,30 +562,28 @@ nav,#public-site,#member-area,#settings-area,#admin-area,footer { position:relat
     </div>
 
     <!-- SEÇÃO 5: MÓDULOS E AULAS (COM ACORDEÃO E LÁPIS) -->
-    <div class="glass-panel admin-card" id="admin-sec-modules" style="display: none;">
-      <h3><i class="fa-solid fa-layer-group"></i> Seção 5: Editor Completo de Módulos, Aulas e Exercícios</h3>
-      <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); padding: 20px; border-radius: 16px; margin-bottom: 22px;">
-        <h4 style="font-size: 15px; margin-bottom: 14px;"><i class="fa-solid fa-folder-plus text-cyan"></i> Novo Módulo</h4>
+    <div class="glass-panel admin-card" id="admin-sec-modules" style="display:none">
+      <h3><i class="fa-solid fa-layer-group"></i> Conteúdo do curso</h3>
+      <details class="editor-section"><summary>Novo módulo</summary><div class="editor-fields">
         <div class="input-group"><label>Título do Módulo</label><input type="text" id="mod-title-input" placeholder="Ex: Módulo 16 — Inteligência Artificial Avançada"></div>
-        <button type="button" class="btn" style="padding: 12px 18px; font-size: 12px;" onclick="saveModuleData()"><i class="fa-solid fa-floppy-disk"></i> Criar Módulo</button>
-      </div>
+        <button type="button" class="btn" onclick="saveModuleData()"><i class="fa-solid fa-floppy-disk"></i> Criar Módulo</button>
+      </div></details>
 
-      <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); padding: 20px; border-radius: 16px; margin-bottom: 26px;">
-        <h4 style="font-size: 15px; margin-bottom: 14px;"><i class="fa-solid fa-video text-purple"></i> Adicionar Nova Aula com Blocos e Exercício</h4>
+      <details class="editor-section"><summary>Adicionar aula e exercício</summary><div class="editor-fields">
         <div class="input-group"><label>Selecionar Módulo</label><select id="lesson-mod-select"></select></div>
         <div class="input-group"><label>Título da Aula</label><input type="text" id="lesson-title-input" placeholder="Ex: Aula 1 — Introdução aos Prompts"></div>
         <div class="input-group"><label>Bloco 1 (Resumo / O que aprenderá)</label><textarea id="lesson-bloco1-input" rows="2"></textarea></div>
         <div class="input-group"><label>Bloco 2 (Descrição Detalhada)</label><textarea id="lesson-bloco2-input" rows="3"></textarea></div>
         <div class="input-group"><label>Bloco 3 (Objetivos Pedagógicos)</label><textarea id="lesson-bloco3-input" rows="2"></textarea></div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+        <div>
           <div class="input-group"><label>Link YouTube</label><input type="text" id="lesson-video-url"></div>
           <div class="input-group"><label>Link PDF Material</label><input type="text" id="lesson-pdf-url"></div>
         </div>
         <div class="input-group"><label>Link Imagem Capa</label><input type="text" id="lesson-img-url"></div>
         
-        <h4 style="font-size: 14px; color: var(--accent-cyan); margin: 15px 0 10px;"><i class="fa-solid fa-brain"></i> Exercício (Quiz) da Aula</h4>
+        <h4><i class="fa-solid fa-brain"></i> Exercício (Quiz) da Aula</h4>
         <div class="input-group"><label>Pergunta do Quiz</label><input type="text" id="new-quiz-question"></div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+        <div>
           <div class="input-group"><label>Alternativa A</label><input type="text" id="new-quiz-opt0"></div>
           <div class="input-group"><label>Alternativa B</label><input type="text" id="new-quiz-opt1"></div>
           <div class="input-group"><label>Alternativa C</label><input type="text" id="new-quiz-opt2"></div>
@@ -1426,24 +592,24 @@ nav,#public-site,#member-area,#settings-area,#admin-area,footer { position:relat
         <div class="input-group">
           <label>Alternativa Correta</label>
           <select id="new-quiz-correct"><option value="0">Alternativa A</option><option value="1">Alternativa B</option><option value="2">Alternativa C</option><option value="3">Alternativa D</option></select>
-        </div>
+        </div></details>
 
-        <button type="button" class="btn" style="padding: 12px 18px; font-size: 12px; margin-top: 10px;" onclick="saveLessonData()"><i class="fa-solid fa-cloud-arrow-up"></i> Publicar Aula com Quiz</button>
-      </div>
+        <button type="button" class="btn" onclick="saveLessonData()"><i class="fa-solid fa-cloud-arrow-up"></i> Publicar Aula com Quiz</button>
+      </div></details>
 
-      <h4 style="font-size: 17px; margin-bottom: 16px;"><i class="fa-solid fa-list-ol"></i> Módulos e Aulas Cadastrados (Clique para Expandir / Editar)</h4>
+      <h4><i class="fa-solid fa-list-ol"></i> Módulos e Aulas Cadastrados (Clique para Expandir / Editar)</h4>
       <div class="content-organizer-actions">
-        <button type="button" class="btn-outline"><i class="fa-solid fa-grip-vertical"></i> Organizar conteúdo</button>
+        
         <button type="button" class="btn-outline" onclick="setAllAdminModules(false)"><i class="fa-solid fa-compress"></i> Recolher todos</button>
         <button type="button" class="btn-outline" onclick="setAllAdminModules(true)"><i class="fa-solid fa-expand"></i> Expandir todos</button>
       </div>
       <div id="admin-modules-list-container"></div>
     </div>
   </div>
-</div>
+</main></div>
 
 <div class="modal-overlay" id="modal-manage-student">
-  <div class="modal-card" style="width:min(100%,900px)">
+  <div class="modal-card">
     <button class="close-btn" onclick="closeModal('modal-manage-student')"><i class="fa-solid fa-xmark"></i></button>
     <h3><i class="fa-solid fa-user-gear"></i> Gerenciar aluno</h3>
     <div class="student-manager">
@@ -1467,96 +633,82 @@ nav,#public-site,#member-area,#settings-area,#admin-area,footer { position:relat
 <div class="modal-overlay" id="modal-auth">
   <div class="modal-card">
     <button class="close-btn" onclick="closeModal('modal-auth')"><i class="fa-solid fa-xmark"></i></button>
-    <div style="text-align: center; margin-bottom: 20px;">
-      <img class="official-brand-logo" src="assets/idz/brand/logo-horizontal.png" alt="IDZ — Informática do Zero" width="286" height="96" style="margin:0 auto 14px">
-      <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 18px; color: #fff; display: block;">Informática do Zero</span>
-      <span style="font-size: 12.5px; color: var(--text-secondary);">Acesse sua conta para continuar seus estudos</span>
+    <div>
+      <img class="official-brand-logo" src="assets/idz/brand/logo-horizontal.png" alt="IDZ — Informática do Zero" width="286" height="96">
+      <span>Informática do Zero</span>
+      <span>Acesse sua conta para continuar seus estudos</span>
     </div>
     
-    <div style="display: flex; gap: 8px; margin-bottom: 22px; background: rgba(255,255,255,0.04); padding: 4px; border-radius: 12px;">
-      <button class="btn-outline" id="tab-btn-login" style="flex: 1; justify-content: center; border: none; background: rgba(0,240,255,0.15); color: var(--accent-cyan);" onclick="switchAuthTab('login')">Entrar</button>
-      <button class="btn-outline" id="tab-btn-register" style="flex: 1; justify-content: center; border: none; background: transparent; color: var(--text-secondary);" onclick="switchAuthTab('register')">Criar Conta</button>
+    <div>
+      <button class="btn-outline" id="tab-btn-login" onclick="switchAuthTab('login')">Entrar</button>
+      <button class="btn-outline" id="tab-btn-register" onclick="switchAuthTab('register')">Criar Conta</button>
     </div>
 
     <!-- BOTÃO LOGIN GOOGLE -->
-    <button type="button" class="btn-outline" style="width: 100%; justify-content: center; margin-bottom: 16px; border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.05);" onclick="loginWithGoogle()">
-      <i class="fa-brands fa-google" style="color: #ea4335;"></i> Continuar com Google
+    <button type="button" class="btn-outline" onclick="loginWithGoogle()">
+      <i class="fa-brands fa-google"></i> Continuar com Google
     </button>
-    <div style="text-align: center; font-size: 12px; color: var(--text-muted); margin-bottom: 16px;">ou use seu e-mail</div>
+    <div>ou use seu e-mail</div>
 
     <form id="form-login" onsubmit="handleLogin(event)">
       <div class="input-group">
         <label>E-mail</label>
         <div class="password-wrapper">
-          <i class="fa-regular fa-envelope" style="position: absolute; left: 16px; top: 15px; color: var(--text-muted);"></i>
-          <input type="text" id="login-email" placeholder="seu@email.com" style="padding-left: 44px;" onblur="autoCompleteEmail('login-email')" required>
+          <i class="fa-regular fa-envelope"></i>
+          <input type="text" id="login-email" placeholder="seu@email.com" onblur="autoCompleteEmail('login-email')" required>
         </div>
       </div>
       <div class="input-group">
         <label>Senha</label>
         <div class="password-wrapper">
-          <i class="fa-solid fa-lock" style="position: absolute; left: 16px; top: 15px; color: var(--text-muted);"></i>
-          <input type="password" id="login-pass" placeholder="••••••••" style="padding-left: 44px; padding-right: 44px;" required>
+          <i class="fa-solid fa-lock"></i>
+          <input type="password" id="login-pass" placeholder="••••••••" required>
           <button type="button" class="toggle-password" onclick="togglePasswordVisibility('login-pass', this)"><i class="fa-solid fa-eye"></i></button>
         </div>
       </div>
 
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; font-size: 12px;">
-        <label style="display: flex; align-items: center; gap: 6px; color: var(--text-secondary); cursor: pointer; text-transform: none;">
-          <input type="checkbox" id="remember-me" style="width: auto;"> Lembrar meu e-mail
+      <div>
+        <label>
+          <input type="checkbox" id="remember-me"> Lembrar meu e-mail
         </label>
-        <a href="#" onclick="handleForgotPassword(event)" style="color: var(--accent-cyan); font-weight: 600; font-size: 11px;">Esqueci minha senha</a>
+        <a href="#" onclick="handleForgotPassword(event)">Esqueci minha senha</a>
       </div>
 
-      <button type="submit" class="btn" style="width: 100%;">Acessar Plataforma</button>
+      <button type="submit" class="btn">Acessar Plataforma</button>
     </form>
 
-    <form id="form-register" style="display: none;" onsubmit="handleRegister(event)">
+    <form id="form-register" style="display:none" onsubmit="handleRegister(event)">
       <div class="input-group">
         <label>Nome Completo (Validação Real)</label>
         <div class="password-wrapper">
-          <i class="fa-regular fa-user" style="position: absolute; left: 16px; top: 15px; color: var(--text-muted);"></i>
-          <input type="text" id="reg-fullname" placeholder="Ex: João da Silva Santos" style="padding-left: 44px;" required>
+          <i class="fa-regular fa-user"></i>
+          <input type="text" id="reg-fullname" placeholder="Ex: João da Silva Santos" required>
         </div>
       </div>
       <div class="input-group">
         <label>E-mail</label>
         <div class="password-wrapper">
-          <i class="fa-regular fa-envelope" style="position: absolute; left: 16px; top: 15px; color: var(--text-muted);"></i>
-          <input type="text" id="reg-email" placeholder="seu@email.com" style="padding-left: 44px;" onblur="autoCompleteEmail('reg-email')" required>
+          <i class="fa-regular fa-envelope"></i>
+          <input type="text" id="reg-email" placeholder="seu@email.com" onblur="autoCompleteEmail('reg-email')" required>
         </div>
       </div>
       <div class="input-group">
         <label>Senha (mínimo 6 caracteres)</label>
         <div class="password-wrapper">
-          <i class="fa-solid fa-lock" style="position: absolute; left: 16px; top: 15px; color: var(--text-muted);"></i>
-          <input type="password" id="reg-pass" placeholder="Crie uma senha segura" style="padding-left: 44px; padding-right: 44px;" required>
+          <i class="fa-solid fa-lock"></i>
+          <input type="password" id="reg-pass" placeholder="Crie uma senha segura" required>
           <button type="button" class="toggle-password" onclick="togglePasswordVisibility('reg-pass', this)"><i class="fa-solid fa-eye"></i></button>
         </div>
       </div>
 
-      <button type="submit" class="btn" style="width: 100%;">Criar minha conta</button>
+      <button type="submit" class="btn">Criar minha conta</button>
     </form>
   </div>
 </div>
 
-<footer>
-  <div class="wrap">
-    <div class="footer-social">
-      <a href="https://instagram.com/wd.cmo" target="_blank" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
-      <a href="mailto:antunescamargo97@gmail.com" aria-label="Email de suporte"><i class="fa-regular fa-envelope"></i></a>
-    </div>
-    <div style="font-size: 13.5px; font-weight: 700; color: #fff; margin-bottom: 6px;">Informática do Zero — Plataforma Educacional EdTech</div>
-    <div style="color: var(--text-secondary); font-size: 12px;">© 2026 Todos os direitos reservados. Design Exclusivo IDZ.</div>
-    <div class="idz20a-footer-links" style="margin-top:8px;font-size:12px;">
-      <a href="privacidade.html" style="color:var(--accent-cyan);margin:0 6px;">Política de Privacidade</a> ·
-      <a href="termos.html" style="color:var(--accent-cyan);margin:0 6px;">Termos de Serviço</a>
-    </div>
-  </div>
-</footer>
-
-<script defer src="idz-app.js?v=certificate-positioning-20260907"></script>
-<div id="cookie-consent" role="dialog" aria-label="Preferências de cookies" style="display:none;position:fixed;left:16px;right:16px;bottom:16px;z-index:9000;max-width:720px;margin:auto;padding:18px;background:#0b1d38;border:1px solid rgba(73,217,239,.35);border-radius:18px;box-shadow:0 20px 60px #0008"><strong>Privacidade e cookies</strong><p style="margin:7px 0 12px;color:#b7c8df;font-size:14px">Usamos armazenamento necessário para login, segurança e progresso. Recursos opcionais só serão ativados com sua escolha.</p><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn-outline" onclick="saveCookieConsent('necessary')">Somente necessários</button><button class="btn" onclick="saveCookieConsent('all')">Aceitar opcionais</button><a href="privacidade.html" class="btn-outline">Ler política</a></div></div>
+<footer class="site-footer"><div class="wrap footer-grid"><div><a href="#" onclick="handleLogoClick()"><img src="assets/brand/logo-idz-horizontal.svg" alt="IDZ — Informática do Zero" width="180" height="40"></a><p>Aprender hoje.<br>Mais oportunidades amanhã.</p><a href="https://instagram.com/wd.cmo" target="_blank" rel="noopener" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a></div><div><h3>Curso</h3><a href="#course-details" onclick="showPublicSite()">Conteúdo</a><a href="#idz-project-preview" onclick="showPublicSite()">Projeto Final</a><a href="#idz-certificate-preview" onclick="showPublicSite()">Certificado</a><a href="#idz-bonuses" onclick="showPublicSite()">Bônus</a></div><div><h3>Suporte</h3><button onclick="navigateIdz('support')">Central de ajuda</button><a href="mailto:antunescamargo97@gmail.com">Fale conosco</a><a href="#faq" onclick="showPublicSite()">Perguntas frequentes</a></div><div><h3>Legal</h3><a href="termos.html">Termos de uso</a><a href="privacidade.html">Política de privacidade</a><button onclick="openSettingsSection('reembolso')">Reembolsos</button></div></div><div class="wrap copyright">© 2026 IDZ — Informática do Zero. Todos os direitos reservados.</div></footer>
+<script defer src="idz-app.js?v=idz-rebuild-1"></script><script defer src="ui/presentation.js"></script>
+<div id="cookie-consent" role="dialog" aria-label="Preferências de cookies" style="display:none"><strong>Privacidade e cookies</strong><p>Usamos armazenamento necessário para login, segurança e progresso. Recursos opcionais só serão ativados com sua escolha.</p><div><button class="btn-outline" onclick="saveCookieConsent('necessary')">Somente necessários</button><button class="btn" onclick="saveCookieConsent('all')">Aceitar opcionais</button><a href="privacidade.html" class="btn-outline">Ler política</a></div></div>
 <script>function saveCookieConsent(choice){localStorage.setItem('idz_cookie_consent',JSON.stringify({choice,updatedAt:new Date().toISOString()}));document.getElementById('cookie-consent').style.display='none'}if(!localStorage.getItem('idz_cookie_consent'))document.getElementById('cookie-consent').style.display='block';</script>
 <div class="idz-toast-stack" id="idz-toast-stack" aria-live="polite"></div>
 </body>

@@ -42,11 +42,7 @@ test('helper autenticado protege PIX e cartão com Firebase ID Token', () => {
   assert.match(app, /Entre na sua conta para continuar/);
 });
 
-test('checkout IDZ é responsivo nos celulares alvo', () => {
-  assert.match(html, /@media\(max-width:460px\)/);
-  assert.match(html, /min-height:100svh/);
-  assert.match(html, /\.idz-card-grid\{grid-template-columns:1fr\}/);
-});
+// Responsive checkout coverage moved to tests/browser.cjs (11 real viewport sizes).
 
 test('Course V2 mantém 12 módulos e bônus fora da contagem', () => {
   const sandbox = { window:{} };
