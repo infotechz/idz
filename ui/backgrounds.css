@@ -1,0 +1,4 @@
+body{background-image:url('../assets/backgrounds/bg-dashboard.svg');background-size:cover;background-attachment:fixed}
+.hero{background-image:url('../assets/backgrounds/bg-home.svg'),radial-gradient(ellipse at 75% 40%,#006dca18,transparent 55%);background-size:cover}
+.section#course-details,.section#idz-free-lesson,.section#idz-project-preview,.section#idz-bonuses,.section#idz-certificate-preview{background-image:linear-gradient(180deg,transparent,#020b170d),url('../assets/backgrounds/bg-course.svg');background-size:cover}
+.modal-card{background-image:url('../assets/backgrounds/bg-checkout.svg');background-size:cover}
