@@ -64,11 +64,22 @@ async function capture(page,label){await page.screenshot({path:path.join(out,lab
   }
   if(role==='STUDENT'){
    await page.waitForSelector('#student-dashboard .continue-card');
-   for(const width of widths){await page.setViewportSize({width,height:900});for(const view of ['dashboard','lessons','exercises','progress','project','bonuses','certificate']){await page.evaluate(view=>showMemberArea(view),view);await overflow(page,view,width);if([390,1366].includes(width))await capture(page,view+'-'+width);}
+   const themeColors=[];
+   for(const theme of ['azul','roxo','vermelho','rosa','rgb']){
+    await page.evaluate(theme=>changeTheme(theme),theme);
+    themeColors.push(await page.locator('.continue-card').evaluate(el=>getComputedStyle(el).backgroundImage));
+    for(const width of [360,390,412,768,1366,1920]){await page.setViewportSize({width,height:900});await overflow(page,'theme-'+theme,width);}
+    await capture(page,'theme-'+theme);
+   }
+   assert.equal(new Set(themeColors).size,5,'Every theme must visibly change the card surface');
+   assert.equal(await page.locator('.continue-card .btn').evaluate(el=>getComputedStyle(el).animationName),'none');
+   await page.evaluate(()=>changeTheme('roxo'));await page.reload({waitUntil:'domcontentloaded'});await page.waitForSelector('#student-dashboard .continue-card');assert.equal(await page.evaluate(()=>document.body.classList.contains('theme-roxo')),true);
+   await page.evaluate(()=>changeTheme('azul'));
+   for(const width of widths){await page.setViewportSize({width,height:900});for(const view of ['dashboard','lessons','exercises','modules','progress','project','bonuses','certificate']){await page.evaluate(view=>showMemberArea(view),view);await overflow(page,view,width);if([390,1366].includes(width))await capture(page,view+'-'+width);}
     for(const tab of ['perfil','verificacao','seguranca','tema','conexoes','notificacoes','suporte','reembolso']){await page.evaluate(tab=>openSettingsSection(tab),tab);await overflow(page,'settings-'+tab,width);if([390,1366].includes(width)&&['perfil','suporte','verificacao'].includes(tab))await capture(page,tab+'-'+width);}
    }
    await page.setViewportSize({width:390,height:844});await page.evaluate(()=>showMemberArea());await page.click('.hamburger');await capture(page,'student-menu-mobile');assert.doesNotMatch(await page.locator('#idz20a-drawer').innerText(),/Começar agora|Entrar/);await page.keyboard.press('Escape');
-   await page.evaluate(()=>showMemberArea('exercises'));await page.locator('.quiz-option-btn').nth(1).click();assert.match(await page.locator('.quiz-feedback.error').innerText(),/incorreta/);await page.locator('.quiz-option-btn').first().click();assert.ok(await page.locator('.quiz-feedback.success').count());assert.equal(await page.locator('[data-lesson-panel="exercises"]').isVisible(),true);
+   await page.evaluate(()=>{showMemberArea('exercises');showCourseExercise(1,101);});await page.locator('#student-exercises-view .quiz-option-btn').nth(1).click();assert.match(await page.locator('#student-exercises-view .quiz-feedback.error').innerText(),/incorreta/);await page.locator('#student-exercises-view .quiz-option-btn').first().click();assert.ok(await page.locator('#student-exercises-view .quiz-feedback.success').count());assert.equal(await page.locator('#student-exercises-view').isVisible(),true);
    await page.evaluate(()=>showMemberArea('project'));await page.locator('.project-step input').first().check();assert.equal(await page.evaluate(()=>getCourseProgressStats().completedProjectStepCount),1);
    await page.evaluate(()=>{showMemberArea('lessons');loadLessonContent(2,201);showMemberArea();});assert.match(await page.locator('.continue-card').innerText(),/Teclado e mouse/);
    // Denial remains enforced when an authenticated profile has no entitlement.
@@ -77,7 +88,7 @@ async function capture(page,label){await page.screenshot({path:path.join(out,lab
   if(role==='ADMIN'){
    await page.waitForSelector('#admin-area',{state:'visible'});await page.waitForFunction(()=>adminUsersLoaded);
    for(const width of widths){await page.setViewportSize({width,height:900});for(const tab of ['overview','alunos','vendas','cart','modules','certificates','testcheckout','support','refunds','coupons']){await page.evaluate(tab=>switchAdminTab(tab),tab);await overflow(page,'admin-'+tab,width);if([390,1366].includes(width)&&['overview','alunos','modules'].includes(tab))await capture(page,'admin-'+tab+'-'+width);}}
-   await page.setViewportSize({width:390,height:844});await page.click('.hamburger');await capture(page,'admin-menu-mobile');assert.match(await page.locator('#idz20a-drawer').innerText(),/Pagamentos/);await page.keyboard.press('Escape');
+   await page.setViewportSize({width:390,height:844});await page.click('.hamburger');await page.locator('#idz20a-drawer summary').filter({hasText:'Financeiro'}).click();await capture(page,'admin-menu-mobile');assert.match(await page.locator('#idz20a-drawer').innerText(),/Pagamentos/);await page.keyboard.press('Escape');
   }
   if(role==='UNPAID'){
    await page.evaluate(()=>openCheckoutModal());await page.waitForSelector('#modal-custom-checkout.active');

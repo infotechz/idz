@@ -3,7 +3,7 @@ const root=path.resolve(__dirname,'..');const ui=fs.readFileSync(path.join(root,
 function section(start,end){return ui.slice(ui.indexOf(start),ui.indexOf(end,ui.indexOf(start)));}
 test('navigation keeps loading, visitor, student and admin actions separate',()=>{
  const ctx=vm.createContext({});vm.runInContext(section('function navigationForPresentation','function renderShellNavigation'),ctx);
- const actions=role=>Array.from(ctx.navigationForPresentation(role),item=>item.action);
+ const actions=role=>Array.from(ctx.navigationForPresentation(role)).flatMap(item=>item.children?Array.from(item.children,child=>child.action):[item.action]);
  assert.deepEqual(actions('AUTH_LOADING'),['noop']);assert.ok(actions('VISITOR').includes('auth'));
  for(const role of ['STUDENT','ADMIN']){assert.ok(!actions(role).includes('auth'));assert.ok(!actions(role).includes('buy'));assert.ok(actions(role).includes('logout'));}
  assert.ok(!actions('STUDENT').some(action=>action.startsWith('admin')));assert.ok(actions('ADMIN').includes('admin-finance'));

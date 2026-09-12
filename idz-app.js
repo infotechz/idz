@@ -360,7 +360,7 @@ function startAuthBootstrap() {
               adminUsersCache = [];
               loadAdminUsersFromBackend().catch(() => {});
             }
-            changeTheme(localStorage.getItem(`app_theme_${user.uid}`) || 'azul', false);
+            changeTheme(localStorage.getItem(`app_theme_${user.uid}`) || localStorage.getItem('app_theme_guest') || 'azul', false);
             loadNotificationsForCurrentAccount();
             updateNavState(true, currentUser, isAdmin ? 'ADMIN' : 'STUDENT');
 
@@ -441,6 +441,7 @@ function closeNavigationDrawer() {
 function idzNavigationItems(state) { return typeof navigationForPresentation === 'function' ? navigationForPresentation(state) : [{icon:'fa-spinner',label:'Carregando sessão…',action:'noop'}]; }
 
 function navigationButton(item, className = '') {
+  if(item.children)return `<details class="navigation-group"><summary>${escapeHTML(item.label)}</summary>${item.children.map(child=>navigationButton(child,className)).join('')}</details>`;
   return `<button type="button" class="${className}${item.danger ? ' danger' : ''}" data-idz-nav-action="${item.action}"><i class="fa-solid ${item.icon}"></i><span>${escapeHTML(item.label)}</span></button>`;
 }
 
@@ -464,7 +465,7 @@ function navigateIdz(action) {
  const anchors={course:'why-idz',content:'course-details','public-certificate':'idz-certificate-preview',faq:'faq'};
  if(anchors[action]){showPublicSite();return document.getElementById(anchors[action])?.scrollIntoView({behavior:'smooth'});}
  if(action==='buy')return handlePurchaseAction();
- if(['dashboard','lessons','progress','exercises','project','certificate','bonuses'].includes(action))return showMemberArea(action);
+ if(['dashboard','lessons','modules','progress','exercises','project','certificate','bonuses'].includes(action))return showMemberArea(action);
  if(action==='support')return openSettingsSection('suporte');
  if(action==='profile')return openSettingsSection('perfil');
  if(action==='settings')return showSettingsArea();if(action==='logout')return logout();
@@ -524,7 +525,7 @@ function changeTheme(themeName, save = true) {
   allowed.forEach(theme => document.body.classList.remove(`theme-${theme}`));
   document.body.classList.add(`theme-${selected}`);
 
-  if(save) localStorage.setItem(currentUser ? `app_theme_${window.auth?.currentUser?.uid || currentUser}` : 'app_theme_guest', selected);
+  if(save){localStorage.setItem('app_theme_guest',selected);if(currentUser)localStorage.setItem(`app_theme_${window.auth?.currentUser?.uid || currentUser}`,selected);}
 }
 
 function notificationOwnerKey(audience = isAdmin ? 'admin' : 'student', userId = null) {
@@ -1502,49 +1503,8 @@ function showAdminArea() {
 }
 
 function renderMemberSidebar() {
-  const container = document.getElementById('module-list'); 
-  if(!container) return;
-  container.innerHTML = '';
-
-  courseData.forEach((mod, index) => {
-    let html = '';
-    if (mod.lessons) {
-      mod.lessons.forEach(l => {
-        let isDone = isLessonCompleted(l);
-        html += `<button type="button" class="lms-lesson-item ${isDone ? 'done' : ''}" data-lesson-id="${l.id}" onclick="loadLessonContent(${mod.id}, ${l.id})">
-          <span><i class="fa-regular fa-circle-play" style="margin-right: 8px;"></i> ${l.title}</span>
-          ${isDone ? '<i class="fa-solid fa-check-circle"></i>' : ''}
-        </button>`;
-      });
-    }
-    const box = document.createElement('div'); box.className = 'lms-module-box';
-    box.innerHTML = `
-      <button type="button" class="lms-module-header" aria-expanded="${index===0}" onclick="toggleAccordion(this)">
-        <span>${index < 12 ? `<span class="icon-tile"><i class="fa-solid fa-${moduleIcons[index]}"></i></span>` : '<i class="fa-regular fa-folder" style="margin-right:8px; color:var(--accent-cyan);"></i>'} ${mod.title}</span>
-        <i class="fa-solid ${index===0?'fa-chevron-up':'fa-chevron-down'} arrow" style="font-size:10px;"></i>
-      </button>
-      <div class="lms-module-body ${index===0?'expanded':''}">${html}</div>
-    `;
-    container.appendChild(box);
-  });
-
-  const bonusHeading = document.createElement('div');
-  bonusHeading.className = 'lms-module-header';
-  bonusHeading.style.marginTop = '12px';
-  bonusHeading.innerHTML = '<span><i class="fa-solid fa-gift" style="margin-right:8px;color:var(--yellow)"></i>3 Bônus</span>';
-  container.appendChild(bonusHeading);
-  (courseV2.bonuses || []).forEach(bonus => {
-    const done = completedBonuses[progressKey()]?.[bonus.id] === true;
-    const item = document.createElement('button');
-    item.type = 'button';
-    item.className = 'lms-lesson-item';
-    item.style.width = '100%';
-    item.style.border = '0';
-    item.style.textAlign = 'left';
-    item.innerHTML = `<span><i class="fa-regular fa-star" style="margin-right:8px"></i>${escapeHTML(bonus.title.replace(/^🎁 Bônus \d+ — /,''))}</span>${done ? '<i class="fa-solid fa-check-circle"></i>' : ''}`;
-    item.addEventListener('click', () => toggleStudentBonus(bonus.id));
-    container.appendChild(item);
-  });
+  if(typeof renderModulePicker==='function')renderModulePicker();
+  if(typeof renderSelectedModuleLessons==='function')renderSelectedModuleLessons();
 }
 
 async function toggleStudentBonus(bonusId) {
