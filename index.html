@@ -141,6 +141,7 @@
 <link rel="stylesheet" href="ui/components.css">
 <link rel="stylesheet" href="ui/layouts.css">
 <link rel="stylesheet" href="ui/backgrounds.css">
+<link rel="stylesheet" href="ui/course-tabs.css">
 </head>
 <body class="theme-azul">
 
@@ -319,7 +320,7 @@
 </main>
 
 <!-- Área do aluno: a navegação usa os mesmos serviços e regras de acesso. -->
-<div id="member-area" class="wrap app-shell" style="display:none"><aside class="app-sidebar" id="student-navigation" aria-label="Navegação do aluno"></aside><main class="app-content"><header class="student-dashboard-header"><div><h1 id="student-welcome-title">Olá!</h1><p id="student-welcome-subtitle">Continue de onde parou.</p></div></header><section id="student-dashboard"></section><section id="student-detail" hidden></section><div class="lms-layout" id="student-classroom" hidden><div class="lms-content" id="lms-main-content"></div><aside class="card lms-sidebar"><h3 id="sidebar-title-header">Conteúdo do curso</h3><div id="module-list"></div></aside></div></main></div>
+<div id="member-area" class="wrap app-shell" style="display:none"><aside class="app-sidebar" id="student-navigation" aria-label="Navegação do aluno"></aside><main class="app-content"><header class="student-dashboard-header"><div><h1 id="student-welcome-title">Olá!</h1><p id="student-welcome-subtitle">Continue de onde parou.</p></div></header><section id="student-dashboard"></section><section id="student-detail" hidden></section><div class="course-primary-tabs" id="course-primary-tabs" role="tablist" aria-label="Área do curso"><button type="button" role="tab" data-course-view="lessons" onclick="showMemberArea('lessons')">Aulas</button><button type="button" role="tab" data-course-view="exercises" onclick="showMemberArea('exercises')">Exercícios</button><button type="button" role="tab" data-course-view="modules" onclick="showMemberArea('modules')">Módulos</button></div><div class="course-area" id="student-classroom" hidden><section id="student-lessons-view" class="course-view"><div id="selected-module-lessons"></div><div class="lms-content" id="lms-main-content"></div></section><section id="student-exercises-view" class="course-view" hidden></section><section id="student-modules-view" class="course-view" hidden><div id="module-list" class="module-picker-grid"></div></section></div></main></div>
 <!-- CONFIGURAÇÕES<!-- CONFIGURAÇÕES DA CONTA COM ABAS -->
 <div id="settings-area" class="wrap app-shell" style="display:none"><aside class="app-sidebar" id="settings-navigation"></aside><main class="app-content">
   <div class="glass-panel animate-fade-up">

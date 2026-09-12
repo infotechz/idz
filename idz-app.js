@@ -831,21 +831,36 @@ function clearBackendSessionProof() {
   backendSessionProofUid = null;
 }
 
+let idzPushInitPromise=null;
+let idzServiceWorkerRegistrationPromise=null;
+async function getIdzServiceWorkerRegistration(){
+  if(!('serviceWorker' in navigator)) return null;
+  if(!idzServiceWorkerRegistrationPromise){
+    idzServiceWorkerRegistrationPromise=navigator.serviceWorker.register('/firebase-messaging-sw.js',{scope:'/'}).then(()=>navigator.serviceWorker.ready).catch(error=>{console.warn('Service Worker de notificações indisponível',error);return null;});
+  }
+  return idzServiceWorkerRegistrationPromise;
+}
 async function enablePushNotifications() {
+  if(idzPushInitPromise)return idzPushInitPromise;
+  idzPushInitPromise=(async()=>{
   try {
-    if (!('Notification' in window)) throw new Error('Este navegador não oferece notificações web.');
+    if (!('Notification' in window)||!('serviceWorker' in navigator)||!('PushManager' in window)) throw new Error('Este navegador não oferece notificações web.');
     if (Notification.permission === 'denied') throw new Error('As notificações estão bloqueadas neste navegador. Ative a permissão nas configurações do site para receber avisos.');
     const permission=await Notification.requestPermission();if(permission!=='granted')throw new Error('Permissão de notificações não concedida.');
     const configResponse=await fetch(`${RAILWAY_BACKEND_URL}/api/config`),config=await configResponse.json();
     if(!config.webPushVapidPublicKey)throw new Error('Web Push ainda não foi configurado pelo administrador.');
-    const registration=await navigator.serviceWorker.register('./firebase-messaging-sw.js');
+    const registration=await getIdzServiceWorkerRegistration();
+    if(!registration)throw new Error('O serviço de notificações não está disponível agora.');
+    const existing=await registration.pushManager?.getSubscription();
     if(!window.firebaseMessaging?.messaging)throw new Error('Push não é compatível com este navegador.');
     const token=await window.firebaseMessaging.getToken(window.firebaseMessaging.messaging,{vapidKey:config.webPushVapidPublicKey,serviceWorkerRegistration:registration});
     if(!token)throw new Error('O dispositivo não forneceu um token de notificação.');
     const uid=window.auth.currentUser.uid;
     await window.firebaseModules.setDoc(window.firebaseModules.doc(window.db,'users',uid),{fcmTokens:{[token]:true}},{merge:true});
     showSuccessModal('Notificações ativadas neste dispositivo.');
-  } catch(e) { showCustomAlert('Notificações',e.message); }
+  } catch(e) { console.warn('Push não ativado',e); showCustomAlert('Notificações',e.message); }
+  })();
+  try{return await idzPushInitPromise;}finally{idzPushInitPromise=null;}
 }
 
 async function applyCheckoutCoupon() {

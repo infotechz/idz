@@ -32,7 +32,7 @@ const progressBar=(value)=>`<div class="progress-track" role="progressbar" aria-
 function navigationForPresentation(state){
   if(state==='AUTH_LOADING')return [{icon:'fa-spinner',label:'Carregando sessão…',action:'noop'}];
   if(state==='VISITOR')return [['house','Início','home'],['book-open','Curso','course'],['layer-group','Conteúdo','content'],['award','Certificado','public-certificate'],['circle-question','FAQ','faq'],['cart-shopping','Começar agora','buy'],['user','Entrar','auth']].map(([i,label,action])=>({icon:'fa-'+i,label,action}));
-  const student=[['house','Início','dashboard'],['book-open','Meu curso','lessons'],['chart-line','Progresso','progress'],['list-check','Exercícios','exercises'],['diagram-project','Projeto Final','project'],['award','Certificado','certificate'],['gift','Bônus','bonuses'],['headset','Suporte','support'],['user','Perfil','profile']];
+  const student=[['house','Início','dashboard'],['book-open','Aulas','lessons'],['layer-group','Módulos','modules'],['chart-line','Progresso','progress'],['list-check','Exercícios','exercises'],['diagram-project','Projeto Final','project'],['award','Certificado','certificate'],['gift','Bônus','bonuses'],['headset','Suporte','support'],['user','Perfil','profile']];
   const admin=[['gauge-high','Dashboard','admin'],['users','Alunos','admin-students'],['wallet','Pagamentos','admin-finance'],['layer-group','Conteúdo','admin-content'],['list-check','Exercícios','admin-exercises'],['diagram-project','Projeto Final','admin-project'],['award','Certificados','admin-certificates'],['ticket','Cupons','admin-coupons'],['bell','Notificações','admin-notifications'],['headset','Suporte','admin-support'],['rotate-left','Reembolsos','admin-refunds'],['cart-shopping','Pendentes','admin-cart'],['gear','Configurações','settings'],['graduation-cap','Acessar aulas','lessons']];
   return [...(state==='ADMIN'?admin:student).map(([i,label,action])=>({icon:'fa-'+i,label,action})),{icon:'fa-right-from-bracket',label:'Sair',action:'logout',danger:true}];
 }
@@ -77,17 +77,47 @@ function renderStudentDashboard(){
 }
 function certificateAvailable(){const p=currentProfile();return p?.certificateOverride===true||(p?.certificateOverride!==false&&getCourseProgressStats().complete);}
 function showStudentPage(view){showMemberArea(view);}
+let selectedModuleId=null;
+function selectedCourseModule(){
+  const resume=currentResumeLesson();
+  if(selectedModuleId==null){try{selectedModuleId=localStorage.getItem('idz_selected_module_'+progressKey())||resume?.mod?.id||courseData[0]?.id;}catch{selectedModuleId=resume?.mod?.id||courseData[0]?.id;}}
+  return courseData.find(m=>String(m.id)===String(selectedModuleId))||courseData[0];
+}
+function coursePrimaryTabs(view){
+  document.querySelectorAll('[data-course-view]').forEach(tab=>{const active=(view==='lessons'&&tab.dataset.courseView==='lessons')||(view==='exercises'&&tab.dataset.courseView==='exercises')||(view==='modules'&&tab.dataset.courseView==='modules');tab.classList.toggle('active',active);tab.setAttribute('aria-selected',String(active));});
+}
+function selectCourseModule(id){selectedModuleId=String(id);try{localStorage.setItem('idz_selected_module_'+progressKey(),selectedModuleId);}catch{};showMemberArea('lessons');}
+function renderModulePicker(){
+  const host=document.getElementById('module-list');if(!host)return;
+  const stats=getCourseProgressStats();
+  host.innerHTML=courseData.map((m,i)=>{const done=m.lessons.filter(isLessonCompleted).length,total=m.lessons.length,pct=Math.round(done/Math.max(1,total)*100),selected=String(m.id)===String(selectedCourseModule()?.id);return `<button type="button" class="module-picker-card ${selected?'selected':''}" data-module-id="${m.id}" onclick="selectCourseModule(${m.id})"><span class="icon-tile">${icon(moduleIcons[i]||'book')}</span><span class="module-picker-copy"><small>Módulo ${i+1}</small><strong>${escapeHTML(m.title)}</strong><span>${done}/${total} aulas · ${pct}%</span>${progressBar(pct)}</span><span class="module-status">${pct===100?'Concluído':selected?'Selecionado':'Abrir'}</span></button>`;}).join('');
+  enhanceAccessibility(host);
+}
+function renderSelectedModuleLessons(){
+  const host=document.getElementById('selected-module-lessons'),mod=selectedCourseModule();if(!host||!mod)return;
+  host.innerHTML=`<div class="course-lesson-picker"><div class="course-lesson-picker-heading"><span><small>MÓDULO ${courseData.indexOf(mod)+1}</small><strong>${escapeHTML(mod.title)}</strong></span><button type="button" class="btn-outline" onclick="showMemberArea('modules')">Trocar módulo</button></div><div class="course-lesson-list">${mod.lessons.map((lesson,i)=>`<button type="button" class="course-lesson-button ${activeLesson?.lessonId==lesson.id?'active':''} ${isLessonCompleted(lesson)?'done':''}" data-lesson-id="${lesson.id}" onclick="loadLessonContent(${mod.id},${lesson.id})"><span>${i+1}. ${escapeHTML(lesson.title)}</span><span>${isLessonCompleted(lesson)?'✓':'›'}</span></button>`).join('')}</div></div>`;
+}
+function renderExercisesView(){
+  const host=document.getElementById('student-exercises-view');if(!host)return;
+  host.innerHTML=`<div class="section-header"><h2>Exercícios</h2><p>Pratique por módulo e acompanhe seu aproveitamento.</p></div>`+courseData.map((m,i)=>`<details class="exercise-module" ${String(m.id)===String(selectedCourseModule()?.id)?'open':''}><summary><span class="icon-tile">${icon(moduleIcons[i]||'book')}</span><span><strong>Módulo ${i+1} · ${escapeHTML(m.title)}</strong><small>${m.lessons.reduce((n,l)=>n+lessonExercises(l).length,0)} exercícios</small></span></summary><div class="exercise-list">${m.lessons.flatMap(lesson=>lessonExercises(lesson).map(ex=>`<button type="button" class="exercise-row" data-exercise-id="${escapeHTML(ex.id||ex.question||'exercise')}" onclick="showCourseExercise(${m.id},${lesson.id})"><span><strong>${escapeHTML(ex.question||ex.title||'Exercício')}</strong><small>${escapeHTML(lesson.title)}</small></span><span>${isExerciseCompleted(lesson,ex)?'✓':'›'}</span></button>`)).join('')||'<p class="empty-state">Nenhum exercício cadastrado neste módulo.</p>'}</div></details>`).join('');
+  enhanceAccessibility(host);
+}
+function showCourseExercise(modId,lessonId){selectedModuleId=String(modId);activeLessonTab='exercises';showMemberArea('lessons');loadLessonContent(modId,lessonId);}
 function renderStudentView(view='dashboard'){
   studentView=view;
+  const courseView=['lessons','exercises','modules'].includes(view);
   document.getElementById('student-dashboard').hidden=view!=='dashboard';
-  document.getElementById('student-detail').hidden=['dashboard','lessons','exercises'].includes(view);
-  document.getElementById('student-classroom').hidden=!['lessons','exercises'].includes(view);
-  renderShellNavigation();
+  document.getElementById('student-detail').hidden=['dashboard',...courseView?['lessons','exercises','modules']:[]].includes(view);
+  document.getElementById('student-classroom').hidden=!courseView;
+  document.getElementById('student-lessons-view').hidden=view!=='lessons';
+  document.getElementById('student-exercises-view').hidden=view!=='exercises';
+  document.getElementById('student-modules-view').hidden=view!=='modules';
+  coursePrimaryTabs(view);renderShellNavigation();
   if(view==='dashboard')renderStudentDashboard();
-  else if(['lessons','exercises'].includes(view)){
-    activeLessonTab=view==='exercises'?'exercises':'content';
-    const resume=currentResumeLesson();if(resume)loadLessonContent(resume.mod.id,resume.lesson.id);
-  }else renderStudentDetail(view);
+  else if(view==='lessons'){activeLessonTab='content';renderSelectedModuleLessons();const mod=selectedCourseModule(),resume=currentResumeLesson();const lesson=activeLesson&&String(activeLesson.modId)===String(mod?.id)?mod.lessons.find(l=>String(l.id)===String(activeLesson.lessonId)):resume?.mod?.id===mod?.id?resume.lesson:mod?.lessons?.[0];if(mod&&lesson)loadLessonContent(mod.id,lesson.id);}
+  else if(view==='exercises')renderExercisesView();
+  else if(view==='modules')renderModulePicker();
+  else renderStudentDetail(view);
 }
 function renderStudentDetail(view){
   const host=document.getElementById('student-detail'),s=getCourseProgressStats();
@@ -107,6 +137,7 @@ function renderLessonPresentation(data){
   document.getElementById('lms-main-content').innerHTML=`<header class="lesson-heading"><small>${escapeHTML(mod.title)}</small><h2>${escapeHTML(lesson.title)}</h2></header>${mediaHtml||'<div class="card empty-state"><i class="fa-solid fa-book-open"></i><h3>Aula em texto</h3><p>Estude o conteúdo e pratique nos exercícios abaixo.</p></div>'}<div style="margin:18px 0">${progressBar(progressStats.percent)}</div><div class="lesson-actions"><button class="btn-outline" ${previousLesson?'':'disabled'} ${previousLesson?`onclick="loadLessonContent('${previousLesson.modId}','${previousLesson.lessonId}')"`:''}>${icon('arrow-left')} Aula anterior</button><button class="btn" ${nextLesson?'':'disabled'} ${nextLesson?`onclick="loadLessonContent('${nextLesson.modId}','${nextLesson.lessonId}')"`:''}>Próxima aula ${icon('arrow-right')}</button></div><div class="tabs lesson-tabs" role="tablist" aria-label="Conteúdo da aula">${[['content','Conteúdo'],['exercises','Exercício'],['materials','Materiais']].map(([id,label])=>`<button class="tab" id="tab-${id}" role="tab" aria-controls="panel-${id}" data-lesson-tab="${id}" onclick="setLessonTab('${id}')">${label}</button>`).join('')}</div><section class="card lesson-panel" id="panel-content" role="tabpanel" aria-labelledby="tab-content" data-lesson-panel="content"><h3>Sobre esta aula</h3><p>${escapeHTML(lesson.bloco1||lesson.introduction||'')}</p><p>${escapeHTML(lesson.bloco2||lesson.description||'')}</p><h3>O que você vai aprender</h3><p>${escapeHTML(lesson.bloco3||(lesson.objectives||[]).join(' · '))}</p>${imgHtml}${finalProjectHtml}<button class="btn" ${lessonDone?'disabled':''} onclick="markLessonAsDone(${mod.id},${lesson.id})">${icon('check')} ${lessonDone?'Aula concluída':'Marcar aula como concluída'}</button></section><section id="panel-exercises" role="tabpanel" aria-labelledby="tab-exercises" data-lesson-panel="exercises">${quizHtml||'<div class="card empty-state">Esta aula não possui exercícios.</div>'}<div class="lesson-actions"><button class="btn-outline" onclick="nextExercise()">Próximo exercício ${icon('arrow-right')}</button></div></section><section class="card lesson-panel" id="panel-materials" role="tabpanel" aria-labelledby="tab-materials" data-lesson-panel="materials">${pdfHtml||'<h3>Materiais da aula</h3><p>Nenhum arquivo complementar disponível nesta aula.</p>'}</section>${certificateSectionHtml}`;
   document.querySelectorAll('.activity-panel').forEach(el=>el.classList.add('is-open'));document.querySelectorAll('.exercise-toggle').forEach(el=>el.remove());
   setLessonTab(activeLessonTab);
+  renderSelectedModuleLessons();
   document.querySelectorAll('[data-lesson-id]').forEach(el=>{if(el.dataset.lessonId==lesson.id)el.setAttribute('aria-current','page');else el.removeAttribute('aria-current');});
   const current=document.querySelector(`[data-lesson-id="${lesson.id}"]`);if(current){current.closest('.lms-module-body')?.classList.add('expanded');current.closest('.lms-module-box')?.querySelector('button')?.setAttribute('aria-expanded','true');}
   enhanceAccessibility(document.getElementById('lms-main-content'));
