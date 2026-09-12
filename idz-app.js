@@ -267,8 +267,8 @@ function startAuthBootstrap() {
     if (remElem) remElem.checked = true;
   }
 
-  /* A área pública sempre inicia no Azul IDZ; preferências só são carregadas após autenticação. */
-  changeTheme('azul', false);
+  /* Mantém a preferência visual também para visitantes e após logout. */
+  changeTheme(localStorage.getItem('app_theme_guest') || 'azul', false);
   // O resumo público usa o Course V2 local imediatamente; Firestore apenas aprimora os dados depois.
   updateCourseStatsUI();
 
@@ -391,7 +391,7 @@ function startAuthBootstrap() {
           clearBackendSessionProof();
           isAdmin = false;
           notificationsList = [];
-          changeTheme('azul', false);
+          changeTheme(localStorage.getItem('app_theme_guest') || 'azul', false);
           updateNavState(false, null, 'VISITOR');
           updateNotificationsBadge();
           showPublicSite();
@@ -524,7 +524,7 @@ function changeTheme(themeName, save = true) {
   allowed.forEach(theme => document.body.classList.remove(`theme-${theme}`));
   document.body.classList.add(`theme-${selected}`);
 
-  if(save && currentUser) localStorage.setItem(`app_theme_${window.auth?.currentUser?.uid || currentUser}`, selected);
+  if(save) localStorage.setItem(currentUser ? `app_theme_${window.auth?.currentUser?.uid || currentUser}` : 'app_theme_guest', selected);
 }
 
 function notificationOwnerKey(audience = isAdmin ? 'admin' : 'student', userId = null) {
